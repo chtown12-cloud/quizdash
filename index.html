@@ -312,7 +312,7 @@ button.answer:active{transform:translateY(4px) scale(.99);box-shadow:0 1px 0 rgb
 
 ## Q1 | 20s
 What is the capital of France?
-- Paris ✓
+- Paris *
 - London
 - Berlin
 - Madrid
@@ -320,26 +320,26 @@ What is the capital of France?
 ## Q2 | 15s
 The Earth is flat.
 - True
-- False ✓
+- False *
 
 ## Q3
 Which of these is a JavaScript framework?
-- Vue ✓
+- Vue *
 - Laravel</code></pre>
           <ul>
             <li><code># Title</code> — one line starting with a single <code>#</code>. Shown in the lobby.</li>
             <li><code>## Q1 | 20s</code> — starts a question. The label before <code>|</code> can be anything (<code>Q1</code>, <code>Round 2</code>…). The <code>| 20s</code> part is the <b>optional timer</b> (1–300 seconds). Leave it off to use the default 20s, e.g. <code>## Q3</code>.</li>
             <li>The line(s) after the header are the <b>question text</b> (multiple lines are joined together).</li>
             <li><code>- Option text</code> — each answer on its own line, 2–4 per question.</li>
-            <li>Mark the correct answer by ending the line with <code>✓</code> (or <code>✔</code>, or a trailing <code>*</code>): <code>- Paris ✓</code></li>
-            <li><b>True/False</b> is just a question with two options: <code>- True</code> / <code>- False ✓</code>. Any two options work.</li>
+            <li>Mark the correct answer by ending the line with <code>*</code>: <code>- Paris *</code> (a <code>✓</code> or <code>✔</code> works too, if you like).</li>
+            <li><b>True/False</b> is just a question with two options: <code>- True</code> / <code>- False *</code>. Any two options work.</li>
           </ul>
           <p>Scoring: correct answers earn <b>500–1000 points</b> — the faster you answer, the closer to 1000. Wrong answers earn 0.</p>
         </div>
       </details>
 
       <div class="field">
-        <textarea class="quizbox" id="quiz-input" spellcheck="false" placeholder="# My Quiz Title&#10;&#10;## Q1 | 20s&#10;Your first question here?&#10;- An answer ✓&#10;- Another answer&#10;- A third answer"></textarea>
+        <textarea class="quizbox" id="quiz-input" spellcheck="false" placeholder="# My Quiz Title&#10;&#10;## Q1 | 20s&#10;Your first question here?&#10;- The correct answer *&#10;- Another answer&#10;- A third answer"></textarea>
         <div class="row" style="margin-top:8px"><button class="btn ghost" style="color:var(--card-ink);border-color:#CFC7E8;padding:8px 16px;font-size:.9rem" id="btn-sample">Load example quiz</button><span class="hint" id="parse-status" style="margin:0"></span></div>
       </div>
       <div class="errbox" id="parse-errors"></div>
@@ -622,7 +622,7 @@ function applyTheme(colors){
      # Quiz Title
      ## Q1 | 20s          <- "| 20s" optional, default 20
      Question text (one or more lines)
-     - Option A ✓         <- ✓ / ✔ / trailing * marks the correct one
+     - Option A *         <- trailing * (or ✓ / ✔) marks the correct one
      - Option B
    ═══════════════════════════════════════════════════════════════════════ */
 function parseQuiz(text){
@@ -635,7 +635,7 @@ function parseQuiz(text){
     const who = q.label || ('Question ' + (questions.length + 1));
     if (!q.text) errors.push(`${who}: question text is missing (write it on the line after the ## header).`);
     if (q.options.length < 2 || q.options.length > 4) errors.push(`${who}: has ${q.options.length} option(s) — needs between 2 and 4.`);
-    if (q.correct < 0) errors.push(`${who}: no correct answer marked. End one option with ✓ (e.g. "- Paris ✓").`);
+    if (q.correct < 0) errors.push(`${who}: no correct answer marked. End one option with * (e.g. "- Paris *").`);
     questions.push(q);
   };
 
@@ -664,7 +664,7 @@ function parseQuiz(text){
       else if (/\*\s*$/.test(opt)) { isCorrect = true; opt = opt.replace(/\*\s*$/, '').trim(); }
       if (!opt) { errors.push(`Line ${i+1}: empty answer option.`); return; }
       if (isCorrect) {
-        if (cur.correct >= 0) errors.push(`${cur.label}: more than one answer is marked correct — keep exactly one ✓.`);
+        if (cur.correct >= 0) errors.push(`${cur.label}: more than one answer is marked correct — keep exactly one *.`);
         cur.correct = cur.options.length;
       }
       cur.options.push(opt);
@@ -683,7 +683,7 @@ const SAMPLE_QUIZ = `# Friday Team Quiz
 
 ## Q1 | 20s
 What is the capital of France?
-- Paris ✓
+- Paris *
 - London
 - Berlin
 - Madrid
@@ -691,17 +691,17 @@ What is the capital of France?
 ## Q2 | 15s
 The Earth is flat.
 - True
-- False ✓
+- False *
 
 ## Q3 | 20s
 Which planet has the most moons (as of 2024)?
 - Jupiter
-- Saturn ✓
+- Saturn *
 - Neptune
 
 ## Q4 | 10s
 HTML stands for HyperText Markup Language.
-- True ✓
+- True *
 - False
 
 ## Q5 | 25s
@@ -709,7 +709,7 @@ Which of these is NOT a programming language?
 - Python
 - Ruby
 - Cobra
-- Falcon ✓`;
+- Falcon *`;
 
 /* Scoring: correct = 500–1000 pts, scaled by speed. Wrong = 0. */
 function scoreFor(elapsed, duration){

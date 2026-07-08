@@ -85,10 +85,11 @@ The paste format is documented on the host setup screen inside the app:
 
 ## Q1 | 20s
 What is the capital of France?
-- Paris ✓
+- Paris *
 - London
 - Berlin
 - Madrid
 ```
 
+Mark the correct answer with a trailing `*` (a `✓` also works).
 Correct answers earn 500–1000 points scaled by speed; wrong answers earn 0.
