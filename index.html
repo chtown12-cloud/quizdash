@@ -73,8 +73,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Security: only Google Fonts, the Firebase SDK, and this game's own database
      may ever be contacted; everything else (injected scripts, trackers,
-     exfiltration) is blocked by the browser itself. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://www.gstatic.com; connect-src https://*.firebasedatabase.app wss://*.firebasedatabase.app; img-src data:; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; base-uri 'none'; form-action 'none'">
+     exfiltration) is blocked by the browser itself.
+     The database host appears in script-src because Firebase's long-polling
+     fallback transport loads its responses as script tags (JSONP) inside a
+     hidden iframe, and in connect-src spelled out exactly (not only as a
+     wildcard) because WebKit mishandles wildcard matching for WebSockets. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://www.gstatic.com https://*.firebasedatabase.app https://quizdash-eba72-default-rtdb.europe-west1.firebasedatabase.app; connect-src https://*.firebasedatabase.app wss://*.firebasedatabase.app https://quizdash-eba72-default-rtdb.europe-west1.firebasedatabase.app wss://quizdash-eba72-default-rtdb.europe-west1.firebasedatabase.app; frame-src 'self'; img-src data:; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>QuizDash — live quiz game</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1681,6 +1685,37 @@ function boot(){
     $('join-code').value = params.get('room').toUpperCase().slice(0,4);
     show('s-join');
     $('join-name').focus();
+  }
+
+  // Diagnostics: open with ?debug=1 to see, on the device itself, which
+  // network layer works — plain HTTPS to the database, the WebSocket, and
+  // the SDK's live connection. Makes phone problems reportable at a glance.
+  if (params.get('debug')){
+    const box = document.createElement('pre');
+    box.id = 'debug-panel';
+    box.style.cssText = 'position:fixed;left:8px;right:8px;bottom:70px;z-index:99;background:rgba(0,0,0,.88);color:#8f8;font-size:11px;line-height:1.5;padding:10px;border-radius:10px;white-space:pre-wrap;max-height:45vh;overflow:auto';
+    document.body.appendChild(box);
+    const log = s => { box.textContent += s + '\n'; box.scrollTop = 1e9; };
+    log('— QuizDash connection diagnostics —');
+    log('mode: ' + Sync.mode + (sessionStorage.getItem('qd-forcelp') === '1' ? ' (long-polling forced)' : ''));
+    log('browser: ' + navigator.userAgent.slice(0, 90));
+    window.addEventListener('error', e => log('JS error: ' + e.message));
+    if (Sync.mode === 'firebase'){
+      log('live connection: ' + (Sync.connected ? 'CONNECTED ✅' : 'connecting…'));
+      document.addEventListener('qd-conn', e => log('live connection: ' + (e.detail ? 'CONNECTED ✅' : 'lost / connecting…')));
+      fetch(FIREBASE_CONFIG.databaseURL + '/.json?shallow=true')
+        .then(r => log('HTTPS to database: status ' + r.status + ' → server reachable ✅'))
+        .catch(e => log('HTTPS to database: FAILED (' + e.message + ') → DNS blocked or no internet ❌'));
+      try {
+        const host = FIREBASE_CONFIG.databaseURL.replace(/^https:\/\//, '').replace(/\/.*$/, '');
+        const ws = new WebSocket('wss://' + host + '/.ws?v=5&ns=' + host.split('.')[0]);
+        const t = setTimeout(() => { log('WebSocket: no answer after 6s ❌'); try { ws.close(); } catch(e){} }, 6000);
+        ws.onopen = () => { clearTimeout(t); log('WebSocket: OPEN ✅'); ws.close(); };
+        ws.onerror = () => { clearTimeout(t); log('WebSocket: ERROR ❌ (blocked by network, security policy, or DNS)'); };
+      } catch(e){ log('WebSocket: blocked by page security policy (' + e.message + ') ❌'); }
+    } else {
+      log('firebase SDK did not load — running in local demo mode');
+    }
   }
 
   // Coming back from an automatic switch to long-polling: re-enter the
