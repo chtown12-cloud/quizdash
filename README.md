@@ -11,10 +11,23 @@ Host on a big screen, players join on their phones with a 4-letter room code.
   Realtime Database. Deploy `index.html` to any static host and players can join
   from any device.
 
-## Deploy (pick one)
+## Deploy (pick one — both are free, no trial)
 
-- **GitHub Pages:** repo Settings → Pages → deploy from branch → root. Done.
-- **Netlify:** drag `index.html` into https://app.netlify.com/drop.
+**Netlify (recommended — simplest URL):**
+1. Go to https://app.netlify.com and sign up free (can log in with GitHub).
+2. "Add new site" → "Import an existing project" → pick this GitHub repo.
+   No build command, publish directory = repo root. Deploy.
+3. Site configuration → "Change site name" → pick something short, e.g.
+   `quizdash-play` → your game lives at **https://quizdash-play.netlify.app**.
+4. Every push to the connected branch redeploys automatically.
+
+**GitHub Pages (no extra account needed):**
+1. Repo → Settings → Pages → Source: "Deploy from a branch".
+2. Pick the branch, folder `/ (root)`, save.
+3. Game lives at `https://<user>.github.io/quizdash/` a minute later.
+
+Players rarely type the URL anyway — the host lobby shows a QR code that
+opens the join page with the room code pre-filled.
 
 ## Firebase notes
 
