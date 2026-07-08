@@ -319,7 +319,7 @@ select.fontsel:focus{border-color:var(--c1);outline:none}
 <section class="screen active" id="s-landing">
   <div class="topbar"><div class="logo"><span class="bolt">⚡</span> QuizDash</div><div class="spacer"></div><span class="badge-online" id="sync-badge"><span class="dot off"></span>Local demo mode</span></div>
   <div class="center stack" style="gap:22px">
-    <h1 class="display" style="font-size:clamp(2.2rem,7vw,4rem);font-weight:800;text-wrap:balance">Big-screen quizzes,<br>everyone plays on their phone.</h1>
+    <h1 class="display" style="font-size:clamp(2.2rem,7vw,4rem);font-weight:800;text-wrap:balance">Big-screen quizzes!!</h1>
     <p class="muted" style="max-width:460px">Paste a quiz, share a room code, and battle it out — speed and accuracy both count.</p>
     <div class="row" style="justify-content:center">
       <button class="btn big" id="btn-go-host">🎤 Host a game</button>
@@ -343,14 +343,14 @@ select.fontsel:focus{border-color:var(--c1);outline:none}
           <p>Each quiz is plain text with three ingredients: a <b>title line</b>, <b>question headers</b>, and <b>answer options</b>.</p>
 <pre><code># Friday Team Quiz
 
-## Q1 | 20s
+## Q1 | 20s | read 10s
 What is the capital of France?
 - Paris *
 - London
 - Berlin
 - Madrid
 
-## Q2 | 15s
+## Q2 | 15s | read 3s
 The Earth is flat.
 - True
 - False *
@@ -374,7 +374,7 @@ Which of these is a JavaScript framework?
       </details>
 
       <div class="field">
-        <textarea class="quizbox" id="quiz-input" spellcheck="false" placeholder="# My Quiz Title&#10;&#10;## Q1 | 20s&#10;Your first question here?&#10;- The correct answer *&#10;- Another answer&#10;- A third answer"></textarea>
+        <textarea class="quizbox" id="quiz-input" spellcheck="false" placeholder="# My Quiz Title&#10;&#10;## Q1 | 20s | read 5s&#10;Your first question here?&#10;- The correct answer *&#10;- Another answer&#10;- A third answer"></textarea>
         <div class="row" style="margin-top:8px"><button class="btn ghost" style="color:var(--card-ink);border-color:#CFC7E8;padding:8px 16px;font-size:.9rem" id="btn-sample">Load example quiz</button><span class="hint" id="parse-status" style="margin:0"></span></div>
       </div>
       <div class="errbox" id="parse-errors"></div>
