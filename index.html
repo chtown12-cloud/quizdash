@@ -367,6 +367,7 @@ Which of these is a JavaScript framework?
             <li>Mark the correct answer by ending the line with <code>*</code>: <code>- Paris *</code> (a <code>✓</code> or <code>✔</code> works too, if you like).</li>
             <li><b>True/False</b> is just a question with two options: <code>- True</code> / <code>- False *</code>. Any two options work.</li>
           </ul>
+          <p>Every question opens with a <b>7-second read-it-first preview</b> (no answering yet), then the answer timer starts for everyone at the same moment — so slow-loading phones never lose scoring time.</p>
           <p>Scoring: correct answers earn <b>500–1000 points</b> — the faster you answer, the closer to 1000. Wrong answers earn 0.</p>
         </div>
       </details>
@@ -513,9 +514,9 @@ Which of these is a JavaScript framework?
     <div class="qtext" id="pq-text" style="font-size:clamp(1.15rem,4.5vw,1.7rem)"></div>
     <div class="answers" id="pq-answers"></div>
     <div id="pq-locked" style="display:none" class="stack center">
-      <div class="bigmark">⏱️</div>
+      <div class="bigmark" id="pq-locked-mark">⏱️</div>
       <h2 class="display" id="pq-locked-title">Answer locked in!</h2>
-      <p class="pulse muted">Watch the big screen for the answer…</p>
+      <p class="pulse muted" id="pq-locked-sub">Watch the big screen for the answer…</p>
     </div>
   </div>
 </section>
@@ -920,6 +921,10 @@ const AVATARS = ['⚡','🦊','🐼','🦄','🐸','🐙','🦁','🐧','🦜','
 const av = e => AVATARS.includes(e) ? e : '🙂';
 const REACTIONS = ['😂','🔥','😱','👏','😭','❤️'];
 const SUSPENSE_LINES = ['🥁 And the answer is…','😬 Moment of truth…','🤞 Fingers crossed…','👀 Everybody hold your breath…','💓 Heart rates rising…'];
+/* Every question opens with a read-only preview so slow-loading phones
+   lose reading time, never answering time — the answer timer starts for
+   everyone at the same moment. */
+const PREVIEW_SECS = 7;
 function spawnFloat(emo){
   const d = document.createElement('div');
   d.className = 'floatemo';
@@ -1120,15 +1125,14 @@ const Host = {
   async showQuestion(i){
     const q = this.quiz.questions[i];
     this.qIndex = i; this.revealed = false;
-    this.playersAtQ = Object.keys(this.players).length;
 
-    // Host UI
+    // ── Phase 1: read-only preview (question text, no answers) ──
     $('hq-progress').textContent = `Q${i+1} / ${this.quiz.questions.length}`;
     $('hq-room').textContent = this.room;
     $('hq-text').textContent = q.text;
-    $('hq-total').textContent = this.playersAtQ;
+    $('hq-total').textContent = Object.keys(this.players).length;
     $('hq-answered').textContent = '0';
-    $('hq-answers').innerHTML = q.options.map((o,j) => answerButtonHTML(o, j, 'div')).join('');
+    $('hq-answers').innerHTML = '';
     $('btn-hq-next').style.display = 'none';
     show('s-hquestion');
     SFX.play('start');
@@ -1137,11 +1141,21 @@ const Host = {
     await Sync.set(this.path('reactions'), null);
     if (this.seenReacts) this.seenReacts.clear();
     await Sync.set(this.path('state'), {
-      phase: 'question', qIndex: i, total: this.quiz.questions.length,
+      phase: 'preview', qIndex: i, total: this.quiz.questions.length, previewSecs: PREVIEW_SECS,
       q: { text: q.text, options: q.options, duration: q.duration }
     });
 
-    if (this.stopTimer) this.stopTimer();
+    if (this.stopTimer){ this.stopTimer(); this.stopTimer = null; }
+    await this.runPreview(PREVIEW_SECS);
+    if (!this.room || this.revealed || this.qIndex !== i) return; // aborted (Home, etc.)
+
+    // ── Phase 2: answers open — the timer starts for everyone NOW ──
+    this.playersAtQ = Object.keys(this.players).length;
+    $('hq-total').textContent = this.playersAtQ;
+    $('hq-answers').innerHTML = q.options.map((o,j) => answerButtonHTML(o, j, 'div')).join('');
+    await Sync.update(this.path('state'), { phase: 'question' }); // merge: q/qIndex/total stay
+    SFX.play('board');
+
     this.stopTimer = startTimerUI($('hq-timer'), $('hq-timerbar'), q.duration);
     clearTimeout(this.timeout);
     this.timeout = setTimeout(() => this.endQuestion(), q.duration * 1000 + 400); // small grace for in-flight answers
@@ -1154,6 +1168,23 @@ const Host = {
       // Auto-advance: everyone who was in when the question started has answered
       if (this.playersAtQ > 0 && n >= this.playersAtQ) this.endQuestion();
     });
+  },
+
+  // The read-it-first countdown on the big screen. Abortable via Home.
+  async runPreview(secs){
+    const numEl = $('hq-timer'), barEl = $('hq-timerbar');
+    numEl.classList.remove('low'); barEl.parentElement.classList.remove('low');
+    barEl.style.transition = 'none'; barEl.style.width = '100%';
+    const drum = $('hq-drum');
+    drum.textContent = '👀 Read the question…';
+    drum.style.display = '';
+    for (let r = secs; r > 0; r--){
+      numEl.textContent = r;
+      if (r <= 3) SFX.play('blip');
+      await sleep(1000);
+      if (!this.room) return;
+    }
+    drum.style.display = 'none';
   },
 
   async endQuestion(){
@@ -1389,11 +1420,35 @@ const Player = {
     this.lastKey = key;
 
     if (s.phase === 'lobby') show('s-plobby');
+    else if (s.phase === 'preview') this.renderPreview(s);
     else if (s.phase === 'question') this.renderQuestion(s);
     else if (s.phase === 'suspense') this.renderSuspense(s);
     else if (s.phase === 'reveal') this.renderReveal(s);
     else if (s.phase === 'board') this.renderBoard(s);
     else if (s.phase === 'podium') this.renderPodium(s);
+  },
+
+  // Read-only preview: question text, no buttons, a countdown to the start.
+  renderPreview(s){
+    this.myAnswer = null;
+    $('pq-progress').textContent = `Q${s.qIndex + 1} / ${s.total}`;
+    $('pq-text').textContent = s.q.text;
+    const grid = $('pq-answers');
+    grid.style.display = 'none'; grid.innerHTML = '';
+    $('pq-locked-mark').textContent = '👀';
+    $('pq-locked-title').textContent = 'Read the question…';
+    $('pq-locked-sub').textContent = 'Answers unlock in a few seconds — thumbs ready!';
+    $('pq-locked').style.display = 'flex';
+    if (this.stopTimer) this.stopTimer();
+    const numEl = $('pq-timer'), barEl = $('pq-timerbar');
+    numEl.classList.remove('low'); barEl.parentElement.classList.remove('low');
+    barEl.style.transition = 'none'; barEl.style.width = '100%';
+    let r = Math.max(1, Number(s.previewSecs) || PREVIEW_SECS);
+    numEl.textContent = r;
+    const int = setInterval(() => { r--; if (r > 0) numEl.textContent = r; else clearInterval(int); }, 1000);
+    this.stopTimer = () => clearInterval(int);
+    show('s-pquestion');
+    SFX.play('blip');
   },
 
   renderQuestion(s){
@@ -1423,7 +1478,9 @@ const Player = {
   },
 
   lockOut(){
+    $('pq-locked-mark').textContent = '⏱️';
     $('pq-locked-title').textContent = this.myAnswer !== null ? 'Answer locked in!' : "Time's up!";
+    $('pq-locked-sub').textContent = 'Watch the big screen for the answer…';
     $('pq-answers').style.display = 'none';
     $('pq-locked').style.display = 'flex';
     if (this.stopTimer) this.stopTimer();
@@ -1432,7 +1489,9 @@ const Player = {
   // The host is drumrolling: mirror the drama on the phone.
   renderSuspense(s){
     if (this.stopTimer) this.stopTimer();
+    $('pq-locked-mark').textContent = '🥁';
     $('pq-locked-title').textContent = SUSPENSE_LINES[Number(s.line)] || SUSPENSE_LINES[0];
+    $('pq-locked-sub').textContent = 'Watch the big screen for the answer…';
     $('pq-answers').style.display = 'none';
     $('pq-locked').style.display = 'flex';
     show('s-pquestion');
