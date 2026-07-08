@@ -287,6 +287,16 @@ button.answer:active{transform:translateY(4px) scale(.99);box-shadow:0 1px 0 rgb
 select.fontsel{width:100%;border:2px solid #DDD7EE;border-radius:12px;padding:11px 12px;background:#FBFAFF;color:var(--card-ink);cursor:pointer}
 select.fontsel:focus{border-color:var(--c1);outline:none}
 
+/* ── Avatars & emoji reactions ──────────────────────────────────────────── */
+.emojigrid{display:grid;grid-template-columns:repeat(8,1fr);gap:6px}
+.emojigrid button{font-size:1.3rem;line-height:1;background:#FBFAFF;border:2px solid #DDD7EE;border-radius:10px;padding:7px 0;cursor:pointer;transition:transform .1s}
+.emojigrid button.sel{border-color:var(--c1);background:#EFE9FF;transform:scale(1.12)}
+.reactbar{display:none;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+.reactbar button{font-size:1.5rem;width:54px;height:54px;border-radius:50%;background:rgba(255,255,255,.14);border:1.5px solid rgba(255,255,255,.3);transition:transform .12s;display:flex;align-items:center;justify-content:center}
+.reactbar button:active{transform:scale(1.3)}
+.floatemo{position:fixed;bottom:-64px;font-size:2.5rem;z-index:55;pointer-events:none;animation:floatup 3s ease-in forwards}
+@keyframes floatup{0%{opacity:1}100%{transform:translateY(-115vh) rotate(var(--rot,0deg));opacity:0}}
+
 /* ── Misc ───────────────────────────────────────────────────────────────── */
 .badge-online{display:inline-flex;align-items:center;gap:6px;font-size:.85rem;font-weight:600;background:rgba(0,0,0,.25);border-radius:999px;padding:6px 14px}
 .dot{width:9px;height:9px;border-radius:50%;background:#3DDC84}
@@ -471,6 +481,7 @@ Which of these is a JavaScript framework?
       <h2>Join the game</h2>
       <div class="field"><label for="join-code">Room code</label><input type="text" id="join-code" maxlength="4" autocomplete="off" autocapitalize="characters" style="text-transform:uppercase;font-family:var(--font-display);font-weight:800;font-size:1.6rem;letter-spacing:.3em;text-align:center" placeholder="ABCD"></div>
       <div class="field"><label for="join-name">Your nickname</label><input type="text" id="join-name" maxlength="16" autocomplete="off" placeholder="e.g. QuizWizard"><p class="hint">Any fun nickname works — no real name, email, or account needed. Everything is erased after the game.</p></div>
+      <div class="field"><label>Pick your sidekick</label><div class="emojigrid" id="emoji-grid"></div></div>
       <div class="errbox" id="join-err"></div>
       <button class="btn big" id="btn-join">Let's go!</button>
     </div>
@@ -506,12 +517,18 @@ Which of these is a JavaScript framework?
 <!-- ════════════════════ PLAYER: RESULT / STANDING ════════════════════ -->
 <section class="screen" id="s-presult">
   <div class="topbar"><span class="pill" id="pr-progress"></span><div class="spacer"></div><span class="pill" id="pr-score">0 pts</span></div>
-  <div class="center stack" style="gap:10px" id="pr-body"></div>
+  <div class="center stack" style="gap:10px">
+    <div class="center stack" style="gap:10px;flex:0 1 auto" id="pr-body"></div>
+    <div class="reactbar" id="react-bar"></div>
+  </div>
 </section>
 
 <!-- ════════════════════ PLAYER: PODIUM ════════════════════ -->
 <section class="screen" id="s-ppodium">
-  <div class="center stack" style="gap:14px" id="pp-body"></div>
+  <div class="center stack" style="gap:14px">
+    <div class="center stack" style="gap:14px;flex:0 1 auto" id="pp-body"></div>
+    <div class="reactbar" id="react-bar2"></div>
+  </div>
 </section>
 
 <!-- Firebase (compat build, loaded from CDN; harmless if you stay in demo mode) -->
@@ -829,6 +846,51 @@ const SFX = {
 };
 document.addEventListener('pointerdown', () => SFX.ensure());
 
+/* Lobby music: a gentle generative loop (C–Am–F–G arpeggios over a soft
+   bass), synthesized live. Runs on the host's big screen while waiting. */
+SFX.musicInt = null;
+SFX.startMusic = function(){
+  if (this.musicInt || !this.ensure()) return;
+  const bass = [130.8, 110, 87.3, 98];
+  const arps = [
+    [261.6, 329.6, 392, 523.3],
+    [220, 261.6, 329.6, 440],
+    [174.6, 220, 261.6, 349.2],
+    [196, 246.9, 293.7, 392]
+  ];
+  const riff = [0, 1, 2, 3, 2, 1, 3, 1];
+  let step = 0;
+  this.musicInt = setInterval(() => {
+    if (!this.muted && this.ctx && this.ctx.state === 'running'){
+      const bar = Math.floor(step / 8) % 4, pos = step % 8;
+      this.tone(arps[bar][riff[pos]], 0, .24, 'triangle', .04);
+      if (pos === 0) this.tone(bass[bar], 0, 1.7, 'sine', .05);
+      if (pos === 4) this.tone(bass[bar] * 1.5, 0, .8, 'sine', .028);
+    }
+    step++;
+  }, 240);
+};
+SFX.stopMusic = function(){ clearInterval(this.musicInt); this.musicInt = null; };
+
+/* ════════════════ AVATARS & REACTIONS ═══════════════════════════════════
+   Both are whitelist-only: an avatar is validated against AVATARS before
+   rendering, and reactions travel as an index into REACTIONS — nothing
+   free-form ever crosses the wire.
+   ═══════════════════════════════════════════════════════════════════════ */
+const AVATARS = ['⚡','🦊','🐼','🦄','🐸','🐙','🦁','🐧','🦜','🐶','🐱','🦖','🍕','🌮','🍩','🎸','🚀','🌵','🍀','🎩','👾','🤖','🐝','🐬'];
+const av = e => AVATARS.includes(e) ? e : '🙂';
+const REACTIONS = ['😂','🔥','😱','👏','😭','❤️'];
+function spawnFloat(emo){
+  const d = document.createElement('div');
+  d.className = 'floatemo';
+  d.textContent = emo;
+  d.style.left = (4 + Math.random() * 88) + 'vw';
+  d.style.setProperty('--rot', (Math.random() * 60 - 30) + 'deg');
+  d.style.animationDuration = (2.4 + Math.random() * 1.6) + 's';
+  document.body.appendChild(d);
+  d.addEventListener('animationend', () => d.remove());
+}
+
 /* ════════════════ FONTS & PALETTES ══════════════════════════════════════
    Fonts load from Google Fonts on demand (already allowed by the CSP).
    Only names on these whitelists are ever applied — a tampered value from
@@ -970,14 +1032,29 @@ const Host = {
       if (list.length > (this._prevCount || 0)) SFX.play('join');
       this._prevCount = list.length;
       $('hlobby-count').textContent = list.length;
-      $('hlobby-players').innerHTML = list.map(([id,p]) => `<span class="chip">${esc(p.name)}</span>`).join('');
+      $('hlobby-players').innerHTML = list.map(([id,p]) => `<span class="chip">${av(p.emoji)} ${esc(p.name)}</span>`).join('');
       $('btn-start').disabled = list.length === 0;
       $('hlobby-hint').textContent = list.length === 0 ? 'Waiting for at least 1 player…' : 'Start whenever you\'re ready!';
     });
+    // Reactions: players send an index into REACTIONS; float the new ones
+    // up the big screen (throttled to 20 per update so a stampede stays fun).
+    if (this.unsubReacts) this.unsubReacts();
+    this.seenReacts = new Set();
+    this.unsubReacts = Sync.on(this.path('reactions'), rs => {
+      if (!rs) return;
+      const fresh = Object.keys(rs).filter(k => !this.seenReacts.has(k));
+      fresh.slice(0, 20).forEach((k, j) => {
+        const i = Number(rs[k]);
+        if (Number.isInteger(i) && REACTIONS[i]) setTimeout(() => spawnFloat(REACTIONS[i]), j * 130);
+      });
+      fresh.forEach(k => this.seenReacts.add(k));
+    });
+
     show('s-hlobby');
+    SFX.startMusic();
   },
 
-  startGame(){ this.showQuestion(0); },
+  startGame(){ SFX.stopMusic(); this.showQuestion(0); },
 
   async showQuestion(i){
     const q = this.quiz.questions[i];
@@ -996,6 +1073,8 @@ const Host = {
     SFX.play('start');
 
     await Sync.set(this.path('answers/' + i), null);
+    await Sync.set(this.path('reactions'), null);
+    if (this.seenReacts) this.seenReacts.clear();
     await Sync.set(this.path('state'), {
       phase: 'question', qIndex: i, total: this.quiz.questions.length,
       q: { text: q.text, options: q.options, duration: q.duration }
@@ -1062,7 +1141,7 @@ const Host = {
 
   standings(){
     return Object.entries(this.players)
-      .map(([id, p]) => ({ id, name: String(p.name || ''), score: Number(p.score) || 0, last: Number(p.last) || 0 }))
+      .map(([id, p]) => ({ id, name: String(p.name || ''), emoji: av(p.emoji), score: Number(p.score) || 0, last: Number(p.last) || 0 }))
       .sort((a,b) => b.score - a.score || a.name.localeCompare(b.name));
   },
 
@@ -1074,7 +1153,7 @@ const Host = {
     $('hb-rows').innerHTML = st.slice(0, 8).map((p, r) => `
       <div class="boardrow">
         <span class="rank">${r+1}</span>
-        <span class="bname">${esc(p.name)}</span>
+        <span class="bname">${p.emoji} ${esc(p.name)}</span>
         ${p.last ? `<span class="bdelta">+${p.last}</span>` : ''}
         <span class="bscore">${p.score.toLocaleString()}</span>
       </div>`).join('');
@@ -1093,7 +1172,7 @@ const Host = {
 
     const setCol = (id, p) => {
       const el = $(id);
-      el.querySelector('.pname').textContent = p ? p.name : '—';
+      el.querySelector('.pname').textContent = p ? `${p.emoji} ${p.name}` : '—';
       el.querySelector('.pscore').textContent = p ? p.score.toLocaleString() + ' pts' : '';
     };
     setCol('pcol-1', st[0]); setCol('pcol-2', st[1]); setCol('pcol-3', st[2]);
@@ -1104,7 +1183,7 @@ const Host = {
     await sleep(2000); if (st[1]) { $('pcol-2').classList.add('shown'); SFX.play('board'); }
     await sleep(2500);
     $('hp-drum').style.display = 'none';
-    $('hp-title').textContent = `🏆 ${st[0] ? st[0].name : 'Nobody'} takes it!`;
+    $('hp-title').textContent = `🏆 ${st[0] ? st[0].emoji + ' ' + st[0].name : 'Nobody'} takes it!`;
     $('pcol-1').classList.add('shown');
     SFX.play('fanfare');
     Confetti.fire(220); setTimeout(() => Confetti.fire(160), 900);
@@ -1134,7 +1213,7 @@ const Host = {
     $('hb-progress').textContent = 'Final standings';
     $('hb-room').textContent = this.room;
     $('hb-rows').innerHTML = st.map((p, r) => `
-      <div class="boardrow"><span class="rank">${r+1}</span><span class="bname">${esc(p.name)}</span><span class="bscore">${p.score.toLocaleString()}</span></div>`).join('');
+      <div class="boardrow"><span class="rank">${r+1}</span><span class="bname">${p.emoji} ${esc(p.name)}</span><span class="bscore">${p.score.toLocaleString()}</span></div>`).join('');
     const btn = $('btn-hb-next');
     btn.textContent = '← Back to podium';
     btn.onclick = () => show('s-hpodium');
@@ -1146,8 +1225,8 @@ const Host = {
    PLAYER
    ═══════════════════════════════════════════════════════════════════════ */
 const Player = {
-  room: null, id: null, name: '', me: {}, lastKey: '', receivedAt: 0,
-  myAnswer: null, stopTimer: null, unsubState: null, unsubMe: null,
+  room: null, id: null, name: '', emoji: '⚡', me: {}, lastKey: '', receivedAt: 0,
+  myAnswer: null, stopTimer: null, unsubState: null, unsubMe: null, _lastReact: 0,
 
   path(sub){ return 'rooms/' + this.room + (sub ? '/' + sub : ''); },
 
@@ -1168,10 +1247,10 @@ const Player = {
 
     applyTheme(meta.colors);
     loadFonts(meta.fonts); // whitelist-checked inside loadFonts
-    await Sync.update(this.path('players/' + this.id), { name, score: 0, joined: Date.now() });
+    await Sync.update(this.path('players/' + this.id), { name, emoji: av(this.emoji), score: 0, joined: Date.now() });
     SFX.play('join');
 
-    $('pl-name').textContent = name;
+    $('pl-name').textContent = av(this.emoji) + ' ' + name;
     $('pl-quiz').textContent = meta.title;
 
     if (this.unsubMe) this.unsubMe();
@@ -1233,6 +1312,16 @@ const Player = {
     if (this.stopTimer) this.stopTimer();
   },
 
+  // Send a reaction (an index into REACTIONS — never free text). Throttled
+  // so an enthusiastic thumb can't flood the big screen.
+  react(i){
+    const now = Date.now();
+    if (!this.room || now - this._lastReact < 600) return;
+    this._lastReact = now;
+    Sync.set(this.path('reactions/r' + now.toString(36) + Math.random().toString(36).slice(2, 6)), i);
+    SFX.play('blip');
+  },
+
   renderReveal(s){
     $('pr-progress').textContent = `Q${s.qIndex + 1}${s.total ? ' / ' + s.total : ''}`;
     const answered = this.myAnswer !== null;
@@ -1254,6 +1343,7 @@ const Player = {
         <h1 class="display" style="font-size:2.2rem">Too slow!</h1>
         <div class="points-pop">+0</div>
         <p class="muted">No answer locked in. Thumbs ready for the next one!</p>`;
+    $('react-bar').style.display = 'flex';
     show('s-presult');
   },
 
@@ -1268,6 +1358,7 @@ const Player = {
       <h1 class="display" style="font-size:2.1rem">You're in ${rank > 0 ? ordinal(rank) : '—'} place</h1>
       <div class="points-pop" style="font-size:1.8rem">${score.toLocaleString()} pts</div>
       <p class="muted pulse">Next question coming up…</p>`;
+    $('react-bar').style.display = 'flex';
     show('s-presult');
   },
 
@@ -1295,6 +1386,11 @@ const Player = {
       <button class="btn ghost homebtn" onclick="goHome()" style="margin-top:14px">🏠 Home</button>`;
     SFX.play(rank >= 1 && rank <= 3 ? 'fanfare' : 'board');
     if (rank >= 1 && rank <= 3) Confetti.fire(180);
+    // Let the crowd cheer at the podium, then close the window so nothing
+    // gets written to an already-erased room.
+    const bar2 = $('react-bar2');
+    bar2.style.display = 'flex';
+    setTimeout(() => bar2.style.display = 'none', 45000);
   }
 };
 
@@ -1303,6 +1399,7 @@ const Player = {
    room and ends the game for everyone); players just leave quietly.
    ═══════════════════════════════════════════════════════════════════════ */
 async function goHome(){
+  SFX.stopMusic();
   if (Host.room){
     const gameDone = document.getElementById('s-hpodium').classList.contains('active');
     const anyoneIn = Object.keys(Host.players).length > 0;
@@ -1311,6 +1408,7 @@ async function goHome(){
     clearTimeout(Host.timeout);
     if (Host.unsubPlayers){ Host.unsubPlayers(); Host.unsubPlayers = null; }
     if (Host.unsubAnswers){ Host.unsubAnswers(); Host.unsubAnswers = null; }
+    if (Host.unsubReacts){ Host.unsubReacts(); Host.unsubReacts = null; }
     await Sync.set('rooms/' + Host.room, null);
     Host.room = null; Host.qIndex = -1; Host.players = {}; Host._prevCount = 0;
   }
@@ -1374,6 +1472,26 @@ function boot(){
     muteIcon();
     if (!SFX.muted) SFX.play('join');
   };
+
+  // Avatar picker (random pre-selection so lazy joiners still get a face)
+  const grid = $('emoji-grid');
+  grid.innerHTML = AVATARS.map(e => `<button type="button" data-e="${e}">${e}</button>`).join('');
+  Player.emoji = AVATARS[Math.floor(Math.random() * AVATARS.length)];
+  grid.querySelectorAll('button').forEach(b => {
+    if (b.dataset.e === Player.emoji) b.classList.add('sel');
+    b.onclick = () => {
+      grid.querySelectorAll('.sel').forEach(x => x.classList.remove('sel'));
+      b.classList.add('sel');
+      Player.emoji = b.dataset.e;
+      SFX.play('blip');
+    };
+  });
+
+  // Reaction bars (result screen + final podium)
+  ['react-bar', 'react-bar2'].forEach(id => {
+    $(id).innerHTML = REACTIONS.map((e, i) => `<button type="button" data-i="${i}">${e}</button>`).join('');
+    $(id).querySelectorAll('button').forEach(b => b.onclick = () => Player.react(Number(b.dataset.i)));
+  });
 
   // Font pickers
   const fillSel = (sel, fonts) => sel.innerHTML = fonts.map(f => `<option value="${f[0]}">${f[0]}</option>`).join('');

@@ -55,8 +55,9 @@ what can be written:
 
 ## Security & privacy
 
-- **What's collected:** a self-chosen nickname and answer taps. No accounts,
-  no email, no cookies, no analytics, no tracking.
+- **What's collected:** a self-chosen nickname, a picked avatar emoji, answer
+  taps, and anonymous emoji reactions (sent as numbers, never free text). No
+  accounts, no email, no cookies, no analytics, no tracking.
 - **Nothing is kept:** the room (nicknames, answers, scores) is erased from
   Firebase automatically when the host closes the tab after the podium, when
   the host clicks "Play again", or instantly via the "🧹 Erase game data"
