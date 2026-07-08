@@ -395,6 +395,7 @@ Which of these is a JavaScript framework?
       <button class="btn ghost" style="color:var(--card-ink);border-color:#CFC7E8;padding:8px 16px;font-size:.9rem" id="btn-resetcols">Reset defaults</button></div>
     </div>
 
+    <div class="errbox" id="create-err"></div>
     <div class="row" style="justify-content:center;padding-bottom:10px">
       <button class="btn big" id="btn-create">Create room →</button>
     </div>
@@ -561,6 +562,7 @@ const FIREBASE_CONFIG = {
 const $  = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const sleep = ms => new Promise(r => setTimeout(r, ms));
+const withTimeout = (p, ms, msg) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error(msg || 'Timed out')), ms))]);
 function show(id){
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   $(id).classList.add('active');
@@ -990,6 +992,24 @@ const Host = {
   async createRoom(){
     const parsed = parseQuiz($('quiz-input').value);
     if (parsed.errors.length){ renderParseStatus(parsed); return; }
+    const btn = $('btn-create'), errBox = $('create-err');
+    errBox.style.display = 'none';
+    btn.disabled = true; btn.textContent = 'Creating room…';
+    try {
+      await this._createRoom(parsed);
+    } catch(e){
+      console.error('createRoom failed:', e);
+      errBox.textContent = '⚠ Could not create the room — ' + (e && e.message ? e.message : e) + '.\n' +
+        (Sync.mode === 'firebase'
+          ? 'The game server (Firebase) refused or timed out. In the Firebase console, check that the Realtime Database exists and its rules allow read/write under /rooms (rules snippet is in the README), then reload this page.'
+          : 'Browser storage failed — try a regular (non-private) window.');
+      errBox.style.display = 'block';
+    } finally {
+      btn.disabled = false; btn.textContent = 'Create room →';
+    }
+  },
+
+  async _createRoom(parsed){
     this.quiz = parsed;
     this.colors = readColorInputs();
     applyTheme(this.colors);
@@ -999,10 +1019,10 @@ const Host = {
     if (Sync.mode === 'local') await Sync.set('rooms', null); // demo mode: clear stale rooms
 
     const fonts = loadFonts([$('font-display').value, $('font-body').value]);
-    await Sync.set(this.path(), {
+    await withTimeout(Sync.set(this.path(), {
       meta: { title: parsed.title, colors: this.colors, fonts, qCount: parsed.questions.length, created: Date.now() },
       state: { phase: 'lobby' }
-    });
+    }), 8000, 'timed out contacting the game server');
 
     // Lobby UI
     $('hlobby-title').textContent = parsed.title;
@@ -1257,16 +1277,28 @@ const Player = {
     if (code.length !== 4){ err.textContent = 'Room codes are 4 letters — check the big screen.'; err.style.display = 'block'; return; }
     if (!name){ err.textContent = 'Pick a nickname first!'; err.style.display = 'block'; return; }
 
-    const meta = await Sync.get('rooms/' + code + '/meta');
-    if (!meta){ err.textContent = `No room "${code}" found. Double-check the code${Sync.mode === 'local' ? ' — and note: demo mode only works between tabs of the same browser' : ''}.`; err.style.display = 'block'; return; }
+    const joinBtn = $('btn-join');
+    joinBtn.disabled = true; joinBtn.textContent = 'Joining…';
+    let meta;
+    try {
+      meta = await withTimeout(Sync.get('rooms/' + code + '/meta'), 8000, 'timed out contacting the game server');
+      if (!meta){ err.textContent = `No room "${code}" found. Double-check the code${Sync.mode === 'local' ? ' — and note: demo mode only works between tabs of the same browser' : ''}.`; err.style.display = 'block'; return; }
 
-    this.room = code; this.name = name;
-    this.id = sessionStorage.getItem('qd-pid-' + code) || ('p' + Math.random().toString(36).slice(2, 10));
-    sessionStorage.setItem('qd-pid-' + code, this.id);
+      this.room = code; this.name = name;
+      this.id = sessionStorage.getItem('qd-pid-' + code) || ('p' + Math.random().toString(36).slice(2, 10));
+      sessionStorage.setItem('qd-pid-' + code, this.id);
 
-    applyTheme(meta.colors);
-    loadFonts(meta.fonts); // whitelist-checked inside loadFonts
-    await Sync.update(this.path('players/' + this.id), { name, emoji: av(this.emoji), score: 0, joined: Date.now() });
+      applyTheme(meta.colors);
+      loadFonts(meta.fonts); // whitelist-checked inside loadFonts
+      await withTimeout(Sync.update(this.path('players/' + this.id), { name, emoji: av(this.emoji), score: 0, joined: Date.now() }), 8000, 'timed out contacting the game server');
+    } catch(e){
+      console.error('join failed:', e);
+      err.textContent = '⚠ Could not join — ' + (e && e.message ? e.message : e) + '. Check your internet connection and try again.';
+      err.style.display = 'block';
+      return;
+    } finally {
+      joinBtn.disabled = false; joinBtn.textContent = "Let's go!";
+    }
     SFX.play('join');
 
     $('pl-name').textContent = av(this.emoji) + ' ' + name;
@@ -1472,10 +1504,19 @@ function renderParseStatus(parsed){
 }
 
 function boot(){
-  // Sync mode badge
+  // Sync mode badge — in Firebase mode, reflect the REAL connection state
+  // so a misconfigured database is visible instead of a mystery.
   if (Sync.mode === 'firebase'){
-    $('sync-badge').innerHTML = '<span class="dot"></span>Online multiplayer ready';
-    $('sync-explain').textContent = 'Connected to Firebase — players can join from any device on the join URL.';
+    $('sync-badge').innerHTML = '<span class="dot off"></span>Connecting to game server…';
+    try {
+      Sync.db.ref('.info/connected').on('value', s => {
+        const on = s.val() === true;
+        $('sync-badge').innerHTML = on
+          ? '<span class="dot"></span>Online multiplayer ready'
+          : '<span class="dot off"></span>Connecting to game server…';
+        if (on) $('sync-explain').textContent = 'Connected to Firebase — players can join from any device on the join URL.';
+      });
+    } catch(e){ console.error(e); }
   }
 
   // Landing
