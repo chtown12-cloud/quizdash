@@ -361,13 +361,14 @@ Which of these is a JavaScript framework?
 - Laravel</code></pre>
           <ul>
             <li><code># Title</code> — one line starting with a single <code>#</code>. Shown in the lobby.</li>
-            <li><code>## Q1 | 20s</code> — starts a question. The label before <code>|</code> can be anything (<code>Q1</code>, <code>Round 2</code>…). The <code>| 20s</code> part is the <b>optional timer</b> (1–300 seconds). Leave it off to use the default 20s, e.g. <code>## Q3</code>.</li>
+            <li><code>## Q1 | 20s</code> — starts a question. The label before <code>|</code> can be anything (<code>Q1</code>, <code>Round 2</code>…). The <code>| 20s</code> part is the <b>optional answer timer</b> (1–300 seconds, default 20), e.g. <code>## Q3</code> uses the default.</li>
+            <li><code>| read 10s</code> — <b>optional reading time</b> for that question (0–30 seconds, default 5). Add it after the timer: <code>## Q1 | 20s | read 10s</code>. Use <code>read 0s</code> to skip straight to the answers.</li>
             <li>The line(s) after the header are the <b>question text</b> (multiple lines are joined together).</li>
             <li><code>- Option text</code> — each answer on its own line, 2–4 per question.</li>
             <li>Mark the correct answer by ending the line with <code>*</code>: <code>- Paris *</code> (a <code>✓</code> or <code>✔</code> works too, if you like).</li>
             <li><b>True/False</b> is just a question with two options: <code>- True</code> / <code>- False *</code>. Any two options work.</li>
           </ul>
-          <p>Every question opens with a <b>7-second read-it-first preview</b> (no answering yet), then the answer timer starts for everyone at the same moment — so slow-loading phones never lose scoring time.</p>
+          <p>Every question opens with a <b>read-it-first preview</b> (5 seconds unless you set <code>| read …s</code>), then the answer timer starts for everyone at the same moment — so slow-loading phones never lose scoring time.</p>
           <p>Scoring: correct answers earn <b>500–1000 points</b> — the faster you answer, the closer to 1000. Wrong answers earn 0.</p>
         </div>
       </details>
@@ -725,13 +726,22 @@ function parseQuiz(text){
       finalize(cur);
       const head = line.replace(/^##\s+/, '');
       const parts = head.split('|');
-      let dur = 20;
-      if (parts[1]) {
-        const d = parseInt(parts[1], 10);
+      let dur = 20, preview = PREVIEW_SECS;
+      for (let pi = 1; pi < parts.length; pi++){
+        const seg = parts[pi].trim();
+        if (!seg) continue;
+        const readM = seg.match(/^read\s*(\d+)\s*s?$/i);
+        if (readM){
+          const rv = parseInt(readM[1], 10);
+          if (rv >= 0 && rv <= 30) preview = rv;
+          else errors.push(`Line ${i+1}: reading time "${seg}" must be between "read 0s" and "read 30s".`);
+          continue;
+        }
+        const d = parseInt(seg, 10);
         if (Number.isFinite(d) && d >= 1 && d <= 300) dur = d;
-        else errors.push(`Line ${i+1}: couldn't read the timer "${parts[1].trim()}" — use something like "| 20s" (1–300).`);
+        else errors.push(`Line ${i+1}: couldn't read "${seg}" — use "| 20s" for the answer timer (1–300) or "| read 5s" for reading time (0–30).`);
       }
-      cur = { label: parts[0].trim() || 'Q' + (questions.length + 1), duration: dur, text: '', options: [], correct: -1 };
+      cur = { label: parts[0].trim() || 'Q' + (questions.length + 1), duration: dur, preview, text: '', options: [], correct: -1 };
       return;
     }
     if (/^-\s+/.test(line)) {
@@ -777,12 +787,12 @@ Which planet has the most moons (as of 2024)?
 - Saturn *
 - Neptune
 
-## Q4 | 10s
+## Q4 | 10s | read 3s
 HTML stands for HyperText Markup Language.
 - True *
 - False
 
-## Q5 | 25s
+## Q5 | 25s | read 8s
 Which of these is NOT a programming language?
 - Python
 - Ruby
@@ -923,8 +933,9 @@ const REACTIONS = ['😂','🔥','😱','👏','😭','❤️'];
 const SUSPENSE_LINES = ['🥁 And the answer is…','😬 Moment of truth…','🤞 Fingers crossed…','👀 Everybody hold your breath…','💓 Heart rates rising…'];
 /* Every question opens with a read-only preview so slow-loading phones
    lose reading time, never answering time — the answer timer starts for
-   everyone at the same moment. */
-const PREVIEW_SECS = 7;
+   everyone at the same moment. Default seconds; override per question
+   with "| read 10s" in the quiz header (0 skips the preview). */
+const PREVIEW_SECS = 5;
 function spawnFloat(emo){
   const d = document.createElement('div');
   d.className = 'floatemo';
@@ -1140,20 +1151,30 @@ const Host = {
     await Sync.set(this.path('answers/' + i), null);
     await Sync.set(this.path('reactions'), null);
     if (this.seenReacts) this.seenReacts.clear();
-    await Sync.set(this.path('state'), {
-      phase: 'preview', qIndex: i, total: this.quiz.questions.length, previewSecs: PREVIEW_SECS,
-      q: { text: q.text, options: q.options, duration: q.duration }
-    });
 
-    if (this.stopTimer){ this.stopTimer(); this.stopTimer = null; }
-    await this.runPreview(PREVIEW_SECS);
-    if (!this.room || this.revealed || this.qIndex !== i) return; // aborted (Home, etc.)
+    const pv = Number.isInteger(q.preview) ? q.preview : PREVIEW_SECS;
+    if (pv > 0){
+      await Sync.set(this.path('state'), {
+        phase: 'preview', qIndex: i, total: this.quiz.questions.length, previewSecs: pv,
+        q: { text: q.text, options: q.options, duration: q.duration }
+      });
+      if (this.stopTimer){ this.stopTimer(); this.stopTimer = null; }
+      await this.runPreview(pv);
+      if (!this.room || this.revealed || this.qIndex !== i) return; // aborted (Home, etc.)
+    }
 
     // ── Phase 2: answers open — the timer starts for everyone NOW ──
     this.playersAtQ = Object.keys(this.players).length;
     $('hq-total').textContent = this.playersAtQ;
     $('hq-answers').innerHTML = q.options.map((o,j) => answerButtonHTML(o, j, 'div')).join('');
-    await Sync.update(this.path('state'), { phase: 'question' }); // merge: q/qIndex/total stay
+    if (pv > 0){
+      await Sync.update(this.path('state'), { phase: 'question' }); // merge: q/qIndex/total stay
+    } else {
+      await Sync.set(this.path('state'), {
+        phase: 'question', qIndex: i, total: this.quiz.questions.length,
+        q: { text: q.text, options: q.options, duration: q.duration }
+      });
+    }
     SFX.play('board');
 
     this.stopTimer = startTimerUI($('hq-timer'), $('hq-timerbar'), q.duration);

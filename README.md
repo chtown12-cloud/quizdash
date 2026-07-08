@@ -93,4 +93,8 @@ What is the capital of France?
 ```
 
 Mark the correct answer with a trailing `*` (a `✓` also works).
+The `| 20s` sets the answer timer (default 20s). Every question opens with a
+read-only preview before answers unlock — 5 seconds by default, adjustable
+per question with `| read 10s` (0–30; `read 0s` skips it):
+`## Q1 | 20s | read 10s`.
 Correct answers earn 500–1000 points scaled by speed; wrong answers earn 0.
