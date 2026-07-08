@@ -439,6 +439,7 @@ Which of these is a JavaScript framework?
     <div class="qtext" id="hq-text"></div>
     <div class="answers" id="hq-answers"></div>
     <div class="row" style="justify-content:center;min-height:64px">
+      <div class="drum" id="hq-drum" style="display:none"></div>
       <button class="btn big" id="btn-hq-next" style="display:none"></button>
     </div>
   </div>
@@ -914,6 +915,7 @@ SFX.stopMusic = function(){ clearInterval(this.musicInt); this.musicInt = null; 
 const AVATARS = ['⚡','🦊','🐼','🦄','🐸','🐙','🦁','🐧','🦜','🐶','🐱','🦖','🍕','🌮','🍩','🎸','🚀','🌵','🍀','🎩','👾','🤖','🐝','🐬'];
 const av = e => AVATARS.includes(e) ? e : '🙂';
 const REACTIONS = ['😂','🔥','😱','👏','😭','❤️'];
+const SUSPENSE_LINES = ['🥁 And the answer is…','😬 Moment of truth…','🤞 Fingers crossed…','👀 Everybody hold your breath…','💓 Heart rates rising…'];
 function spawnFloat(emo){
   const d = document.createElement('div');
   d.className = 'floatemo';
@@ -1157,11 +1159,18 @@ const Host = {
     if (this.stopTimer) this.stopTimer();
     if (this.unsubAnswers){ this.unsubAnswers(); this.unsubAnswers = null; }
 
-    // Suspense beat: hold the room's breath for a moment before the flip.
-    // Players keep seeing their "locked in" screen until the big screen
-    // has revealed the answer.
-    $('hq-timer').textContent = '⏳';
-    await sleep(1200);
+    // Dramatic beat: ~2s of synchronized drumroll on the big screen AND
+    // every phone before anything is revealed. The suspense line travels
+    // as an index so phones show the same one.
+    const li = Math.floor(Math.random() * SUSPENSE_LINES.length);
+    $('hq-timer').textContent = '🥁';
+    const drum = $('hq-drum');
+    drum.textContent = SUSPENSE_LINES[li];
+    drum.style.display = '';
+    SFX.play('drumroll');
+    await Sync.update(this.path('state'), { phase: 'suspense', line: li });
+    await sleep(2100);
+    drum.style.display = 'none';
 
     const i = this.qIndex, q = this.quiz.questions[i];
     const answers = (await Sync.get(this.path('answers/' + i))) || {};
@@ -1377,6 +1386,7 @@ const Player = {
 
     if (s.phase === 'lobby') show('s-plobby');
     else if (s.phase === 'question') this.renderQuestion(s);
+    else if (s.phase === 'suspense') this.renderSuspense(s);
     else if (s.phase === 'reveal') this.renderReveal(s);
     else if (s.phase === 'board') this.renderBoard(s);
     else if (s.phase === 'podium') this.renderPodium(s);
@@ -1413,6 +1423,16 @@ const Player = {
     $('pq-answers').style.display = 'none';
     $('pq-locked').style.display = 'flex';
     if (this.stopTimer) this.stopTimer();
+  },
+
+  // The host is drumrolling: mirror the drama on the phone.
+  renderSuspense(s){
+    if (this.stopTimer) this.stopTimer();
+    $('pq-locked-title').textContent = SUSPENSE_LINES[Number(s.line)] || SUSPENSE_LINES[0];
+    $('pq-answers').style.display = 'none';
+    $('pq-locked').style.display = 'flex';
+    show('s-pquestion');
+    SFX.play('drumroll');
   },
 
   // Send a reaction (an index into REACTIONS — never free text). Throttled
