@@ -810,8 +810,17 @@ const Confetti = {
 const SFX = {
   ctx: null, muted: localStorage.getItem('qd-muted') === '1',
   ensure(){
-    if (!this.ctx){ try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){} }
-    if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+    if (!this.ctx){
+      try {
+        this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        // iOS unlock: one silent tick fully opens the audio pipeline
+        const b = this.ctx.createBuffer(1, 1, 22050);
+        const s = this.ctx.createBufferSource();
+        s.buffer = b; s.connect(this.ctx.destination); s.start(0);
+      } catch(e){}
+    }
+    // 'suspended' (autoplay policy) and 'interrupted' (iOS) both need this
+    if (this.ctx && this.ctx.state !== 'running') this.ctx.resume();
     return this.ctx;
   },
   tone(freq, at, dur, type = 'sine', vol = .15, slide = 0){
@@ -861,11 +870,12 @@ SFX.startMusic = function(){
   const riff = [0, 1, 2, 3, 2, 1, 3, 1];
   let step = 0;
   this.musicInt = setInterval(() => {
+    if (this.ctx && this.ctx.state !== 'running') this.ensure(); // keep nudging until audio wakes
     if (!this.muted && this.ctx && this.ctx.state === 'running'){
       const bar = Math.floor(step / 8) % 4, pos = step % 8;
-      this.tone(arps[bar][riff[pos]], 0, .24, 'triangle', .04);
-      if (pos === 0) this.tone(bass[bar], 0, 1.7, 'sine', .05);
-      if (pos === 4) this.tone(bass[bar] * 1.5, 0, .8, 'sine', .028);
+      this.tone(arps[bar][riff[pos]], 0, .26, 'triangle', .09);
+      if (pos === 0) this.tone(bass[bar], 0, 1.7, 'sine', .11);
+      if (pos === 4) this.tone(bass[bar] * 1.5, 0, .8, 'sine', .06);
     }
     step++;
   }, 240);
