@@ -508,8 +508,8 @@ Which of these is a JavaScript framework?
     <div class="answers" id="pq-answers"></div>
     <div id="pq-locked" style="display:none" class="stack center">
       <div class="bigmark">⏱️</div>
-      <h2 class="display">Answer locked in!</h2>
-      <p class="pulse muted">Waiting for everyone else…</p>
+      <h2 class="display" id="pq-locked-title">Answer locked in!</h2>
+      <p class="pulse muted">Watch the big screen for the answer…</p>
     </div>
   </div>
 </section>
@@ -1102,6 +1102,12 @@ const Host = {
     if (this.stopTimer) this.stopTimer();
     if (this.unsubAnswers){ this.unsubAnswers(); this.unsubAnswers = null; }
 
+    // Suspense beat: hold the room's breath for a moment before the flip.
+    // Players keep seeing their "locked in" screen until the big screen
+    // has revealed the answer.
+    $('hq-timer').textContent = '⏳';
+    await sleep(1200);
+
     const i = this.qIndex, q = this.quiz.questions[i];
     const answers = (await Sync.get(this.path('answers/' + i))) || {};
 
@@ -1121,9 +1127,8 @@ const Host = {
       updates[pid] = this.players[pid];
     }
     await Sync.update(this.path('players'), updates); // merge per-player, so late joiners aren't clobbered
-    await Sync.update(this.path('state'), { phase: 'reveal', correct: q.correct, dist });
 
-    // Host reveal UI
+    // Host reveal UI first — the big screen is the source of truth…
     const total = dist.reduce((a,b) => a+b, 0) || 1;
     document.querySelectorAll('#hq-answers .answer').forEach((el, j) => {
       el.classList.add(j === q.correct ? 'win' : 'dim');
@@ -1132,6 +1137,10 @@ const Host = {
     });
     $('hq-timer').textContent = '✓';
     SFX.play('reveal');
+
+    // …then, once it's showing, tell the phones whether they got it right.
+    await Sync.update(this.path('state'), { phase: 'reveal', correct: q.correct, dist });
+
     const last = i === this.quiz.questions.length - 1;
     const btn = $('btn-hq-next');
     btn.textContent = last ? 'Reveal the winners 🏆' : 'Show leaderboard →';
@@ -1307,6 +1316,7 @@ const Player = {
   },
 
   lockOut(){
+    $('pq-locked-title').textContent = this.myAnswer !== null ? 'Answer locked in!' : "Time's up!";
     $('pq-answers').style.display = 'none';
     $('pq-locked').style.display = 'flex';
     if (this.stopTimer) this.stopTimer();
