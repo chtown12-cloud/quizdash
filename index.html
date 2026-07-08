@@ -71,6 +71,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- Security: only Google Fonts, the Firebase SDK, and this game's own database
+     may ever be contacted; everything else (injected scripts, trackers,
+     exfiltration) is blocked by the browser itself. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://www.gstatic.com; connect-src https://*.firebasedatabase.app wss://*.firebasedatabase.app; img-src data:; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
 <title>QuizDash — live quiz game</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -421,8 +426,10 @@ Which of these is a JavaScript framework?
     </div>
     <div class="row" style="justify-content:center;gap:12px">
       <button class="btn ghost" id="btn-hp-board" style="display:none">Full standings</button>
+      <button class="btn ghost" id="btn-hp-erase" style="display:none">🧹 Erase game data</button>
       <button class="btn" id="btn-hp-again" style="display:none">Play again</button>
     </div>
+    <p class="small muted" id="hp-privacy" style="display:none">Data is erased automatically when you close this tab.</p>
   </div>
 </section>
 
@@ -433,7 +440,7 @@ Which of these is a JavaScript framework?
     <div class="card stack" style="width:100%;max-width:400px">
       <h2>Join the game</h2>
       <div class="field"><label for="join-code">Room code</label><input type="text" id="join-code" maxlength="4" autocomplete="off" autocapitalize="characters" style="text-transform:uppercase;font-family:var(--font-display);font-weight:800;font-size:1.6rem;letter-spacing:.3em;text-align:center" placeholder="ABCD"></div>
-      <div class="field"><label for="join-name">Your nickname</label><input type="text" id="join-name" maxlength="16" autocomplete="off" placeholder="e.g. QuizWizard"></div>
+      <div class="field"><label for="join-name">Your nickname</label><input type="text" id="join-name" maxlength="16" autocomplete="off" placeholder="e.g. QuizWizard"><p class="hint">Any fun nickname works — no real name, email, or account needed. Everything is erased after the game.</p></div>
       <div class="errbox" id="join-err"></div>
       <button class="btn big" id="btn-join">Let's go!</button>
     </div>
@@ -531,7 +538,8 @@ const FirebaseSync = {
   set(p, v){ return this.db.ref(p).set(v === undefined ? null : v); },
   update(p, o){ return this.db.ref(p).update(o); },
   get(p){ return this.db.ref(p).get().then(s => s.val()); },
-  on(p, cb){ const ref = this.db.ref(p); const h = ref.on('value', s => cb(s.val())); return () => ref.off('value', h); }
+  on(p, cb){ const ref = this.db.ref(p); const h = ref.on('value', s => cb(s.val())); return () => ref.off('value', h); },
+  onDisconnectRemove(p){ this.db.ref(p).onDisconnect().remove(); }
 };
 
 const LocalSync = {
@@ -562,6 +570,7 @@ const LocalSync = {
   get(p){ return Promise.resolve(this._getAt(this._read(), p)); },
   on(p, cb){ const l = { p, cb }; this.listeners.push(l); cb(this._getAt(this._read(), p)); return () => { this.listeners = this.listeners.filter(x => x !== l); }; },
   _notify(changed){ this.emit(changed); if (this.chan) this.chan.postMessage(changed); },
+  onDisconnectRemove(p){ window.addEventListener('pagehide', () => { const db = this._read(); this._setAt(db, p, null); this._write(db); if (this.chan) this.chan.postMessage(p); }); },
   emit(changed){
     const db = this._read();
     for (const l of this.listeners){
@@ -883,7 +892,7 @@ const Host = {
         correct = a.c === q.correct;
         if (correct) pts = scoreFor(Math.max(0, Number(a.e) || 0), q.duration);
       }
-      const newScore = (p.score || 0) + pts;
+      const newScore = (Number(p.score) || 0) + pts; // coerce: DB values are untrusted
       this.players[pid] = { ...p, score: newScore, last: pts, lastCorrect: correct, answered: !!a };
       updates[pid] = this.players[pid];
     }
@@ -907,7 +916,7 @@ const Host = {
 
   standings(){
     return Object.entries(this.players)
-      .map(([id, p]) => ({ id, name: p.name, score: p.score || 0, last: p.last || 0 }))
+      .map(([id, p]) => ({ id, name: String(p.name || ''), score: Number(p.score) || 0, last: Number(p.last) || 0 }))
       .sort((a,b) => b.score - a.score || a.name.localeCompare(b.name));
   },
 
@@ -951,10 +960,24 @@ const Host = {
     $('pcol-1').classList.add('shown');
     Confetti.fire(220); setTimeout(() => Confetti.fire(160), 900);
 
+    // Privacy: the game is over, so all room data (nicknames, answers,
+    // scores) is now disposable. Erase it when the host tab closes, or
+    // immediately via the button / when starting a new game.
+    Sync.onDisconnectRemove(this.path());
+    const eraseBtn = $('btn-hp-erase');
+    eraseBtn.disabled = false; eraseBtn.textContent = '🧹 Erase game data';
+    eraseBtn.style.display = '';
+    eraseBtn.onclick = async () => {
+      await Sync.set(this.path(), null);
+      eraseBtn.textContent = '✅ All game data erased';
+      eraseBtn.disabled = true;
+    };
+    $('hp-privacy').style.display = '';
+
     $('btn-hp-board').style.display = '';
     $('btn-hp-board').onclick = () => { this.renderFinalBoard(st); };
     $('btn-hp-again').style.display = '';
-    $('btn-hp-again').onclick = () => { show('s-setup'); };
+    $('btn-hp-again').onclick = async () => { await Sync.set(this.path(), null); show('s-setup'); };
   },
 
   renderFinalBoard(st){
@@ -1000,7 +1023,7 @@ const Player = {
     $('pl-quiz').textContent = meta.title;
 
     if (this.unsubMe) this.unsubMe();
-    this.unsubMe = Sync.on(this.path('players/' + this.id), me => { this.me = me || {}; updateScorePills(this.me.score || 0); });
+    this.unsubMe = Sync.on(this.path('players/' + this.id), me => { this.me = me || {}; updateScorePills(Number(this.me.score) || 0); });
     if (this.unsubState) this.unsubState();
     this.unsubState = Sync.on(this.path('state'), s => this.onState(s));
   },
@@ -1053,7 +1076,7 @@ const Player = {
     $('pr-progress').textContent = `Q${s.qIndex + 1}${s.total ? ' / ' + s.total : ''}`;
     const answered = this.myAnswer !== null;
     const correct = answered && this.myAnswer === s.correct;
-    const pts = this.me.last || 0;
+    const pts = Number(this.me.last) || 0; // coerce: DB values are untrusted
     $('pr-body').innerHTML = correct ? `
         <div class="bigmark">🎯</div>
         <h1 class="display" style="font-size:2.2rem">Correct!</h1>
@@ -1075,7 +1098,7 @@ const Player = {
   renderBoard(s){
     const st = s.standings || [];
     const rank = st.findIndex(p => p.id === this.id) + 1;
-    const score = this.me.score || 0;
+    const score = Number(this.me.score) || 0;
     const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '📊';
     $('pr-progress').textContent = 'Standings';
     $('pr-body').innerHTML = `
@@ -1089,7 +1112,8 @@ const Player = {
   async renderPodium(s){
     const st = s.standings || [];
     const rank = st.findIndex(p => p.id === this.id) + 1;
-    const score = this.me.score || 0;
+    const score = Number(this.me.score) || 0;
+    sessionStorage.removeItem('qd-pid-' + this.room); // game over: forget my player id
     $('pp-body').innerHTML = `<div class="drum">🥁 Final results…</div>`;
     show('s-ppodium');
     await sleep(6200); // roughly in sync with the host's podium reveal

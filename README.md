@@ -36,17 +36,52 @@ The `databaseURL` is what the game actually needs; `apiKey` / `appId` are still
 placeholders — paste the real ones from Firebase console → Project settings →
 General → Your apps if you ever add Firebase Auth or Analytics.
 
-Make sure the Realtime Database rules allow read/write (test mode does, for 30
-days). For a longer-lived deployment, scope the rules to the `/rooms` path:
+**Set these database rules** (Firebase console → Realtime Database → Rules →
+paste → Publish). Test mode expires after 30 days; these don't, and they limit
+what can be written:
 
 ```json
 {
   "rules": {
-    "rooms": { ".read": true, ".write": true },
-    "$other": { ".read": false, ".write": false }
+    ".read": false,
+    ".write": false,
+    "rooms": {
+      "$room": {
+        ".read": true,
+        ".write": true,
+        "players": {
+          "$pid": {
+            "name": { ".validate": "newData.isString() && newData.val().length <= 24" }
+          }
+        }
+      }
+    }
   }
 }
 ```
+
+## Security & privacy
+
+- **What's collected:** a self-chosen nickname and answer taps. No accounts,
+  no email, no cookies, no analytics, no tracking.
+- **Nothing is kept:** the room (nicknames, answers, scores) is erased from
+  Firebase automatically when the host closes the tab after the podium, when
+  the host clicks "Play again", or instantly via the "🧹 Erase game data"
+  button. Players' browsers keep nothing either — the temporary player id
+  lives in sessionStorage and is dropped at the podium.
+- **Player devices:** the page ships a Content-Security-Policy that only
+  permits Google Fonts, the Firebase SDK, and this game's own database — any
+  injected script or call to another server is blocked by the browser. All
+  player-provided text (nicknames, etc.) is HTML-escaped before rendering,
+  and values read back from the database are type-coerced.
+- **Third parties that see players' IP addresses:** Google Fonts (font files)
+  and Firebase (the game data itself) — standard for any website, no cookies
+  involved. Your static host (Netlify/GitHub Pages) serves the page, as any
+  web host does.
+- **Honest limits:** rooms are open to anyone who knows the 4-letter code
+  while a game is live (that's the design — no accounts), and scoring trusts
+  each phone's reported speed. Fine for a party game; not built for money
+  prizes.
 
 ## Writing a quiz
 
