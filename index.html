@@ -269,6 +269,24 @@ button.answer:active{transform:translateY(4px) scale(.99);box-shadow:0 1px 0 rgb
 #confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
 .drum{font-family:var(--font-display);font-weight:800;font-size:clamp(1.4rem,5vw,2.4rem);animation:pulse 1s infinite}
 
+/* ── Motion & dynamics ──────────────────────────────────────────────────── */
+.screen.active{animation:screenIn .4s cubic-bezier(.22,1,.36,1) backwards}
+@keyframes screenIn{from{opacity:0;transform:translateY(18px)}}
+.answers .answer{animation:cardIn .45s cubic-bezier(.22,1,.36,1) backwards}
+.answers .answer:nth-child(2){animation-delay:.07s}
+.answers .answer:nth-child(3){animation-delay:.14s}
+.answers .answer:nth-child(4){animation-delay:.21s}
+@keyframes cardIn{from{opacity:0;transform:translateY(26px) scale(.96)}}
+.qtext{animation:qIn .5s cubic-bezier(.22,1,.36,1) backwards}
+@keyframes qIn{from{opacity:0;transform:scale(.94)}}
+.timernum.low{color:#FF5A5F;animation:heartbeat .8s ease-in-out infinite}
+.timerbar.low>div{background:#FF5A5F}
+@keyframes heartbeat{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
+.mutebtn{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:60;width:46px;height:46px;border-radius:50%;background:rgba(0,0,0,.35);color:#fff;font-size:1.2rem;border:1.5px solid rgba(255,255,255,.3);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center}
+.homebtn{padding:8px 16px !important;font-size:.9rem !important}
+select.fontsel{width:100%;border:2px solid #DDD7EE;border-radius:12px;padding:11px 12px;background:#FBFAFF;color:var(--card-ink);cursor:pointer}
+select.fontsel:focus{border-color:var(--c1);outline:none}
+
 /* ── Misc ───────────────────────────────────────────────────────────────── */
 .badge-online{display:inline-flex;align-items:center;gap:6px;font-size:.85rem;font-weight:600;background:rgba(0,0,0,.25);border-radius:999px;padding:6px 14px}
 .dot{width:9px;height:9px;border-radius:50%;background:#3DDC84}
@@ -281,6 +299,7 @@ button.answer:active{transform:translateY(4px) scale(.99);box-shadow:0 1px 0 rgb
 </head>
 <body>
 <canvas id="confetti"></canvas>
+<button id="btn-mute" class="mutebtn" aria-label="Toggle sound">🔊</button>
 
 <!-- ════════════════════ LANDING ════════════════════ -->
 <section class="screen active" id="s-landing">
@@ -347,7 +366,15 @@ Which of these is a JavaScript framework?
     </div>
 
     <div class="card stack">
-      <div><h2>2 · Brand colors</h2><p class="hint" style="margin-top:0">Use 2–4 of your brand's hex colors. Color 1 sets the stage background; the rest color buttons, answers and highlights. The page restyles live as you pick.</p></div>
+      <div><h2>2 · Look &amp; feel</h2><p class="hint" style="margin-top:0">Pick colors and fonts — the page restyles live, and players' phones get the same look. Feeling lucky? Hit the dice.</p></div>
+      <div class="row">
+        <button class="btn" style="font-size:1rem;padding:12px 22px" id="btn-random">🎲 Surprise me!</button>
+        <span class="hint" style="margin:0">random color palette + font pairing</span>
+      </div>
+      <div class="row" style="align-items:stretch">
+        <div style="flex:1;min-width:170px" class="field"><label for="font-display">Display font (headings)</label><select class="fontsel" id="font-display"></select></div>
+        <div style="flex:1;min-width:170px" class="field"><label for="font-body">Body font</label><select class="fontsel" id="font-body"></select></div>
+      </div>
       <div class="colors">
         <div class="color-slot"><input type="color" id="col-0" value="#4F2CBD"><div style="flex:1"><span class="role">1 · Background</span><input type="text" id="hex-0" value="#4F2CBD" maxlength="7" aria-label="Color 1 hex"></div></div>
         <div class="color-slot"><input type="color" id="col-1" value="#FFB800"><div style="flex:1"><span class="role">2 · Accent / CTA</span><input type="text" id="hex-1" value="#FFB800" maxlength="7" aria-label="Color 2 hex"></div></div>
@@ -366,7 +393,7 @@ Which of these is a JavaScript framework?
 
 <!-- ════════════════════ HOST: LOBBY ════════════════════ -->
 <section class="screen" id="s-hlobby">
-  <div class="topbar"><div class="logo"><span class="bolt">⚡</span> QuizDash</div><div class="spacer"></div><span class="pill" id="hlobby-title"></span></div>
+  <div class="topbar"><div class="logo"><span class="bolt">⚡</span> QuizDash</div><div class="spacer"></div><span class="pill" id="hlobby-title"></span><button class="btn ghost homebtn" onclick="goHome()">🏠 Home</button></div>
   <div class="center stack" style="gap:20px">
     <p style="font-size:1.15rem">Join at <b id="hlobby-url-label"></b> with room code</p>
     <div class="roomcode" id="hlobby-code">····</div>
@@ -375,6 +402,7 @@ Which of these is a JavaScript framework?
       <p class="small">📱 Scan to join instantly</p>
     </div>
     <div class="joinurl" id="hlobby-link"></div>
+    <button class="btn ghost homebtn" id="btn-copy">📋 Copy join link</button>
     <div class="row" style="justify-content:center;gap:16px">
       <span class="count-badge"><span id="hlobby-count">0</span></span><span style="font-weight:600">players in</span>
     </div>
@@ -389,6 +417,7 @@ Which of these is a JavaScript framework?
   <div class="topbar">
     <span class="pill" id="hq-progress">Q1 / 10</span><div class="spacer"></div>
     <span class="pill">Room <b id="hq-room"></b></span>
+    <button class="btn ghost homebtn" onclick="goHome()">🏠</button>
   </div>
   <div class="center stack" style="gap:22px">
     <div class="hoststats">
@@ -406,7 +435,7 @@ Which of these is a JavaScript framework?
 
 <!-- ════════════════════ HOST: LEADERBOARD ════════════════════ -->
 <section class="screen" id="s-hboard">
-  <div class="topbar"><span class="pill" id="hb-progress"></span><div class="spacer"></div><span class="pill">Room <b id="hb-room"></b></span></div>
+  <div class="topbar"><span class="pill" id="hb-progress"></span><div class="spacer"></div><span class="pill">Room <b id="hb-room"></b></span><button class="btn ghost homebtn" onclick="goHome()">🏠</button></div>
   <div class="center stack" style="gap:22px">
     <h1 class="display" style="font-size:clamp(1.8rem,5vw,3rem)">🏆 Leaderboard</h1>
     <div class="board" id="hb-rows"></div>
@@ -427,6 +456,7 @@ Which of these is a JavaScript framework?
     <div class="row" style="justify-content:center;gap:12px">
       <button class="btn ghost" id="btn-hp-board" style="display:none">Full standings</button>
       <button class="btn ghost" id="btn-hp-erase" style="display:none">🧹 Erase game data</button>
+      <button class="btn ghost" id="btn-hp-home" style="display:none" onclick="goHome()">🏠 Home</button>
       <button class="btn" id="btn-hp-again" style="display:none">Play again</button>
     </div>
     <p class="small muted" id="hp-privacy" style="display:none">Data is erased automatically when you close this tab.</p>
@@ -454,6 +484,7 @@ Which of these is a JavaScript framework?
     <h1 class="display" style="font-size:2rem">You're in, <span id="pl-name"></span>!</h1>
     <p class="pulse" style="font-weight:600">See your name on the big screen? Waiting for the host to start…</p>
     <span class="pill" id="pl-quiz"></span>
+    <button class="btn ghost homebtn" onclick="goHome()">🏠 Leave game</button>
   </div>
 </section>
 
@@ -754,22 +785,124 @@ const Confetti = {
   }
 };
 
+/* ════════════════ SOUND EFFECTS ═════════════════════════════════════════
+   Synthesized with WebAudio — no audio files, no network requests, works
+   offline. Browsers only allow audio after a user gesture, so the context
+   is (re)woken on every pointerdown. Mute preference is remembered.
+   ═══════════════════════════════════════════════════════════════════════ */
+const SFX = {
+  ctx: null, muted: localStorage.getItem('qd-muted') === '1',
+  ensure(){
+    if (!this.ctx){ try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){} }
+    if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+    return this.ctx;
+  },
+  tone(freq, at, dur, type = 'sine', vol = .15, slide = 0){
+    const c = this.ctx; if (!c) return;
+    const t = c.currentTime + at;
+    const o = c.createOscillator(), g = c.createGain();
+    o.type = type; o.frequency.setValueAtTime(freq, t);
+    if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(30, freq + slide), t + dur);
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(vol, t + .012);
+    g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    o.connect(g).connect(c.destination);
+    o.start(t); o.stop(t + dur + .05);
+  },
+  play(name){ if (this.muted || !this.ensure()) return; (this.bank[name] || (() => {}))(); },
+  bank: {
+    join(){ SFX.tone(520, 0, .09, 'triangle', .14); SFX.tone(780, .07, .13, 'triangle', .14); },
+    tap(){ SFX.tone(340, 0, .06, 'square', .07); },
+    blip(){ SFX.tone(700, 0, .05, 'triangle', .05); },
+    tick(){ SFX.tone(950, 0, .05, 'square', .06); },
+    start(){ [392, 523, 659].forEach((f, i) => SFX.tone(f, i * .09, .15, 'triangle', .15)); },
+    correct(){ [523, 659, 784, 1047].forEach((f, i) => SFX.tone(f, i * .08, .22, 'triangle', .17)); },
+    wrong(){ SFX.tone(220, 0, .3, 'sawtooth', .1, -80); SFX.tone(175, .13, .35, 'sawtooth', .09, -55); },
+    reveal(){ SFX.tone(660, 0, .12, 'triangle', .13); SFX.tone(880, .1, .18, 'triangle', .13); },
+    board(){ [440, 554, 659].forEach((f, i) => SFX.tone(f, i * .06, .13, 'sine', .12)); },
+    drumroll(){ for (let i = 0; i < 30; i++) SFX.tone(115 + Math.random() * 45, i * .07, .05, 'square', .045); },
+    fanfare(){
+      [523, 659, 784, 1047, 1319].forEach((f, i) => SFX.tone(f, i * .11, .32, 'triangle', .15));
+      [262, 330, 392].forEach(f => SFX.tone(f, .44, .65, 'sine', .09));
+    }
+  }
+};
+document.addEventListener('pointerdown', () => SFX.ensure());
+
+/* ════════════════ FONTS & PALETTES ══════════════════════════════════════
+   Fonts load from Google Fonts on demand (already allowed by the CSP).
+   Only names on these whitelists are ever applied — a tampered value from
+   the database falls back to the default pairing.
+   ═══════════════════════════════════════════════════════════════════════ */
+const DISPLAY_FONTS = [
+  ['Bricolage Grotesque', 'Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800'],
+  ['Fredoka',       'Fredoka:wght@400;600;700'],
+  ['Baloo 2',       'Baloo+2:wght@400;600;800'],
+  ['Space Grotesk', 'Space+Grotesk:wght@400;600;700'],
+  ['Righteous',     'Righteous'],
+  ['Bungee',        'Bungee'],
+  ['Lilita One',    'Lilita+One'],
+  ['Titan One',     'Titan+One']
+];
+const BODY_FONTS = [
+  ['Inter',      'Inter:wght@400;500;600;700'],
+  ['Nunito',     'Nunito:wght@400;600;700;800'],
+  ['Poppins',    'Poppins:wght@400;500;600;700'],
+  ['Quicksand',  'Quicksand:wght@400;500;600;700'],
+  ['Space Grotesk', 'Space+Grotesk:wght@400;500;600;700'],
+  ['Atkinson Hyperlegible', 'Atkinson+Hyperlegible:wght@400;700']
+];
+function loadFonts(names){
+  const d = DISPLAY_FONTS.find(f => f[0] === (names && names[0])) || DISPLAY_FONTS[0];
+  const b = BODY_FONTS.find(f => f[0] === (names && names[1])) || BODY_FONTS[0];
+  const url = 'https://fonts.googleapis.com/css2?family=' + d[1] + '&family=' + b[1] + '&display=swap';
+  let link = $('dyn-fonts');
+  if (!link){ link = document.createElement('link'); link.id = 'dyn-fonts'; link.rel = 'stylesheet'; document.head.appendChild(link); }
+  if (link.href !== url) link.href = url;
+  const r = document.documentElement.style;
+  r.setProperty('--font-display', `"${d[0]}",system-ui,sans-serif`);
+  r.setProperty('--font-body', `"${b[0]}",system-ui,-apple-system,sans-serif`);
+  return [d[0], b[0]];
+}
+/* Curated palettes: [background, accent/CTA, answer 3, answer 4].
+   Text colors are computed automatically, so every combo stays readable. */
+const PALETTES = [
+  ['#4F2CBD', '#FFB800', '#FF4E6A', '#19C6B2'],
+  ['#173F5F', '#F6D55C', '#ED553B', '#3CAEA3'],
+  ['#2D3047', '#FFD23F', '#EE4266', '#0EAD69'],
+  ['#1A1A2E', '#F0A500', '#E94560', '#00B8A9'],
+  ['#006466', '#FFC300', '#FF5A5F', '#7161EF'],
+  ['#3A0CA3', '#F72585', '#4CC9F0', '#B5E48C'],
+  ['#0F4C5C', '#FB8B24', '#E36414', '#5F0F40'],
+  ['#5F0F40', '#FFBA08', '#3F88C5', '#04A777'],
+  ['#03045E', '#FFD60A', '#F72585', '#00F5D4'],
+  ['#1B4332', '#FFB703', '#F4845F', '#48CAE4'],
+  ['#212529', '#FCA311', '#E5383B', '#00AFB9'],
+  ['#7209B7', '#FFD166', '#EF476F', '#06D6A0']
+];
+
 /* ════════════════ SHARED UI BITS ════════════════ */
 function answerButtonHTML(opt, i, tag){
   return `<${tag} class="answer a${i}" data-i="${i}"><span class="shape">${SHAPES[i]}</span><span>${esc(opt)}</span></${tag}>`;
 }
 function startTimerUI(numEl, barEl, duration, onDone){
   let remaining = duration;
+  const bar = barEl.parentElement;
   numEl.textContent = remaining;
+  numEl.classList.remove('low'); bar.classList.remove('low');
   barEl.style.transition = 'none'; barEl.style.width = '100%';
   void barEl.offsetWidth; // reflow
   barEl.style.transition = `width ${duration}s linear`; barEl.style.width = '0%';
   const int = setInterval(() => {
     remaining--;
     numEl.textContent = Math.max(0, remaining);
+    if (remaining <= 5 && remaining > 0){
+      SFX.play('tick');
+      numEl.classList.add('low'); bar.classList.add('low');
+    }
     if (remaining <= 0){ clearInterval(int); if (onDone) onDone(); }
   }, 1000);
-  return () => clearInterval(int);
+  return () => { clearInterval(int); numEl.classList.remove('low'); bar.classList.remove('low'); };
 }
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -793,8 +926,9 @@ const Host = {
     this.room = Array.from({length:4}, () => alphabet[Math.floor(Math.random()*alphabet.length)]).join('');
     if (Sync.mode === 'local') await Sync.set('rooms', null); // demo mode: clear stale rooms
 
+    const fonts = loadFonts([$('font-display').value, $('font-body').value]);
     await Sync.set(this.path(), {
-      meta: { title: parsed.title, colors: this.colors, qCount: parsed.questions.length, created: Date.now() },
+      meta: { title: parsed.title, colors: this.colors, fonts, qCount: parsed.questions.length, created: Date.now() },
       state: { phase: 'lobby' }
     });
 
@@ -806,6 +940,13 @@ const Host = {
     const link = isFile ? '(open this same file in another tab)' : base + '?room=' + this.room;
     $('hlobby-url-label').textContent = isFile ? 'another tab of this browser' : base.replace(/^https?:\/\//, '').replace(/\/$/, '');
     $('hlobby-link').textContent = link;
+
+    const copyBtn = $('btn-copy');
+    copyBtn.style.display = isFile || !navigator.clipboard ? 'none' : '';
+    copyBtn.textContent = '📋 Copy join link';
+    copyBtn.onclick = async () => {
+      try { await navigator.clipboard.writeText(link); copyBtn.textContent = '✅ Copied!'; setTimeout(() => copyBtn.textContent = '📋 Copy join link', 1600); } catch(e){}
+    };
 
     // QR code: encodes the full deep link, so scanning lands on the join
     // screen with the room code already filled in.
@@ -826,6 +967,8 @@ const Host = {
     this.unsubPlayers = Sync.on(this.path('players'), players => {
       this.players = players || {};
       const list = Object.entries(this.players);
+      if (list.length > (this._prevCount || 0)) SFX.play('join');
+      this._prevCount = list.length;
       $('hlobby-count').textContent = list.length;
       $('hlobby-players').innerHTML = list.map(([id,p]) => `<span class="chip">${esc(p.name)}</span>`).join('');
       $('btn-start').disabled = list.length === 0;
@@ -850,6 +993,7 @@ const Host = {
     $('hq-answers').innerHTML = q.options.map((o,j) => answerButtonHTML(o, j, 'div')).join('');
     $('btn-hq-next').style.display = 'none';
     show('s-hquestion');
+    SFX.play('start');
 
     await Sync.set(this.path('answers/' + i), null);
     await Sync.set(this.path('state'), {
@@ -865,6 +1009,7 @@ const Host = {
     if (this.unsubAnswers) this.unsubAnswers();
     this.unsubAnswers = Sync.on(this.path('answers/' + i), answers => {
       const n = answers ? Object.keys(answers).length : 0;
+      if (n > (Number($('hq-answered').textContent) || 0)) SFX.play('blip');
       $('hq-answered').textContent = n;
       // Auto-advance: everyone who was in when the question started has answered
       if (this.playersAtQ > 0 && n >= this.playersAtQ) this.endQuestion();
@@ -907,6 +1052,7 @@ const Host = {
       if (j === q.correct) el.insertAdjacentHTML('beforeend', `<span class="tick">✅</span>`);
     });
     $('hq-timer').textContent = '✓';
+    SFX.play('reveal');
     const last = i === this.quiz.questions.length - 1;
     const btn = $('btn-hq-next');
     btn.textContent = last ? 'Reveal the winners 🏆' : 'Show leaderboard →';
@@ -934,6 +1080,7 @@ const Host = {
       </div>`).join('');
     $('btn-hb-next').onclick = () => this.showQuestion(this.qIndex + 1);
     show('s-hboard');
+    SFX.play('board');
   },
 
   async showPodium(){
@@ -952,12 +1099,14 @@ const Host = {
     setCol('pcol-1', st[0]); setCol('pcol-2', st[1]); setCol('pcol-3', st[2]);
 
     // The suspense sequence: 3rd → 2nd → (drumroll) → 1st + confetti
-    await sleep(1500); if (st[2]) $('pcol-3').classList.add('shown');
-    await sleep(2000); if (st[1]) $('pcol-2').classList.add('shown');
+    SFX.play('drumroll');
+    await sleep(1500); if (st[2]) { $('pcol-3').classList.add('shown'); SFX.play('board'); }
+    await sleep(2000); if (st[1]) { $('pcol-2').classList.add('shown'); SFX.play('board'); }
     await sleep(2500);
     $('hp-drum').style.display = 'none';
     $('hp-title').textContent = `🏆 ${st[0] ? st[0].name : 'Nobody'} takes it!`;
     $('pcol-1').classList.add('shown');
+    SFX.play('fanfare');
     Confetti.fire(220); setTimeout(() => Confetti.fire(160), 900);
 
     // Privacy: the game is over, so all room data (nicknames, answers,
@@ -973,6 +1122,7 @@ const Host = {
       eraseBtn.disabled = true;
     };
     $('hp-privacy').style.display = '';
+    $('btn-hp-home').style.display = '';
 
     $('btn-hp-board').style.display = '';
     $('btn-hp-board').onclick = () => { this.renderFinalBoard(st); };
@@ -1017,7 +1167,9 @@ const Player = {
     sessionStorage.setItem('qd-pid-' + code, this.id);
 
     applyTheme(meta.colors);
+    loadFonts(meta.fonts); // whitelist-checked inside loadFonts
     await Sync.update(this.path('players/' + this.id), { name, score: 0, joined: Date.now() });
+    SFX.play('join');
 
     $('pl-name').textContent = name;
     $('pl-quiz').textContent = meta.title;
@@ -1029,7 +1181,15 @@ const Player = {
   },
 
   onState(s){
-    if (!s) return;
+    if (!s){
+      // Room was erased (host went home / ended early). Back to the start.
+      if (this.lastKey){
+        this.lastKey = '';
+        if (this.stopTimer) this.stopTimer();
+        show('s-landing');
+      }
+      return;
+    }
     const key = s.phase + ':' + (s.qIndex ?? '');
     if (key === this.lastKey) return;   // ignore repeat notifications for the same phase
     this.lastKey = key;
@@ -1061,6 +1221,7 @@ const Player = {
   answer(choice, s){
     if (this.myAnswer !== null) return;
     this.myAnswer = choice;
+    SFX.play('tap');
     const elapsed = Math.min(s.q.duration, (Date.now() - this.receivedAt) / 1000);
     Sync.set(this.path(`answers/${s.qIndex}/${this.id}`), { c: choice, e: Math.round(elapsed * 100) / 100 });
     this.lockOut();
@@ -1077,6 +1238,7 @@ const Player = {
     const answered = this.myAnswer !== null;
     const correct = answered && this.myAnswer === s.correct;
     const pts = Number(this.me.last) || 0; // coerce: DB values are untrusted
+    SFX.play(correct ? 'correct' : 'wrong');
     $('pr-body').innerHTML = correct ? `
         <div class="bigmark">🎯</div>
         <h1 class="display" style="font-size:2.2rem">Correct!</h1>
@@ -1114,8 +1276,13 @@ const Player = {
     const rank = st.findIndex(p => p.id === this.id) + 1;
     const score = Number(this.me.score) || 0;
     sessionStorage.removeItem('qd-pid-' + this.room); // game over: forget my player id
+    // Game over — stop listening so the host erasing the room doesn't
+    // disturb this final screen.
+    if (this.unsubState){ this.unsubState(); this.unsubState = null; }
+    if (this.unsubMe){ this.unsubMe(); this.unsubMe = null; }
     $('pp-body').innerHTML = `<div class="drum">🥁 Final results…</div>`;
     show('s-ppodium');
+    SFX.play('drumroll');
     await sleep(6200); // roughly in sync with the host's podium reveal
     const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '🏁';
     const line = rank === 1 ? 'CHAMPION! Take a bow.' : rank === 2 ? 'So close — brilliant run!' : rank === 3 ? 'On the podium!' : 'Well played!';
@@ -1124,10 +1291,40 @@ const Player = {
       <h1 class="display" style="font-size:2.3rem">${ordinal(rank || st.length)} place</h1>
       <div class="points-pop" style="font-size:1.9rem">${score.toLocaleString()} pts</div>
       <p style="font-weight:600">${line}</p>
-      <p class="small muted">out of ${st.length} player${st.length === 1 ? '' : 's'} · thanks for playing ⚡</p>`;
+      <p class="small muted">out of ${st.length} player${st.length === 1 ? '' : 's'} · thanks for playing ⚡</p>
+      <button class="btn ghost homebtn" onclick="goHome()" style="margin-top:14px">🏠 Home</button>`;
+    SFX.play(rank >= 1 && rank <= 3 ? 'fanfare' : 'board');
     if (rank >= 1 && rank <= 3) Confetti.fire(180);
   }
 };
+
+/* ════════════════ HOME NAVIGATION ═══════════════════════════════════════
+   One button works for both roles: hosts get a confirm (leaving erases the
+   room and ends the game for everyone); players just leave quietly.
+   ═══════════════════════════════════════════════════════════════════════ */
+async function goHome(){
+  if (Host.room){
+    const gameDone = document.getElementById('s-hpodium').classList.contains('active');
+    const anyoneIn = Object.keys(Host.players).length > 0;
+    if (!gameDone && anyoneIn && !confirm('Go home? This ends the game for everyone and erases the room.')) return;
+    if (Host.stopTimer) Host.stopTimer();
+    clearTimeout(Host.timeout);
+    if (Host.unsubPlayers){ Host.unsubPlayers(); Host.unsubPlayers = null; }
+    if (Host.unsubAnswers){ Host.unsubAnswers(); Host.unsubAnswers = null; }
+    await Sync.set('rooms/' + Host.room, null);
+    Host.room = null; Host.qIndex = -1; Host.players = {}; Host._prevCount = 0;
+  }
+  if (Player.room){
+    const inLobby = Player.lastKey.startsWith('lobby');
+    if (Player.unsubState){ Player.unsubState(); Player.unsubState = null; }
+    if (Player.unsubMe){ Player.unsubMe(); Player.unsubMe = null; }
+    if (Player.stopTimer) Player.stopTimer();
+    if (inLobby) Sync.set('rooms/' + Player.room + '/players/' + Player.id, null); // un-list me from the big screen
+    sessionStorage.removeItem('qd-pid-' + Player.room);
+    Player.room = null; Player.lastKey = ''; Player.myAnswer = null;
+  }
+  show('s-landing');
+}
 
 function ordinal(n){ const s = ['th','st','nd','rd'], v = n % 100; return n + (s[(v-20)%10] || s[v] || s[0]); }
 function updateScorePills(score){ ['pq-score','pr-score'].forEach(id => $(id).textContent = score.toLocaleString() + ' pts'); }
@@ -1167,6 +1364,36 @@ function boot(){
   $('btn-go-host').onclick = () => show('s-setup');
   $('btn-go-join').onclick = () => show('s-join');
 
+  // Sound toggle (remembered across visits)
+  const muteBtn = $('btn-mute');
+  const muteIcon = () => muteBtn.textContent = SFX.muted ? '🔇' : '🔊';
+  muteIcon();
+  muteBtn.onclick = () => {
+    SFX.muted = !SFX.muted;
+    localStorage.setItem('qd-muted', SFX.muted ? '1' : '0');
+    muteIcon();
+    if (!SFX.muted) SFX.play('join');
+  };
+
+  // Font pickers
+  const fillSel = (sel, fonts) => sel.innerHTML = fonts.map(f => `<option value="${f[0]}">${f[0]}</option>`).join('');
+  fillSel($('font-display'), DISPLAY_FONTS);
+  fillSel($('font-body'), BODY_FONTS);
+  const onFontChange = () => loadFonts([$('font-display').value, $('font-body').value]);
+  $('font-display').onchange = onFontChange;
+  $('font-body').onchange = onFontChange;
+
+  // 🎲 Random palette + font pairing
+  $('btn-random').onclick = () => {
+    const pal = PALETTES[Math.floor(Math.random() * PALETTES.length)];
+    pal.forEach((c, i) => { $('hex-' + i).value = c; $('col-' + i).value = c; });
+    applyTheme(pal);
+    $('font-display').value = DISPLAY_FONTS[Math.floor(Math.random() * DISPLAY_FONTS.length)][0];
+    $('font-body').value = BODY_FONTS[Math.floor(Math.random() * BODY_FONTS.length)][0];
+    onFontChange();
+    SFX.play('start');
+  };
+
   // Setup: quiz parsing (live, debounced)
   let t;
   $('quiz-input').addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => renderParseStatus(parseQuiz($('quiz-input').value)), 400); });
@@ -1197,6 +1424,8 @@ function boot(){
   $('btn-start').onclick = () => Host.startGame();
   $('btn-join').onclick = () => Player.join();
   $('join-name').addEventListener('keydown', e => { if (e.key === 'Enter') Player.join(); });
+  $('join-code').addEventListener('keydown', e => { if (e.key === 'Enter') $('join-name').focus(); });
+  $('join-code').addEventListener('input', e => { if (e.target.value.length === 4) $('join-name').focus(); });
 
   // Deep link: quizdash.example.com?room=ABCD
   const params = new URLSearchParams(location.search);
