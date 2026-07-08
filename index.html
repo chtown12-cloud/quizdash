@@ -583,8 +583,28 @@ const firebaseReady = FIREBASE_CONFIG.databaseURL &&
   !/PASTE|YOUR_/.test(FIREBASE_CONFIG.databaseURL);
 
 const FirebaseSync = {
-  mode: 'firebase', db: null,
-  init(){ firebase.initializeApp(FIREBASE_CONFIG); this.db = firebase.database(); },
+  mode: 'firebase', db: null, connected: false,
+  init(){
+    // A previous visit found WebSockets blocked on this network: use
+    // long-polling (plain HTTPS) instead. Must be set before first use.
+    if (sessionStorage.getItem('qd-forcelp') === '1'){
+      try { firebase.database.INTERNAL.forceLongPolling(); } catch(e){ console.error(e); }
+    }
+    firebase.initializeApp(FIREBASE_CONFIG);
+    this.db = firebase.database();
+    this.db.ref('.info/connected').on('value', s => {
+      this.connected = s.val() === true;
+      document.dispatchEvent(new CustomEvent('qd-conn', { detail: this.connected }));
+    });
+  },
+  waitConnected(ms){
+    if (this.connected) return Promise.resolve(true);
+    return new Promise(res => {
+      const t = setTimeout(() => { document.removeEventListener('qd-conn', h); res(false); }, ms);
+      const h = e => { if (e.detail){ clearTimeout(t); document.removeEventListener('qd-conn', h); res(true); } };
+      document.addEventListener('qd-conn', h);
+    });
+  },
   set(p, v){ return this.db.ref(p).set(v === undefined ? null : v); },
   update(p, o){ return this.db.ref(p).update(o); },
   get(p){ return this.db.ref(p).get().then(s => s.val()); },
@@ -594,6 +614,8 @@ const FirebaseSync = {
 
 const LocalSync = {
   mode: 'local', KEY: 'quizdash-db-v1', listeners: [], chan: null,
+  connected: true,
+  waitConnected(){ return Promise.resolve(true); },
   init(){
     try { this.chan = new BroadcastChannel('quizdash-v1'); this.chan.onmessage = e => this.emit(e.data); } catch(e){}
     window.addEventListener('storage', e => { if (e.key === this.KEY) this.emit(''); }); // fallback
@@ -994,8 +1016,11 @@ const Host = {
     if (parsed.errors.length){ renderParseStatus(parsed); return; }
     const btn = $('btn-create'), errBox = $('create-err');
     errBox.style.display = 'none';
-    btn.disabled = true; btn.textContent = 'Creating room…';
+    btn.disabled = true; btn.textContent = 'Connecting…';
     try {
+      if (Sync.mode === 'firebase' && !(await Sync.waitConnected(12000)))
+        throw new Error('no live connection to the game server — check your network, or reload and try again');
+      btn.textContent = 'Creating room…';
       await this._createRoom(parsed);
     } catch(e){
       console.error('createRoom failed:', e);
@@ -1278,10 +1303,36 @@ const Player = {
     if (!name){ err.textContent = 'Pick a nickname first!'; err.style.display = 'block'; return; }
 
     const joinBtn = $('btn-join');
-    joinBtn.disabled = true; joinBtn.textContent = 'Joining…';
+    joinBtn.disabled = true; joinBtn.textContent = 'Connecting…';
+
+    // Preflight: wait for the live server connection. If it won't open,
+    // probe the database over plain HTTPS to tell apart "no internet" from
+    // "this network blocks live connections" — and in the latter case,
+    // switch Firebase to long-polling (plain HTTPS) and retry automatically.
+    if (Sync.mode === 'firebase' && !(await Sync.waitConnected(12000))){
+      let probe = 0;
+      try { probe = (await withTimeout(fetch(FIREBASE_CONFIG.databaseURL + '/rooms/' + code + '/meta.json'), 6000, 'probe')).status; } catch(e){}
+      if (probe === 200 && sessionStorage.getItem('qd-forcelp') !== '1'){
+        sessionStorage.setItem('qd-forcelp', '1');
+        sessionStorage.setItem('qd-rejoin', code + '|' + name + '|' + av(this.emoji));
+        joinBtn.textContent = 'Switching connection…';
+        location.reload(); // boots into long-polling mode and auto-rejoins
+        return;
+      }
+      err.textContent = probe === 200
+        ? '⚠ This network blocks live connections and the fallback also failed. Try switching between Wi-Fi and mobile data, then tap again.'
+        : probe === 401 || probe === 403
+          ? '⚠ The game server refused access — the host needs to check the database rules (see README).'
+          : '⚠ Can\'t reach the game server at all. Check your internet connection and try again.';
+      err.style.display = 'block';
+      joinBtn.disabled = false; joinBtn.textContent = "Let's go!";
+      return;
+    }
+
+    joinBtn.textContent = 'Joining…';
     let meta;
     try {
-      meta = await withTimeout(Sync.get('rooms/' + code + '/meta'), 8000, 'timed out contacting the game server');
+      meta = await withTimeout(Sync.get('rooms/' + code + '/meta'), 10000, 'timed out contacting the game server');
       if (!meta){ err.textContent = `No room "${code}" found. Double-check the code${Sync.mode === 'local' ? ' — and note: demo mode only works between tabs of the same browser' : ''}.`; err.style.display = 'block'; return; }
 
       this.room = code; this.name = name;
@@ -1290,7 +1341,7 @@ const Player = {
 
       applyTheme(meta.colors);
       loadFonts(meta.fonts); // whitelist-checked inside loadFonts
-      await withTimeout(Sync.update(this.path('players/' + this.id), { name, emoji: av(this.emoji), score: 0, joined: Date.now() }), 8000, 'timed out contacting the game server');
+      await withTimeout(Sync.update(this.path('players/' + this.id), { name, emoji: av(this.emoji), score: 0, joined: Date.now() }), 10000, 'timed out contacting the game server');
     } catch(e){
       console.error('join failed:', e);
       err.textContent = '⚠ Could not join — ' + (e && e.message ? e.message : e) + '. Check your internet connection and try again.';
@@ -1507,16 +1558,14 @@ function boot(){
   // Sync mode badge — in Firebase mode, reflect the REAL connection state
   // so a misconfigured database is visible instead of a mystery.
   if (Sync.mode === 'firebase'){
-    $('sync-badge').innerHTML = '<span class="dot off"></span>Connecting to game server…';
-    try {
-      Sync.db.ref('.info/connected').on('value', s => {
-        const on = s.val() === true;
-        $('sync-badge').innerHTML = on
-          ? '<span class="dot"></span>Online multiplayer ready'
-          : '<span class="dot off"></span>Connecting to game server…';
-        if (on) $('sync-explain').textContent = 'Connected to Firebase — players can join from any device on the join URL.';
-      });
-    } catch(e){ console.error(e); }
+    const setBadge = on => {
+      $('sync-badge').innerHTML = on
+        ? '<span class="dot"></span>Online multiplayer ready'
+        : '<span class="dot off"></span>Connecting to game server…';
+      if (on) $('sync-explain').textContent = 'Connected to Firebase — players can join from any device on the join URL.';
+    };
+    setBadge(Sync.connected);
+    document.addEventListener('qd-conn', e => setBadge(e.detail));
   }
 
   // Landing
@@ -1612,6 +1661,23 @@ function boot(){
     $('join-code').value = params.get('room').toUpperCase().slice(0,4);
     show('s-join');
     $('join-name').focus();
+  }
+
+  // Coming back from an automatic switch to long-polling: re-enter the
+  // join the player already typed and retry without asking anything.
+  const rj = sessionStorage.getItem('qd-rejoin');
+  if (rj){
+    sessionStorage.removeItem('qd-rejoin');
+    const [c, n, e] = rj.split('|');
+    $('join-code').value = (c || '').slice(0, 4);
+    $('join-name').value = n || '';
+    if (AVATARS.includes(e)){
+      Player.emoji = e;
+      grid.querySelectorAll('.sel').forEach(x => x.classList.remove('sel'));
+      const b = grid.querySelector(`button[data-e="${e}"]`); if (b) b.classList.add('sel');
+    }
+    show('s-join');
+    setTimeout(() => Player.join(), 800); // give the new transport a beat to connect
   }
 }
 boot();
