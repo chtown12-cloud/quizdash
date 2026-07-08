@@ -3,6 +3,8 @@
 A serverless, Kahoot-style live quiz game in a **single HTML file** (`index.html`).
 Host on a big screen, players join on their phones with a 4-letter room code.
 
+**▶ Play it live: https://quizdash-play.netlify.app**
+
 ## Quick start
 
 - **Try it locally:** open `index.html` in a browser. In local demo mode, host and
@@ -11,20 +13,11 @@ Host on a big screen, players join on their phones with a 4-letter room code.
   Realtime Database. Deploy `index.html` to any static host and players can join
   from any device.
 
-## Deploy (pick one — both are free, no trial)
+## Hosting
 
-**Netlify (recommended — simplest URL):**
-1. Go to https://app.netlify.com and sign up free (can log in with GitHub).
-2. "Add new site" → "Import an existing project" → pick this GitHub repo.
-   No build command, publish directory = repo root. Deploy.
-3. Site configuration → "Change site name" → pick something short, e.g.
-   `quizdash-play` → your game lives at **https://quizdash-play.netlify.app**.
-4. Every push to the connected branch redeploys automatically.
-
-**GitHub Pages (no extra account needed):**
-1. Repo → Settings → Pages → Source: "Deploy from a branch".
-2. Pick the branch, folder `/ (root)`, save.
-3. Game lives at `https://<user>.github.io/quizdash/` a minute later.
+Deployed on Netlify at **https://quizdash-play.netlify.app** — connected to
+this repo's `main` branch, so every push redeploys automatically (free tier,
+no build step: the repo root is served as-is).
 
 Players rarely type the URL anyway — the host lobby shows a QR code that
 opens the join page with the room code pre-filled.
