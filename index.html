@@ -81,6 +81,7 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://www.gstatic.com https://*.firebasedatabase.app https://quizdash-eba72-default-rtdb.europe-west1.firebasedatabase.app; connect-src https://*.firebasedatabase.app wss://*.firebasedatabase.app https://quizdash-eba72-default-rtdb.europe-west1.firebasedatabase.app wss://quizdash-eba72-default-rtdb.europe-west1.firebasedatabase.app; frame-src 'self'; img-src data:; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>QuizDash — live quiz game</title>
+<link rel="icon" id="favicon">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -879,7 +880,38 @@ function applyLook(colors, theme){
     brutalist: textOn(c[1])
   }[theme];
   if (ink) r.setProperty('--ink', ink);
+  setFavicon(c, theme);
 }
+
+/* Favicon: a tiny canvas — theme-colored tile + the theme's emoji — so the
+   browser tab matches the quiz look (hosts and players alike). Rendered to
+   a data: URI, which the CSP already allows for images. */
+const THEME_ICONS = {
+  classic:'⚡', arcade:'🕹️', nintendo:'🍄', doodle:'✏️', editorial:'📰',
+  brutalist:'🚧', aurora:'🌌', terminal:'💻', candy:'🍬'
+};
+function setFavicon(colors, theme){
+  try {
+    const c = (colors && colors.length >= 2 ? colors : DEFAULT_COLORS);
+    // Tile color echoes each skin's page background; classic uses the brand color.
+    const bg = {
+      arcade:'#0a0a20', terminal:'#04140b', aurora:'#131a38',
+      editorial:'#fafaf6', doodle:'#fbf5e9', nintendo:'#a8d8ff',
+      candy:'#fbe3ee', brutalist:c[1]
+    }[theme] || c[0];
+    const cv = document.createElement('canvas');
+    cv.width = cv.height = 64;
+    const x = cv.getContext('2d');
+    x.fillStyle = bg;
+    if (x.roundRect){ x.beginPath(); x.roundRect(0, 0, 64, 64, 14); x.fill(); }
+    else x.fillRect(0, 0, 64, 64);
+    x.font = '44px serif'; // resolves to the system emoji font
+    x.textAlign = 'center'; x.textBaseline = 'middle';
+    x.fillText(THEME_ICONS[theme] || '⚡', 32, 36);
+    document.getElementById('favicon').href = cv.toDataURL('image/png');
+  } catch(e){}
+}
+setFavicon(DEFAULT_COLORS, 'classic'); // landing page, before any look is applied
 
 function applyTheme(colors){
   const c = (colors && colors.length >= 2 ? colors : DEFAULT_COLORS).slice(0,4);
