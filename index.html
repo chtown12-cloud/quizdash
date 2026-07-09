@@ -523,13 +523,13 @@ Which of these is a JavaScript framework?
 - Vue *
 - Laravel
 
-## Q4 | 15s | poll
+## Q4 | 15s | read 5s | poll
 What should we order for the next social?
 - Pizza
 - Tacos
 - Sushi
 
-## Q5 | 20s | closest
+## Q5 | 20s | read 10s | closest
 How many bones are in the human body?
 = 206</code></pre>
           <ul>
@@ -542,6 +542,7 @@ How many bones are in the human body?
             <li><b>True/False</b> is just a question with two options: <code>- True</code> / <code>- False *</code>. Any two options work.</li>
             <li><code>| poll</code> — an <b>opinion poll</b>: options as usual but <b>no <code>*</code></b> anywhere. Nobody scores points; the reveal shows how the room voted (great with the 📸 button).</li>
             <li><code>| closest</code> — a <b>closest-guess question</b>: no options. Give the answer as <code>= 206</code> on its own line (the <code>| closest</code> flag is optional when a <code>=</code> line is present). Everyone types a number on their phone; the nearest guess earns 1000 points, further guesses proportionally less, ties share.</li>
+            <li><b>Combining flags</b> — any order works, but the suggested one is timer, reading time, then type: <code>## Q1 | 20s | read 10s | closest</code>.</li>
           </ul>
           <p>Every question opens with a <b>read-it-first preview</b> (5 seconds unless you set <code>| read …s</code>), then the answer timer starts for everyone at the same moment — so slow-loading phones never lose scoring time.</p>
           <p>Scoring: correct answers earn <b>500–1000 points</b> — the faster you answer, the closer to 1000. Wrong answers earn 0.</p>
@@ -1143,14 +1144,14 @@ Which of these is NOT a programming language?
 - Cobra
 - Falcon *
 
-## Q6 | 15s | poll
+## Q6 | 15s | read 5s | poll
 Best snack for movie night?
 - Popcorn
 - Nachos
 - Ice cream
 - Candy
 
-## Q7 | 20s | closest
+## Q7 | 20s | read 10s | closest
 How many bones are in the adult human body?
 = 206`;
 
