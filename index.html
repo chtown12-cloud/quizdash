@@ -241,6 +241,9 @@ button.answer:active{transform:translateY(4px) scale(.99);box-shadow:0 1px 0 rgb
 .answer.dim{opacity:.55;filter:saturate(.35)}
 .answer.win{outline:5px solid #fff;transform:scale(1.03)}
 .answer .dist{position:absolute;right:14px;bottom:10px;font-size:.85rem;font-weight:800;opacity:.95}
+/* Closest-guess input (player phones) */
+.guessbox{grid-column:1/-1;display:flex;flex-direction:column;gap:14px;align-items:center;text-align:center}
+.guessbox input{width:min(100%,340px);font-family:var(--font-display);font-weight:800;font-size:2.2rem;text-align:center;border:none;border-radius:16px;padding:14px 18px;color:var(--card-ink);background:#fff;box-shadow:var(--shadow)}
 .answer .votefill{position:absolute;left:0;bottom:0;height:7px;width:0;background:currentColor;opacity:.7;border-radius:0 6px 6px 0;transition:width .9s cubic-bezier(.22,1,.36,1);pointer-events:none}
 .answer .tick{position:absolute;right:14px;top:10px;font-size:1.3rem}
 
@@ -518,7 +521,17 @@ The Earth is flat.
 ## Q3
 Which of these is a JavaScript framework?
 - Vue *
-- Laravel</code></pre>
+- Laravel
+
+## Q4 | 15s | poll
+What should we order for the next social?
+- Pizza
+- Tacos
+- Sushi
+
+## Q5 | 20s | closest
+How many bones are in the human body?
+= 206</code></pre>
           <ul>
             <li><code># Title</code> — one line starting with a single <code>#</code>. Shown in the lobby.</li>
             <li><code>## Q1 | 20s</code> — starts a question. The label before <code>|</code> can be anything (<code>Q1</code>, <code>Round 2</code>…). The <code>| 20s</code> part is the <b>optional answer timer</b> (1–300 seconds, default 20), e.g. <code>## Q3</code> uses the default.</li>
@@ -527,6 +540,8 @@ Which of these is a JavaScript framework?
             <li><code>- Option text</code> — each answer on its own line, 2–4 per question.</li>
             <li>Mark the correct answer by ending the line with <code>*</code>: <code>- Paris *</code> (a <code>✓</code> or <code>✔</code> works too, if you like).</li>
             <li><b>True/False</b> is just a question with two options: <code>- True</code> / <code>- False *</code>. Any two options work.</li>
+            <li><code>| poll</code> — an <b>opinion poll</b>: options as usual but <b>no <code>*</code></b> anywhere. Nobody scores points; the reveal shows how the room voted (great with the 📸 button).</li>
+            <li><code>| closest</code> — a <b>closest-guess question</b>: no options. Give the answer as <code>= 206</code> on its own line (the <code>| closest</code> flag is optional when a <code>=</code> line is present). Everyone types a number on their phone; the nearest guess earns 1000 points, further guesses proportionally less, ties share.</li>
           </ul>
           <p>Every question opens with a <b>read-it-first preview</b> (5 seconds unless you set <code>| read …s</code>), then the answer timer starts for everyone at the same moment — so slow-loading phones never lose scoring time.</p>
           <p>Scoring: correct answers earn <b>500–1000 points</b> — the faster you answer, the closer to 1000. Wrong answers earn 0.</p>
@@ -1008,6 +1023,10 @@ function applyTheme(colors){
      Question text (one or more lines)
      - Option A *         <- trailing * (or ✓ / ✔) marks the correct one
      - Option B
+   Two more question types via header flags:
+     ## Q2 | poll         <- opinion poll: options but NO correct answer
+     ## Q3 | closest      <- everyone guesses a number; instead of options,
+     = 1665                  give the answer as "= number" (closest wins)
    ═══════════════════════════════════════════════════════════════════════ */
 function parseQuiz(text){
   const lines = (text || '').split(/\r?\n/);
@@ -1018,8 +1037,17 @@ function parseQuiz(text){
     if (!q) return;
     const who = q.label || ('Question ' + (questions.length + 1));
     if (!q.text) errors.push(`${who}: question text is missing (write it on the line after the ## header).`);
-    if (q.options.length < 2 || q.options.length > 4) errors.push(`${who}: has ${q.options.length} option(s) — needs between 2 and 4.`);
-    if (q.correct < 0) errors.push(`${who}: no correct answer marked. End one option with * (e.g. "- Paris *").`);
+    if (q.type === 'closest'){
+      if (q.target === undefined) errors.push(`${who}: a closest-guess question needs its answer as "= number" (e.g. "= 1665").`);
+      if (q.options.length) errors.push(`${who}: closest-guess questions take a "= number" line, not "-" options.`);
+    } else {
+      if (q.options.length < 2 || q.options.length > 4) errors.push(`${who}: has ${q.options.length} option(s) — needs between 2 and 4.`);
+      if (q.type === 'poll'){
+        if (q.correct >= 0) errors.push(`${who}: polls have no correct answer — remove the * from the options.`);
+      } else if (q.correct < 0){
+        errors.push(`${who}: no correct answer marked. End one option with * (e.g. "- Paris *") — or add "| poll" to make it an opinion poll.`);
+      }
+    }
     questions.push(q);
   };
 
@@ -1032,9 +1060,12 @@ function parseQuiz(text){
       const head = line.replace(/^##\s+/, '');
       const parts = head.split('|');
       let dur = 20, preview = PREVIEW_SECS;
+      let type = 'quiz';
       for (let pi = 1; pi < parts.length; pi++){
         const seg = parts[pi].trim();
         if (!seg) continue;
+        if (/^poll$/i.test(seg)){ type = 'poll'; continue; }
+        if (/^closest$/i.test(seg)){ type = 'closest'; continue; }
         const readM = seg.match(/^read\s*(\d+)\s*s?$/i);
         if (readM){
           const rv = parseInt(readM[1], 10);
@@ -1044,9 +1075,17 @@ function parseQuiz(text){
         }
         const d = parseInt(seg, 10);
         if (Number.isFinite(d) && d >= 1 && d <= 300) dur = d;
-        else errors.push(`Line ${i+1}: couldn't read "${seg}" — use "| 20s" for the answer timer (1–300) or "| read 5s" for reading time (0–30).`);
+        else errors.push(`Line ${i+1}: couldn't read "${seg}" — use "| 20s" (answer timer), "| read 5s" (reading time), "| poll" or "| closest".`);
       }
-      cur = { label: parts[0].trim() || 'Q' + (questions.length + 1), duration: dur, preview, text: '', options: [], correct: -1 };
+      cur = { label: parts[0].trim() || 'Q' + (questions.length + 1), duration: dur, preview, type, text: '', options: [], correct: -1 };
+      return;
+    }
+    if (/^=\s*/.test(line)) {
+      if (!cur) { errors.push(`Line ${i+1}: found a "= number" line before any "## Q…" header.`); return; }
+      const m = line.match(/^=\s*(-?\d+(?:[.,]\d+)?)\s*$/);
+      if (!m){ errors.push(`Line ${i+1}: couldn't read "${line}" — a closest-guess answer looks like "= 1665".`); return; }
+      cur.type = 'closest'; // "= number" implies closest-guess, flag optional
+      cur.target = Number(m[1].replace(',', '.'));
       return;
     }
     if (/^-\s+/.test(line)) {
@@ -1102,7 +1141,18 @@ Which of these is NOT a programming language?
 - Python
 - Ruby
 - Cobra
-- Falcon *`;
+- Falcon *
+
+## Q6 | 15s | poll
+Best snack for movie night?
+- Popcorn
+- Nachos
+- Ice cream
+- Candy
+
+## Q7 | 20s | closest
+How many bones are in the adult human body?
+= 206`;
 
 /* Scoring: correct = 500–1000 pts, scaled by speed. Wrong = 0. */
 function scoreFor(elapsed, duration){
@@ -1270,6 +1320,7 @@ const AVATARS = ['⚡','🦊','🐼','🦄','🐸','🐙','🦁','🐧','🦜','
 const av = e => AVATARS.includes(e) ? e : '🙂';
 const REACTIONS = ['😂','🔥','😱','👏','😭','❤️'];
 const SUSPENSE_LINES = ['🥁 And the answer is…','😬 Moment of truth…','🤞 Fingers crossed…','👀 Everybody hold your breath…','💓 Heart rates rising…'];
+const POLL_LINE = '📊 The votes are in…'; // polls get their own suspense line
 /* Every question opens with a read-only preview so slow-loading phones
    lose reading time, never answering time — the answer timer starts for
    everyone at the same moment. Default seconds; override per question
@@ -1491,11 +1542,18 @@ const Host = {
     await Sync.set(this.path('reactions'), null);
     if (this.seenReacts) this.seenReacts.clear();
 
+    // What phones need to render the question. Closest-guess questions
+    // send no options — and never the target, so the answer can't be
+    // sniffed from the database mid-question.
+    const qPayload = q.type === 'closest'
+      ? { text: q.text, duration: q.duration, type: 'closest' }
+      : { text: q.text, options: q.options, duration: q.duration, type: q.type || 'quiz' };
+
     const pv = Number.isInteger(q.preview) ? q.preview : PREVIEW_SECS;
     if (pv > 0){
       await Sync.set(this.path('state'), {
         phase: 'preview', qIndex: i, total: this.quiz.questions.length, previewSecs: pv,
-        q: { text: q.text, options: q.options, duration: q.duration }
+        q: qPayload
       });
       if (this.stopTimer){ this.stopTimer(); this.stopTimer = null; }
       await this.runPreview(pv);
@@ -1505,13 +1563,15 @@ const Host = {
     // ── Phase 2: answers open — the timer starts for everyone NOW ──
     this.playersAtQ = Object.keys(this.players).length;
     $('hq-total').textContent = this.playersAtQ;
-    $('hq-answers').innerHTML = q.options.map((o,j) => answerButtonHTML(o, j, 'div')).join('');
+    $('hq-answers').innerHTML = q.type === 'closest'
+      ? `<p class="pulse" style="grid-column:1/-1;text-align:center;font-weight:700;font-size:1.25rem">🎯 Type your best guess on your phone — closest wins!</p>`
+      : q.options.map((o,j) => answerButtonHTML(o, j, 'div')).join('');
     if (pv > 0){
       await Sync.update(this.path('state'), { phase: 'question' }); // merge: q/qIndex/total stay
     } else {
       await Sync.set(this.path('state'), {
         phase: 'question', qIndex: i, total: this.quiz.questions.length,
-        q: { text: q.text, options: q.options, duration: q.duration }
+        q: qPayload
       });
     }
     SFX.play('board');
@@ -1554,61 +1614,117 @@ const Host = {
     if (this.stopTimer) this.stopTimer();
     if (this.unsubAnswers){ this.unsubAnswers(); this.unsubAnswers = null; }
 
+    const i = this.qIndex, q = this.quiz.questions[i];
+    const isPoll = q.type === 'poll';
+
     // Dramatic beat: ~2s of synchronized drumroll on the big screen AND
     // every phone before anything is revealed. The suspense line travels
-    // as an index so phones show the same one.
+    // as an index so phones show the same one (polls get their own line).
     const li = Math.floor(Math.random() * SUSPENSE_LINES.length);
     $('hq-timer').textContent = '🥁';
     const drum = $('hq-drum');
-    drum.textContent = SUSPENSE_LINES[li];
+    drum.textContent = isPoll ? POLL_LINE : SUSPENSE_LINES[li];
     drum.style.display = '';
     SFX.play('drumroll');
-    await Sync.update(this.path('state'), { phase: 'suspense', line: li });
+    await Sync.update(this.path('state'), { phase: 'suspense', line: li, poll: isPoll });
     await sleep(2100);
     drum.style.display = 'none';
 
-    const i = this.qIndex, q = this.quiz.questions[i];
     const answers = (await Sync.get(this.path('answers/' + i))) || {};
-
-    // Score everyone (players with no answer get 0 for this round)
-    const dist = q.options.map(() => 0);
-    const updates = {};
-    for (const [pid, p] of Object.entries(this.players)){
-      const a = answers[pid];
-      let pts = 0, correct = false;
-      if (a && Number.isInteger(a.c) && a.c >= 0 && a.c < q.options.length){
-        dist[a.c]++;
-        correct = a.c === q.correct;
-        if (correct) pts = scoreFor(Math.max(0, Number(a.e) || 0), q.duration);
+    if (q.type === 'closest'){
+      await this.revealClosest(q, answers);
+    } else {
+      // Score everyone (players with no answer get 0 for this round).
+      // Polls score nothing for anyone — q.correct is -1, so no answer
+      // ever matches and every round lands on 0 points automatically.
+      const dist = q.options.map(() => 0);
+      const updates = {};
+      for (const [pid, p] of Object.entries(this.players)){
+        const a = answers[pid];
+        let pts = 0, correct = false;
+        if (a && Number.isInteger(a.c) && a.c >= 0 && a.c < q.options.length){
+          dist[a.c]++;
+          correct = a.c === q.correct;
+          if (correct) pts = scoreFor(Math.max(0, Number(a.e) || 0), q.duration);
+        }
+        const newScore = (Number(p.score) || 0) + pts; // coerce: DB values are untrusted
+        this.players[pid] = { ...p, score: newScore, last: pts, lastCorrect: correct, answered: !!a };
+        updates[pid] = this.players[pid];
       }
-      const newScore = (Number(p.score) || 0) + pts; // coerce: DB values are untrusted
-      this.players[pid] = { ...p, score: newScore, last: pts, lastCorrect: correct, answered: !!a };
-      updates[pid] = this.players[pid];
+      await Sync.update(this.path('players'), updates); // merge per-player, so late joiners aren't clobbered
+
+      // Host reveal UI first — the big screen is the source of truth…
+      // Each option shows its count, its share, and an animated vote bar.
+      // Polls keep every option at full strength (there's no right answer).
+      const total = dist.reduce((a,b) => a+b, 0);
+      document.querySelectorAll('#hq-answers .answer').forEach((el, j) => {
+        if (!isPoll) el.classList.add(j === q.correct ? 'win' : 'dim');
+        const pct = total ? Math.round(dist[j] / total * 100) : 0;
+        el.insertAdjacentHTML('beforeend',
+          `<span class="dist">${dist[j]} ${dist[j] === 1 ? 'vote' : 'votes'}${total ? ` · ${pct}%` : ''}</span><span class="votefill"></span>`);
+        if (!isPoll && j === q.correct) el.insertAdjacentHTML('beforeend', `<span class="tick">✅</span>`);
+        requestAnimationFrame(() => requestAnimationFrame(() => { el.querySelector('.votefill').style.width = pct + '%'; }));
+      });
+      $('hq-timer').textContent = isPoll ? '📊' : '✓';
+      SFX.play('reveal');
+
+      // …then, once it's showing, tell the phones whether they got it right.
+      // Type flags are set explicitly every time: phase writes are merges,
+      // so a stale poll/closest flag would otherwise leak into the next reveal.
+      await Sync.update(this.path('state'), { phase: 'reveal', correct: q.correct, dist, poll: isPoll, closest: false, target: null });
     }
-    await Sync.update(this.path('players'), updates); // merge per-player, so late joiners aren't clobbered
-
-    // Host reveal UI first — the big screen is the source of truth…
-    // Each option shows its count, its share, and an animated vote bar.
-    const total = dist.reduce((a,b) => a+b, 0);
-    document.querySelectorAll('#hq-answers .answer').forEach((el, j) => {
-      el.classList.add(j === q.correct ? 'win' : 'dim');
-      const pct = total ? Math.round(dist[j] / total * 100) : 0;
-      el.insertAdjacentHTML('beforeend',
-        `<span class="dist">${dist[j]} ${dist[j] === 1 ? 'vote' : 'votes'}${total ? ` · ${pct}%` : ''}</span><span class="votefill"></span>`);
-      if (j === q.correct) el.insertAdjacentHTML('beforeend', `<span class="tick">✅</span>`);
-      requestAnimationFrame(() => requestAnimationFrame(() => { el.querySelector('.votefill').style.width = pct + '%'; }));
-    });
-    $('hq-timer').textContent = '✓';
-    SFX.play('reveal');
-
-    // …then, once it's showing, tell the phones whether they got it right.
-    await Sync.update(this.path('state'), { phase: 'reveal', correct: q.correct, dist });
 
     const last = i === this.quiz.questions.length - 1;
     const btn = $('btn-hq-next');
-    btn.textContent = last ? 'Reveal the winners 🏆' : 'Show leaderboard →';
+    // After a poll the leaderboard hasn't changed, so skip straight on.
+    btn.textContent = last ? 'Reveal the winners 🏆' : isPoll ? 'Next question →' : 'Show leaderboard →';
     btn.style.display = '';
-    btn.onclick = () => last ? this.showPodium() : this.showBoard();
+    btn.onclick = () => last ? this.showPodium() : isPoll ? this.showQuestion(i + 1) : this.showBoard();
+  },
+
+  // Closest-guess reveal: rank everyone by distance to the target.
+  // Nearest band earns 1000, each band further earns proportionally less;
+  // equal guesses share the same band (and the same points).
+  async revealClosest(q, answers){
+    const entries = [];
+    for (const pid of Object.keys(this.players)){
+      const a = answers[pid];
+      if (a && Number.isFinite(Number(a.g))) entries.push({ pid, g: Number(a.g), d: Math.abs(Number(a.g) - q.target) });
+    }
+    entries.sort((x, y) => x.d - y.d);
+    let lastD = null, band = -1;
+    entries.forEach(en => { if (en.d !== lastD){ band++; lastD = en.d; } en.band = band; });
+    const bands = band + 1;
+    const ptsBy = {};
+    entries.forEach(en => ptsBy[en.pid] = Math.round(1000 * (bands - en.band) / bands));
+
+    const updates = {};
+    for (const [pid, p] of Object.entries(this.players)){
+      const pts = ptsBy[pid] || 0;
+      const newScore = (Number(p.score) || 0) + pts;
+      this.players[pid] = { ...p, score: newScore, last: pts, lastCorrect: pts > 0, answered: !!answers[pid] };
+      updates[pid] = this.players[pid];
+    }
+    await Sync.update(this.path('players'), updates);
+
+    // Big screen: the target, then the guesses ranked by closeness
+    const rows = entries.slice(0, 6).map(en => {
+      const p = this.players[en.pid] || {};
+      return `<div class="boardrow">
+        <span class="rank">${en.band + 1}</span>
+        <span class="bname">${av(p.emoji)} ${esc(String(p.name || ''))} — ${en.g.toLocaleString()}</span>
+        <span class="bdelta">${en.d === 0 ? '🎯 spot on!' : 'off by ' + en.d.toLocaleString()}</span>
+        <span class="bscore">+${ptsBy[en.pid]}</span>
+      </div>`;
+    }).join('');
+    $('hq-answers').innerHTML =
+      `<div class="answer win" style="grid-column:1/-1;justify-content:center;font-size:1.7rem">🎯 ${q.target.toLocaleString()}</div>` +
+      (rows ? `<div class="board" style="grid-column:1/-1;max-width:none">${rows}</div>`
+            : `<p style="grid-column:1/-1;text-align:center;font-weight:600">No guesses came in.</p>`);
+    $('hq-timer').textContent = '🎯';
+    SFX.play('reveal');
+
+    await Sync.update(this.path('state'), { phase: 'reveal', correct: -1, dist: null, poll: false, closest: true, target: q.target });
   },
 
   standings(){
@@ -1823,10 +1939,23 @@ const Player = {
     $('pq-locked').style.display = 'none';
     const grid = $('pq-answers');
     grid.style.display = '';
-    grid.innerHTML = s.q.options.map((o,j) => answerButtonHTML(o, j, 'button')).join('');
-    grid.querySelectorAll('button.answer').forEach(btn => {
-      btn.onclick = () => this.answer(Number(btn.dataset.i), s);
-    });
+    if (s.q.type === 'closest'){
+      // Closest-guess: a number pad instead of option buttons
+      grid.innerHTML = `<div class="guessbox">
+        <input type="number" step="any" inputmode="decimal" id="pq-guess" placeholder="123…" aria-label="Your guess">
+        <button class="btn big" id="pq-guess-btn">Lock it in 🎯</button>
+        <p class="small muted">Closest guess wins the most points!</p>
+      </div>`;
+      const input = $('pq-guess');
+      $('pq-guess-btn').onclick = () => this.answerGuess(input.value, s);
+      input.addEventListener('keydown', e => { if (e.key === 'Enter') this.answerGuess(input.value, s); });
+      input.focus();
+    } else {
+      grid.innerHTML = s.q.options.map((o,j) => answerButtonHTML(o, j, 'button')).join('');
+      grid.querySelectorAll('button.answer').forEach(btn => {
+        btn.onclick = () => this.answer(Number(btn.dataset.i), s);
+      });
+    }
     if (this.stopTimer) this.stopTimer();
     this.stopTimer = startTimerUI($('pq-timer'), $('pq-timerbar'), s.q.duration, () => this.lockOut());
     show('s-pquestion');
@@ -1838,6 +1967,23 @@ const Player = {
     SFX.play('tap');
     const elapsed = Math.min(s.q.duration, (Date.now() - this.receivedAt) / 1000);
     Sync.set(this.path(`answers/${s.qIndex}/${this.id}`), { c: choice, e: Math.round(elapsed * 100) / 100 });
+    this.lockOut();
+  },
+
+  // Closest-guess answer: myAnswer holds the guessed number, and the
+  // payload carries g (guess) instead of c (choice index).
+  answerGuess(val, s){
+    if (this.myAnswer !== null) return;
+    const g = Number(String(val).trim().replace(',', '.'));
+    if (String(val).trim() === '' || !Number.isFinite(g)){
+      const input = $('pq-guess');
+      if (input){ input.placeholder = 'Type a number first!'; input.value = ''; }
+      return;
+    }
+    this.myAnswer = Math.round(g * 100) / 100;
+    SFX.play('tap');
+    const elapsed = Math.min(s.q.duration, (Date.now() - this.receivedAt) / 1000);
+    Sync.set(this.path(`answers/${s.qIndex}/${this.id}`), { g: this.myAnswer, e: Math.round(elapsed * 100) / 100 });
     this.lockOut();
   },
 
@@ -1853,8 +1999,8 @@ const Player = {
   // The host is drumrolling: mirror the drama on the phone.
   renderSuspense(s){
     if (this.stopTimer) this.stopTimer();
-    $('pq-locked-mark').textContent = '🥁';
-    $('pq-locked-title').textContent = SUSPENSE_LINES[Number(s.line)] || SUSPENSE_LINES[0];
+    $('pq-locked-mark').textContent = s.poll ? '📊' : '🥁';
+    $('pq-locked-title').textContent = s.poll ? POLL_LINE : (SUSPENSE_LINES[Number(s.line)] || SUSPENSE_LINES[0]);
     $('pq-locked-sub').textContent = 'Watch the big screen for the answer…';
     $('pq-answers').style.display = 'none';
     $('pq-locked').style.display = 'flex';
@@ -1875,24 +2021,47 @@ const Player = {
   renderReveal(s){
     $('pr-progress').textContent = `Q${s.qIndex + 1}${s.total ? ' / ' + s.total : ''}`;
     const answered = this.myAnswer !== null;
-    const correct = answered && this.myAnswer === s.correct;
     const pts = Number(this.me.last) || 0; // coerce: DB values are untrusted
-    SFX.play(correct ? 'correct' : 'wrong');
-    $('pr-body').innerHTML = correct ? `
+
+    if (s.poll){
+      // Opinion poll: nobody scores; just confirm the vote landed
+      const picked = answered && s.q && Array.isArray(s.q.options) ? s.q.options[this.myAnswer] : null;
+      SFX.play('board');
+      $('pr-body').innerHTML = `
+        <div class="bigmark">🗳️</div>
+        <h1 class="display" style="font-size:2.2rem">${answered ? 'Vote counted!' : 'No vote this time'}</h1>
+        ${picked != null ? `<p style="font-weight:700">You picked: ${esc(String(picked))}</p>` : ''}
+        <p class="muted">See how the room voted on the big screen.</p>`;
+    } else if (s.closest){
+      // Closest-guess: show the target, your distance and your points
+      const target = Number(s.target);
+      const off = answered ? Math.abs(Number(this.myAnswer) - target) : 0;
+      SFX.play(answered && pts >= 500 ? 'correct' : answered ? 'board' : 'wrong');
+      $('pr-body').innerHTML = `
         <div class="bigmark">🎯</div>
-        <h1 class="display" style="font-size:2.2rem">Correct!</h1>
-        <div class="points-pop">+${pts.toLocaleString()}</div>
-        <p class="muted">Speed pays — nice one.</p>`
-      : answered ? `
-        <div class="bigmark">😵</div>
-        <h1 class="display" style="font-size:2.2rem">Not this time</h1>
-        <div class="points-pop">+0</div>
-        <p class="muted">Shake it off — next question's yours.</p>`
-      : `
-        <div class="bigmark">🐌</div>
-        <h1 class="display" style="font-size:2.2rem">Too slow!</h1>
-        <div class="points-pop">+0</div>
-        <p class="muted">No answer locked in. Thumbs ready for the next one!</p>`;
+        <h1 class="display" style="font-size:2.2rem">Answer: ${target.toLocaleString()}</h1>
+        ${answered
+          ? `<p style="font-weight:700">You guessed ${Number(this.myAnswer).toLocaleString()} — ${off === 0 ? 'spot on! 🎉' : 'off by ' + off.toLocaleString()}</p><div class="points-pop">+${pts.toLocaleString()}</div>`
+          : `<div class="points-pop">+0</div><p class="muted">No guess locked in this round.</p>`}`;
+    } else {
+      const correct = answered && this.myAnswer === s.correct;
+      SFX.play(correct ? 'correct' : 'wrong');
+      $('pr-body').innerHTML = correct ? `
+          <div class="bigmark">🎯</div>
+          <h1 class="display" style="font-size:2.2rem">Correct!</h1>
+          <div class="points-pop">+${pts.toLocaleString()}</div>
+          <p class="muted">Speed pays — nice one.</p>`
+        : answered ? `
+          <div class="bigmark">😵</div>
+          <h1 class="display" style="font-size:2.2rem">Not this time</h1>
+          <div class="points-pop">+0</div>
+          <p class="muted">Shake it off — next question's yours.</p>`
+        : `
+          <div class="bigmark">🐌</div>
+          <h1 class="display" style="font-size:2.2rem">Too slow!</h1>
+          <div class="points-pop">+0</div>
+          <p class="muted">No answer locked in. Thumbs ready for the next one!</p>`;
+    }
     $('react-bar').style.display = 'flex';
     show('s-presult');
   },
