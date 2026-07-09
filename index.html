@@ -325,10 +325,10 @@ select.fontsel:focus{border-color:var(--c1);outline:none}
 html[data-theme=arcade] body{background:radial-gradient(900px 500px at 50% -10%,color-mix(in srgb,var(--b0) 14%,transparent),transparent 60%),radial-gradient(700px 500px at 90% 110%,color-mix(in srgb,var(--b1) 12%,transparent),transparent 60%),color-mix(in srgb,var(--c1) 22%,#050514)}
 html[data-theme=arcade] body::before{content:"";position:fixed;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.13) 0 2px,transparent 2px 5px);pointer-events:none;z-index:0}
 html[data-theme=arcade] .answer{background:rgba(255,255,255,.03);border:2.5px solid;border-radius:8px;text-transform:uppercase;letter-spacing:.06em}
-html[data-theme=arcade] .answer.a0{border-color:var(--b0);color:var(--b0);box-shadow:0 0 18px color-mix(in srgb,var(--b0) 35%,transparent),inset 0 0 22px color-mix(in srgb,var(--b0) 8%,transparent)}
-html[data-theme=arcade] .answer.a1{border-color:var(--b1);color:var(--b1);box-shadow:0 0 18px color-mix(in srgb,var(--b1) 35%,transparent),inset 0 0 22px color-mix(in srgb,var(--b1) 8%,transparent)}
-html[data-theme=arcade] .answer.a2{border-color:var(--b2);color:var(--b2);box-shadow:0 0 18px color-mix(in srgb,var(--b2) 35%,transparent),inset 0 0 22px color-mix(in srgb,var(--b2) 8%,transparent)}
-html[data-theme=arcade] .answer.a3{border-color:var(--b3);color:var(--b3);box-shadow:0 0 18px color-mix(in srgb,var(--b3) 35%,transparent),inset 0 0 22px color-mix(in srgb,var(--b3) 8%,transparent)}
+html[data-theme=arcade] .answer.a0{border-color:var(--bfg0,var(--b0));color:var(--bfg0,var(--b0));box-shadow:0 0 18px color-mix(in srgb,var(--bfg0,var(--b0)) 35%,transparent),inset 0 0 22px color-mix(in srgb,var(--bfg0,var(--b0)) 8%,transparent)}
+html[data-theme=arcade] .answer.a1{border-color:var(--bfg1,var(--b1));color:var(--bfg1,var(--b1));box-shadow:0 0 18px color-mix(in srgb,var(--bfg1,var(--b1)) 35%,transparent),inset 0 0 22px color-mix(in srgb,var(--bfg1,var(--b1)) 8%,transparent)}
+html[data-theme=arcade] .answer.a2{border-color:var(--bfg2,var(--b2));color:var(--bfg2,var(--b2));box-shadow:0 0 18px color-mix(in srgb,var(--bfg2,var(--b2)) 35%,transparent),inset 0 0 22px color-mix(in srgb,var(--bfg2,var(--b2)) 8%,transparent)}
+html[data-theme=arcade] .answer.a3{border-color:var(--bfg3,var(--b3));color:var(--bfg3,var(--b3));box-shadow:0 0 18px color-mix(in srgb,var(--bfg3,var(--b3)) 35%,transparent),inset 0 0 22px color-mix(in srgb,var(--bfg3,var(--b3)) 8%,transparent)}
 html[data-theme=arcade] .pill{background:transparent;border:2px solid var(--tfg,var(--c2));color:var(--tfg,var(--c2));border-radius:4px}
 html[data-theme=arcade] .roomcode{border:2px solid var(--tfg,var(--c2));background:rgba(255,255,255,.03);box-shadow:0 0 26px color-mix(in srgb,var(--tfg,var(--c2)) 40%,transparent)}
 html[data-theme=arcade] .timernum{color:var(--tfg,var(--c2));text-shadow:0 0 14px var(--tfg,var(--c2))}
@@ -577,9 +577,10 @@ Which of these is a JavaScript framework?
 
 <!-- ════════════════════ HOST: LOBBY ════════════════════ -->
 <section class="screen" id="s-hlobby">
-  <div class="topbar"><div class="logo"><span class="bolt">⚡</span> QuizDash</div><div class="spacer"></div><span class="pill" id="hlobby-title"></span><button class="btn ghost homebtn" onclick="goHome()">🏠 Home</button></div>
+  <div class="topbar"><div class="logo"><span class="bolt">⚡</span> QuizDash</div><div class="spacer"></div><button class="btn ghost homebtn" onclick="goHome()">🏠 Home</button></div>
   <div class="center stack" style="gap:20px">
-    <p style="font-size:1.15rem">Join at <b id="hlobby-url-label"></b> with room code</p>
+    <h1 class="display" id="hlobby-title" style="font-size:clamp(2rem,6vw,3.6rem);font-weight:800;text-wrap:balance;max-width:900px"></h1>
+    <p style="font-size:1.15rem;margin-top:-6px">Join at <b id="hlobby-url-label"></b> with room code</p>
     <div class="roomcode" id="hlobby-code">····</div>
     <div class="qrcard" id="hlobby-qr" style="display:none">
       <div id="hlobby-qr-img" aria-hidden="true"></div>
@@ -923,7 +924,15 @@ function applyTheme(colors){
   r.setProperty('--c1-deep', shade(c[0], -0.35));
   r.setProperty('--c1-soft', shade(c[0], 0.22));
   const btns = [c[1], c[2], c[3], shade(c[0], 0.35)];
-  btns.forEach((col,i) => { r.setProperty('--b'+i, col); r.setProperty('--t'+i, textOn(col)); });
+  btns.forEach((col,i) => {
+    r.setProperty('--b'+i, col); r.setProperty('--t'+i, textOn(col));
+    // Neon skins draw the answer TEXT in the button color on a near-black
+    // stage; a dark pick would be unreadable, so lighten a copy (--bfgN)
+    // until it has enough contrast. Filled buttons keep the true color.
+    let f = col;
+    for (let k = 0; k < 6 && luminance(f) < .2; k++) f = shade(f, .3);
+    r.setProperty('--bfg'+i, f);
+  });
 }
 
 /* ════════════════ QUIZ PARSER ═══════════════════════════════════════════
