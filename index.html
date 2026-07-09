@@ -237,9 +237,11 @@ details.docs[open] summary::after{transform:rotate(90deg)}
 .answer.a2{background:var(--b2);color:var(--t2)}
 .answer.a3{background:var(--b3);color:var(--t3)}
 button.answer:active{transform:translateY(4px) scale(.99);box-shadow:0 1px 0 rgba(0,0,0,.25)}
-.answer.dim{opacity:.28;filter:saturate(.4)}
+/* Losing options stay readable on reveal — the vote counts are the point */
+.answer.dim{opacity:.55;filter:saturate(.35)}
 .answer.win{outline:5px solid #fff;transform:scale(1.03)}
-.answer .dist{position:absolute;right:14px;bottom:8px;font-size:.85rem;font-weight:800;opacity:.9}
+.answer .dist{position:absolute;right:14px;bottom:10px;font-size:.85rem;font-weight:800;opacity:.95}
+.answer .votefill{position:absolute;left:0;bottom:0;height:7px;width:0;background:currentColor;opacity:.7;border-radius:0 6px 6px 0;transition:width .9s cubic-bezier(.22,1,.36,1);pointer-events:none}
 .answer .tick{position:absolute;right:14px;top:10px;font-size:1.3rem}
 
 /* ── Leaderboard ────────────────────────────────────────────────────────── */
@@ -295,6 +297,7 @@ button.answer:active{transform:translateY(4px) scale(.99);box-shadow:0 1px 0 rgb
 .timerbar.low>div{background:#FF5A5F}
 @keyframes heartbeat{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
 .mutebtn{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:60;width:46px;height:46px;border-radius:50%;background:rgba(0,0,0,.35);color:#fff;font-size:1.2rem;border:1.5px solid rgba(255,255,255,.3);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center}
+.snapbtn{right:auto;left:14px}
 .homebtn{padding:8px 16px !important;font-size:.9rem !important}
 select.fontsel{width:100%;border:2px solid #DDD7EE;border-radius:12px;padding:11px 12px;background:#FBFAFF;color:var(--card-ink);cursor:pointer}
 select.fontsel:focus{border-color:var(--c1);outline:none}
@@ -381,7 +384,7 @@ html[data-theme=editorial] .answer.a0::before{color:color-mix(in srgb,var(--b0) 
 html[data-theme=editorial] .answer.a2::before{color:color-mix(in srgb,var(--b2) 60%,#141414)} html[data-theme=editorial] .answer.a3::before{color:color-mix(in srgb,var(--b3) 60%,#141414)}
 html[data-theme=editorial] .answer .shape{display:none}
 html[data-theme=editorial] .answer.win{outline:none;background:color-mix(in srgb,var(--c2) 20%,#fff);transform:none}
-html[data-theme=editorial] .answer.dim{opacity:.32}
+html[data-theme=editorial] .answer.dim{opacity:.55}
 html[data-theme=editorial] .pill{background:transparent;border:1px solid #888;color:#141414;border-radius:0}
 html[data-theme=editorial] .qtext{letter-spacing:-.02em;font-weight:800}
 html[data-theme=editorial] .timernum{color:color-mix(in srgb,var(--c2) 55%,#141414)}
@@ -470,6 +473,7 @@ html[data-theme=candy] .answer.win{outline-color:#5b4585}
 <body>
 <canvas id="confetti"></canvas>
 <button id="btn-mute" class="mutebtn" aria-label="Toggle sound">🔊</button>
+<button id="btn-snap" class="mutebtn snapbtn" aria-label="Save a screenshot of this screen">📸</button>
 
 <!-- ════════════════════ LANDING ════════════════════ -->
 <section class="screen active" id="s-landing">
@@ -742,6 +746,68 @@ function show(id){
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   $(id).classList.add('active');
   window.scrollTo(0,0);
+}
+
+/* ════════════════ SCREENSHOT (📸) ═══════════════════════════════════════
+   One tap saves the visible screen as a PNG — for recording poll results
+   or the final leaderboard. The CSP forbids CDN libraries, so this is
+   self-contained: clone the DOM (styles are all inline in this file),
+   wrap it in an SVG <foreignObject>, rasterize onto a canvas, download.
+   No permission prompts, works offline. External resources (the Google
+   Fonts <link>) are dropped from the clone so the canvas stays untainted;
+   text falls back to system fonts inside the capture.
+   ═══════════════════════════════════════════════════════════════════════ */
+async function snapScreen(){
+  const btn = $('btn-snap');
+  try {
+    const W = document.documentElement.clientWidth, H = document.documentElement.clientHeight;
+    const clone = document.documentElement.cloneNode(true);
+    clone.querySelectorAll('script,noscript,link,#btn-snap,#btn-mute,#confetti,.floatemo').forEach(n => n.remove());
+    // Freeze motion so nothing is caught mid-animation, and carry over
+    // live form state (cloneNode copies attributes, not current values).
+    const freeze = document.createElement('style');
+    freeze.textContent = '*{animation:none!important;transition:none!important;caret-color:transparent!important}';
+    clone.querySelector('head').appendChild(freeze);
+    const live = document.querySelectorAll('input,textarea,select');
+    clone.querySelectorAll('input,textarea,select').forEach((el, i) => {
+      const src = live[i]; if (!src) return;
+      if (el.tagName === 'TEXTAREA') el.textContent = src.value;
+      else if (el.tagName === 'SELECT') [...el.options].forEach(o => o.toggleAttribute('selected', o.value === src.value));
+      else el.setAttribute('value', src.value);
+    });
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">` +
+      `<foreignObject width="100%" height="100%">${new XMLSerializer().serializeToString(clone)}</foreignObject></svg>`;
+    const img = new Image();
+    await new Promise((res, rej) => {
+      img.onload = res; img.onerror = () => rej(new Error('SVG rasterize failed'));
+      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    });
+    const scale = Math.min(2, window.devicePixelRatio || 1);
+    const cv = document.createElement('canvas');
+    cv.width = Math.round(W * scale); cv.height = Math.round(H * scale);
+    const x = cv.getContext('2d');
+    x.scale(scale, scale);
+    x.drawImage(img, 0, 0, W, H);
+
+    const scr = document.querySelector('.screen.active');
+    const stamp = new Date().toISOString().slice(0, 19).replace('T', '_').replace(/:/g, '');
+    const a = document.createElement('a');
+    a.download = `quizdash-${scr ? scr.id.replace(/^s-/, '') : 'screen'}-${stamp}.png`;
+    a.href = cv.toDataURL('image/png');
+    a.click();
+
+    // Shutter feedback: white flash + confirmation on the button
+    const flash = document.createElement('div');
+    flash.style.cssText = 'position:fixed;inset:0;background:#fff;opacity:.65;z-index:70;pointer-events:none;transition:opacity .45s';
+    document.body.appendChild(flash);
+    requestAnimationFrame(() => flash.style.opacity = '0');
+    setTimeout(() => flash.remove(), 500);
+    SFX.play('blip');
+    btn.textContent = '✅'; setTimeout(() => btn.textContent = '📸', 1400);
+  } catch(e){
+    console.error('screenshot failed:', e);
+    btn.textContent = '⚠️'; setTimeout(() => btn.textContent = '📸', 1600);
+  }
 }
 
 /* ════════════════ SYNC LAYER ════════════════════════════════════════════
@@ -1522,11 +1588,15 @@ const Host = {
     await Sync.update(this.path('players'), updates); // merge per-player, so late joiners aren't clobbered
 
     // Host reveal UI first — the big screen is the source of truth…
-    const total = dist.reduce((a,b) => a+b, 0) || 1;
+    // Each option shows its count, its share, and an animated vote bar.
+    const total = dist.reduce((a,b) => a+b, 0);
     document.querySelectorAll('#hq-answers .answer').forEach((el, j) => {
       el.classList.add(j === q.correct ? 'win' : 'dim');
-      el.insertAdjacentHTML('beforeend', `<span class="dist">${dist[j]} ${dist[j] === 1 ? 'vote' : 'votes'}</span>`);
+      const pct = total ? Math.round(dist[j] / total * 100) : 0;
+      el.insertAdjacentHTML('beforeend',
+        `<span class="dist">${dist[j]} ${dist[j] === 1 ? 'vote' : 'votes'}${total ? ` · ${pct}%` : ''}</span><span class="votefill"></span>`);
       if (j === q.correct) el.insertAdjacentHTML('beforeend', `<span class="tick">✅</span>`);
+      requestAnimationFrame(() => requestAnimationFrame(() => { el.querySelector('.votefill').style.width = pct + '%'; }));
     });
     $('hq-timer').textContent = '✓';
     SFX.play('reveal');
@@ -1959,6 +2029,9 @@ function boot(){
     muteIcon();
     if (!SFX.muted) SFX.play('join');
   };
+
+  // Screenshot button (📸, bottom-left on every screen)
+  $('btn-snap').onclick = snapScreen;
 
   // Avatar picker (random pre-selection so lazy joiners still get a face)
   const grid = $('emoji-grid');
