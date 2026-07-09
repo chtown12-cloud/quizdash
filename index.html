@@ -151,10 +151,17 @@ a{color:inherit}
 .btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
 .btn.ghost{background:rgba(255,255,255,.12);color:var(--ink);border:1.5px solid rgba(255,255,255,.35);box-shadow:none}
 .btn.big{font-size:1.25rem;padding:18px 38px;border-radius:18px}
-.btn:focus-visible,.answer:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #fff;outline-offset:2px}
+/* Focus ring follows the page ink so it stays visible on light themes
+   (doodle/editorial/candy/nintendo); inside white cards it uses card ink. */
+.btn:focus-visible,.answer:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.card :is(button,input,textarea,select):focus-visible,.qrcard :is(button,input):focus-visible{outline-color:var(--card-ink)}
 
 /* ── Cards & fields ─────────────────────────────────────────────────────── */
 .card{background:var(--card);color:var(--card-ink);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow)}
+/* Reading surfaces paint above decorative full-screen overlays (the CRT
+   scanlines/vignette some themes draw at z-index 0) — text on a card must
+   never be striped or dimmed by a skin. */
+.card,.qrcard,.errbox,.okbox,.boardrow,.chip{position:relative;z-index:1}
 .card h2{margin-bottom:6px}
 .field label{display:block;font-weight:600;font-size:.9rem;margin-bottom:6px}
 .field input[type=text],.field textarea{
@@ -171,7 +178,7 @@ textarea.quizbox{min-height:230px;font-family:ui-monospace,SFMono-Regular,Menlo,
 .color-slot{display:flex;align-items:center;gap:8px;background:#FBFAFF;border:2px solid #DDD7EE;border-radius:12px;padding:8px 10px}
 .color-slot input[type=color]{width:38px;height:38px;border:none;background:none;padding:0;border-radius:8px;cursor:pointer}
 .color-slot input[type=text]{width:100%;border:none;background:transparent;font-family:ui-monospace,monospace;font-size:.9rem;color:var(--card-ink)}
-.color-slot .role{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#8A82AB;display:block}
+.color-slot .role{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6B6390;display:block}
 
 /* ── Docs (How to write your quiz) ──────────────────────────────────────── */
 details.docs{background:#F4F1FB;border-radius:12px;padding:0;overflow:hidden}
@@ -301,6 +308,11 @@ select.fontsel:focus{border-color:var(--c1);outline:none}
 .floatemo{position:fixed;bottom:-64px;font-size:2.5rem;z-index:55;pointer-events:none;animation:floatup 3s ease-in forwards}
 @keyframes floatup{0%{opacity:1}100%{transform:translateY(-115vh) rotate(var(--rot,0deg));opacity:0}}
 
+/* ── Reduced motion ─────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+}
+
 /* ── THEMES ──────────────────────────────────────────────────────────────
    Structural skins selected via html[data-theme=…]. Every theme keeps
    reading the picked colors (--c1/--c2, --b0..--b3, --t0..--t3) and fonts
@@ -310,21 +322,21 @@ select.fontsel:focus{border-color:var(--c1);outline:none}
 
 /* 🕹️ Arcade Neon — dark stage, glowing outlines, scanlines */
 html[data-theme=arcade] body{background:radial-gradient(900px 500px at 50% -10%,color-mix(in srgb,var(--b0) 14%,transparent),transparent 60%),radial-gradient(700px 500px at 90% 110%,color-mix(in srgb,var(--b1) 12%,transparent),transparent 60%),color-mix(in srgb,var(--c1) 22%,#050514)}
-html[data-theme=arcade] body::before{content:"";position:fixed;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.22) 0 2px,transparent 2px 5px);pointer-events:none;z-index:5}
+html[data-theme=arcade] body::before{content:"";position:fixed;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.13) 0 2px,transparent 2px 5px);pointer-events:none;z-index:0}
 html[data-theme=arcade] .answer{background:rgba(255,255,255,.03);border:2.5px solid;border-radius:8px;text-transform:uppercase;letter-spacing:.06em}
 html[data-theme=arcade] .answer.a0{border-color:var(--b0);color:var(--b0);box-shadow:0 0 18px color-mix(in srgb,var(--b0) 35%,transparent),inset 0 0 22px color-mix(in srgb,var(--b0) 8%,transparent)}
 html[data-theme=arcade] .answer.a1{border-color:var(--b1);color:var(--b1);box-shadow:0 0 18px color-mix(in srgb,var(--b1) 35%,transparent),inset 0 0 22px color-mix(in srgb,var(--b1) 8%,transparent)}
 html[data-theme=arcade] .answer.a2{border-color:var(--b2);color:var(--b2);box-shadow:0 0 18px color-mix(in srgb,var(--b2) 35%,transparent),inset 0 0 22px color-mix(in srgb,var(--b2) 8%,transparent)}
 html[data-theme=arcade] .answer.a3{border-color:var(--b3);color:var(--b3);box-shadow:0 0 18px color-mix(in srgb,var(--b3) 35%,transparent),inset 0 0 22px color-mix(in srgb,var(--b3) 8%,transparent)}
-html[data-theme=arcade] .pill{background:transparent;border:2px solid var(--c2);color:var(--c2);border-radius:4px}
-html[data-theme=arcade] .roomcode{border:2px solid var(--c2);background:rgba(255,255,255,.03);box-shadow:0 0 26px color-mix(in srgb,var(--c2) 40%,transparent)}
-html[data-theme=arcade] .timernum{color:var(--c2);text-shadow:0 0 14px var(--c2)}
-html[data-theme=arcade] .timerbar{border:2px solid var(--c2);background:transparent;border-radius:3px}
+html[data-theme=arcade] .pill{background:transparent;border:2px solid var(--tfg,var(--c2));color:var(--tfg,var(--c2));border-radius:4px}
+html[data-theme=arcade] .roomcode{border:2px solid var(--tfg,var(--c2));background:rgba(255,255,255,.03);box-shadow:0 0 26px color-mix(in srgb,var(--tfg,var(--c2)) 40%,transparent)}
+html[data-theme=arcade] .timernum{color:var(--tfg,var(--c2));text-shadow:0 0 14px var(--tfg,var(--c2))}
+html[data-theme=arcade] .timerbar{border:2px solid var(--tfg,var(--c2));background:transparent;border-radius:3px}
 html[data-theme=arcade] .qtext{text-transform:uppercase;text-shadow:0 0 22px rgba(255,255,255,.3)}
 html[data-theme=arcade] .btn{border-radius:6px;text-transform:uppercase}
-html[data-theme=arcade] .boardrow{background:#0d0d26;color:#e8faff;border:1.5px solid var(--c2)}
-html[data-theme=arcade] .boardrow .rank{color:var(--c2)}
-html[data-theme=arcade] .chip{background:#0d0d26;color:var(--c2);border:1.5px solid var(--c2)}
+html[data-theme=arcade] .boardrow{background:#0d0d26;color:#e8faff;border:1.5px solid var(--tfg,var(--c2))}
+html[data-theme=arcade] .boardrow .rank{color:var(--tfg,var(--c2))}
+html[data-theme=arcade] .chip{background:#0d0d26;color:var(--tfg,var(--c2));border:1.5px solid var(--tfg,var(--c2))}
 
 /* 🍄 Nintendo-style — sunny platformer sky, chunky bevelled item blocks */
 html[data-theme=nintendo] body{background:linear-gradient(180deg,color-mix(in srgb,var(--c1) 26%,#7ec8ff),color-mix(in srgb,var(--c1) 10%,#c4e9ff))}
@@ -364,14 +376,14 @@ html[data-theme=editorial] .answers{counter-reset:opt;gap:0;grid-template-column
 html[data-theme=editorial] .answer{counter-increment:opt;background:transparent;color:#141414;border:none;border-bottom:1.5px solid #d5d5cd;border-radius:0;box-shadow:none;min-height:64px}
 html[data-theme=editorial] .answer:first-child{border-top:1.5px solid #141414}
 html[data-theme=editorial] .answer::before{content:"0" counter(opt);position:absolute;left:16px;font-size:.85rem;font-weight:700;font-variant-numeric:tabular-nums}
-html[data-theme=editorial] .answer.a0::before{color:var(--b0)} html[data-theme=editorial] .answer.a1::before{color:var(--b1)}
-html[data-theme=editorial] .answer.a2::before{color:var(--b2)} html[data-theme=editorial] .answer.a3::before{color:var(--b3)}
+html[data-theme=editorial] .answer.a0::before{color:color-mix(in srgb,var(--b0) 60%,#141414)} html[data-theme=editorial] .answer.a1::before{color:color-mix(in srgb,var(--b1) 60%,#141414)}
+html[data-theme=editorial] .answer.a2::before{color:color-mix(in srgb,var(--b2) 60%,#141414)} html[data-theme=editorial] .answer.a3::before{color:color-mix(in srgb,var(--b3) 60%,#141414)}
 html[data-theme=editorial] .answer .shape{display:none}
 html[data-theme=editorial] .answer.win{outline:none;background:color-mix(in srgb,var(--c2) 20%,#fff);transform:none}
 html[data-theme=editorial] .answer.dim{opacity:.32}
 html[data-theme=editorial] .pill{background:transparent;border:1px solid #888;color:#141414;border-radius:0}
 html[data-theme=editorial] .qtext{letter-spacing:-.02em;font-weight:800}
-html[data-theme=editorial] .timernum{color:var(--c2)}
+html[data-theme=editorial] .timernum{color:color-mix(in srgb,var(--c2) 55%,#141414)}
 html[data-theme=editorial] .timerbar{background:#e6e6df}
 html[data-theme=editorial] .roomcode{background:#fff;border:1.5px solid #141414;color:#141414;border-radius:0}
 html[data-theme=editorial] .btn{border-radius:0;box-shadow:none;border:2px solid #141414}
@@ -408,23 +420,23 @@ html[data-theme=aurora] .timerbar>div{background:linear-gradient(90deg,var(--b2)
 
 /* 💻 Terminal — phosphor on black, everything outlined in the accent */
 html[data-theme=terminal] body{background:color-mix(in srgb,var(--c1) 8%,#020a04)}
-html[data-theme=terminal] body::before{content:"";position:fixed;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.3) 0 2px,transparent 2px 4px),radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.5));pointer-events:none;z-index:5}
+html[data-theme=terminal] body::before{content:"";position:fixed;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.16) 0 2px,transparent 2px 4px),radial-gradient(ellipse at center,transparent 60%,rgba(0,0,0,.32));pointer-events:none;z-index:0}
 html[data-theme=terminal] .answers{counter-reset:opt;grid-template-columns:1fr}
-html[data-theme=terminal] .answer{counter-increment:opt;background:transparent;border:1.5px solid var(--c2);border-radius:3px;color:var(--c2);box-shadow:0 0 14px color-mix(in srgb,var(--c2) 22%,transparent),inset 0 0 14px color-mix(in srgb,var(--c2) 6%,transparent);min-height:60px}
+html[data-theme=terminal] .answer{counter-increment:opt;background:transparent;border:1.5px solid var(--tfg,var(--c2));border-radius:3px;color:var(--tfg,var(--c2));box-shadow:0 0 14px color-mix(in srgb,var(--tfg,var(--c2)) 22%,transparent),inset 0 0 14px color-mix(in srgb,var(--tfg,var(--c2)) 6%,transparent);min-height:60px}
 html[data-theme=terminal] .answer::before{content:"[" counter(opt) "]";position:absolute;left:16px;font-weight:800}
 html[data-theme=terminal] .answer .shape{display:none}
-html[data-theme=terminal] .pill{background:transparent;border:1.5px solid var(--c2);color:var(--c2);border-radius:3px}
-html[data-theme=terminal] .roomcode{border:1.5px solid var(--c2);background:transparent;color:var(--c2);border-radius:6px;text-shadow:0 0 12px color-mix(in srgb,var(--c2) 60%,transparent)}
-html[data-theme=terminal] .qtext{text-shadow:0 0 12px color-mix(in srgb,var(--c2) 55%,transparent)}
+html[data-theme=terminal] .pill{background:transparent;border:1.5px solid var(--tfg,var(--c2));color:var(--tfg,var(--c2));border-radius:3px}
+html[data-theme=terminal] .roomcode{border:1.5px solid var(--tfg,var(--c2));background:transparent;color:var(--tfg,var(--c2));border-radius:6px;text-shadow:0 0 12px color-mix(in srgb,var(--tfg,var(--c2)) 60%,transparent)}
+html[data-theme=terminal] .qtext{text-shadow:0 0 12px color-mix(in srgb,var(--tfg,var(--c2)) 55%,transparent)}
 html[data-theme=terminal] .qtext::before{content:"> "}
-html[data-theme=terminal] .timernum{color:var(--c2);text-shadow:0 0 12px color-mix(in srgb,var(--c2) 60%,transparent)}
-html[data-theme=terminal] .timerbar{border:1.5px solid var(--c2);background:transparent}
+html[data-theme=terminal] .timernum{color:var(--tfg,var(--c2));text-shadow:0 0 12px color-mix(in srgb,var(--tfg,var(--c2)) 60%,transparent)}
+html[data-theme=terminal] .timerbar{border:1.5px solid var(--tfg,var(--c2));background:transparent}
 html[data-theme=terminal] .btn{border-radius:3px}
-html[data-theme=terminal] .btn.ghost{border-color:var(--c2);color:var(--c2)}
-html[data-theme=terminal] .boardrow{background:rgba(0,0,0,.45);border:1.5px solid var(--c2);color:var(--c2);border-radius:3px}
-html[data-theme=terminal] .boardrow .rank,html[data-theme=terminal] .boardrow .bscore{color:var(--c2)}
-html[data-theme=terminal] .chip{background:transparent;border:1.5px solid var(--c2);color:var(--c2);border-radius:3px}
-html[data-theme=terminal] .answer.win{outline-color:var(--c2)}
+html[data-theme=terminal] .btn.ghost{border-color:var(--tfg,var(--c2));color:var(--tfg,var(--c2))}
+html[data-theme=terminal] .boardrow{background:rgba(0,0,0,.45);border:1.5px solid var(--tfg,var(--c2));color:var(--tfg,var(--c2));border-radius:3px}
+html[data-theme=terminal] .boardrow .rank,html[data-theme=terminal] .boardrow .bscore{color:var(--tfg,var(--c2))}
+html[data-theme=terminal] .chip{background:transparent;border:1.5px solid var(--tfg,var(--c2));color:var(--tfg,var(--c2));border-radius:3px}
+html[data-theme=terminal] .answer.win{outline-color:var(--tfg,var(--c2))}
 
 /* 🍬 Candy Clay — pastel field, squishy 3D cards */
 html[data-theme=candy] body{background:linear-gradient(160deg,color-mix(in srgb,var(--b1) 22%,#fff),color-mix(in srgb,var(--c1) 15%,#fff) 55%,color-mix(in srgb,var(--b2) 20%,#fff))}
@@ -436,7 +448,7 @@ html[data-theme=candy] .answer.a3{background:linear-gradient(145deg,color-mix(in
 html[data-theme=candy] .answer .shape{background:rgba(255,255,255,.35);border-radius:40%;padding:5px}
 html[data-theme=candy] .pill{background:#fff;color:#6b5a8e;border:none;box-shadow:6px 6px 14px rgba(0,0,0,.08)}
 html[data-theme=candy] .roomcode{background:#fff;color:#5b4585;border:none;box-shadow:10px 10px 24px rgba(0,0,0,.1),-6px -6px 14px #fff}
-html[data-theme=candy] .timernum{color:var(--c3)}
+html[data-theme=candy] .timernum{color:color-mix(in srgb,var(--c3) 65%,#4a3b63)}
 html[data-theme=candy] .timerbar{background:#fff;box-shadow:inset 4px 4px 8px rgba(0,0,0,.08)}
 html[data-theme=candy] .timerbar>div{background:linear-gradient(90deg,var(--b0),var(--b1))}
 html[data-theme=candy] .btn{border-radius:24px;box-shadow:8px 8px 20px color-mix(in srgb,var(--c2) 45%,transparent)}
@@ -517,7 +529,7 @@ Which of these is a JavaScript framework?
       </details>
 
       <div class="field">
-        <textarea class="quizbox" id="quiz-input" spellcheck="false" placeholder="# My Quiz Title&#10;&#10;## Q1 | 20s | read 5s&#10;Your first question here?&#10;- The correct answer *&#10;- Another answer&#10;- A third answer"></textarea>
+        <textarea class="quizbox" id="quiz-input" spellcheck="false" aria-label="Quiz text" placeholder="# My Quiz Title&#10;&#10;## Q1 | 20s | read 5s&#10;Your first question here?&#10;- The correct answer *&#10;- Another answer&#10;- A third answer"></textarea>
         <div class="row" style="margin-top:8px"><button class="btn ghost" style="color:var(--card-ink);border-color:#CFC7E8;padding:8px 16px;font-size:.9rem" id="btn-sample">Load example quiz</button><span class="hint" id="parse-status" style="margin:0"></span></div>
       </div>
       <div class="errbox" id="parse-errors"></div>
@@ -569,7 +581,7 @@ Which of these is a JavaScript framework?
     <p style="font-size:1.15rem">Join at <b id="hlobby-url-label"></b> with room code</p>
     <div class="roomcode" id="hlobby-code">····</div>
     <div class="qrcard" id="hlobby-qr" style="display:none">
-      <div id="hlobby-qr-img"></div>
+      <div id="hlobby-qr-img" aria-hidden="true"></div>
       <p class="small">📱 Scan to join instantly</p>
     </div>
     <div class="joinurl" id="hlobby-link"></div>
@@ -643,7 +655,7 @@ Which of these is a JavaScript framework?
       <h2>Join the game</h2>
       <div class="field"><label for="join-code">Room code</label><input type="text" id="join-code" maxlength="4" autocomplete="off" autocapitalize="characters" style="text-transform:uppercase;font-family:var(--font-display);font-weight:800;font-size:1.6rem;letter-spacing:.3em;text-align:center" placeholder="ABCD"></div>
       <div class="field"><label for="join-name">Your nickname</label><input type="text" id="join-name" maxlength="16" autocomplete="off" placeholder="e.g. QuizWizard"><p class="hint">Any fun nickname works — no real name, email, or account needed. Everything is erased after the game.</p></div>
-      <div class="field"><label>Pick your sidekick</label><div class="emojigrid" id="emoji-grid"></div></div>
+      <div class="field"><label id="emoji-label">Pick your sidekick</label><div class="emojigrid" id="emoji-grid" role="group" aria-labelledby="emoji-label"></div></div>
       <div class="errbox" id="join-err"></div>
       <button class="btn big" id="btn-join">Let's go!</button>
     </div>
@@ -852,9 +864,16 @@ function applyLook(colors, theme){
   // it must be set here because applyTheme wrote --ink as an inline style.
   const c = (colors && colors.length >= 2 ? colors : DEFAULT_COLORS);
   const r = document.documentElement.style;
+  // Neon skins (arcade, terminal) draw most text in the accent color on a
+  // near-black background; a dark accent would be unreadable there, so
+  // lighten a copy (--tfg) until it has enough contrast. Buttons and other
+  // filled surfaces keep using the true accent (--c2).
+  let tfg = c[1];
+  for (let i = 0; i < 6 && luminance(tfg) < .2; i++) tfg = shade(tfg, .3);
+  r.setProperty('--tfg', tfg);
   const ink = {
     arcade: '#f2f6ff', aurora: '#f2f6ff',
-    terminal: c[1],
+    terminal: tfg,
     doodle: '#2f2a22', editorial: '#141414', candy: '#4a3b63',
     nintendo: '#12263c',
     brutalist: textOn(c[1])
@@ -1928,14 +1947,17 @@ function boot(){
   $('font-display').onchange = onFontChange;
   $('font-body').onchange = onFontChange;
 
-  // 🎲 Random palette + font pairing
+  // 🎲 Random palette + font pairing + theme (always a different theme
+  // than the current one, so every press visibly changes the look)
   $('btn-random').onclick = () => {
     const pal = PALETTES[Math.floor(Math.random() * PALETTES.length)];
     pal.forEach((c, i) => { $('hex-' + i).value = c; $('col-' + i).value = c; });
     $('font-display').value = DISPLAY_FONTS[Math.floor(Math.random() * DISPLAY_FONTS.length)][0];
     $('font-body').value = BODY_FONTS[Math.floor(Math.random() * BODY_FONTS.length)][0];
+    const others = THEMES.filter(t => t !== $('theme-sel').value);
+    $('theme-sel').value = others[Math.floor(Math.random() * others.length)];
     onFontChange();
-    refreshLook(); // colors + fonts change; the chosen theme stays put
+    refreshLook(); // reads colors, fonts and the theme dropdown
     SFX.play('start');
   };
 
