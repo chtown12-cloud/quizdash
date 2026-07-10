@@ -240,6 +240,8 @@ button.answer:active{transform:translateY(4px) scale(.99);box-shadow:0 1px 0 rgb
 /* Losing options stay readable on reveal — the vote counts are the point */
 .answer.dim{opacity:.55;filter:saturate(.35)}
 .answer.win{outline:5px solid #fff;transform:scale(1.03)}
+/* Multi (pick-all-that-apply): toggled options before locking in */
+button.answer.picked{outline:4px solid var(--ink);outline-offset:-4px;filter:brightness(1.12)}
 .answer .dist{position:absolute;right:14px;bottom:10px;font-size:.85rem;font-weight:800;opacity:.95}
 /* Closest-guess input (player phones) */
 .guessbox{grid-column:1/-1;display:flex;flex-direction:column;gap:14px;align-items:center;text-align:center}
@@ -662,7 +664,14 @@ What should we order for the next social?
 
 ## Q5 | 20s | read 10s | closest
 How many bones are in the human body?
-= 206</code></pre>
+= 206
+
+## Q6 | 20s | multi
+Which of these are primary colors of light?
+- Red *
+- Green *
+- Blue *
+- Yellow</code></pre>
           <ul>
             <li><code># Title</code> — one line starting with a single <code>#</code>. Shown in the lobby.</li>
             <li><code>## Q1 | 20s</code> — starts a question. The label is <b>optional</b> — <code>##</code> alone, <code>## | 20s</code>, or any name (<code>Round 2</code>…) all work; unlabeled questions number themselves. The <code>| 20s</code> part is the <b>optional answer timer</b> (1–300 seconds, default 20), e.g. <code>## Q3</code> uses the default.</li>
@@ -673,6 +682,7 @@ How many bones are in the human body?
             <li><b>True/False</b> is just a question with two options: <code>- True</code> / <code>- False *</code>. Any two options work.</li>
             <li><code>| poll</code> — an <b>opinion poll</b>: options as usual but <b>no <code>*</code></b> anywhere. Nobody scores points; the reveal shows how the room voted (great with the 📸 button).</li>
             <li><code>| closest</code> — a <b>closest-guess question</b>: no options. Give the answer as <code>= 206</code> on its own line (the <code>| closest</code> flag is optional when a <code>=</code> line is present). Everyone types a number on their phone; the nearest guess earns 1000 points, further guesses proportionally less, ties share.</li>
+            <li><code>| multi</code> — <b>pick all that apply</b>: mark <b>each</b> correct option with <code>*</code>. Players toggle answers and lock in; a perfect match earns full speed-scaled points, partly-right answers earn partial credit (wrong picks subtract).</li>
             <li><b>Combining flags</b> — any order works, but the suggested one is timer, reading time, then type: <code>## Q1 | 20s | read 10s | closest</code>.</li>
           </ul>
           <p>Every question opens with a <b>read-it-first preview</b> (5 seconds unless you set <code>| read …s</code>), then the answer timer starts for everyone at the same moment — so slow-loading phones never lose scoring time.</p>
@@ -1226,10 +1236,12 @@ function applyTheme(colors){
      Question text (one or more lines)
      - Option A *         <- trailing * (or ✓ / ✔) marks the correct one
      - Option B
-   Two more question types via header flags:
+   Three more question types via header flags:
      ## Q2 | poll         <- opinion poll: options but NO correct answer
      ## Q3 | closest      <- everyone guesses a number; instead of options,
      = 1665                  give the answer as "= number" (closest wins)
+     ## Q4 | multi        <- pick-all-that-apply: mark EACH correct
+                             option with * (players toggle, then lock in)
    ═══════════════════════════════════════════════════════════════════════ */
 function parseQuiz(text){
   const lines = (text || '').split(/\r?\n/);
@@ -1247,6 +1259,9 @@ function parseQuiz(text){
       if (q.options.length < 2 || q.options.length > 4) errors.push(`${who}: has ${q.options.length} option(s) — needs between 2 and 4.`);
       if (q.type === 'poll'){
         if (q.correct >= 0) errors.push(`${who}: polls have no correct answer — remove the * from the options.`);
+      } else if (q.type === 'multi'){
+        if (!q.corrects.length) errors.push(`${who}: mark each correct answer with * (at least one) — multi means pick-all-that-apply.`);
+        q.correct = -1; // multi uses the corrects list, never a single index
       } else if (q.correct < 0){
         errors.push(`${who}: no correct answer marked. End one option with * (e.g. "- Paris *") — or add "| poll" to make it an opinion poll.`);
       }
@@ -1272,6 +1287,7 @@ function parseQuiz(text){
         if (!seg) continue;
         if (/^poll$/i.test(seg)){ type = 'poll'; continue; }
         if (/^closest$/i.test(seg)){ type = 'closest'; continue; }
+        if (/^multi$/i.test(seg)){ type = 'multi'; continue; }
         const readM = seg.match(/^read\s*(\d+)\s*s?$/i);
         if (readM){
           const rv = parseInt(readM[1], 10);
@@ -1283,7 +1299,7 @@ function parseQuiz(text){
         if (Number.isFinite(d) && d >= 1 && d <= 300) dur = d;
         else errors.push(`Line ${i+1}: couldn't read "${seg}" — use "| 20s" (answer timer), "| read 5s" (reading time), "| poll" or "| closest".`);
       }
-      cur = { label: parts[0].trim() || 'Q' + (questions.length + 1), duration: dur, preview, type, text: '', options: [], correct: -1 };
+      cur = { label: parts[0].trim() || 'Q' + (questions.length + 1), duration: dur, preview, type, text: '', options: [], correct: -1, corrects: [] };
       return;
     }
     if (/^=\s*/.test(line)) {
@@ -1302,8 +1318,9 @@ function parseQuiz(text){
       else if (/\*\s*$/.test(opt)) { isCorrect = true; opt = opt.replace(/\*\s*$/, '').trim(); }
       if (!opt) { errors.push(`Line ${i+1}: empty answer option.`); return; }
       if (isCorrect) {
-        if (cur.correct >= 0) errors.push(`${cur.label}: more than one answer is marked correct — keep exactly one *.`);
+        if (cur.type !== 'multi' && cur.correct >= 0) errors.push(`${cur.label}: more than one answer is marked correct — keep exactly one *, or add "| multi" for a pick-all-that-apply question.`);
         cur.correct = cur.options.length;
+        cur.corrects.push(cur.options.length);
       }
       cur.options.push(opt);
       return;
@@ -1358,7 +1375,14 @@ Best snack for movie night?
 
 ## Q7 | 20s | read 10s | closest
 How many bones are in the adult human body?
-= 206`;
+= 206
+
+## Q8 | 20s | multi
+Which of these are planets?
+- Mars *
+- Pluto
+- Venus *
+- The Moon`;
 
 /* Scoring: correct = 500–1000 pts, scaled by speed. Wrong = 0. */
 function scoreFor(elapsed, duration){
@@ -1623,17 +1647,19 @@ function countUp(el, to, ms){
   requestAnimationFrame(tick);
 }
 // Dynamic vote bar chart on the host reveal: one column per answer, bars
-// growing to their share of the vote with the count tallying up. The
-// correct answer stays bright (ringed ✅); the rest dim. Bar colors use
-// the contrast-guarded --bfgN so they stay visible on the neon themes.
-function renderVoteChart(container, options, dist, correctIdx, isPoll){
+// growing to their share of the vote with the count tallying up. Winning
+// answers (one for quiz, several for multi, none for polls) stay bright
+// with a ✅; the rest dim. Bar colors use the contrast-guarded --bfgN so
+// they stay visible on the neon themes.
+function renderVoteChart(container, options, dist, winners, isPoll){
   if (!container) return;
   const max = Math.max(1, ...dist);
   container.innerHTML = options.map((o, j) => {
-    const state = isPoll ? '' : (j === correctIdx ? 'win' : 'dim');
+    const won = !isPoll && winners.includes(j);
+    const state = isPoll ? '' : (won ? 'win' : 'dim');
     const col = `var(--bfg${j},var(--b${j}))`;
     return `<div class="vccol ${state}">
-      <div class="vccount"><span class="vcnum">0</span>${!isPoll && j === correctIdx ? '<span>✅</span>' : ''}</div>
+      <div class="vccount"><span class="vcnum">0</span>${won ? '<span>✅</span>' : ''}</div>
       <div class="vctrack"><div class="vcfill" style="background:${col}"></div></div>
       <div class="vcchip" style="background:${col}">${SHAPES[j]}</div>
     </div>`;
@@ -1813,7 +1839,7 @@ const Host = {
     const answering = this.bots.filter(() => Math.random() < .93); // a few always doze off
     // Quiz questions lean toward the right answer; polls get an uneven
     // random spread so the reveal chart has some drama.
-    const w = q.type !== 'closest'
+    const w = q.type !== 'closest' && q.type !== 'multi'
       ? q.options.map((_, j) => (j === q.correct ? 2.2 : .4 + Math.random() * 1.4))
       : null;
     const batches = 12;
@@ -1828,6 +1854,12 @@ const Host = {
           const e = Math.round((at / 1000 + Math.random() * .8) * 100) / 100;
           if (q.type === 'closest'){
             upd[id] = { g: Math.round(q.target * (1 + (Math.random() - .5) * .8) * 100) / 100, e };
+          } else if (q.type === 'multi'){
+            // Bots find each correct option ~70% of the time, grab wrong
+            // ones ~25% of the time — a believable mixed crowd
+            const picks = q.options.map((_, j) => j).filter(j => Math.random() < (q.corrects.includes(j) ? .7 : .25));
+            if (!picks.length) picks.push(q.corrects[Math.floor(Math.random() * q.corrects.length)]);
+            upd[id] = { m: picks, e };
           } else {
             const total = w.reduce((a, x) => a + x, 0);
             let r = Math.random() * total, c = 0;
@@ -1957,12 +1989,29 @@ const Host = {
       // Score everyone (players with no answer get 0 for this round).
       // Polls score nothing for anyone — q.correct is -1, so no answer
       // ever matches and every round lands on 0 points automatically.
+      // Multi (pick-all-that-apply): perfect match earns full speed-scaled
+      // points; otherwise partial credit — right picks count for, wrong
+      // picks against, floored at zero.
+      const isMulti = q.type === 'multi';
+      const corrects = isMulti ? q.corrects : null;
       const dist = q.options.map(() => 0);
       const updates = {};
+      let answeredN = 0;
       for (const [pid, p] of Object.entries(this.players)){
         const a = answers[pid];
         let pts = 0, correct = false;
-        if (a && Number.isInteger(a.c) && a.c >= 0 && a.c < q.options.length){
+        if (isMulti && a && Array.isArray(a.m)){
+          const picks = [...new Set(a.m.filter(x => Number.isInteger(x) && x >= 0 && x < q.options.length))];
+          if (picks.length){
+            answeredN++;
+            picks.forEach(x => dist[x]++);
+            const good = picks.filter(x => corrects.includes(x)).length;
+            const frac = Math.max(0, (good - (picks.length - good)) / corrects.length);
+            pts = Math.round(scoreFor(Math.max(0, Number(a.e) || 0), q.duration) * frac);
+            correct = good === corrects.length && picks.length === good;
+          }
+        } else if (!isMulti && a && Number.isInteger(a.c) && a.c >= 0 && a.c < q.options.length){
+          answeredN++;
           dist[a.c]++;
           correct = a.c === q.correct;
           if (correct) pts = scoreFor(Math.max(0, Number(a.e) || 0), q.duration);
@@ -1977,22 +2026,26 @@ const Host = {
       // Each answer card keeps its count/share, and a dynamic bar chart
       // below the grid visualizes the whole distribution at a glance.
       // Polls keep every option at full strength (there's no right answer).
-      const total = dist.reduce((a,b) => a+b, 0);
+      // For multi the share is "% of answerers who picked this" (players
+      // contribute to several options), and every correct option wins.
+      const winners = isPoll ? [] : isMulti ? corrects : [q.correct];
+      const denom = isMulti ? answeredN : dist.reduce((a,b) => a+b, 0);
       document.querySelectorAll('#hq-answers .answer').forEach((el, j) => {
-        if (!isPoll) el.classList.add(j === q.correct ? 'win' : 'dim');
-        const pct = total ? Math.round(dist[j] / total * 100) : 0;
+        if (!isPoll) el.classList.add(winners.includes(j) ? 'win' : 'dim');
+        const pct = denom ? Math.round(dist[j] / denom * 100) : 0;
         el.insertAdjacentHTML('beforeend',
-          `<span class="dist">${dist[j]} ${dist[j] === 1 ? 'vote' : 'votes'}${total ? ` · ${pct}%` : ''}</span>`);
-        if (!isPoll && j === q.correct) el.insertAdjacentHTML('beforeend', `<span class="tick">✅</span>`);
+          `<span class="dist">${dist[j]} ${dist[j] === 1 ? 'vote' : 'votes'}${denom ? ` · ${pct}%` : ''}</span>`);
+        if (winners.includes(j)) el.insertAdjacentHTML('beforeend', `<span class="tick">✅</span>`);
       });
-      renderVoteChart($('hq-chart'), q.options, dist, q.correct, isPoll);
+      renderVoteChart($('hq-chart'), q.options, dist, winners, isPoll);
       $('hq-timer').textContent = isPoll ? '📊' : '✓';
       SFX.play('reveal');
 
       // …then, once it's showing, tell the phones whether they got it right.
       // Type flags are set explicitly every time: phase writes are merges,
-      // so a stale poll/closest flag would otherwise leak into the next reveal.
-      await Sync.update(this.path('state'), { phase: 'reveal', correct: q.correct, dist, poll: isPoll, closest: false, target: null });
+      // so a stale poll/closest/multi flag would otherwise leak into the
+      // next reveal.
+      await Sync.update(this.path('state'), { phase: 'reveal', correct: q.correct, dist, poll: isPoll, closest: false, target: null, multi: isMulti, corrects: isMulti ? corrects : null });
     }
 
     if (isPoll) showSnapHint('Want to save these responses? 📸 Take a screenshot!');
@@ -2047,7 +2100,7 @@ const Host = {
     $('hq-timer').textContent = '🎯';
     SFX.play('reveal');
 
-    await Sync.update(this.path('state'), { phase: 'reveal', correct: -1, dist: null, poll: false, closest: true, target: q.target });
+    await Sync.update(this.path('state'), { phase: 'reveal', correct: -1, dist: null, poll: false, closest: true, target: q.target, multi: false, corrects: null });
   },
 
   standings(){
@@ -2289,6 +2342,19 @@ const Player = {
       $('pq-guess-btn').onclick = () => this.answerGuess(input.value, s);
       input.addEventListener('keydown', e => { if (e.key === 'Enter') this.answerGuess(input.value, s); });
       input.focus();
+    } else if (s.q.type === 'multi'){
+      // Pick-all-that-apply: options toggle, then one lock-in button
+      grid.innerHTML = s.q.options.map((o,j) => answerButtonHTML(o, j, 'button')).join('') +
+        `<button class="btn big" id="pq-multi-lock" style="grid-column:1/-1">Lock in ✅</button>
+         <p class="small muted" style="grid-column:1/-1;text-align:center;margin:0">Pick ALL that apply, then lock in!</p>`;
+      grid.querySelectorAll('button.answer').forEach(btn => {
+        btn.onclick = () => { if (this.myAnswer === null){ btn.classList.toggle('picked'); SFX.play('tap'); } };
+      });
+      $('pq-multi-lock').onclick = () => {
+        const picks = [...grid.querySelectorAll('button.answer.picked')].map(b => Number(b.dataset.i));
+        if (!picks.length){ $('pq-multi-lock').textContent = 'Pick at least one!'; setTimeout(() => { const b = $('pq-multi-lock'); if (b) b.textContent = 'Lock in ✅'; }, 1400); return; }
+        this.answerMulti(picks, s);
+      };
     } else {
       grid.innerHTML = s.q.options.map((o,j) => answerButtonHTML(o, j, 'button')).join('');
       grid.querySelectorAll('button.answer').forEach(btn => {
@@ -2306,6 +2372,16 @@ const Player = {
     SFX.play('tap');
     const elapsed = Math.min(s.q.duration, (Date.now() - this.receivedAt) / 1000);
     Sync.set(this.path(`answers/${s.qIndex}/${this.id}`), { c: choice, e: Math.round(elapsed * 100) / 100 });
+    this.lockOut();
+  },
+
+  // Multi answer: myAnswer holds the picked indices, payload carries m.
+  answerMulti(picks, s){
+    if (this.myAnswer !== null) return;
+    this.myAnswer = picks;
+    SFX.play('tap');
+    const elapsed = Math.min(s.q.duration, (Date.now() - this.receivedAt) / 1000);
+    Sync.set(this.path(`answers/${s.qIndex}/${this.id}`), { m: picks, e: Math.round(elapsed * 100) / 100 });
     this.lockOut();
   },
 
@@ -2382,6 +2458,30 @@ const Player = {
         ${answered
           ? `<p style="font-weight:700">You guessed ${Number(this.myAnswer).toLocaleString()} — ${off === 0 ? 'spot on! 🎉' : 'off by ' + off.toLocaleString()}</p><div class="points-pop">+${pts.toLocaleString()}</div>`
           : `<div class="points-pop">+0</div><p class="muted">No guess locked in this round.</p>`}`;
+    } else if (s.multi){
+      // Pick-all-that-apply: how many of the corrects did you find?
+      const corrects = Array.isArray(s.corrects) ? s.corrects : [];
+      const mine = Array.isArray(this.myAnswer) ? this.myAnswer : [];
+      const good = mine.filter(x => corrects.includes(x)).length;
+      const bad = mine.length - good;
+      const perfect = answered && good === corrects.length && bad === 0;
+      SFX.play(perfect ? 'correct' : answered && pts > 0 ? 'board' : 'wrong');
+      $('pr-body').innerHTML = perfect ? `
+          <div class="bigmark">🎯</div>
+          <h1 class="display" style="font-size:2.2rem">All ${corrects.length} — nailed it!</h1>
+          <div class="points-pop">+${pts.toLocaleString()}</div>
+          <p class="muted">Perfect pick. Speed pays too.</p>`
+        : answered ? `
+          <div class="bigmark">${pts > 0 ? '🎳' : '😵'}</div>
+          <h1 class="display" style="font-size:2.2rem">${good} of ${corrects.length} right</h1>
+          ${bad ? `<p style="font-weight:700">${bad} wrong pick${bad === 1 ? '' : 's'} cost you points</p>` : ''}
+          <div class="points-pop">+${pts.toLocaleString()}</div>
+          <p class="muted">Partial credit — check the big screen.</p>`
+        : `
+          <div class="bigmark">🐌</div>
+          <h1 class="display" style="font-size:2.2rem">Too slow!</h1>
+          <div class="points-pop">+0</div>
+          <p class="muted">Lock in your picks before the timer next time!</p>`;
     } else {
       const correct = answered && this.myAnswer === s.correct;
       SFX.play(correct ? 'correct' : 'wrong');
