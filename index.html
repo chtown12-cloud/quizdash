@@ -316,6 +316,12 @@ button.answer:active{transform:translateY(4px) scale(.99);box-shadow:0 1px 0 rgb
 #decor{position:fixed;inset:0;pointer-events:none;z-index:-1;overflow:hidden}
 #decor span{position:absolute;line-height:1;opacity:var(--op,.16);animation:decorfloat var(--dur,9s) ease-in-out infinite;user-select:none}
 @keyframes decorfloat{0%,100%{transform:translateY(0) rotate(-7deg)}50%{transform:translateY(-30px) rotate(8deg)}}
+/* Podium celebration layer: big theme emojis pinned around the winners —
+   they persist (and bob in place), so 📸 screenshots capture the party */
+.screen{position:relative}
+.podfx{position:absolute;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.podfx span{position:absolute;line-height:1;animation:decorfloat var(--dur,7s) ease-in-out infinite;filter:drop-shadow(0 4px 10px rgba(0,0,0,.35));user-select:none}
+.pavatar{display:block;font-size:clamp(2.1rem,6vh,3.4rem);line-height:1.1}
 /* Chat bubble that nudges the host to screenshot poll results / the podium */
 .snaphint{position:fixed;left:16px;bottom:calc(72px + env(safe-area-inset-bottom));z-index:61;max-width:250px;background:#fff;color:#1C1633;border-radius:16px 16px 16px 4px;padding:11px 15px;font-size:.92rem;font-weight:600;line-height:1.35;box-shadow:var(--shadow);cursor:pointer;animation:hintpop .5s cubic-bezier(.34,1.56,.64,1)}
 .snaphint::after{content:"";position:absolute;left:8px;bottom:-9px;border:10px solid transparent;border-top-color:#fff;border-left-color:#fff;border-bottom:none;border-right:none}
@@ -788,7 +794,8 @@ How many bones are in the human body?
 
 <!-- ════════════════════ HOST: PODIUM ════════════════════ -->
 <section class="screen" id="s-hpodium">
-  <div class="center stack" style="gap:26px">
+  <div class="podfx" id="hp-fx" aria-hidden="true"></div>
+  <div class="center stack" style="gap:26px;position:relative;z-index:1">
     <h1 class="display" style="font-size:clamp(1.8rem,5vw,3rem)" id="hp-title">And the winners are…</h1>
     <div class="drum" id="hp-drum">🥁 drumroll…</div>
     <div class="podium">
@@ -946,6 +953,9 @@ async function snapScreen(){
     // backing — crisp legible screenshots on every theme.
     const freeze = document.createElement('style');
     freeze.textContent = '*{animation:none!important;transition:none!important;caret-color:transparent!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;text-shadow:none!important}' +
+      // podium columns are opacity:0 at rest and only visible via their
+      // entrance animation — freezing animations must not hide them
+      '.pcol.shown{opacity:1!important}' +
       'html[data-theme=aurora] :is(.answer,.boardrow,.chip,.roomcode),html[data-theme=vapor] :is(.answer,.boardrow,.chip,.roomcode){background:rgba(12,10,40,.88)!important}';
     clone.querySelector('head').appendChild(freeze);
     const live = document.querySelectorAll('input,textarea,select');
@@ -2067,10 +2077,12 @@ const Host = {
     $('hp-drum').style.display = '';
     $('hp-title').textContent = 'And the winners are…';
     ['pcol-1','pcol-2','pcol-3'].forEach(id => $(id).classList.remove('shown'));
+    $('hp-fx').innerHTML = ''; // party appears only once the winner is revealed
 
     const setCol = (id, p) => {
       const el = $(id);
-      el.querySelector('.pname').textContent = p ? `${p.emoji} ${p.name}` : '—';
+      // Avatar gets its own big line so the winners' emojis stand out
+      el.querySelector('.pname').innerHTML = p ? `<span class="pavatar">${av(p.emoji)}</span>${esc(String(p.name))}` : '—';
       el.querySelector('.pscore').textContent = p ? p.score.toLocaleString() + ' pts' : '';
     };
     setCol('pcol-1', st[0]); setCol('pcol-2', st[1]); setCol('pcol-3', st[2]);
@@ -2085,9 +2097,19 @@ const Host = {
     $('pcol-1').classList.add('shown');
     SFX.play('fanfare');
     Confetti.fire(220); setTimeout(() => Confetti.fire(160), 900);
-    // Thematic celebration: the theme's own emojis float up with the confetti
+    // Thematic celebration: the theme's own emojis float up with the confetti…
     const cheer = THEME_DECOR[currentTheme] || [];
     if (cheer.length) for (let k = 0; k < 18; k++) setTimeout(() => spawnFloat(cheer[k % cheer.length]), 300 + k * 170);
+    // …and a persistent party pins around the podium (bands at the sides
+    // and top, clear of the winners), so 📸 screenshots capture it too.
+    const party = [...cheer, '🎉', '✨'];
+    $('hp-fx').innerHTML = Array.from({ length: 15 }, (_, k) => {
+      const zone = k % 3;
+      const x = zone === 0 ? 1 + Math.random() * 14 : zone === 1 ? 84 + Math.random() * 13 : 20 + Math.random() * 58;
+      const y = zone === 2 ? 2 + Math.random() * 10 : 10 + Math.random() * 80;
+      const size = Math.round(34 + Math.random() * 34);
+      return `<span style="left:${x.toFixed(1)}%;top:${y.toFixed(1)}%;font-size:${size}px;--dur:${(4 + Math.random() * 4).toFixed(1)}s;animation-delay:-${(Math.random() * 4).toFixed(1)}s">${party[k % party.length]}</span>`;
+    }).join('');
     showSnapHint('Want to keep the final results? 📸 Take a screenshot!');
 
     // Privacy: the game is over, so all room data (nicknames, answers,
@@ -2435,7 +2457,8 @@ async function goHome(){
   SFX.stopMusic();
   if (Host.room){
     const gameDone = document.getElementById('s-hpodium').classList.contains('active');
-    const anyoneIn = Object.keys(Host.players).length > 0;
+    // Only real phones warrant the confirm — 🧪 test players are the host's own
+    const anyoneIn = Object.keys(Host.players).some(id => !id.startsWith('bot'));
     if (!gameDone && anyoneIn && !confirm('Go home? This ends the game for everyone and erases the room.')) return;
     if (Host.stopTimer) Host.stopTimer();
     clearTimeout(Host.timeout);
@@ -2443,8 +2466,13 @@ async function goHome(){
     if (Host.unsubPlayers){ Host.unsubPlayers(); Host.unsubPlayers = null; }
     if (Host.unsubAnswers){ Host.unsubAnswers(); Host.unsubAnswers = null; }
     if (Host.unsubReacts){ Host.unsubReacts(); Host.unsubReacts = null; }
-    await Sync.set('rooms/' + Host.room, null);
+    // Navigate immediately and erase the room in the background — awaiting
+    // this write with no timeout made the Home button look dead whenever
+    // the connection was slow or had silently dropped.
+    const room = Host.room;
     Host.room = null; Host.qIndex = -1; Host.players = {}; Host._prevCount = 0;
+    withTimeout(Sync.set('rooms/' + room, null), 8000, 'erase room')
+      .catch(e => console.warn('room erase failed (it self-erases when the tab closes):', e));
   }
   if (Player.room){
     const inLobby = Player.lastKey.startsWith('lobby');
@@ -2566,10 +2594,21 @@ function boot(){
     SFX.play('start');
   };
 
-  // Setup: quiz parsing (live, debounced)
+  // Setup: quiz parsing (live, debounced). The main button doubles as a
+  // guide: with an empty quiz box it reads "Add questions" and jumps the
+  // host to the box instead of failing a create.
+  const syncCreateBtn = () => {
+    const empty = !$('quiz-input').value.trim();
+    $('btn-create').textContent = empty ? '✍️ Add questions' : 'Create room →';
+    $('btn-create').dataset.empty = empty ? '1' : '';
+  };
   let t;
-  $('quiz-input').addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => renderParseStatus(parseQuiz($('quiz-input').value)), 400); });
-  $('btn-sample').onclick = () => { $('quiz-input').value = SAMPLE_QUIZ; renderParseStatus(parseQuiz(SAMPLE_QUIZ)); };
+  $('quiz-input').addEventListener('input', () => {
+    syncCreateBtn();
+    clearTimeout(t); t = setTimeout(() => renderParseStatus(parseQuiz($('quiz-input').value)), 400);
+  });
+  $('btn-sample').onclick = () => { $('quiz-input').value = SAMPLE_QUIZ; renderParseStatus(parseQuiz(SAMPLE_QUIZ)); syncCreateBtn(); };
+  syncCreateBtn();
 
   // Setup: colors (picker <-> hex, live theme)
   const refreshLook = () => applyLook(readColorInputs(), $('theme-sel').value);
@@ -2594,7 +2633,16 @@ function boot(){
     refreshLook();
   };
 
-  $('btn-create').onclick = () => Host.createRoom();
+  $('btn-create').onclick = () => {
+    if ($('btn-create').dataset.empty){
+      const box = $('quiz-input');
+      box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      box.focus({ preventScroll: true });
+      SFX.play('blip');
+      return;
+    }
+    Host.createRoom();
+  };
   $('btn-start').onclick = () => Host.startGame();
   $('btn-join').onclick = () => Player.join();
   $('join-name').addEventListener('keydown', e => { if (e.key === 'Enter') Player.join(); });
