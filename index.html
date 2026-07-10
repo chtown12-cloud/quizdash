@@ -203,7 +203,7 @@ details.docs[open] summary::after{transform:rotate(90deg)}
 }
 .joinurl{background:rgba(0,0,0,.25);border-radius:12px;padding:10px 18px;font-size:1rem;word-break:break-all}
 .qrcard{background:#fff;color:var(--card-ink);border-radius:18px;padding:16px 16px 10px;box-shadow:var(--shadow);display:flex;flex-direction:column;align-items:center;gap:6px}
-.qrcard img{display:block;width:min(48vw,210px);height:auto;image-rendering:pixelated}
+.qrcard img{display:block;width:min(64vw,320px);height:auto;image-rendering:pixelated}
 .qrcard .small{font-weight:700}
 .playerchips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:900px}
 .chip{
@@ -311,6 +311,11 @@ button.answer:active{transform:translateY(4px) scale(.99);box-shadow:0 1px 0 rgb
 @keyframes heartbeat{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
 .mutebtn{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:60;width:46px;height:46px;border-radius:50%;background:rgba(0,0,0,.35);color:#fff;font-size:1.2rem;border:1.5px solid rgba(255,255,255,.3);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center}
 .snapbtn{right:auto;left:14px}
+/* Thematic background decorations: a few emoji per theme drifting gently
+   behind everything (z-index:-1 keeps them under all content) */
+#decor{position:fixed;inset:0;pointer-events:none;z-index:-1;overflow:hidden}
+#decor span{position:absolute;line-height:1;opacity:var(--op,.16);animation:decorfloat var(--dur,9s) ease-in-out infinite;user-select:none}
+@keyframes decorfloat{0%,100%{transform:translateY(0) rotate(-7deg)}50%{transform:translateY(-30px) rotate(8deg)}}
 /* Chat bubble that nudges the host to screenshot poll results / the podium */
 .snaphint{position:fixed;left:16px;bottom:calc(72px + env(safe-area-inset-bottom));z-index:61;max-width:250px;background:#fff;color:#1C1633;border-radius:16px 16px 16px 4px;padding:11px 15px;font-size:.92rem;font-weight:600;line-height:1.35;box-shadow:var(--shadow);cursor:pointer;animation:hintpop .5s cubic-bezier(.34,1.56,.64,1)}
 .snaphint::after{content:"";position:absolute;left:8px;bottom:-9px;border:10px solid transparent;border-top-color:#fff;border-left-color:#fff;border-bottom:none;border-right:none}
@@ -593,6 +598,7 @@ html[data-theme=blueprint] .answer.win{outline-color:#fff;border-style:solid}
 </head>
 <body>
 <canvas id="confetti"></canvas>
+<div id="decor" aria-hidden="true"></div>
 <button id="btn-mute" class="mutebtn" aria-label="Toggle sound">🔊</button>
 <button id="btn-snap" class="mutebtn snapbtn" aria-label="Save a screenshot of this screen">📸</button>
 <div id="snap-hint" class="snaphint" role="status" hidden></div>
@@ -728,14 +734,16 @@ How many bones are in the human body?
       <div id="hlobby-qr-img" aria-hidden="true"></div>
       <p class="small">📱 Scan to join instantly</p>
     </div>
-    <div class="joinurl" id="hlobby-link"></div>
-    <button class="btn ghost homebtn" id="btn-copy">📋 Copy join link</button>
-    <div class="row" style="justify-content:center;gap:16px">
+    <!-- Start sits right under the QR, above the player chips, so the host
+         never scrolls past a wall of participants to find it -->
+    <button class="btn big" id="btn-start" disabled>Start game 🚀</button>
+    <p class="small muted" id="hlobby-hint" style="margin-top:-8px">Waiting for at least 1 player…</p>
+    <div class="row" style="justify-content:center;gap:12px">
       <span class="count-badge"><span id="hlobby-count">0</span></span><span style="font-weight:600">players in</span>
     </div>
     <div class="playerchips" id="hlobby-players"></div>
-    <button class="btn big" id="btn-start" disabled>Start game 🚀</button>
-    <p class="small muted" id="hlobby-hint">Waiting for at least 1 player…</p>
+    <div class="joinurl" id="hlobby-link"></div>
+    <button class="btn ghost homebtn" id="btn-copy">📋 Copy join link</button>
     <div class="row" id="hlobby-test" style="justify-content:center;gap:8px;margin-top:6px">
       <span class="small muted">🧪 Preview a crowd — add test players:</span>
       <button class="btn ghost homebtn" data-bots="10">+10</button>
@@ -924,13 +932,21 @@ async function snapScreen(){
   const btn = $('btn-snap');
   hideSnapHint(); // the nudge did its job — keep it out of the shot
   try {
-    const W = document.documentElement.clientWidth, H = document.documentElement.clientHeight;
+    // Full page height (capped), so long screens — reveal charts, big
+    // player lists — are captured whole instead of cut at the viewport.
+    const W = document.documentElement.clientWidth;
+    const H = Math.min(4000, Math.max(document.documentElement.clientHeight, document.documentElement.scrollHeight));
     const clone = document.documentElement.cloneNode(true);
     clone.querySelectorAll('script,noscript,link,#btn-snap,#btn-mute,#snap-hint,#confetti,.floatemo').forEach(n => n.remove());
     // Freeze motion so nothing is caught mid-animation, and carry over
     // live form state (cloneNode copies attributes, not current values).
+    // backdrop-filter and glow text-shadows smear badly in Chrome's SVG
+    // foreignObject rasterizer (double-printed, blurry text), so the
+    // capture drops them and gives glassy translucent surfaces a solid
+    // backing — crisp legible screenshots on every theme.
     const freeze = document.createElement('style');
-    freeze.textContent = '*{animation:none!important;transition:none!important;caret-color:transparent!important}';
+    freeze.textContent = '*{animation:none!important;transition:none!important;caret-color:transparent!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;text-shadow:none!important}' +
+      'html[data-theme=aurora] :is(.answer,.boardrow,.chip,.roomcode),html[data-theme=vapor] :is(.answer,.boardrow,.chip,.roomcode){background:rgba(12,10,40,.88)!important}';
     clone.querySelector('head').appendChild(freeze);
     const live = document.querySelectorAll('input,textarea,select');
     clone.querySelectorAll('input,textarea,select').forEach((el, i) => {
@@ -946,7 +962,9 @@ async function snapScreen(){
       img.onload = res; img.onerror = () => rej(new Error('SVG rasterize failed'));
       img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
     });
-    const scale = Math.min(2, window.devicePixelRatio || 1);
+    // Cap total pixels so a very tall capture (500-player list) can't
+    // blow up canvas memory.
+    const scale = Math.min(2, window.devicePixelRatio || 1, Math.sqrt(9e6 / (W * H)));
     const cv = document.createElement('canvas');
     cv.width = Math.round(W * scale); cv.height = Math.round(H * scale);
     const x = cv.getContext('2d');
@@ -1113,6 +1131,29 @@ function applyLook(colors, theme){
   }[theme];
   if (ink) r.setProperty('--ink', ink);
   setFavicon(c, theme);
+  renderDecor(theme);
+}
+
+/* Thematic background decorations — toadstools & coins for nintendo,
+   jack-o-lanterns, brooms & cats for spooky, and so on. Drawn into a
+   fixed layer behind all content, faint enough to never hurt reading.
+   Editorial stays empty on purpose (minimal is its whole personality). */
+const THEME_DECOR = {
+  classic:['⚡','✨','🎈','🎉'], arcade:['👾','🕹️','⭐','🎮'],
+  nintendo:['🍄','🪙','⭐','🐢','🌵'], doodle:['✏️','📎','☁️','⭐'],
+  editorial:[], brutalist:['▲','■','●','◆'],
+  aurora:['✨','⭐','🌠','🪐'], terminal:['>','$','101','//'],
+  candy:['🍬','🍭','🧁','🍩'], vapor:['🌴','📼','🕶️','🛼'],
+  spooky:['🎃','🧹','🐈‍⬛','👻','🦇','🕷️'], blueprint:['📐','📏','✏️','🔩']
+};
+function renderDecor(theme){
+  const layer = document.getElementById('decor');
+  if (!layer) return;
+  const set = THEME_DECOR[theme] || [];
+  layer.innerHTML = set.length ? Array.from({ length: 10 }, (_, i) => {
+    const size = Math.round(22 + Math.random() * 42);
+    return `<span style="left:${Math.round(Math.random() * 94)}%;top:${Math.round(Math.random() * 88)}%;font-size:${size}px;--dur:${(6 + Math.random() * 7).toFixed(1)}s;--op:${(.09 + Math.random() * .13).toFixed(2)};animation-delay:-${(Math.random() * 8).toFixed(1)}s">${set[i % set.length]}</span>`;
+  }).join('') : '';
 }
 
 /* Favicon: a tiny canvas — theme-colored tile + the theme's emoji — so the
@@ -2044,6 +2085,9 @@ const Host = {
     $('pcol-1').classList.add('shown');
     SFX.play('fanfare');
     Confetti.fire(220); setTimeout(() => Confetti.fire(160), 900);
+    // Thematic celebration: the theme's own emojis float up with the confetti
+    const cheer = THEME_DECOR[currentTheme] || [];
+    if (cheer.length) for (let k = 0; k < 18; k++) setTimeout(() => spawnFloat(cheer[k % cheer.length]), 300 + k * 170);
     showSnapHint('Want to keep the final results? 📸 Take a screenshot!');
 
     // Privacy: the game is over, so all room data (nicknames, answers,
@@ -2477,6 +2521,8 @@ function boot(){
   document.querySelectorAll('#hlobby-test button').forEach(b => {
     b.onclick = () => { Host.addBots(Number(b.dataset.bots)); SFX.play('join'); };
   });
+
+  renderDecor(currentTheme); // landing page gets the classic decorations
 
   // Avatar picker (random pre-selection so lazy joiners still get a face)
   const grid = $('emoji-grid');
