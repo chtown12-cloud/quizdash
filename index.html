@@ -244,7 +244,17 @@ button.answer:active{transform:translateY(4px) scale(.99);box-shadow:0 1px 0 rgb
 /* Closest-guess input (player phones) */
 .guessbox{grid-column:1/-1;display:flex;flex-direction:column;gap:14px;align-items:center;text-align:center}
 .guessbox input{width:min(100%,340px);font-family:var(--font-display);font-weight:800;font-size:2.2rem;text-align:center;border:none;border-radius:16px;padding:14px 18px;color:var(--card-ink);background:#fff;box-shadow:var(--shadow)}
-.answer .votefill{position:absolute;left:0;bottom:0;height:7px;width:0;background:currentColor;opacity:.7;border-radius:0 6px 6px 0;transition:width .9s cubic-bezier(.22,1,.36,1);pointer-events:none}
+/* Vote bar chart on the host reveal — one animated column per answer */
+.votechart{display:flex;align-items:flex-end;justify-content:center;gap:clamp(12px,4vw,32px);width:100%;max-width:820px;margin:0 auto}
+.votechart:empty{display:none}
+.vccol{flex:1;max-width:150px;display:flex;flex-direction:column;align-items:center;gap:8px;transition:opacity .4s}
+.vccol.dim{opacity:.5}
+.vccount{font-family:var(--font-display);font-weight:800;font-size:clamp(1.1rem,2.6vw,1.6rem);line-height:1;display:flex;align-items:center;gap:5px}
+.vctrack{height:clamp(80px,19vh,170px);width:100%;display:flex;align-items:flex-end}
+.vcfill{width:100%;height:0;border-radius:12px 12px 4px 4px;box-shadow:0 6px 0 rgba(0,0,0,.16),0 10px 26px rgba(0,0,0,.22);transition:height 1s cubic-bezier(.22,1,.36,1)}
+.vccol.win .vcfill{box-shadow:0 0 0 3px var(--ink),0 6px 0 rgba(0,0,0,.16),0 10px 26px rgba(0,0,0,.22)}
+.vcchip{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex:none}
+.vcchip svg{width:20px;height:20px;filter:drop-shadow(0 1px 1px rgba(0,0,0,.3))}
 .answer .tick{position:absolute;right:14px;top:10px;font-size:1.3rem}
 
 /* ── Leaderboard ────────────────────────────────────────────────────────── */
@@ -632,6 +642,7 @@ How many bones are in the human body?
     </div>
     <div class="qtext" id="hq-text"></div>
     <div class="answers" id="hq-answers"></div>
+    <div class="votechart" id="hq-chart"></div>
     <div class="row" style="justify-content:center;min-height:64px">
       <div class="drum" id="hq-drum" style="display:none"></div>
       <button class="btn big" id="btn-hq-next" style="display:none"></button>
@@ -1394,6 +1405,42 @@ const PALETTES = [
 function answerButtonHTML(opt, i, tag){
   return `<${tag} class="answer a${i}" data-i="${i}"><span class="shape">${SHAPES[i]}</span><span>${esc(opt)}</span></${tag}>`;
 }
+// Tween a number from 0 up to `to` over `ms` (for the vote-chart counts).
+function countUp(el, to, ms){
+  if (!el) return;
+  const start = performance.now();
+  const tick = now => {
+    const t = Math.min(1, (now - start) / ms);
+    el.textContent = Math.round(t * t * (3 - 2 * t) * to); // smoothstep
+    if (t < 1) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+// Dynamic vote bar chart on the host reveal: one column per answer, bars
+// growing to their share of the vote with the count tallying up. The
+// correct answer stays bright (ringed ✅); the rest dim. Bar colors use
+// the contrast-guarded --bfgN so they stay visible on the neon themes.
+function renderVoteChart(container, options, dist, correctIdx, isPoll){
+  if (!container) return;
+  const max = Math.max(1, ...dist);
+  container.innerHTML = options.map((o, j) => {
+    const state = isPoll ? '' : (j === correctIdx ? 'win' : 'dim');
+    const col = `var(--bfg${j},var(--b${j}))`;
+    return `<div class="vccol ${state}">
+      <div class="vccount"><span class="vcnum">0</span>${!isPoll && j === correctIdx ? '<span>✅</span>' : ''}</div>
+      <div class="vctrack"><div class="vcfill" style="background:${col}"></div></div>
+      <div class="vcchip" style="background:${col}">${SHAPES[j]}</div>
+    </div>`;
+  }).join('');
+  const cols = container.querySelectorAll('.vccol');
+  // Two frames so the 0-height starting state paints before we animate up.
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    cols.forEach((col, j) => {
+      col.querySelector('.vcfill').style.height = (dist[j] > 0 ? Math.max(6, Math.round(dist[j] / max * 100)) : 0) + '%';
+      countUp(col.querySelector('.vcnum'), dist[j], 1000);
+    });
+  }));
+}
 function startTimerUI(numEl, barEl, duration, onDone){
   let remaining = duration;
   const bar = barEl.parentElement;
@@ -1535,6 +1582,7 @@ const Host = {
     $('hq-total').textContent = Object.keys(this.players).length;
     $('hq-answered').textContent = '0';
     $('hq-answers').innerHTML = '';
+    $('hq-chart').innerHTML = '';
     $('btn-hq-next').style.display = 'none';
     show('s-hquestion');
     SFX.play('start');
@@ -1654,18 +1702,19 @@ const Host = {
       }
       await Sync.update(this.path('players'), updates); // merge per-player, so late joiners aren't clobbered
 
-      // Host reveal UI first — the big screen is the source of truth…
-      // Each option shows its count, its share, and an animated vote bar.
+      // Host reveal UI first — the big screen is the source of truth.
+      // Each answer card keeps its count/share, and a dynamic bar chart
+      // below the grid visualizes the whole distribution at a glance.
       // Polls keep every option at full strength (there's no right answer).
       const total = dist.reduce((a,b) => a+b, 0);
       document.querySelectorAll('#hq-answers .answer').forEach((el, j) => {
         if (!isPoll) el.classList.add(j === q.correct ? 'win' : 'dim');
         const pct = total ? Math.round(dist[j] / total * 100) : 0;
         el.insertAdjacentHTML('beforeend',
-          `<span class="dist">${dist[j]} ${dist[j] === 1 ? 'vote' : 'votes'}${total ? ` · ${pct}%` : ''}</span><span class="votefill"></span>`);
+          `<span class="dist">${dist[j]} ${dist[j] === 1 ? 'vote' : 'votes'}${total ? ` · ${pct}%` : ''}</span>`);
         if (!isPoll && j === q.correct) el.insertAdjacentHTML('beforeend', `<span class="tick">✅</span>`);
-        requestAnimationFrame(() => requestAnimationFrame(() => { el.querySelector('.votefill').style.width = pct + '%'; }));
       });
+      renderVoteChart($('hq-chart'), q.options, dist, q.correct, isPoll);
       $('hq-timer').textContent = isPoll ? '📊' : '✓';
       SFX.play('reveal');
 
