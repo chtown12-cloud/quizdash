@@ -311,6 +311,12 @@ button.answer:active{transform:translateY(4px) scale(.99);box-shadow:0 1px 0 rgb
 @keyframes heartbeat{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
 .mutebtn{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:60;width:46px;height:46px;border-radius:50%;background:rgba(0,0,0,.35);color:#fff;font-size:1.2rem;border:1.5px solid rgba(255,255,255,.3);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center}
 .snapbtn{right:auto;left:14px}
+/* Chat bubble that nudges the host to screenshot poll results / the podium */
+.snaphint{position:fixed;left:16px;bottom:calc(72px + env(safe-area-inset-bottom));z-index:61;max-width:250px;background:#fff;color:#1C1633;border-radius:16px 16px 16px 4px;padding:11px 15px;font-size:.92rem;font-weight:600;line-height:1.35;box-shadow:var(--shadow);cursor:pointer;animation:hintpop .5s cubic-bezier(.34,1.56,.64,1)}
+.snaphint::after{content:"";position:absolute;left:8px;bottom:-9px;border:10px solid transparent;border-top-color:#fff;border-left-color:#fff;border-bottom:none;border-right:none}
+.snaphint[hidden]{display:none}
+@keyframes hintpop{from{opacity:0;transform:translateY(14px) scale(.85)}}
+@media (hover:hover) and (pointer:fine){.snaphint:hover{transform:rotate(-1.5deg) scale(1.03)}}
 .homebtn{padding:8px 16px !important;font-size:.9rem !important}
 select.fontsel{width:100%;border:2px solid #DDD7EE;border-radius:12px;padding:11px 12px;background:#FBFAFF;color:var(--card-ink);cursor:pointer}
 select.fontsel:focus{border-color:var(--c1);outline:none}
@@ -473,6 +479,108 @@ html[data-theme=candy] .boardrow{border-radius:24px;box-shadow:10px 10px 24px rg
 html[data-theme=candy] .chip{box-shadow:6px 6px 14px rgba(0,0,0,.08)}
 html[data-theme=candy] .answer.win{outline-color:#5b4585}
 
+/* 🌴 Vaporwave — dusk gradient, neon grid floor, chrome dreams */
+html[data-theme=vapor] body{background:linear-gradient(180deg,#140744,color-mix(in srgb,var(--c1) 40%,#3b1670) 55%,#0c0426)}
+html[data-theme=vapor] body::before{content:"";position:fixed;left:-40%;right:-40%;bottom:-14%;height:52%;background:repeating-linear-gradient(0deg,color-mix(in srgb,var(--tfg,var(--c2)) 60%,transparent) 0 2px,transparent 2px 44px),repeating-linear-gradient(90deg,color-mix(in srgb,var(--tfg,var(--c2)) 60%,transparent) 0 2px,transparent 2px 66px);transform:perspective(340px) rotateX(58deg);transform-origin:50% 100%;opacity:.4;pointer-events:none;z-index:0}
+html[data-theme=vapor] body::after{content:"";position:fixed;top:5%;left:50%;width:220px;height:220px;margin-left:-110px;border-radius:50%;background:linear-gradient(180deg,var(--b1) 0 45%,var(--b0) 60%,transparent 62%);opacity:.3;filter:blur(2px);pointer-events:none;z-index:0}
+html[data-theme=vapor] .answer{background:rgba(255,255,255,.06);border:2px solid;border-radius:14px;font-style:italic;letter-spacing:.04em;backdrop-filter:blur(6px)}
+html[data-theme=vapor] .answer.a0{border-color:var(--bfg0,var(--b0));color:var(--bfg0,var(--b0));box-shadow:0 0 22px color-mix(in srgb,var(--bfg0,var(--b0)) 30%,transparent)}
+html[data-theme=vapor] .answer.a1{border-color:var(--bfg1,var(--b1));color:var(--bfg1,var(--b1));box-shadow:0 0 22px color-mix(in srgb,var(--bfg1,var(--b1)) 30%,transparent)}
+html[data-theme=vapor] .answer.a2{border-color:var(--bfg2,var(--b2));color:var(--bfg2,var(--b2));box-shadow:0 0 22px color-mix(in srgb,var(--bfg2,var(--b2)) 30%,transparent)}
+html[data-theme=vapor] .answer.a3{border-color:var(--bfg3,var(--b3));color:var(--bfg3,var(--b3));box-shadow:0 0 22px color-mix(in srgb,var(--bfg3,var(--b3)) 30%,transparent)}
+html[data-theme=vapor] .pill{background:rgba(255,255,255,.08);border:1.5px solid var(--tfg,var(--c2));color:var(--tfg,var(--c2));border-radius:999px}
+html[data-theme=vapor] .roomcode{background:rgba(255,255,255,.06);border:2px solid var(--tfg,var(--c2));color:#fff;text-shadow:0 0 18px var(--tfg,var(--c2));backdrop-filter:blur(8px)}
+html[data-theme=vapor] .qtext{font-style:italic;text-shadow:3px 3px 0 color-mix(in srgb,var(--b1) 45%,transparent)}
+html[data-theme=vapor] .timernum{color:var(--tfg,var(--c2));text-shadow:0 0 16px var(--tfg,var(--c2))}
+html[data-theme=vapor] .timerbar{background:rgba(255,255,255,.14)}
+html[data-theme=vapor] .timerbar>div{background:linear-gradient(90deg,var(--b1),var(--b0))}
+html[data-theme=vapor] .btn{border-radius:999px}
+html[data-theme=vapor] .boardrow{background:rgba(255,255,255,.09);color:#ffe9f8;border:1px solid rgba(255,255,255,.25);backdrop-filter:blur(8px)}
+html[data-theme=vapor] .boardrow .rank{color:var(--tfg,var(--c2))}
+html[data-theme=vapor] .chip{background:rgba(255,255,255,.1);color:#ffe9f8;border:1px solid rgba(255,255,255,.3)}
+
+/* 🎃 Spooky — moonlit night, cobwebs, tilted gravestone cards */
+html[data-theme=spooky] body{background:radial-gradient(560px 380px at 82% 4%,rgba(226,240,203,.13),transparent 60%),radial-gradient(900px 600px at 12% 112%,color-mix(in srgb,var(--c1) 32%,transparent),transparent 65%),#0b0912}
+html[data-theme=spooky] body::before{content:"";position:fixed;top:26px;right:8%;width:110px;height:110px;border-radius:50%;background:radial-gradient(circle at 38% 34%,#f4efce,#d8d2a4 70%);box-shadow:0 0 60px 18px rgba(240,235,190,.25);opacity:.85;pointer-events:none;z-index:0}
+html[data-theme=spooky] body::after{content:"🕸️";position:fixed;top:-14px;left:-10px;font-size:120px;line-height:1;opacity:.22;pointer-events:none;z-index:0;transform:rotate(-8deg)}
+html[data-theme=spooky] .answer{background:#161022;border:2px solid;border-radius:16px 16px 5px 5px}
+html[data-theme=spooky] .answer.a0{--tilt:-.7deg;border-color:var(--bfg0,var(--b0));color:var(--bfg0,var(--b0));transform:rotate(var(--tilt))}
+html[data-theme=spooky] .answer.a1{--tilt:.6deg;border-color:var(--bfg1,var(--b1));color:var(--bfg1,var(--b1));transform:rotate(var(--tilt))}
+html[data-theme=spooky] .answer.a2{--tilt:.5deg;border-color:var(--bfg2,var(--b2));color:var(--bfg2,var(--b2));transform:rotate(var(--tilt))}
+html[data-theme=spooky] .answer.a3{--tilt:-.6deg;border-color:var(--bfg3,var(--b3));color:var(--bfg3,var(--b3));transform:rotate(var(--tilt))}
+html[data-theme=spooky] .answer .shape{background:rgba(255,255,255,.1);border-radius:50%;padding:5px}
+html[data-theme=spooky] .qtext{text-shadow:0 0 22px color-mix(in srgb,var(--tfg,var(--c2)) 45%,transparent)}
+html[data-theme=spooky] .pill{background:#161022;border:1.5px solid var(--tfg,var(--c2));color:var(--tfg,var(--c2))}
+html[data-theme=spooky] .roomcode{background:#161022;border:2px dashed var(--tfg,var(--c2));color:var(--tfg,var(--c2));text-shadow:0 0 14px var(--tfg,var(--c2))}
+html[data-theme=spooky] .timernum{color:var(--tfg,var(--c2));text-shadow:0 0 14px var(--tfg,var(--c2))}
+html[data-theme=spooky] .timerbar{background:rgba(255,255,255,.12)}
+html[data-theme=spooky] .boardrow{background:#161022;color:#f2e9d8;border:1.5px solid color-mix(in srgb,var(--tfg,var(--c2)) 55%,transparent)}
+html[data-theme=spooky] .boardrow .rank{color:var(--tfg,var(--c2))}
+html[data-theme=spooky] .chip{background:#161022;color:#f2e9d8;border:1.5px solid color-mix(in srgb,var(--tfg,var(--c2)) 55%,transparent)}
+html[data-theme=spooky] .answer.win{outline-color:#f2e9d8}
+
+/* 📐 Blueprint — graph paper, dashed technical linework, FIG. labels */
+html[data-theme=blueprint] body{background:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(rgba(255,255,255,.1) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.1) 1px,transparent 1px),color-mix(in srgb,var(--c1) 25%,#0e3a66);background-size:24px 24px,24px 24px,120px 120px,120px 120px,auto}
+html[data-theme=blueprint] .answers{counter-reset:fig}
+html[data-theme=blueprint] .answer{counter-increment:fig;background:rgba(255,255,255,.04);border:2px dashed rgba(234,243,255,.8);border-radius:3px;color:#eaf3ff;text-transform:uppercase;letter-spacing:.03em;font-weight:600}
+html[data-theme=blueprint] .answer::after{content:"FIG. " counter(fig);position:absolute;top:6px;right:12px;font-size:.62rem;letter-spacing:.16em;opacity:.7}
+html[data-theme=blueprint] .answer .shape{background:rgba(234,243,255,.15);border-radius:4px;padding:4px}
+html[data-theme=blueprint] .qtext{text-transform:uppercase;letter-spacing:.03em}
+html[data-theme=blueprint] .pill{background:transparent;border:1.5px dashed #eaf3ff;color:#eaf3ff;border-radius:4px;text-transform:uppercase;font-size:.8rem;letter-spacing:.08em}
+html[data-theme=blueprint] .roomcode{background:rgba(255,255,255,.04);border:2px dashed #eaf3ff;color:#eaf3ff;border-radius:8px}
+html[data-theme=blueprint] .timernum{color:#eaf3ff}
+html[data-theme=blueprint] .timerbar{border:1.5px dashed #eaf3ff;background:transparent}
+html[data-theme=blueprint] .timerbar>div{background:#eaf3ff}
+html[data-theme=blueprint] .btn{border-radius:4px;border:2px solid #eaf3ff;text-transform:uppercase;letter-spacing:.05em}
+html[data-theme=blueprint] .boardrow{background:rgba(255,255,255,.05);color:#eaf3ff;border:1.5px dashed rgba(234,243,255,.7);border-radius:4px}
+html[data-theme=blueprint] .boardrow .rank,html[data-theme=blueprint] .boardrow .bscore{color:#eaf3ff}
+html[data-theme=blueprint] .chip{background:rgba(255,255,255,.06);color:#eaf3ff;border:1.5px dashed rgba(234,243,255,.7);border-radius:4px}
+html[data-theme=blueprint] .answer.win{outline-color:#fff;border-style:solid}
+
+/* ── WHIMSY: hover reactions ─────────────────────────────────────────────
+   Purely decorative play for mouse users (hover-capable, fine pointer);
+   touch screens skip it and prefers-reduced-motion collapses it globally.
+   Answer hovers exclude :active so the press-down feedback still wins. */
+@media (hover:hover) and (pointer:fine){
+  @keyframes wgl{0%,100%{transform:rotate(-8deg)}25%{transform:rotate(16deg) scale(1.2)}60%{transform:rotate(-18deg)}}
+  @keyframes jelly{0%,100%{transform:scale(1,1)}30%{transform:scale(1.06,.92)}60%{transform:scale(.95,1.06)}}
+  @keyframes bump{0%,100%{transform:translateY(0)}40%{transform:translateY(-12px)}70%{transform:translateY(2px)}}
+  @keyframes jig{0%,100%{transform:rotate(0)}25%{transform:rotate(-15deg) scale(1.2)}65%{transform:rotate(12deg)}}
+  @keyframes crtflick{0%,30%,60%,100%{opacity:1}25%{opacity:.5}55%{opacity:.72}}
+  @keyframes shiver{0%,100%{transform:rotate(var(--tilt,0deg))}25%{transform:rotate(calc(var(--tilt,0deg) - 2.5deg)) translateX(-2px)}75%{transform:rotate(calc(var(--tilt,0deg) + 2.5deg)) translateX(2px)}}
+  .pill,.chip,.boardrow,.qrcard,.mutebtn,.emojigrid button,.reactbar button,.btn{transition:transform .18s cubic-bezier(.34,1.56,.64,1),filter .18s,box-shadow .18s}
+  .logo:hover .bolt{animation:wgl .6s ease-in-out}
+  .pill:hover{transform:translateY(-2px) rotate(-1deg)}
+  .chip:hover{transform:scale(1.12) rotate(-3deg)}
+  .boardrow:hover{transform:translateX(8px)}
+  .boardrow:hover .rank{animation:jig .5s}
+  .qrcard:hover{transform:scale(1.03) rotate(1.2deg)}
+  .roomcode:hover{animation:jelly .55s}
+  .mutebtn:hover{transform:scale(1.14) rotate(14deg)}
+  .emojigrid button:hover{transform:scale(1.3) rotate(9deg)}
+  .reactbar button:hover{transform:scale(1.3) rotate(-12deg)}
+  .count-badge:hover{animation:bump .5s}
+  .answer:hover .shape{animation:jig .5s}
+  .vccol:hover .vcfill{filter:brightness(1.2) saturate(1.25)}
+  .vccol:hover .vcchip{animation:jig .5s}
+  .pcol:hover .crown{animation:wgl .7s}
+  .pcol:hover .pbar{filter:brightness(1.12)}
+  .bigmark:hover{animation:jelly .55s}
+  /* each theme reacts in its own voice */
+  html[data-theme=classic] .answer:hover:not(:active){transform:translateY(-5px) rotate(-.6deg);filter:brightness(1.08)}
+  html[data-theme=arcade] .answer:hover:not(:active){animation:crtflick .35s;filter:brightness(1.35)}
+  html[data-theme=nintendo] .answer:hover:not(:active){animation:bump .4s}
+  html[data-theme=doodle] .answer:hover:not(:active){animation:jelly .6s}
+  html[data-theme=editorial] .answer:hover:not(:active){transform:translateX(12px)}
+  html[data-theme=brutalist] .answer:hover:not(:active){transform:translate(-5px,-5px);box-shadow:13px 13px 0 #000}
+  html[data-theme=aurora] .answer:hover:not(:active){transform:translateY(-6px) scale(1.015);box-shadow:0 18px 50px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.25)}
+  html[data-theme=terminal] .answer:hover:not(:active){animation:crtflick .4s;filter:brightness(1.3)}
+  html[data-theme=candy] .answer:hover:not(:active){animation:jelly .55s}
+  html[data-theme=vapor] .answer:hover:not(:active){transform:translateY(-4px) skewX(-2deg);filter:saturate(1.5) brightness(1.15)}
+  html[data-theme=spooky] .answer:hover:not(:active){animation:shiver .3s ease-in-out 2}
+  html[data-theme=blueprint] .answer:hover:not(:active){background:rgba(255,255,255,.12);border-style:solid}
+}
+
 /* ── Misc ───────────────────────────────────────────────────────────────── */
 .badge-online{display:inline-flex;align-items:center;gap:6px;font-size:.85rem;font-weight:600;background:rgba(0,0,0,.25);border-radius:999px;padding:6px 14px}
 .dot{width:9px;height:9px;border-radius:50%;background:#3DDC84}
@@ -487,6 +595,7 @@ html[data-theme=candy] .answer.win{outline-color:#5b4585}
 <canvas id="confetti"></canvas>
 <button id="btn-mute" class="mutebtn" aria-label="Toggle sound">🔊</button>
 <button id="btn-snap" class="mutebtn snapbtn" aria-label="Save a screenshot of this screen">📸</button>
+<div id="snap-hint" class="snaphint" role="status" hidden></div>
 
 <!-- ════════════════════ LANDING ════════════════════ -->
 <section class="screen active" id="s-landing">
@@ -583,6 +692,9 @@ How many bones are in the human body?
         <option value="aurora">🌌 Aurora Glass</option>
         <option value="terminal">💻 Terminal</option>
         <option value="candy">🍬 Candy Clay</option>
+        <option value="vapor">🌴 Vaporwave</option>
+        <option value="spooky">🎃 Spooky</option>
+        <option value="blueprint">📐 Blueprint</option>
       </select></div>
       <div class="row" style="align-items:stretch">
         <div style="flex:1;min-width:170px" class="field"><label for="font-display">Display font (headings)</label><select class="fontsel" id="font-display"></select></div>
@@ -624,6 +736,12 @@ How many bones are in the human body?
     <div class="playerchips" id="hlobby-players"></div>
     <button class="btn big" id="btn-start" disabled>Start game 🚀</button>
     <p class="small muted" id="hlobby-hint">Waiting for at least 1 player…</p>
+    <div class="row" id="hlobby-test" style="justify-content:center;gap:8px;margin-top:6px">
+      <span class="small muted">🧪 Preview a crowd — add test players:</span>
+      <button class="btn ghost homebtn" data-bots="10">+10</button>
+      <button class="btn ghost homebtn" data-bots="100">+100</button>
+      <button class="btn ghost homebtn" data-bots="500">+500</button>
+    </div>
   </div>
 </section>
 
@@ -773,6 +891,24 @@ function show(id){
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   $(id).classList.add('active');
   window.scrollTo(0,0);
+  hideSnapHint(); // a hint is about the screen it appeared on
+}
+
+/* Chat bubble pointing at the 📸 button (poll results, final podium).
+   Auto-hides, and goes away on tap or when the screen changes. */
+let snapHintTimer = null;
+function showSnapHint(text){
+  const h = $('snap-hint');
+  h.textContent = text;
+  h.hidden = false;
+  h.onclick = hideSnapHint;
+  clearTimeout(snapHintTimer);
+  snapHintTimer = setTimeout(hideSnapHint, 14000);
+}
+function hideSnapHint(){
+  clearTimeout(snapHintTimer);
+  const h = $('snap-hint');
+  if (h) h.hidden = true;
 }
 
 /* ════════════════ SCREENSHOT (📸) ═══════════════════════════════════════
@@ -786,10 +922,11 @@ function show(id){
    ═══════════════════════════════════════════════════════════════════════ */
 async function snapScreen(){
   const btn = $('btn-snap');
+  hideSnapHint(); // the nudge did its job — keep it out of the shot
   try {
     const W = document.documentElement.clientWidth, H = document.documentElement.clientHeight;
     const clone = document.documentElement.cloneNode(true);
-    clone.querySelectorAll('script,noscript,link,#btn-snap,#btn-mute,#confetti,.floatemo').forEach(n => n.remove());
+    clone.querySelectorAll('script,noscript,link,#btn-snap,#btn-mute,#snap-hint,#confetti,.floatemo').forEach(n => n.remove());
     // Freeze motion so nothing is caught mid-animation, and carry over
     // live form state (cloneNode copies attributes, not current values).
     const freeze = document.createElement('style');
@@ -948,7 +1085,7 @@ const DEFAULT_COLORS = ['#4F2CBD','#FFB800','#FF4E6A','#19C6B2'];
 /* Structural skins (see the THEMES CSS block). Colors and fonts from the
    pickers keep applying inside every theme. Whitelist-validated because
    the name travels through the database to players. */
-const THEMES = ['classic','arcade','nintendo','doodle','editorial','brutalist','aurora','terminal','candy'];
+const THEMES = ['classic','arcade','nintendo','doodle','editorial','brutalist','aurora','terminal','candy','vapor','spooky','blueprint'];
 let currentTheme = 'classic';
 function applyLook(colors, theme){
   applyTheme(colors);
@@ -971,6 +1108,7 @@ function applyLook(colors, theme){
     terminal: tfg,
     doodle: '#2f2a22', editorial: '#141414', candy: '#4a3b63',
     nintendo: '#12263c',
+    vapor: '#ffe9f8', spooky: '#f2e9d8', blueprint: '#eaf3ff',
     brutalist: textOn(c[1])
   }[theme];
   if (ink) r.setProperty('--ink', ink);
@@ -982,7 +1120,8 @@ function applyLook(colors, theme){
    a data: URI, which the CSP already allows for images. */
 const THEME_ICONS = {
   classic:'⚡', arcade:'🕹️', nintendo:'🍄', doodle:'✏️', editorial:'📰',
-  brutalist:'🚧', aurora:'🌌', terminal:'💻', candy:'🍬'
+  brutalist:'🚧', aurora:'🌌', terminal:'💻', candy:'🍬',
+  vapor:'🌴', spooky:'🎃', blueprint:'📐'
 };
 function setFavicon(colors, theme){
   try {
@@ -991,7 +1130,8 @@ function setFavicon(colors, theme){
     const bg = {
       arcade:'#0a0a20', terminal:'#04140b', aurora:'#131a38',
       editorial:'#fafaf6', doodle:'#fbf5e9', nintendo:'#a8d8ff',
-      candy:'#fbe3ee', brutalist:c[1]
+      candy:'#fbe3ee', brutalist:c[1],
+      vapor:'#2d1157', spooky:'#120a1c', blueprint:'#0e3a66'
     }[theme] || c[0];
     const cv = document.createElement('canvas');
     cv.width = cv.height = 64;
@@ -1302,7 +1442,19 @@ SFX.MUSIC = {
   // Sweet music-box arpeggios an octave up
   candy:    { ms:210, wave:'sine', vol:.09, len:.45, bassWave:'triangle', bassVol:.07, fifth:true,
               bass:[261.6,220,174.6,196], riff:[0,1,2,3,2,3,1,0],
-              arps:[[523.3,659.3,784,1046.5],[440,523.3,659.3,880],[349.2,440,523.3,698.5],[392,493.9,587.3,784]] }
+              arps:[[523.3,659.3,784,1046.5],[440,523.3,659.3,880],[349.2,440,523.3,698.5],[392,493.9,587.3,784]] },
+  // Slow dreamy synthwave: long soft saw pads over a sunset bass
+  vapor:    { ms:480, wave:'sawtooth', vol:.04, len:1.8, bassWave:'sine', bassVol:.09,
+              bass:[130.8,110,87.3,98], riff:[0,null,1,null,2,null,3,1],
+              arps:[[261.6,329.6,392,493.9],[220,261.6,329.6,392],[174.6,220,261.6,329.6],[196,246.9,293.7,349.2]] },
+  // Creepy minor waltz over a chromatic downward-creeping bass
+  spooky:   { ms:340, wave:'triangle', vol:.07, len:.5, bassWave:'sawtooth', bassVol:.045,
+              bass:[55,51.9,49,46.2], riff:[0,null,1,0,2,null,1,3],
+              arps:[[220,261.6,311.1,329.6],[207.7,246.9,311.1,415.3],[174.6,207.7,246.9,293.7],[164.8,196,233.1,311.1]] },
+  // Precise little sonar pings, drafting-table calm
+  blueprint:{ ms:230, wave:'square', vol:.03, len:.06, bassWave:'sine', bassVol:.07,
+              bass:[98,110,130.8,87.3], riff:[0,null,1,null,2,3,null,1],
+              arps:[[392,440,523.3,587.3],[440,493.9,587.3,659.3],[523.3,587.3,659.3,784],[349.2,392,440,523.3]] }
 };
 SFX.musicInt = null;
 SFX.startMusic = function(theme){
@@ -1468,6 +1620,7 @@ const Host = {
   room: null, quiz: null, colors: DEFAULT_COLORS.slice(),
   qIndex: -1, players: {}, playersAtQ: 0, revealed: false,
   stopTimer: null, timeout: null, unsubPlayers: null, unsubAnswers: null,
+  bots: [], botTimers: [],
 
   path(sub){ return 'rooms/' + this.room + (sub ? '/' + sub : ''); },
 
@@ -1496,6 +1649,7 @@ const Host = {
 
   async _createRoom(parsed){
     this.quiz = parsed;
+    this.bots = []; this.stopBotAnswers();
     this.colors = readColorInputs();
     applyLook(this.colors, $('theme-sel').value);
 
@@ -1571,6 +1725,67 @@ const Host = {
 
   startGame(){ SFX.stopMusic(); this.showQuestion(0); },
 
+  /* ── 🧪 Test players ────────────────────────────────────────────────────
+     Fake players for previewing the game at crowd scale (10/100/500)
+     without logging in phones. They're written to the database exactly
+     like real joins (one batched write), so every screen — lobby chips,
+     answered counter, vote chart, leaderboard, podium — sees a full room.
+     During each question they answer in a handful of batched writes so
+     the counter ticks up like a live crowd. Erased with the room. */
+  async addBots(n){
+    if (!this.room) return;
+    n = Math.min(n, 1000 - this.bots.length); // sanity cap
+    if (n <= 0) return;
+    const ADJ = ['Turbo','Spicy','Fuzzy','Sneaky','Mega','Tiny','Wobbly','Cosmic','Snazzy','Grumpy','Zesty','Bouncy','Sleepy','Shiny','Funky','Brave','Salty','Dizzy','Epic','Wiggly'];
+    const NOUN = ['Panda','Taco','Wizard','Pickle','Rocket','Llama','Ninja','Waffle','Robot','Goblin','Disco','Yeti','Mango','Noodle','Comet','Banjo','Walrus','Bagel','Pirate','Kazoo'];
+    const updates = {};
+    for (let k = 0; k < n; k++){
+      const id = 'bot' + Date.now().toString(36) + k + Math.random().toString(36).slice(2, 6);
+      this.bots.push(id);
+      updates[id] = {
+        name: ADJ[Math.floor(Math.random() * ADJ.length)] + NOUN[Math.floor(Math.random() * NOUN.length)] + Math.floor(Math.random() * 100),
+        emoji: AVATARS[Math.floor(Math.random() * AVATARS.length)],
+        score: 0, joined: Date.now()
+      };
+    }
+    await Sync.update(this.path('players'), updates);
+  },
+
+  stopBotAnswers(){ this.botTimers.forEach(clearTimeout); this.botTimers = []; },
+
+  scheduleBotAnswers(i, q){
+    this.stopBotAnswers();
+    if (!this.bots.length) return;
+    const answering = this.bots.filter(() => Math.random() < .93); // a few always doze off
+    // Quiz questions lean toward the right answer; polls get an uneven
+    // random spread so the reveal chart has some drama.
+    const w = q.type !== 'closest'
+      ? q.options.map((_, j) => (j === q.correct ? 2.2 : .4 + Math.random() * 1.4))
+      : null;
+    const batches = 12;
+    for (let b = 0; b < batches; b++){
+      const slice = answering.filter((_, k) => k % batches === b);
+      if (!slice.length) continue;
+      const at = q.duration * 1000 * (.1 + .7 * (b / batches) + Math.random() * .06);
+      this.botTimers.push(setTimeout(() => {
+        if (this.revealed || this.qIndex !== i || !this.room) return;
+        const upd = {};
+        for (const id of slice){
+          const e = Math.round((at / 1000 + Math.random() * .8) * 100) / 100;
+          if (q.type === 'closest'){
+            upd[id] = { g: Math.round(q.target * (1 + (Math.random() - .5) * .8) * 100) / 100, e };
+          } else {
+            const total = w.reduce((a, x) => a + x, 0);
+            let r = Math.random() * total, c = 0;
+            while (r > w[c] && c < w.length - 1){ r -= w[c]; c++; }
+            upd[id] = { c, e };
+          }
+        }
+        Sync.update(this.path('answers/' + i), upd);
+      }, at));
+    }
+  },
+
   async showQuestion(i){
     const q = this.quiz.questions[i];
     this.qIndex = i; this.revealed = false;
@@ -1628,6 +1843,7 @@ const Host = {
     this.stopTimer = startTimerUI($('hq-timer'), $('hq-timerbar'), q.duration);
     clearTimeout(this.timeout);
     this.timeout = setTimeout(() => this.endQuestion(), q.duration * 1000 + 400); // small grace for in-flight answers
+    this.scheduleBotAnswers(i, q); // 🧪 test players answer like a crowd
 
     if (this.unsubAnswers) this.unsubAnswers();
     this.unsubAnswers = Sync.on(this.path('answers/' + i), answers => {
@@ -1662,6 +1878,7 @@ const Host = {
     clearTimeout(this.timeout);
     if (this.stopTimer) this.stopTimer();
     if (this.unsubAnswers){ this.unsubAnswers(); this.unsubAnswers = null; }
+    this.stopBotAnswers();
 
     const i = this.qIndex, q = this.quiz.questions[i];
     const isPoll = q.type === 'poll';
@@ -1723,6 +1940,8 @@ const Host = {
       // so a stale poll/closest flag would otherwise leak into the next reveal.
       await Sync.update(this.path('state'), { phase: 'reveal', correct: q.correct, dist, poll: isPoll, closest: false, target: null });
     }
+
+    if (isPoll) showSnapHint('Want to save these responses? 📸 Take a screenshot!');
 
     const last = i === this.quiz.questions.length - 1;
     const btn = $('btn-hq-next');
@@ -1825,6 +2044,7 @@ const Host = {
     $('pcol-1').classList.add('shown');
     SFX.play('fanfare');
     Confetti.fire(220); setTimeout(() => Confetti.fire(160), 900);
+    showSnapHint('Want to keep the final results? 📸 Take a screenshot!');
 
     // Privacy: the game is over, so all room data (nicknames, answers,
     // scores) is now disposable. Erase it when the host tab closes, or
@@ -2175,6 +2395,7 @@ async function goHome(){
     if (!gameDone && anyoneIn && !confirm('Go home? This ends the game for everyone and erases the room.')) return;
     if (Host.stopTimer) Host.stopTimer();
     clearTimeout(Host.timeout);
+    Host.stopBotAnswers(); Host.bots = [];
     if (Host.unsubPlayers){ Host.unsubPlayers(); Host.unsubPlayers = null; }
     if (Host.unsubAnswers){ Host.unsubAnswers(); Host.unsubAnswers = null; }
     if (Host.unsubReacts){ Host.unsubReacts(); Host.unsubReacts = null; }
@@ -2251,6 +2472,11 @@ function boot(){
 
   // Screenshot button (📸, bottom-left on every screen)
   $('btn-snap').onclick = snapScreen;
+
+  // 🧪 Test players (host lobby): preview the game at crowd scale
+  document.querySelectorAll('#hlobby-test button').forEach(b => {
+    b.onclick = () => { Host.addBots(Number(b.dataset.bots)); SFX.play('join'); };
+  });
 
   // Avatar picker (random pre-selection so lazy joiners still get a face)
   const grid = $('emoji-grid');
