@@ -665,7 +665,7 @@ How many bones are in the human body?
 = 206</code></pre>
           <ul>
             <li><code># Title</code> — one line starting with a single <code>#</code>. Shown in the lobby.</li>
-            <li><code>## Q1 | 20s</code> — starts a question. The label before <code>|</code> can be anything (<code>Q1</code>, <code>Round 2</code>…). The <code>| 20s</code> part is the <b>optional answer timer</b> (1–300 seconds, default 20), e.g. <code>## Q3</code> uses the default.</li>
+            <li><code>## Q1 | 20s</code> — starts a question. The label is <b>optional</b> — <code>##</code> alone, <code>## | 20s</code>, or any name (<code>Round 2</code>…) all work; unlabeled questions number themselves. The <code>| 20s</code> part is the <b>optional answer timer</b> (1–300 seconds, default 20), e.g. <code>## Q3</code> uses the default.</li>
             <li><code>| read 10s</code> — <b>optional reading time</b> for that question (0–30 seconds, default 5). Add it after the timer: <code>## Q1 | 20s | read 10s</code>. Use <code>read 0s</code> to skip straight to the answers.</li>
             <li>The line(s) after the header are the <b>question text</b> (multiple lines are joined together).</li>
             <li><code>- Option text</code> — each answer on its own line, 2–4 per question.</li>
@@ -1258,9 +1258,12 @@ function parseQuiz(text){
     const line = raw.trim();
     if (!line) return;
     if (/^#\s+/.test(line) && !/^##/.test(line)) { title = line.replace(/^#\s+/, '').trim(); return; }
-    if (/^##\s+/.test(line)) {
+    // "##" starts a question. The label is optional decoration — "##",
+    // "## | 20s" and "## Q1 | 20s" all work; unlabeled questions
+    // auto-number (labels only ever appear in parse-error messages).
+    if (/^##(\s|$)/.test(line)) {
       finalize(cur);
-      const head = line.replace(/^##\s+/, '');
+      const head = line.replace(/^##\s*/, '');
       const parts = head.split('|');
       let dur = 20, preview = PREVIEW_SECS;
       let type = 'quiz';
