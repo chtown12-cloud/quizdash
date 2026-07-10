@@ -966,6 +966,12 @@ async function snapScreen(){
       // podium columns are opacity:0 at rest and only visible via their
       // entrance animation — freezing animations must not hide them
       '.pcol.shown{opacity:1!important}' +
+      // The SVG rasterizer won't paint z-index:-1 fixed layers, so the
+      // theme decor emojis vanish from captures. Recreate the live
+      // layering with positive z instead: background on <html>, decor at
+      // z:0, and every screen (position:relative) lifted to z:1 above it.
+      `html{background:${getComputedStyle(document.body).background.replace(/[{}<>]/g, '')}!important}body{background:none!important}` +
+      '#decor{z-index:0!important}.screen{z-index:1!important}' +
       'html[data-theme=aurora] :is(.answer,.boardrow,.chip,.roomcode),html[data-theme=vapor] :is(.answer,.boardrow,.chip,.roomcode){background:rgba(12,10,40,.88)!important}';
     clone.querySelector('head').appendChild(freeze);
     const live = document.querySelectorAll('input,textarea,select');
