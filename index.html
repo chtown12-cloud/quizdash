@@ -16,7 +16,7 @@
      be tabs/windows on the SAME device & browser. Perfect for testing the
      flow before your event. Just open this file and click "Host a game".
 
-  2) FIREBASE MODE (real multiplayer, 5–500 phones) — ~10 minutes of setup
+  2) FIREBASE MODE (real multiplayer, 5–1000 phones) — ~10 minutes of setup
      a) Go to https://console.firebase.google.com → "Add project"
         (any name, Google Analytics OFF is fine).
      b) In the left sidebar: Build → Realtime Database → "Create database".
@@ -36,9 +36,10 @@
         multiplayer ready" badge appears on the home screen.
 
      Free tier limits: 100 simultaneous connections on the Spark plan.
-     For up to 500 players, enable the Blaze (pay-as-you-go) plan — a
-     one-hour quiz for 500 people costs pennies, but Blaze does require a
-     billing account. Under ~100 players, Spark is completely free.
+     For larger rooms (tested to 1000 players), enable the Blaze
+     (pay-as-you-go) plan — a one-hour quiz for 1000 people costs on the
+     order of a dollar or two, but Blaze does require a billing account.
+     Under ~100 players, Spark is completely free.
 
   DEPLOYING (pick one, all take < 5 minutes)
   ------------------------------------------
@@ -1068,6 +1069,11 @@ const FirebaseSync = {
   update(p, o){ return this.db.ref(p).update(o); },
   get(p){ return this.db.ref(p).get().then(s => s.val()); },
   on(p, cb){ const ref = this.db.ref(p); const h = ref.on('value', s => cb(s.val())); return () => ref.off('value', h); },
+  // Child-granular subscription: fires once per child with child-sized
+  // payloads. (A value listener re-downloads the whole node on every
+  // change — O(n²) traffic on the host while a 1000-player answer wave
+  // streams in.)
+  onChildAdded(p, cb){ const ref = this.db.ref(p); const h = ref.on('child_added', s => cb(s.key, s.val())); return () => ref.off('child_added', h); },
   onDisconnectRemove(p){ this.db.ref(p).onDisconnect().remove(); }
 };
 
@@ -1100,6 +1106,14 @@ const LocalSync = {
   update(p, o){ const db = this._read(); for (const k in o) this._setAt(db, p + '/' + k, o[k]); this._write(db); this._notify(p); return Promise.resolve(); },
   get(p){ return Promise.resolve(this._getAt(this._read(), p)); },
   on(p, cb){ const l = { p, cb }; this.listeners.push(l); cb(this._getAt(this._read(), p)); return () => { this.listeners = this.listeners.filter(x => x !== l); }; },
+  onChildAdded(p, cb){
+    const seen = new Set();
+    const fire = node => { for (const k in (node || {})) if (!seen.has(k)){ seen.add(k); cb(k, node[k]); } };
+    const l = { p, cb: fire };
+    this.listeners.push(l);
+    fire(this._getAt(this._read(), p));
+    return () => { this.listeners = this.listeners.filter(x => x !== l); };
+  },
   _notify(changed){ this.emit(changed); if (this.chan) this.chan.postMessage(changed); },
   onDisconnectRemove(p){ window.addEventListener('pagehide', () => { const db = this._read(); this._setAt(db, p, null); this._write(db); if (this.chan) this.chan.postMessage(p); }); },
   emit(changed){
@@ -1995,12 +2009,17 @@ const Host = {
     this.scheduleBotAnswers(i, q); // 🧪 test players answer like a crowd
 
     if (this.unsubAnswers) this.unsubAnswers();
-    this.unsubAnswers = Sync.on(this.path('answers/' + i), answers => {
-      const n = answers ? Object.keys(answers).length : 0;
-      if (n > (Number($('hq-answered').textContent) || 0)) SFX.play('blip');
-      $('hq-answered').textContent = n;
+    // Count answers child-by-child (tiny payloads) instead of re-reading
+    // the whole node per change; the blip throttles so a 1000-player wave
+    // ticks rather than machine-guns.
+    let answeredN = 0, lastBlip = 0;
+    this.unsubAnswers = Sync.onChildAdded(this.path('answers/' + i), () => {
+      answeredN++;
+      $('hq-answered').textContent = answeredN;
+      const now = Date.now();
+      if (now - lastBlip > 150){ SFX.play('blip'); lastBlip = now; }
       // Auto-advance: everyone who was in when the question started has answered
-      if (this.playersAtQ > 0 && n >= this.playersAtQ) this.endQuestion();
+      if (this.playersAtQ > 0 && answeredN >= this.playersAtQ) this.endQuestion();
     });
   },
 
@@ -2173,9 +2192,20 @@ const Host = {
       .sort((a,b) => b.score - a.score || a.name.localeCompare(b.name));
   },
 
+  // Deliver each player's rank through their own players/<id> node (every
+  // phone already subscribes there), so the shared state only has to carry
+  // the top 10 — broadcasting 1000 full standings to 1000 phones was tens
+  // of MB per leaderboard screen. One multi-path update = one write.
+  async pushRanks(st){
+    const upd = {};
+    st.forEach((p, r) => { upd[p.id + '/rank'] = r + 1; });
+    await Sync.update(this.path('players'), upd);
+  },
+
   async showBoard(){
     const st = this.standings();
-    await Sync.update(this.path('state'), { phase: 'board', standings: st });
+    await this.pushRanks(st);
+    await Sync.update(this.path('state'), { phase: 'board', standings: st.slice(0, 10), total: st.length });
     $('hb-progress').textContent = `After Q${this.qIndex + 1} / ${this.quiz.questions.length}`;
     $('hb-room').textContent = this.room;
     $('hb-rows').innerHTML = st.slice(0, 8).map((p, r) => `
@@ -2192,7 +2222,8 @@ const Host = {
 
   async showPodium(){
     const st = this.standings();
-    await Sync.update(this.path('state'), { phase: 'podium', standings: st });
+    await this.pushRanks(st);
+    await Sync.update(this.path('state'), { phase: 'podium', standings: st.slice(0, 10), total: st.length });
     show('s-hpodium');
     $('hp-drum').style.display = '';
     $('hp-title').textContent = 'And the winners are…';
@@ -2570,8 +2601,10 @@ const Player = {
   },
 
   renderBoard(s){
+    // State carries only the top 10; everyone else's rank arrives through
+    // their own players/<id> record (written just before the phase change).
     const st = s.standings || [];
-    const rank = st.findIndex(p => p.id === this.id) + 1;
+    const rank = (st.findIndex(p => p.id === this.id) + 1) || Number(this.me.rank) || 0;
     const score = Number(this.me.score) || 0;
     const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '📊';
     $('pr-progress').textContent = 'Standings';
@@ -2586,7 +2619,8 @@ const Player = {
 
   async renderPodium(s){
     const st = s.standings || [];
-    const rank = st.findIndex(p => p.id === this.id) + 1;
+    const rank = (st.findIndex(p => p.id === this.id) + 1) || Number(this.me.rank) || 0;
+    const total = Number(s.total) || st.length;
     const score = Number(this.me.score) || 0;
     sessionStorage.removeItem('qd-pid-' + this.room); // game over: forget my player id
     // Game over — stop listening so the host erasing the room doesn't
@@ -2601,10 +2635,10 @@ const Player = {
     const line = rank === 1 ? 'CHAMPION! Take a bow.' : rank === 2 ? 'So close — brilliant run!' : rank === 3 ? 'On the podium!' : 'Well played!';
     $('pp-body').innerHTML = `
       <div class="bigmark">${medal}</div>
-      <h1 class="display" style="font-size:2.3rem">${ordinal(rank || st.length)} place</h1>
+      <h1 class="display" style="font-size:2.3rem">${ordinal(rank || total)} place</h1>
       <div class="points-pop" style="font-size:1.9rem">${score.toLocaleString()} pts</div>
       <p style="font-weight:600">${line}</p>
-      <p class="small muted">out of ${st.length} player${st.length === 1 ? '' : 's'} · thanks for playing ⚡</p>
+      <p class="small muted">out of ${total} player${total === 1 ? '' : 's'} · thanks for playing ⚡</p>
       <button class="btn ghost homebtn" onclick="goHome()" style="margin-top:14px">🏠 Home</button>`;
     SFX.play(rank >= 1 && rank <= 3 ? 'fanfare' : 'board');
     if (rank >= 1 && rank <= 3) Confetti.fire(180);
