@@ -260,9 +260,9 @@ button.answer.picked{outline:4px solid var(--ink);outline-offset:-4px;filter:bri
 /* Closest-guess scatter plot: guesses as dots on a number line around 🎯 */
 .scatter{position:relative;grid-column:1/-1;height:clamp(180px,28vh,260px);background:rgba(127,127,127,.14);border-radius:18px;overflow:hidden}
 .scatter::after{content:"";position:absolute;left:3%;right:3%;bottom:14px;height:2px;background:currentColor;opacity:.25;border-radius:2px}
-.sdot{position:absolute;width:15px;height:15px;margin:-8px 0 0 -8px;border-radius:50%;background:var(--bfg1,var(--b1));box-shadow:0 2px 6px rgba(0,0,0,.35);animation:pop .45s cubic-bezier(.34,1.56,.64,1) backwards;transition:transform .15s}
+.sdot{position:absolute;width:15px;height:15px;margin-left:-8px;border-radius:50%;background:var(--bfg1,var(--b1));box-shadow:0 2px 6px rgba(0,0,0,.35);animation:pop .45s cubic-bezier(.34,1.56,.64,1) backwards;transition:transform .15s}
 .sdot.pin{opacity:.4}
-.sdot.win{width:38px;height:38px;margin:-19px 0 0 -19px;font-size:23px;display:flex;align-items:center;justify-content:center;background:var(--bfg0,var(--b0));outline:3px solid var(--ink);z-index:2}
+.sdot.win{width:38px;height:38px;margin-left:-19px;font-size:23px;display:flex;align-items:center;justify-content:center;background:var(--bfg0,var(--b0));outline:3px solid var(--ink);z-index:2}
 .starget{position:absolute;top:0;bottom:0;width:3px;margin-left:-1.5px;background:var(--ink);opacity:.9;z-index:1}
 .starget span{position:absolute;top:8px;left:10px;font-family:var(--font-display);font-weight:800;font-size:1.3rem;white-space:nowrap}
 .starget span.flip{left:auto;right:10px}
@@ -1662,12 +1662,15 @@ function countUp(el, to, ms){
   };
   requestAnimationFrame(tick);
 }
-// Scatter plot for closest-guess reveals: every guess is a dot along a
-// number line with the 🎯 target marked. The x-domain is percentile-
-// clamped so one wild outlier can't squash the crowd (outliers pin to
-// the edges, faded); winning guesses render big with the player's
-// avatar. Dots pop in staggered — `backwards` fill means the screenshot
-// pipeline's animation freeze leaves them at their natural visible state.
+// Dot plot for closest-guess reveals: every guess is a dot along a
+// number line with the 🎯 target marked. Guesses are binned and STACK
+// upward, so the y-axis means "how many players guessed this" and the
+// crowd's shape is readable at a glance (tall tower at the target =
+// most people nailed it). The x-domain is clamped so one wild outlier
+// can't squash the crowd (outliers pin to the edges, faded); winning
+// guesses render big with the player's avatar. Dots pop in staggered —
+// `backwards` fill means the screenshot pipeline's animation freeze
+// leaves them at their natural visible state.
 function renderGuessScatter(target, entries, players){
   const vals = entries.map(en => en.g);
   let lo = target, hi = target;
@@ -1685,15 +1688,22 @@ function renderGuessScatter(target, entries, players){
   const pad = (hi - lo) * .07;
   const min = lo - pad, max = hi + pad;
   const X = v => Math.max(1.5, Math.min(98.5, (v - min) / (max - min) * 100));
+  // Bin guesses (~one dot width per bin) and stack within each bin.
+  // Entries arrive sorted by distance, so towers grow outward from the
+  // target as the dots pop in.
+  const binW = 2.4, stacks = {};
   const dots = entries.slice(0, 300).map((en, i) => {
     const win = en.band === 0;
     const pinned = en.g < min || en.g > max;
     const p = players[en.pid] || {};
-    const y = 14 + ((i * 37 + Math.abs(Math.round(en.g))) % 58); // deterministic jitter, clear of the labels
-    return `<div class="sdot${win ? ' win' : ''}${pinned ? ' pin' : ''}" style="left:${X(en.g).toFixed(2)}%;top:${y}%;animation-delay:${Math.min(i * 45, 1600)}ms" title="${esc(String(p.name || ''))}: ${en.g.toLocaleString()}">${win ? av(p.emoji) : ''}</div>`;
+    const bin = Math.round(X(en.g) / binW);
+    const level = stacks[bin] = (stacks[bin] || 0) + 1;
+    const x = Math.max(1.5, Math.min(98.5, bin * binW));
+    const y = Math.min(9 + (level - 1) * 6.8, 86); // % from the baseline up
+    return `<div class="sdot${win ? ' win' : ''}${pinned ? ' pin' : ''}" style="left:${x.toFixed(2)}%;bottom:${y.toFixed(1)}%;animation-delay:${Math.min(i * 45, 1600)}ms" title="${esc(String(p.name || ''))}: ${en.g.toLocaleString()}">${win ? av(p.emoji) : ''}</div>`;
   }).join('');
   const tx = X(target);
-  return `<div class="scatter" style="grid-column:1/-1" role="img" aria-label="Scatter plot of all guesses around the answer ${target}">
+  return `<div class="scatter" style="grid-column:1/-1" role="img" aria-label="Dot plot of all guesses around the answer ${target}; each stack shows how many players made that guess">
     <div class="starget" style="left:${tx.toFixed(2)}%"><span class="${tx > 62 ? 'flip' : ''}">🎯 ${target.toLocaleString()}</span></div>
     ${dots}
   </div>`;
