@@ -257,6 +257,15 @@ button.answer.picked{outline:4px solid var(--ink);outline-offset:-4px;filter:bri
 .vccol.win .vcfill{box-shadow:0 0 0 3px var(--ink),0 6px 0 rgba(0,0,0,.16),0 10px 26px rgba(0,0,0,.22)}
 .vcchip{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex:none}
 .vcchip svg{width:20px;height:20px;filter:drop-shadow(0 1px 1px rgba(0,0,0,.3))}
+/* Closest-guess scatter plot: guesses as dots on a number line around 🎯 */
+.scatter{position:relative;grid-column:1/-1;height:clamp(180px,28vh,260px);background:rgba(127,127,127,.14);border-radius:18px;overflow:hidden}
+.scatter::after{content:"";position:absolute;left:3%;right:3%;bottom:14px;height:2px;background:currentColor;opacity:.25;border-radius:2px}
+.sdot{position:absolute;width:15px;height:15px;margin-left:-8px;border-radius:50%;background:var(--bfg1,var(--b1));box-shadow:0 2px 6px rgba(0,0,0,.35);animation:pop .45s cubic-bezier(.34,1.56,.64,1) backwards;transition:transform .15s}
+.sdot.pin{opacity:.4}
+.sdot.win{width:38px;height:38px;margin-left:-19px;font-size:23px;display:flex;align-items:center;justify-content:center;background:var(--bfg0,var(--b0));outline:3px solid var(--ink);z-index:2}
+.starget{position:absolute;top:0;bottom:0;width:3px;margin-left:-1.5px;background:var(--ink);opacity:.9;z-index:1}
+.starget span{position:absolute;top:8px;left:10px;font-family:var(--font-display);font-weight:800;font-size:1.3rem;white-space:nowrap}
+.starget span.flip{left:auto;right:10px}
 .answer .tick{position:absolute;right:14px;top:10px;font-size:1.3rem}
 
 /* ── Leaderboard ────────────────────────────────────────────────────────── */
@@ -576,6 +585,7 @@ html[data-theme=blueprint] .answer.win{outline-color:#fff;border-style:solid}
   .answer:hover .shape{animation:jig .5s}
   .vccol:hover .vcfill{filter:brightness(1.2) saturate(1.25)}
   .vccol:hover .vcchip{animation:jig .5s}
+  .sdot:hover{transform:scale(1.7);z-index:3}
   .pcol:hover .crown{animation:wgl .7s}
   .pcol:hover .pbar{filter:brightness(1.12)}
   .bigmark:hover{animation:jelly .55s}
@@ -1652,6 +1662,53 @@ function countUp(el, to, ms){
   };
   requestAnimationFrame(tick);
 }
+// Dot plot for closest-guess reveals: every guess is a dot along a
+// number line with the 🎯 target marked. Guesses are binned and STACK
+// upward, so the y-axis means "how many players guessed this" and the
+// crowd's shape is readable at a glance (tall tower at the target =
+// most people nailed it). The x-domain is clamped so one wild outlier
+// can't squash the crowd (outliers pin to the edges, faded); winning
+// guesses render big with the player's avatar. Dots pop in staggered —
+// `backwards` fill means the screenshot pipeline's animation freeze
+// leaves them at their natural visible state.
+function renderGuessScatter(target, entries, players){
+  const vals = entries.map(en => en.g);
+  let lo = target, hi = target;
+  if (vals.length){
+    // Clamp the domain to guesses within 5× the median distance from the
+    // target (works at any crowd size), so one absurd guess can't squash
+    // the real cluster into a single pixel. Outliers pin to the edges.
+    const dists = entries.map(en => en.d).sort((a, b) => a - b);
+    const keep = Math.max(dists[Math.floor(dists.length / 2)] * 5, Math.abs(target) * .02, 1);
+    const use = entries.length >= 3 ? vals.filter(v => Math.abs(v - target) <= keep) : vals;
+    const base = use.length ? use : vals;
+    lo = Math.min(lo, ...base); hi = Math.max(hi, ...base);
+  }
+  if (lo === hi){ lo -= 1; hi += 1; }
+  const pad = (hi - lo) * .07;
+  const min = lo - pad, max = hi + pad;
+  const X = v => Math.max(1.5, Math.min(98.5, (v - min) / (max - min) * 100));
+  // Bin guesses (~one dot width per bin) and stack within each bin.
+  // Entries arrive sorted by distance, so towers grow outward from the
+  // target as the dots pop in.
+  const binW = 2.4, stacks = {};
+  const dots = entries.slice(0, 300).map((en, i) => {
+    const win = en.band === 0;
+    const pinned = en.g < min || en.g > max;
+    const p = players[en.pid] || {};
+    const bin = Math.round(X(en.g) / binW);
+    const level = stacks[bin] = (stacks[bin] || 0) + 1;
+    const x = Math.max(1.5, Math.min(98.5, bin * binW));
+    const y = Math.min(9 + (level - 1) * 6.8, 86); // % from the baseline up
+    return `<div class="sdot${win ? ' win' : ''}${pinned ? ' pin' : ''}" style="left:${x.toFixed(2)}%;bottom:${y.toFixed(1)}%;animation-delay:${Math.min(i * 45, 1600)}ms" title="${esc(String(p.name || ''))}: ${en.g.toLocaleString()}">${win ? av(p.emoji) : ''}</div>`;
+  }).join('');
+  const tx = X(target);
+  return `<div class="scatter" style="grid-column:1/-1" role="img" aria-label="Dot plot of all guesses around the answer ${target}; each stack shows how many players made that guess">
+    <div class="starget" style="left:${tx.toFixed(2)}%"><span class="${tx > 62 ? 'flip' : ''}">🎯 ${target.toLocaleString()}</span></div>
+    ${dots}
+  </div>`;
+}
+
 // Dynamic vote bar chart on the host reveal: one column per answer, bars
 // growing to their share of the vote with the count tallying up. Winning
 // answers (one for quiz, several for multi, none for polls) stay bright
@@ -2089,8 +2146,9 @@ const Host = {
     }
     await Sync.update(this.path('players'), updates);
 
-    // Big screen: the target, then the guesses ranked by closeness
-    const rows = entries.slice(0, 6).map(en => {
+    // Big screen: a scatter plot of every guess along a number line with
+    // the target marked, then the top three by closeness for the points.
+    const rows = entries.slice(0, 3).map(en => {
       const p = this.players[en.pid] || {};
       return `<div class="boardrow">
         <span class="rank">${en.band + 1}</span>
@@ -2100,7 +2158,7 @@ const Host = {
       </div>`;
     }).join('');
     $('hq-answers').innerHTML =
-      `<div class="answer win" style="grid-column:1/-1;justify-content:center;font-size:1.7rem">🎯 ${q.target.toLocaleString()}</div>` +
+      renderGuessScatter(q.target, entries, this.players) +
       (rows ? `<div class="board" style="grid-column:1/-1;max-width:none">${rows}</div>`
             : `<p style="grid-column:1/-1;text-align:center;font-weight:600">No guesses came in.</p>`);
     $('hq-timer').textContent = '🎯';
