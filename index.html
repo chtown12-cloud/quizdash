@@ -243,6 +243,15 @@ button.answer:active{transform:translateY(4px) scale(.99);box-shadow:0 1px 0 rgb
 .answer.win{outline:5px solid #fff;transform:scale(1.03)}
 /* Multi (pick-all-that-apply): toggled options before locking in */
 button.answer.picked{outline:4px solid var(--ink);outline-offset:-4px;filter:brightness(1.12)}
+
+/* ⚡ Double points: shimmering golden badge + pulsing edge glow on the
+   question screens. Transform/background animations only, so the
+   screenshot pipeline's animation freeze leaves everything visible. */
+.x2badge{display:inline-flex;align-items:center;gap:.5ch;font-family:var(--font-display);font-weight:800;font-size:clamp(1rem,2.6vw,1.4rem);letter-spacing:.08em;padding:8px 24px;border-radius:999px;color:#3a2a00;background:linear-gradient(100deg,#ffd23a,#ffb300 40%,#ffe98f 50%,#ffb300 60%,#ffd23a);background-size:200% 100%;box-shadow:0 0 26px rgba(255,190,40,.6),0 4px 0 rgba(0,0,0,.25);animation:x2shine 1.6s linear infinite,x2bob 1.1s ease-in-out infinite;white-space:nowrap}
+@keyframes x2shine{to{background-position:-200% 0}}
+@keyframes x2bob{0%,100%{transform:scale(1) rotate(-1.2deg)}50%{transform:scale(1.07) rotate(1.2deg)}}
+.x2on::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:2;box-shadow:inset 0 0 120px 8px rgba(255,190,40,.5);animation:x2pulse 1.5s ease-in-out infinite}
+@keyframes x2pulse{0%,100%{opacity:.4}50%{opacity:1}}
 .answer .dist{position:absolute;right:14px;bottom:10px;font-size:.85rem;font-weight:800;opacity:.95}
 /* Closest-guess input (player phones) */
 .guessbox{grid-column:1/-1;display:flex;flex-direction:column;gap:14px;align-items:center;text-align:center}
@@ -655,14 +664,14 @@ html[data-theme=blueprint] .answer.win{outline-color:#fff;border-style:solid}
           <p>Each quiz is plain text with three ingredients: a <b>title line</b>, <b>question headers</b>, and <b>answer options</b>.</p>
 <pre><code># Friday Team Quiz
 
-## Q1 | 20s | read 10s
+## Classic | 20s | read 10s
 What is the capital of France?
 - Paris *
 - London
 - Berlin
 - Madrid
 
-## Q2 | 15s | read 3s
+## True or false | 15s | read 3s
 The Earth is flat.
 - True
 - False *
@@ -672,29 +681,36 @@ Which of these is a JavaScript framework?
 - Vue *
 - Laravel
 
-## Q4 | 15s | read 5s | poll
+## Poll | 15s | read 5s | poll
 What should we order for the next social?
 - Pizza
 - Tacos
 - Sushi
 
-## Q5 | 20s | read 10s | closest
+## Closest guess | 20s | read 10s | closest
 How many bones are in the human body?
 = 206
 
-## Q6 | 20s | multi
+## Pick all that apply | 20s | multi
 Which of these are primary colors of light?
 - Red *
 - Green *
 - Blue *
 - Yellow
 
-## Q7 | 20s | type
+## Type it | 20s | type
 Which planet is known as the Red Planet?
 - Mars
 
-## Q8 | 15s | cloud
-Describe tonight in one word!</code></pre>
+## Word cloud | 15s | cloud
+Describe tonight in one word!
+
+## Finale | 20s | x2
+⚡ Double points: which ocean is the largest?
+- Pacific *
+- Atlantic
+- Indian
+- Arctic</code></pre>
           <ul>
             <li><code># Title</code> — one line starting with a single <code>#</code>. Shown in the lobby.</li>
             <li><code>## Q1 | 20s</code> — starts a question. The label is <b>optional</b> — <code>##</code> alone, <code>## | 20s</code>, or any name (<code>Round 2</code>…) all work; unlabeled questions number themselves. The <code>| 20s</code> part is the <b>optional answer timer</b> (1–300 seconds, default 20), e.g. <code>## Q3</code> uses the default.</li>
@@ -708,7 +724,8 @@ Describe tonight in one word!</code></pre>
             <li><code>| multi</code> — <b>pick all that apply</b>: mark <b>each</b> correct option with <code>*</code>. Players toggle answers and lock in; a perfect match earns full speed-scaled points, partly-right answers earn partial credit (wrong picks subtract).</li>
             <li><code>| type</code> — <b>players type the answer</b>. List accepted spellings as <code>-</code> lines (the first is shown at the reveal). Matching forgives capitals, accents and punctuation; points are speed-scaled like a regular question, and the reveal shows the most-typed responses.</li>
             <li><code>| cloud</code> — <b>opinion word cloud</b>: no options, no points. Everyone types a word or short phrase and the reveal builds a word cloud sized by popularity (great with the 📸 button).</li>
-            <li><b>Combining flags</b> — any order works, but the suggested one is timer, reading time, then type: <code>## Q1 | 20s | read 10s | closest</code>.</li>
+            <li><code>| x2</code> — <b>⚡ double points</b> for that question, on any scored type (<code>| double</code> works too). The big screen and every phone get a golden DOUBLE POINTS banner, a glow, and a riser sound — save it for the finale!</li>
+            <li><b>Combining flags</b> — any order works, but the suggested one is timer, reading time, type, then <code>x2</code>: <code>## Finale | 20s | read 10s | multi | x2</code>. The label up front can be anything (or nothing).</li>
           </ul>
           <p>Every question opens with a <b>read-it-first preview</b> (5 seconds unless you set <code>| read …s</code>), then the answer timer starts for everyone at the same moment — so slow-loading phones never lose scoring time.</p>
           <p>Scoring: correct answers earn <b>500–1000 points</b> — the faster you answer, the closer to 1000. Wrong answers earn 0.</p>
@@ -716,7 +733,7 @@ Describe tonight in one word!</code></pre>
       </details>
 
       <div class="field">
-        <textarea class="quizbox" id="quiz-input" spellcheck="false" aria-label="Quiz text" placeholder="# My Quiz Title&#10;&#10;## Q1 | 20s | read 5s&#10;Your first question here?&#10;- The correct answer *&#10;- Another answer&#10;- A third answer"></textarea>
+        <textarea class="quizbox" id="quiz-input" spellcheck="false" aria-label="Quiz text" placeholder="# My Quiz Title&#10;&#10;## Q1 | 20s | read 5s&#10;Your first question here?&#10;- The correct answer *&#10;- Another answer&#10;- A third answer&#10;&#10;## Q2 | 15s | poll&#10;Maybe a poll? (see 📖 above for closest, multi, type, cloud &amp; ⚡x2)&#10;- Option one&#10;- Option two"></textarea>
         <div class="row" style="margin-top:8px"><button class="btn ghost" style="color:var(--card-ink);border-color:#CFC7E8;padding:8px 16px;font-size:.9rem" id="btn-sample">Load example quiz</button><span class="hint" id="parse-status" style="margin:0"></span></div>
       </div>
       <div class="errbox" id="parse-errors"></div>
@@ -807,6 +824,7 @@ Describe tonight in one word!</code></pre>
       <div class="timerbar" style="flex:1;min-width:200px"><div id="hq-timerbar"></div></div>
       <span class="pill"><b id="hq-answered">0</b> / <span id="hq-total">0</span> answered</span>
     </div>
+    <div class="row" style="justify-content:center"><div class="x2badge" id="hq-x2" style="display:none">⚡ DOUBLE POINTS ⚡</div></div>
     <div class="qtext" id="hq-text"></div>
     <div class="answers" id="hq-answers"></div>
     <div class="votechart" id="hq-chart"></div>
@@ -879,6 +897,7 @@ Describe tonight in one word!</code></pre>
   <div class="topbar"><span class="pill" id="pq-progress"></span><div class="spacer"></div><span class="pill" id="pq-score">0 pts</span></div>
   <div class="center stack" style="gap:18px">
     <div class="hoststats" style="width:100%"><div class="timernum" id="pq-timer">20</div><div class="timerbar" style="flex:1"><div id="pq-timerbar"></div></div></div>
+    <div class="row" style="justify-content:center"><div class="x2badge" id="pq-x2" style="display:none">⚡ DOUBLE POINTS ⚡</div></div>
     <div class="qtext" id="pq-text" style="font-size:clamp(1.15rem,4.5vw,1.7rem)"></div>
     <div class="answers" id="pq-answers"></div>
     <div id="pq-locked" style="display:none" class="stack center">
@@ -1319,6 +1338,7 @@ function parseQuiz(text){
         errors.push(`${who}: no correct answer marked. End one option with * (e.g. "- Paris *") — or add "| poll" to make it an opinion poll.`);
       }
     }
+    if (q.x2 && (q.type === 'poll' || q.type === 'cloud')) errors.push(`${who}: polls and word clouds score no points — remove "| x2".`);
     questions.push(q);
   };
 
@@ -1334,7 +1354,7 @@ function parseQuiz(text){
       const head = line.replace(/^##\s*/, '');
       const parts = head.split('|');
       let dur = 20, preview = PREVIEW_SECS;
-      let type = 'quiz';
+      let type = 'quiz', x2 = false;
       for (let pi = 1; pi < parts.length; pi++){
         const seg = parts[pi].trim();
         if (!seg) continue;
@@ -1343,6 +1363,7 @@ function parseQuiz(text){
         if (/^multi$/i.test(seg)){ type = 'multi'; continue; }
         if (/^typed?$/i.test(seg)){ type = 'typed'; continue; }
         if (/^(word)?cloud$/i.test(seg)){ type = 'cloud'; continue; }
+        if (/^(x2|double)$/i.test(seg)){ x2 = true; continue; }
         const readM = seg.match(/^read\s*(\d+)\s*s?$/i);
         if (readM){
           const rv = parseInt(readM[1], 10);
@@ -1352,9 +1373,9 @@ function parseQuiz(text){
         }
         const d = parseInt(seg, 10);
         if (Number.isFinite(d) && d >= 1 && d <= 300) dur = d;
-        else errors.push(`Line ${i+1}: couldn't read "${seg}" — use "| 20s" (answer timer), "| read 5s" (reading time), or a type: "| poll", "| closest", "| multi", "| type", "| cloud".`);
+        else errors.push(`Line ${i+1}: couldn't read "${seg}" — use "| 20s" (answer timer), "| read 5s" (reading time), "| x2" (double points), or a type: "| poll", "| closest", "| multi", "| type", "| cloud".`);
       }
-      cur = { label: parts[0].trim() || 'Q' + (questions.length + 1), duration: dur, preview, type, text: '', options: [], correct: -1, corrects: [] };
+      cur = { label: parts[0].trim() || 'Q' + (questions.length + 1), duration: dur, preview, type, x2, text: '', options: [], correct: -1, corrects: [] };
       return;
     }
     if (/^=\s*/.test(line)) {
@@ -1391,61 +1412,50 @@ function parseQuiz(text){
 
 const SAMPLE_QUIZ = `# Friday Team Quiz
 
-## Q1 | 20s
-What is the capital of France?
+## Classic | 20s | read 5s
+One right answer, faster scores more: what is the capital of France?
 - Paris *
 - London
 - Berlin
 - Madrid
 
-## Q2 | 15s
+## True or false | 15s | read 3s
 The Earth is flat.
 - True
 - False *
 
-## Q3 | 20s
-Which planet has the most moons (as of 2024)?
-- Jupiter
-- Saturn *
-- Neptune
+## Poll | 15s | read 3s | poll
+No wrong answers here — what should we order for the next social?
+- Pizza
+- Tacos
+- Sushi
+- Burgers
 
-## Q4 | 10s | read 3s
-HTML stands for HyperText Markup Language.
-- True *
-- False
-
-## Q5 | 25s | read 8s
-Which of these is NOT a programming language?
-- Python
-- Ruby
-- Cobra
-- Falcon *
-
-## Q6 | 15s | read 5s | poll
-Best snack for movie night?
-- Popcorn
-- Nachos
-- Ice cream
-- Candy
-
-## Q7 | 20s | read 10s | closest
-How many bones are in the adult human body?
+## Closest guess | 20s | read 3s | closest
+Type a number, nearest wins: how many bones are in the adult human body?
 = 206
 
-## Q8 | 20s | multi
-Which of these are planets?
+## Pick all that apply | 20s | read 3s | multi
+Toggle everything that fits, then lock in: which of these are planets?
 - Mars *
 - Pluto
 - Venus *
 - The Moon
 
-## Q9 | 20s | type
-Which planet is known as the Red Planet?
+## Type it | 20s | read 3s | type
+Spelling is forgiven — which planet is known as the Red Planet?
 - Mars
 - Mars the planet
 
-## Q10 | 15s | cloud
-Describe this quiz in one word!`;
+## Word cloud | 15s | cloud
+Everyone's words hit the big screen: describe this quiz in one word!
+
+## Finale | 20s | read 5s | x2
+⚡ DOUBLE POINTS to finish: which ocean is the largest?
+- Pacific *
+- Atlantic
+- Indian
+- Arctic`;
 
 /* Scoring: correct = 500–1000 pts, scaled by speed. Wrong = 0. */
 function scoreFor(elapsed, duration){
@@ -1538,6 +1548,13 @@ const SFX = {
     fanfare(){
       [523, 659, 784, 1047, 1319].forEach((f, i) => SFX.tone(f, i * .11, .32, 'triangle', .15));
       [262, 330, 392].forEach(f => SFX.tone(f, .44, .65, 'sine', .09));
+    },
+    // ⚡ double points: a rising golden sweep with a sparkle on top
+    double(){
+      [262, 330, 392, 523, 659, 784, 1047].forEach((f, i) => SFX.tone(f, i * .055, .14, 'triangle', .13));
+      SFX.tone(1319, .4, .45, 'triangle', .15);
+      SFX.tone(1568, .5, .4, 'sine', .1);
+      SFX.tone(131, 0, .55, 'sawtooth', .05);
     }
   }
 };
@@ -2032,6 +2049,9 @@ const Host = {
     $('hq-answers').innerHTML = '';
     $('hq-chart').innerHTML = '';
     $('btn-hq-next').style.display = 'none';
+    // ⚡ double points: golden badge + pulsing glow from the preview onward
+    $('hq-x2').style.display = q.x2 ? '' : 'none';
+    document.getElementById('s-hquestion').classList.toggle('x2on', !!q.x2);
     show('s-hquestion');
     SFX.play('start');
 
@@ -2044,8 +2064,8 @@ const Host = {
     // answer can't be sniffed from the database mid-question.
     const freeText = q.type === 'closest' || q.type === 'typed' || q.type === 'cloud';
     const qPayload = freeText
-      ? { text: q.text, duration: q.duration, type: q.type }
-      : { text: q.text, options: q.options, duration: q.duration, type: q.type || 'quiz' };
+      ? { text: q.text, duration: q.duration, type: q.type, x2: !!q.x2 }
+      : { text: q.text, options: q.options, duration: q.duration, type: q.type || 'quiz', x2: !!q.x2 };
 
     const pv = Number.isInteger(q.preview) ? q.preview : PREVIEW_SECS;
     if (pv > 0){
@@ -2077,7 +2097,7 @@ const Host = {
         q: qPayload
       });
     }
-    SFX.play('board');
+    SFX.play(q.x2 ? 'double' : 'board');
 
     this.stopTimer = startTimerUI($('hq-timer'), $('hq-timerbar'), q.duration);
     clearTimeout(this.timeout);
@@ -2167,14 +2187,14 @@ const Host = {
             picks.forEach(x => dist[x]++);
             const good = picks.filter(x => corrects.includes(x)).length;
             const frac = Math.max(0, (good - (picks.length - good)) / corrects.length);
-            pts = Math.round(scoreFor(Math.max(0, Number(a.e) || 0), q.duration) * frac);
+            pts = Math.round(scoreFor(Math.max(0, Number(a.e) || 0), q.duration) * frac) * (q.x2 ? 2 : 1);
             correct = good === corrects.length && picks.length === good;
           }
         } else if (!isMulti && a && Number.isInteger(a.c) && a.c >= 0 && a.c < q.options.length){
           answeredN++;
           dist[a.c]++;
           correct = a.c === q.correct;
-          if (correct) pts = scoreFor(Math.max(0, Number(a.e) || 0), q.duration);
+          if (correct) pts = scoreFor(Math.max(0, Number(a.e) || 0), q.duration) * (q.x2 ? 2 : 1);
         }
         const newScore = (Number(p.score) || 0) + pts; // coerce: DB values are untrusted
         this.players[pid] = { ...p, score: newScore, last: pts, lastCorrect: correct, answered: !!a };
@@ -2237,7 +2257,7 @@ const Host = {
         entry.count++; tally.set(norm, entry);
         if (!isCloud && accepted.has(norm)){
           correct = true; correctN++;
-          pts = scoreFor(Math.max(0, Number(a.e) || 0), q.duration);
+          pts = scoreFor(Math.max(0, Number(a.e) || 0), q.duration) * (q.x2 ? 2 : 1);
         }
       }
       const newScore = (Number(p.score) || 0) + pts;
@@ -2280,7 +2300,7 @@ const Host = {
     entries.forEach(en => { if (en.d !== lastD){ band++; lastD = en.d; } en.band = band; });
     const bands = band + 1;
     const ptsBy = {};
-    entries.forEach(en => ptsBy[en.pid] = Math.round(1000 * (bands - en.band) / bands));
+    entries.forEach(en => ptsBy[en.pid] = Math.round(1000 * (bands - en.band) / bands) * (q.x2 ? 2 : 1));
 
     const updates = {};
     for (const [pid, p] of Object.entries(this.players)){
@@ -2526,6 +2546,8 @@ const Player = {
     this.myAnswer = null;
     $('pq-progress').textContent = `Q${s.qIndex + 1} / ${s.total}`;
     $('pq-text').textContent = s.q.text;
+    $('pq-x2').style.display = s.q.x2 ? '' : 'none';
+    document.getElementById('s-pquestion').classList.toggle('x2on', !!s.q.x2);
     const grid = $('pq-answers');
     grid.style.display = 'none'; grid.innerHTML = '';
     $('pq-locked-mark').textContent = '👀';
@@ -2549,6 +2571,9 @@ const Player = {
     this.receivedAt = Date.now();
     $('pq-progress').textContent = `Q${s.qIndex + 1} / ${s.total}`;
     $('pq-text').textContent = s.q.text;
+    $('pq-x2').style.display = s.q.x2 ? '' : 'none';
+    document.getElementById('s-pquestion').classList.toggle('x2on', !!s.q.x2);
+    if (s.q.x2) SFX.play('double'); // ⚡ the stakes just went up
     $('pq-locked').style.display = 'none';
     const grid = $('pq-answers');
     grid.style.display = '';
@@ -2686,6 +2711,9 @@ const Player = {
     $('pr-progress').textContent = `Q${s.qIndex + 1}${s.total ? ' / ' + s.total : ''}`;
     const answered = this.myAnswer !== null;
     const pts = Number(this.me.last) || 0; // coerce: DB values are untrusted
+    // ⚡ double-points questions stamp scored reveals with a golden ×2
+    const x2Tag = s.q && s.q.x2 && pts > 0
+      ? '<div class="row" style="justify-content:center"><span class="x2badge" style="font-size:.9rem;padding:5px 16px">⚡ ×2</span></div>' : '';
 
     if (s.poll){
       // Opinion poll: nobody scores; just confirm the vote landed
@@ -2705,7 +2733,7 @@ const Player = {
         <div class="bigmark">🎯</div>
         <h1 class="display" style="font-size:2.2rem">Answer: ${target.toLocaleString()}</h1>
         ${answered
-          ? `<p style="font-weight:700">You guessed ${Number(this.myAnswer).toLocaleString()} — ${off === 0 ? 'spot on! 🎉' : 'off by ' + off.toLocaleString()}</p><div class="points-pop">+${pts.toLocaleString()}</div>`
+          ? `<p style="font-weight:700">You guessed ${Number(this.myAnswer).toLocaleString()} — ${off === 0 ? 'spot on! 🎉' : 'off by ' + off.toLocaleString()}</p><div class="points-pop">+${pts.toLocaleString()}</div>${x2Tag}`
           : `<div class="points-pop">+0</div><p class="muted">No guess locked in this round.</p>`}`;
     } else if (s.cloud){
       // Word cloud: no scoring, just confirm their word made it up there
@@ -2723,7 +2751,7 @@ const Player = {
           <div class="bigmark">🎯</div>
           <h1 class="display" style="font-size:2.2rem">Correct!</h1>
           <p style="font-weight:700">“${esc(String(this.myAnswer))}” ✅</p>
-          <div class="points-pop">+${pts.toLocaleString()}</div>
+          <div class="points-pop">+${pts.toLocaleString()}</div>${x2Tag}
           <p class="muted">Speed pays — nice one.</p>`
         : answered ? `
           <div class="bigmark">😵</div>
@@ -2748,13 +2776,13 @@ const Player = {
       $('pr-body').innerHTML = perfect ? `
           <div class="bigmark">🎯</div>
           <h1 class="display" style="font-size:2.2rem">All ${corrects.length} — nailed it!</h1>
-          <div class="points-pop">+${pts.toLocaleString()}</div>
+          <div class="points-pop">+${pts.toLocaleString()}</div>${x2Tag}
           <p class="muted">Perfect pick. Speed pays too.</p>`
         : answered ? `
           <div class="bigmark">${pts > 0 ? '🎳' : '😵'}</div>
           <h1 class="display" style="font-size:2.2rem">${good} of ${corrects.length} right</h1>
           ${bad ? `<p style="font-weight:700">${bad} wrong pick${bad === 1 ? '' : 's'} cost you points</p>` : ''}
-          <div class="points-pop">+${pts.toLocaleString()}</div>
+          <div class="points-pop">+${pts.toLocaleString()}</div>${x2Tag}
           <p class="muted">Partial credit — check the big screen.</p>`
         : `
           <div class="bigmark">🐌</div>
@@ -2767,7 +2795,7 @@ const Player = {
       $('pr-body').innerHTML = correct ? `
           <div class="bigmark">🎯</div>
           <h1 class="display" style="font-size:2.2rem">Correct!</h1>
-          <div class="points-pop">+${pts.toLocaleString()}</div>
+          <div class="points-pop">+${pts.toLocaleString()}</div>${x2Tag}
           <p class="muted">Speed pays — nice one.</p>`
         : answered ? `
           <div class="bigmark">😵</div>
