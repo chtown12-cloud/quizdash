@@ -352,6 +352,10 @@ button.answer.picked{outline:4px solid var(--ink);outline-offset:-4px;filter:bri
 .snaphint::after{content:"";position:absolute;left:8px;bottom:-9px;border:10px solid transparent;border-top-color:#fff;border-left-color:#fff;border-bottom:none;border-right:none}
 .snaphint[hidden]{display:none}
 @keyframes hintpop{from{opacity:0;transform:translateY(14px) scale(.85)}}
+/* Top-center toast (e.g. the tap-Home-again confirmation) */
+.toast{position:fixed;top:calc(14px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:70;max-width:92vw;background:#fff;color:#1C1633;font-weight:700;font-size:.95rem;padding:12px 22px;border-radius:999px;box-shadow:var(--shadow);text-align:center;animation:toastpop .4s cubic-bezier(.34,1.56,.64,1)}
+.toast[hidden]{display:none}
+@keyframes toastpop{from{opacity:0;transform:translate(-50%,-14px) scale(.85)}}
 @media (hover:hover) and (pointer:fine){.snaphint:hover{transform:rotate(-1.5deg) scale(1.03)}}
 .homebtn{padding:8px 16px !important;font-size:.9rem !important}
 select.fontsel{width:100%;border:2px solid #DDD7EE;border-radius:12px;padding:11px 12px;background:#FBFAFF;color:var(--card-ink);cursor:pointer}
@@ -635,6 +639,7 @@ html[data-theme=blueprint] .answer.win{outline-color:#fff;border-style:solid}
 <button id="btn-mute" class="mutebtn" aria-label="Toggle sound">🔊</button>
 <button id="btn-snap" class="mutebtn snapbtn" aria-label="Save a screenshot of this screen">📸</button>
 <div id="snap-hint" class="snaphint" role="status" hidden></div>
+<div id="toast" class="toast" role="status" hidden></div>
 
 <!-- ════════════════════ LANDING ════════════════════ -->
 <section class="screen active" id="s-landing">
@@ -961,6 +966,7 @@ function show(id){
   $(id).classList.add('active');
   window.scrollTo(0,0);
   hideSnapHint(); // a hint is about the screen it appeared on
+  hideToast();
 }
 
 /* Chat bubble pointing at the 📸 button (poll results, final podium).
@@ -978,6 +984,22 @@ function hideSnapHint(){
   clearTimeout(snapHintTimer);
   const h = $('snap-hint');
   if (h) h.hidden = true;
+}
+
+/* Top-center toast — used where a browser dialog would be unreliable */
+let toastTimer = null;
+function showToast(text, ms = 4500){
+  const t = $('toast');
+  t.textContent = text;
+  t.hidden = false;
+  t.onclick = hideToast;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(hideToast, ms);
+}
+function hideToast(){
+  clearTimeout(toastTimer);
+  const t = $('toast');
+  if (t) t.hidden = true;
 }
 
 /* ════════════════ SCREENSHOT (📸) ═══════════════════════════════════════
@@ -2863,16 +2885,30 @@ const Player = {
 };
 
 /* ════════════════ HOME NAVIGATION ═══════════════════════════════════════
-   One button works for both roles: hosts get a confirm (leaving erases the
-   room and ends the game for everyone); players just leave quietly.
+   One button works for both roles: hosts get a tap-again confirmation
+   (leaving erases the room and ends the game for everyone); players just
+   leave quietly. A native confirm() dialog used to guard this, but
+   webviews, kiosk/PWA contexts and Chrome's "block additional dialogs"
+   suppress those and silently return false — which made Home look dead
+   exactly when real players (not 🧪 bots) were in the room.
    ═══════════════════════════════════════════════════════════════════════ */
+let homeArmedAt = 0;
 async function goHome(){
   SFX.stopMusic();
   if (Host.room){
     const gameDone = document.getElementById('s-hpodium').classList.contains('active');
-    // Only real phones warrant the confirm — 🧪 test players are the host's own
+    // Only real phones warrant the confirmation — 🧪 test players are the host's own
     const anyoneIn = Object.keys(Host.players).some(id => !id.startsWith('bot'));
-    if (!gameDone && anyoneIn && !confirm('Go home? This ends the game for everyone and erases the room.')) return;
+    if (!gameDone && anyoneIn){
+      const now = Date.now();
+      if (now - homeArmedAt > 4500){
+        homeArmedAt = now;
+        showToast('⚠️ This ends the game for everyone — tap 🏠 again to confirm');
+        SFX.play('tick');
+        return;
+      }
+    }
+    homeArmedAt = 0;
     if (Host.stopTimer) Host.stopTimer();
     clearTimeout(Host.timeout);
     Host.stopBotAnswers(); Host.bots = [];
