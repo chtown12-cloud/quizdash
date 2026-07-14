@@ -247,6 +247,7 @@ button.answer.picked{outline:4px solid var(--ink);outline-offset:-4px;filter:bri
 /* Closest-guess input (player phones) */
 .guessbox{grid-column:1/-1;display:flex;flex-direction:column;gap:14px;align-items:center;text-align:center}
 .guessbox input{width:min(100%,340px);font-family:var(--font-display);font-weight:800;font-size:2.2rem;text-align:center;border:none;border-radius:16px;padding:14px 18px;color:var(--card-ink);background:#fff;box-shadow:var(--shadow)}
+.guessbox input[type=text]{font-size:1.45rem;font-weight:700}
 /* Vote bar chart on the host reveal — one animated column per answer */
 .votechart{display:flex;align-items:flex-end;justify-content:center;gap:clamp(12px,4vw,32px);width:100%;max-width:820px;margin:0 auto}
 .votechart:empty{display:none}
@@ -267,6 +268,9 @@ button.answer.picked{outline:4px solid var(--ink);outline-offset:-4px;filter:bri
 .starget{position:absolute;top:0;bottom:0;width:3px;margin-left:-1.5px;background:var(--ink);opacity:.9;z-index:1}
 .starget span{position:absolute;top:8px;left:10px;font-family:var(--font-display);font-weight:800;font-size:1.3rem;white-space:nowrap}
 .starget span.flip{left:auto;right:10px}
+/* Word cloud (opinion questions): answers sized by popularity */
+.wcloud{display:flex;flex-wrap:wrap;gap:12px 26px;align-items:center;justify-content:center;padding:20px 10px;font-family:var(--font-display);font-weight:800;line-height:1;max-width:900px;margin:0 auto}
+.wcloud span{display:inline-block;animation:pop .5s cubic-bezier(.34,1.56,.64,1) backwards;text-shadow:0 2px 8px rgba(0,0,0,.25)}
 .answer .tick{position:absolute;right:14px;top:10px;font-size:1.3rem}
 
 /* ── Leaderboard ────────────────────────────────────────────────────────── */
@@ -587,6 +591,7 @@ html[data-theme=blueprint] .answer.win{outline-color:#fff;border-style:solid}
   .vccol:hover .vcfill{filter:brightness(1.2) saturate(1.25)}
   .vccol:hover .vcchip{animation:jig .5s}
   .sdot:hover{transform:scale(1.7);z-index:3}
+  .wcloud span:hover{animation:jig .5s}
   .pcol:hover .crown{animation:wgl .7s}
   .pcol:hover .pbar{filter:brightness(1.12)}
   .bigmark:hover{animation:jelly .55s}
@@ -682,7 +687,14 @@ Which of these are primary colors of light?
 - Red *
 - Green *
 - Blue *
-- Yellow</code></pre>
+- Yellow
+
+## Q7 | 20s | type
+Which planet is known as the Red Planet?
+- Mars
+
+## Q8 | 15s | cloud
+Describe tonight in one word!</code></pre>
           <ul>
             <li><code># Title</code> — one line starting with a single <code>#</code>. Shown in the lobby.</li>
             <li><code>## Q1 | 20s</code> — starts a question. The label is <b>optional</b> — <code>##</code> alone, <code>## | 20s</code>, or any name (<code>Round 2</code>…) all work; unlabeled questions number themselves. The <code>| 20s</code> part is the <b>optional answer timer</b> (1–300 seconds, default 20), e.g. <code>## Q3</code> uses the default.</li>
@@ -694,6 +706,8 @@ Which of these are primary colors of light?
             <li><code>| poll</code> — an <b>opinion poll</b>: options as usual but <b>no <code>*</code></b> anywhere. Nobody scores points; the reveal shows how the room voted (great with the 📸 button).</li>
             <li><code>| closest</code> — a <b>closest-guess question</b>: no options. Give the answer as <code>= 206</code> on its own line (the <code>| closest</code> flag is optional when a <code>=</code> line is present). Everyone types a number on their phone; the nearest guess earns 1000 points, further guesses proportionally less, ties share.</li>
             <li><code>| multi</code> — <b>pick all that apply</b>: mark <b>each</b> correct option with <code>*</code>. Players toggle answers and lock in; a perfect match earns full speed-scaled points, partly-right answers earn partial credit (wrong picks subtract).</li>
+            <li><code>| type</code> — <b>players type the answer</b>. List accepted spellings as <code>-</code> lines (the first is shown at the reveal). Matching forgives capitals, accents and punctuation; points are speed-scaled like a regular question, and the reveal shows the most-typed responses.</li>
+            <li><code>| cloud</code> — <b>opinion word cloud</b>: no options, no points. Everyone types a word or short phrase and the reveal builds a word cloud sized by popularity (great with the 📸 button).</li>
             <li><b>Combining flags</b> — any order works, but the suggested one is timer, reading time, then type: <code>## Q1 | 20s | read 10s | closest</code>.</li>
           </ul>
           <p>Every question opens with a <b>read-it-first preview</b> (5 seconds unless you set <code>| read …s</code>), then the answer timer starts for everyone at the same moment — so slow-loading phones never lose scoring time.</p>
@@ -1266,12 +1280,16 @@ function applyTheme(colors){
      Question text (one or more lines)
      - Option A *         <- trailing * (or ✓ / ✔) marks the correct one
      - Option B
-   Three more question types via header flags:
+   Five more question types via header flags:
      ## Q2 | poll         <- opinion poll: options but NO correct answer
      ## Q3 | closest      <- everyone guesses a number; instead of options,
      = 1665                  give the answer as "= number" (closest wins)
      ## Q4 | multi        <- pick-all-that-apply: mark EACH correct
                              option with * (players toggle, then lock in)
+     ## Q5 | type         <- players type the answer; "-" lines list the
+                             accepted spellings (case/accents forgiven)
+     ## Q6 | cloud        <- opinion word cloud: no options, everyone
+                             types a word and the reveal builds a cloud
    ═══════════════════════════════════════════════════════════════════════ */
 function parseQuiz(text){
   const lines = (text || '').split(/\r?\n/);
@@ -1285,6 +1303,11 @@ function parseQuiz(text){
     if (q.type === 'closest'){
       if (q.target === undefined) errors.push(`${who}: a closest-guess question needs its answer as "= number" (e.g. "= 1665").`);
       if (q.options.length) errors.push(`${who}: closest-guess questions take a "= number" line, not "-" options.`);
+    } else if (q.type === 'cloud'){
+      if (q.options.length) errors.push(`${who}: word-cloud questions take no "-" options — everyone types their own answer.`);
+    } else if (q.type === 'typed'){
+      if (!q.options.length) errors.push(`${who}: list at least one accepted answer, e.g. "- Paris" (more "-" lines add alternate spellings).`);
+      q.correct = -1; // every listed option is an accepted answer
     } else {
       if (q.options.length < 2 || q.options.length > 4) errors.push(`${who}: has ${q.options.length} option(s) — needs between 2 and 4.`);
       if (q.type === 'poll'){
@@ -1318,6 +1341,8 @@ function parseQuiz(text){
         if (/^poll$/i.test(seg)){ type = 'poll'; continue; }
         if (/^closest$/i.test(seg)){ type = 'closest'; continue; }
         if (/^multi$/i.test(seg)){ type = 'multi'; continue; }
+        if (/^typed?$/i.test(seg)){ type = 'typed'; continue; }
+        if (/^(word)?cloud$/i.test(seg)){ type = 'cloud'; continue; }
         const readM = seg.match(/^read\s*(\d+)\s*s?$/i);
         if (readM){
           const rv = parseInt(readM[1], 10);
@@ -1327,7 +1352,7 @@ function parseQuiz(text){
         }
         const d = parseInt(seg, 10);
         if (Number.isFinite(d) && d >= 1 && d <= 300) dur = d;
-        else errors.push(`Line ${i+1}: couldn't read "${seg}" — use "| 20s" (answer timer), "| read 5s" (reading time), "| poll" or "| closest".`);
+        else errors.push(`Line ${i+1}: couldn't read "${seg}" — use "| 20s" (answer timer), "| read 5s" (reading time), or a type: "| poll", "| closest", "| multi", "| type", "| cloud".`);
       }
       cur = { label: parts[0].trim() || 'Q' + (questions.length + 1), duration: dur, preview, type, text: '', options: [], correct: -1, corrects: [] };
       return;
@@ -1412,7 +1437,15 @@ Which of these are planets?
 - Mars *
 - Pluto
 - Venus *
-- The Moon`;
+- The Moon
+
+## Q9 | 20s | type
+Which planet is known as the Red Planet?
+- Mars
+- Mars the planet
+
+## Q10 | 15s | cloud
+Describe this quiz in one word!`;
 
 /* Scoring: correct = 500–1000 pts, scaled by speed. Wrong = 0. */
 function scoreFor(elapsed, duration){
@@ -1593,6 +1626,11 @@ const av = e => AVATARS.includes(e) ? e : '🙂';
 const REACTIONS = ['😂','🔥','😱','👏','😭','❤️'];
 const SUSPENSE_LINES = ['🥁 And the answer is…','😬 Moment of truth…','🤞 Fingers crossed…','👀 Everybody hold your breath…','💓 Heart rates rising…'];
 const POLL_LINE = '📊 The votes are in…'; // polls get their own suspense line
+const CLOUD_LINE = '💬 Reading the room…'; // …and so do word clouds
+// Reveal-phase writes are merges, so every flag is reset explicitly each
+// time — otherwise a stale poll/closest/multi/typed flag from one question
+// would leak into the next reveal.
+const REVEAL_RESET = { correct: -1, dist: null, poll: false, closest: false, target: null, multi: false, corrects: null, typed: false, cloud: false, answerText: null };
 /* Every question opens with a read-only preview so slow-loading phones
    lose reading time, never answering time — the answer timer starts for
    everyone at the same moment. Default seconds; override per question
@@ -1676,6 +1714,28 @@ function countUp(el, to, ms){
   };
   requestAnimationFrame(tick);
 }
+// Forgiving text-answer matching: case, accents, punctuation and extra
+// whitespace never cost anyone a point ("São Paulo!" matches "sao paulo").
+function normAnswer(s){
+  return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^\p{L}\p{N} ]/gu, ' ').replace(/\s+/g, ' ').trim();
+}
+
+// Word cloud for opinion questions: distinct answers sized by how many
+// people gave them, in the answer palette, with a gentle scatter of
+// rotations. Pop-in uses `backwards` fill so 📸 captures stay intact.
+function renderWordCloud(container, tally){
+  const words = [...tally.values()].sort((a, b) => b.count - a.count).slice(0, 40);
+  const max = Math.max(1, ...words.map(w => w.count));
+  container.innerHTML = `<div class="wcloud" style="grid-column:1/-1" role="img" aria-label="Word cloud of everyone's answers">` +
+    words.map((w, i) => {
+      const size = (0.95 + (w.count / max) * 2.3).toFixed(2);
+      const rot = ((i * 47) % 13) - 6;
+      return `<span style="font-size:${size}rem;color:var(--bfg${i % 4},var(--b${i % 4}));transform:rotate(${rot}deg);animation-delay:${Math.min(i * 70, 1400)}ms" title="${w.count} answer${w.count === 1 ? '' : 's'}">${esc(w.display)}</span>`;
+    }).join('') +
+  `</div>`;
+}
+
 // Dot plot for closest-guess reveals: every guess is a dot along a
 // number line with the 🎯 target marked. Guesses are binned and STACK
 // upward, so the y-axis means "how many players guessed this" and the
@@ -1931,6 +1991,16 @@ const Host = {
           const e = Math.round((at / 1000 + Math.random() * .8) * 100) / 100;
           if (q.type === 'closest'){
             upd[id] = { g: Math.round(q.target * (1 + (Math.random() - .5) * .8) * 100) / 100, e };
+          } else if (q.type === 'typed'){
+            // ~60% type an accepted answer (sometimes SHOUTED), the rest miss
+            const wrong = ['banana', '42', 'idk', 'ummm', 'pizza', 'no idea'];
+            const t = Math.random() < .6
+              ? (Math.random() < .3 ? q.options[0].toUpperCase() : q.options[Math.floor(Math.random() * q.options.length)])
+              : wrong[Math.floor(Math.random() * wrong.length)];
+            upd[id] = { t, e };
+          } else if (q.type === 'cloud'){
+            const pool = ['pizza', 'tacos', 'sushi', 'ramen', 'burgers', 'coffee', 'chaos', 'friday', 'more quizzes', 'love it', 'banger', 'wow', 'encore', 'snacks', 'vibes'];
+            upd[id] = { t: pool[Math.floor(Math.random() * Math.min(pool.length, 3 + Math.random() * 12))], e };
           } else if (q.type === 'multi'){
             // Bots find each correct option ~70% of the time, grab wrong
             // ones ~25% of the time — a believable mixed crowd
@@ -1969,11 +2039,12 @@ const Host = {
     await Sync.set(this.path('reactions'), null);
     if (this.seenReacts) this.seenReacts.clear();
 
-    // What phones need to render the question. Closest-guess questions
-    // send no options — and never the target, so the answer can't be
-    // sniffed from the database mid-question.
-    const qPayload = q.type === 'closest'
-      ? { text: q.text, duration: q.duration, type: 'closest' }
+    // What phones need to render the question. Closest/typed/cloud send
+    // no options — and never the target or accepted answers, so the
+    // answer can't be sniffed from the database mid-question.
+    const freeText = q.type === 'closest' || q.type === 'typed' || q.type === 'cloud';
+    const qPayload = freeText
+      ? { text: q.text, duration: q.duration, type: q.type }
       : { text: q.text, options: q.options, duration: q.duration, type: q.type || 'quiz' };
 
     const pv = Number.isInteger(q.preview) ? q.preview : PREVIEW_SECS;
@@ -1990,8 +2061,13 @@ const Host = {
     // ── Phase 2: answers open — the timer starts for everyone NOW ──
     this.playersAtQ = Object.keys(this.players).length;
     $('hq-total').textContent = this.playersAtQ;
-    $('hq-answers').innerHTML = q.type === 'closest'
-      ? `<p class="pulse" style="grid-column:1/-1;text-align:center;font-weight:700;font-size:1.25rem">🎯 Type your best guess on your phone — closest wins!</p>`
+    const bigHint = {
+      closest: '🎯 Type your best guess on your phone — closest wins!',
+      typed: '✍️ Type your answer on your phone — spelling is forgiven!',
+      cloud: '💬 Type a word or phrase on your phone — we\'ll build a cloud!'
+    }[q.type];
+    $('hq-answers').innerHTML = bigHint
+      ? `<p class="pulse" style="grid-column:1/-1;text-align:center;font-weight:700;font-size:1.25rem">${bigHint}</p>`
       : q.options.map((o,j) => answerButtonHTML(o, j, 'div')).join('');
     if (pv > 0){
       await Sync.update(this.path('state'), { phase: 'question' }); // merge: q/qIndex/total stay
@@ -2049,24 +2125,26 @@ const Host = {
     this.stopBotAnswers();
 
     const i = this.qIndex, q = this.quiz.questions[i];
-    const isPoll = q.type === 'poll';
+    const isPoll = q.type === 'poll', isCloud = q.type === 'cloud';
 
     // Dramatic beat: ~2s of synchronized drumroll on the big screen AND
     // every phone before anything is revealed. The suspense line travels
-    // as an index so phones show the same one (polls get their own line).
+    // as an index so phones show the same one (polls/clouds get their own).
     const li = Math.floor(Math.random() * SUSPENSE_LINES.length);
     $('hq-timer').textContent = '🥁';
     const drum = $('hq-drum');
-    drum.textContent = isPoll ? POLL_LINE : SUSPENSE_LINES[li];
+    drum.textContent = isCloud ? CLOUD_LINE : isPoll ? POLL_LINE : SUSPENSE_LINES[li];
     drum.style.display = '';
     SFX.play('drumroll');
-    await Sync.update(this.path('state'), { phase: 'suspense', line: li, poll: isPoll });
+    await Sync.update(this.path('state'), { phase: 'suspense', line: li, poll: isPoll, cloud: isCloud });
     await sleep(2100);
     drum.style.display = 'none';
 
     const answers = (await Sync.get(this.path('answers/' + i))) || {};
     if (q.type === 'closest'){
       await this.revealClosest(q, answers);
+    } else if (q.type === 'typed' || isCloud){
+      await this.revealText(q, answers);
     } else {
       // Score everyone (players with no answer get 0 for this round).
       // Polls score nothing for anyone — q.correct is -1, so no answer
@@ -2124,20 +2202,68 @@ const Host = {
       SFX.play('reveal');
 
       // …then, once it's showing, tell the phones whether they got it right.
-      // Type flags are set explicitly every time: phase writes are merges,
-      // so a stale poll/closest/multi flag would otherwise leak into the
-      // next reveal.
-      await Sync.update(this.path('state'), { phase: 'reveal', correct: q.correct, dist, poll: isPoll, closest: false, target: null, multi: isMulti, corrects: isMulti ? corrects : null });
+      await Sync.update(this.path('state'), { ...REVEAL_RESET, phase: 'reveal', correct: q.correct, dist, poll: isPoll, multi: isMulti, corrects: isMulti ? corrects : null });
     }
 
-    if (isPoll) showSnapHint('Want to save these responses? 📸 Take a screenshot!');
+    if (isPoll || isCloud) showSnapHint('Want to save these responses? 📸 Take a screenshot!');
 
     const last = i === this.quiz.questions.length - 1;
     const btn = $('btn-hq-next');
-    // After a poll the leaderboard hasn't changed, so skip straight on.
-    btn.textContent = last ? 'Reveal the winners 🏆' : isPoll ? 'Next question →' : 'Show leaderboard →';
+    // After a poll or word cloud the leaderboard hasn't changed — skip it.
+    const skipBoard = isPoll || isCloud;
+    btn.textContent = last ? 'Reveal the winners 🏆' : skipBoard ? 'Next question →' : 'Show leaderboard →';
     btn.style.display = '';
-    btn.onclick = () => last ? this.showPodium() : isPoll ? this.showQuestion(i + 1) : this.showBoard();
+    btn.onclick = () => last ? this.showPodium() : skipBoard ? this.showQuestion(i + 1) : this.showBoard();
+  },
+
+  // Typed-answer and word-cloud reveals: tally the (normalized) texts.
+  // Typed grades against the accepted list with speed-scaled points; the
+  // big screen shows the answer plus the most-typed responses. Clouds
+  // score nothing and render everyone's words sized by popularity.
+  async revealText(q, answers){
+    const isCloud = q.type === 'cloud';
+    const accepted = new Set((q.options || []).map(normAnswer));
+    const tally = new Map();
+    const updates = {};
+    let answeredN = 0, correctN = 0;
+    for (const [pid, p] of Object.entries(this.players)){
+      const a = answers[pid];
+      const raw = a && typeof a.t === 'string' ? a.t.slice(0, 60).trim() : '';
+      let pts = 0, correct = false;
+      if (raw){
+        answeredN++;
+        const norm = normAnswer(raw);
+        const entry = tally.get(norm) || { display: raw.slice(0, 24), count: 0, correct: !isCloud && accepted.has(norm) };
+        entry.count++; tally.set(norm, entry);
+        if (!isCloud && accepted.has(norm)){
+          correct = true; correctN++;
+          pts = scoreFor(Math.max(0, Number(a.e) || 0), q.duration);
+        }
+      }
+      const newScore = (Number(p.score) || 0) + pts;
+      this.players[pid] = { ...p, score: newScore, last: pts, lastCorrect: correct, answered: !!a };
+      updates[pid] = this.players[pid];
+    }
+    await Sync.update(this.path('players'), updates);
+
+    if (isCloud){
+      renderWordCloud($('hq-answers'), tally);
+      if (!tally.size) $('hq-answers').innerHTML = `<p style="grid-column:1/-1;text-align:center;font-weight:600">No answers came in.</p>`;
+    } else {
+      const top = [...tally.values()].sort((a, b) => b.count - a.count).slice(0, 6);
+      $('hq-answers').innerHTML =
+        `<div class="answer win" style="grid-column:1/-1;justify-content:center;font-size:1.5rem">✍️ ${esc(String(q.options[0]))} — ${correctN} of ${answeredN} got it</div>` +
+        (top.length ? `<div class="board" style="grid-column:1/-1;max-width:none">${top.map(w => `
+          <div class="boardrow">
+            <span class="rank">${w.correct ? '✅' : '✖'}</span>
+            <span class="bname">${esc(w.display)}</span>
+            <span class="bscore">×${w.count}</span>
+          </div>`).join('')}</div>` : `<p style="grid-column:1/-1;text-align:center;font-weight:600">No answers came in.</p>`);
+    }
+    $('hq-timer').textContent = isCloud ? '💬' : '✓';
+    SFX.play('reveal');
+
+    await Sync.update(this.path('state'), { ...REVEAL_RESET, phase: 'reveal', typed: !isCloud, cloud: isCloud, answerText: isCloud ? null : String(q.options[0]) });
   },
 
   // Closest-guess reveal: rank everyone by distance to the target.
@@ -2183,7 +2309,7 @@ const Host = {
     $('hq-timer').textContent = '🎯';
     SFX.play('reveal');
 
-    await Sync.update(this.path('state'), { phase: 'reveal', correct: -1, dist: null, poll: false, closest: true, target: q.target, multi: false, corrects: null });
+    await Sync.update(this.path('state'), { ...REVEAL_RESET, phase: 'reveal', closest: true, target: q.target });
   },
 
   standings(){
@@ -2437,6 +2563,18 @@ const Player = {
       $('pq-guess-btn').onclick = () => this.answerGuess(input.value, s);
       input.addEventListener('keydown', e => { if (e.key === 'Enter') this.answerGuess(input.value, s); });
       input.focus();
+    } else if (s.q.type === 'typed' || s.q.type === 'cloud'){
+      // Free-text answer: one input, one lock button
+      const cloud = s.q.type === 'cloud';
+      grid.innerHTML = `<div class="guessbox">
+        <input type="text" maxlength="${cloud ? 30 : 40}" autocomplete="off" autocapitalize="off" id="pq-text-in" placeholder="${cloud ? 'One word or short phrase…' : 'Type your answer…'}" aria-label="Your answer">
+        <button class="btn big" id="pq-text-btn">Lock it in ${cloud ? '💬' : '✍️'}</button>
+        <p class="small muted">${cloud ? "Everyone's words build a cloud on the big screen!" : "Don't sweat capitals or accents."}</p>
+      </div>`;
+      const input = $('pq-text-in');
+      $('pq-text-btn').onclick = () => this.answerText(input.value, s);
+      input.addEventListener('keydown', e => { if (e.key === 'Enter') this.answerText(input.value, s); });
+      input.focus();
     } else if (s.q.type === 'multi'){
       // Pick-all-that-apply: options toggle, then one lock-in button
       grid.innerHTML = s.q.options.map((o,j) => answerButtonHTML(o, j, 'button')).join('') +
@@ -2467,6 +2605,22 @@ const Player = {
     SFX.play('tap');
     const elapsed = Math.min(s.q.duration, (Date.now() - this.receivedAt) / 1000);
     Sync.set(this.path(`answers/${s.qIndex}/${this.id}`), { c: choice, e: Math.round(elapsed * 100) / 100 });
+    this.lockOut();
+  },
+
+  // Free-text answer (typed / cloud): payload carries t.
+  answerText(val, s){
+    if (this.myAnswer !== null) return;
+    const t = String(val).trim().slice(0, s.q.type === 'cloud' ? 30 : 40);
+    if (!t){
+      const input = $('pq-text-in');
+      if (input){ input.placeholder = 'Type something first!'; input.value = ''; }
+      return;
+    }
+    this.myAnswer = t;
+    SFX.play('tap');
+    const elapsed = Math.min(s.q.duration, (Date.now() - this.receivedAt) / 1000);
+    Sync.set(this.path(`answers/${s.qIndex}/${this.id}`), { t, e: Math.round(elapsed * 100) / 100 });
     this.lockOut();
   },
 
@@ -2509,8 +2663,8 @@ const Player = {
   // The host is drumrolling: mirror the drama on the phone.
   renderSuspense(s){
     if (this.stopTimer) this.stopTimer();
-    $('pq-locked-mark').textContent = s.poll ? '📊' : '🥁';
-    $('pq-locked-title').textContent = s.poll ? POLL_LINE : (SUSPENSE_LINES[Number(s.line)] || SUSPENSE_LINES[0]);
+    $('pq-locked-mark').textContent = s.cloud ? '💬' : s.poll ? '📊' : '🥁';
+    $('pq-locked-title').textContent = s.cloud ? CLOUD_LINE : s.poll ? POLL_LINE : (SUSPENSE_LINES[Number(s.line)] || SUSPENSE_LINES[0]);
     $('pq-locked-sub').textContent = 'Watch the big screen for the answer…';
     $('pq-answers').style.display = 'none';
     $('pq-locked').style.display = 'flex';
@@ -2553,6 +2707,36 @@ const Player = {
         ${answered
           ? `<p style="font-weight:700">You guessed ${Number(this.myAnswer).toLocaleString()} — ${off === 0 ? 'spot on! 🎉' : 'off by ' + off.toLocaleString()}</p><div class="points-pop">+${pts.toLocaleString()}</div>`
           : `<div class="points-pop">+0</div><p class="muted">No guess locked in this round.</p>`}`;
+    } else if (s.cloud){
+      // Word cloud: no scoring, just confirm their word made it up there
+      SFX.play('board');
+      $('pr-body').innerHTML = `
+        <div class="bigmark">💬</div>
+        <h1 class="display" style="font-size:2.2rem">${answered ? 'Your word is up!' : 'No answer this time'}</h1>
+        ${answered ? `<p style="font-weight:700">“${esc(String(this.myAnswer))}”</p>` : ''}
+        <p class="muted">See the whole cloud on the big screen.</p>`;
+    } else if (s.typed){
+      // Typed answer: the host graded it — our own record says how we did
+      const correct = !!this.me.lastCorrect;
+      SFX.play(correct ? 'correct' : 'wrong');
+      $('pr-body').innerHTML = correct ? `
+          <div class="bigmark">🎯</div>
+          <h1 class="display" style="font-size:2.2rem">Correct!</h1>
+          <p style="font-weight:700">“${esc(String(this.myAnswer))}” ✅</p>
+          <div class="points-pop">+${pts.toLocaleString()}</div>
+          <p class="muted">Speed pays — nice one.</p>`
+        : answered ? `
+          <div class="bigmark">😵</div>
+          <h1 class="display" style="font-size:2.2rem">Not this time</h1>
+          <p style="font-weight:700">You wrote “${esc(String(this.myAnswer))}” — it was “${esc(String(s.answerText || ''))}”</p>
+          <div class="points-pop">+0</div>
+          <p class="muted">Shake it off — next question's yours.</p>`
+        : `
+          <div class="bigmark">🐌</div>
+          <h1 class="display" style="font-size:2.2rem">Too slow!</h1>
+          <p style="font-weight:700">It was “${esc(String(s.answerText || ''))}”</p>
+          <div class="points-pop">+0</div>
+          <p class="muted">Thumbs ready for the next one!</p>`;
     } else if (s.multi){
       // Pick-all-that-apply: how many of the corrects did you find?
       const corrects = Array.isArray(s.corrects) ? s.corrects : [];
