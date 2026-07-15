@@ -2479,6 +2479,12 @@ const Host = {
     // Thematic celebration: the theme's own emojis float up with the confetti…
     const cheer = THEME_DECOR[currentTheme] || [];
     if (cheer.length) for (let k = 0; k < 18; k++) setTimeout(() => spawnFloat(cheer[k % cheer.length]), 300 + k * 170);
+    // …and once the fanfare has rung out, the theme loop carries the party.
+    // Guarded so it can't start if the host already left for home.
+    setTimeout(() => {
+      const active = document.querySelector('.screen.active');
+      if (active && (active.id === 's-hpodium' || active.id === 's-hboard')) SFX.startMusic(currentTheme);
+    }, 2400);
     // …and a persistent party pins around the podium (bands at the sides
     // and top, clear of the winners), so 📸 screenshots capture it too.
     const party = [...cheer, '🎉', '✨'];
@@ -2509,7 +2515,7 @@ const Host = {
     $('btn-hp-board').style.display = '';
     $('btn-hp-board').onclick = () => { this.renderFinalBoard(st); };
     $('btn-hp-again').style.display = '';
-    $('btn-hp-again').onclick = async () => { await Sync.set(this.path(), null); show('s-setup'); };
+    $('btn-hp-again').onclick = async () => { SFX.stopMusic(); await Sync.set(this.path(), null); show('s-setup'); };
   },
 
   renderFinalBoard(st){
@@ -2519,7 +2525,7 @@ const Host = {
       <div class="boardrow"><span class="rank">${r+1}</span><span class="bname">${p.emoji} ${esc(p.name)}</span><span class="bscore">${p.score.toLocaleString()}</span></div>`).join('');
     const btn = $('btn-hb-next');
     btn.textContent = '← Back to podium';
-    btn.onclick = () => { SFX.stopMusic(); show('s-hpodium'); };
+    btn.onclick = () => show('s-hpodium'); // music keeps playing — podium has it too now
     show('s-hboard');
     SFX.startMusic(currentTheme); // final standings get the theme loop too
   }
