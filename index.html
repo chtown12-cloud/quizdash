@@ -577,6 +577,44 @@ html[data-theme=blueprint] .boardrow .rank,html[data-theme=blueprint] .boardrow 
 html[data-theme=blueprint] .chip{background:rgba(255,255,255,.06);color:#eaf3ff;border:1.5px dashed rgba(234,243,255,.7);border-radius:4px}
 html[data-theme=blueprint] .answer.win{outline-color:#fff;border-style:solid}
 
+/* ⚽ Stadium — night match: floodlights, pitch stripes, scoreboard cards */
+html[data-theme=stadium] body{background:radial-gradient(700px 400px at 10% -8%,rgba(255,255,235,.16),transparent 60%),radial-gradient(700px 400px at 90% -8%,rgba(255,255,235,.16),transparent 60%),color-mix(in srgb,var(--c1) 20%,#07240f)}
+html[data-theme=stadium] body::before{content:"";position:fixed;left:0;right:0;bottom:0;height:110px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.05) 0 90px,rgba(0,0,0,.14) 90px 180px),linear-gradient(180deg,#0d3a1c,#0a2e16);border-top:3px solid rgba(255,255,255,.55);pointer-events:none;z-index:0}
+html[data-theme=stadium] .answer{background:#06140b;border:2px solid;border-radius:10px;text-transform:uppercase;letter-spacing:.05em;font-weight:800}
+html[data-theme=stadium] .answer.a0{border-color:var(--bfg0,var(--b0));color:var(--bfg0,var(--b0));box-shadow:0 0 16px color-mix(in srgb,var(--bfg0,var(--b0)) 28%,transparent),inset 0 0 18px rgba(0,0,0,.55)}
+html[data-theme=stadium] .answer.a1{border-color:var(--bfg1,var(--b1));color:var(--bfg1,var(--b1));box-shadow:0 0 16px color-mix(in srgb,var(--bfg1,var(--b1)) 28%,transparent),inset 0 0 18px rgba(0,0,0,.55)}
+html[data-theme=stadium] .answer.a2{border-color:var(--bfg2,var(--b2));color:var(--bfg2,var(--b2));box-shadow:0 0 16px color-mix(in srgb,var(--bfg2,var(--b2)) 28%,transparent),inset 0 0 18px rgba(0,0,0,.55)}
+html[data-theme=stadium] .answer.a3{border-color:var(--bfg3,var(--b3));color:var(--bfg3,var(--b3));box-shadow:0 0 16px color-mix(in srgb,var(--bfg3,var(--b3)) 28%,transparent),inset 0 0 18px rgba(0,0,0,.55)}
+html[data-theme=stadium] .pill{background:#06140b;border:2px solid var(--tfg,var(--c2));color:var(--tfg,var(--c2));border-radius:8px;text-transform:uppercase;font-size:.8rem;letter-spacing:.06em}
+html[data-theme=stadium] .roomcode{background:#06140b;border:3px solid var(--tfg,var(--c2));color:var(--tfg,var(--c2));border-radius:12px;text-shadow:0 0 14px var(--tfg,var(--c2))}
+html[data-theme=stadium] .qtext{text-transform:uppercase;text-shadow:0 2px 0 rgba(0,0,0,.5)}
+html[data-theme=stadium] .timernum{color:var(--tfg,var(--c2));text-shadow:0 0 12px var(--tfg,var(--c2));font-variant-numeric:tabular-nums}
+html[data-theme=stadium] .timerbar{background:rgba(255,255,255,.14);border:2px solid rgba(255,255,255,.4)}
+html[data-theme=stadium] .btn{border-radius:10px;text-transform:uppercase;letter-spacing:.04em}
+html[data-theme=stadium] .boardrow{background:#06140b;color:#eefff2;border:2px solid color-mix(in srgb,var(--tfg,var(--c2)) 60%,transparent);border-radius:8px}
+html[data-theme=stadium] .boardrow .rank{color:var(--tfg,var(--c2))}
+html[data-theme=stadium] .chip{background:#06140b;color:#eefff2;border:2px solid color-mix(in srgb,var(--tfg,var(--c2)) 55%,transparent);border-radius:8px}
+html[data-theme=stadium] .answer.win{outline-color:#fff}
+
+/* 🤠 Western — parchment, wanted-poster double rules, saloon warmth */
+html[data-theme=western] body{background-color:color-mix(in srgb,var(--c1) 6%,#efe2c4);background-image:radial-gradient(rgba(91,58,30,.09) 1.5px,transparent 1.5px),radial-gradient(700px 320px at 50% 110%,rgba(160,108,54,.32),transparent 70%);background-size:22px 22px,auto}
+html[data-theme=western] .answer{background:#f8eed6;border:3px double #5b3a1e;border-radius:4px;color:#43290f;font-weight:700;box-shadow:3px 4px 0 rgba(75,46,18,.25)}
+html[data-theme=western] .answer.a0{transform:rotate(-.5deg)}
+html[data-theme=western] .answer.a1{transform:rotate(.4deg)}
+html[data-theme=western] .answer.a2{transform:rotate(.3deg)}
+html[data-theme=western] .answer.a3{transform:rotate(-.4deg)}
+html[data-theme=western] .answer .shape{background:#5b3a1e;border-radius:50%;padding:5px}
+html[data-theme=western] .pill{background:#f8eed6;border:2px double #5b3a1e;color:#43290f;border-radius:4px;text-transform:uppercase;letter-spacing:.08em;font-size:.8rem}
+html[data-theme=western] .roomcode{background:#f8eed6;border:4px double #5b3a1e;color:#43290f;border-radius:6px;box-shadow:4px 5px 0 rgba(75,46,18,.2)}
+html[data-theme=western] .timernum{color:#43290f}
+html[data-theme=western] .timerbar{background:#f8eed6;border:2px solid #5b3a1e}
+html[data-theme=western] .timerbar>div{background:#8a5a2b}
+html[data-theme=western] .btn{border:2px solid #43290f;border-radius:6px;box-shadow:3px 4px 0 rgba(67,41,15,.3)}
+html[data-theme=western] .boardrow{background:#f8eed6;color:#43290f;border:2px double #5b3a1e;border-radius:4px;box-shadow:3px 4px 0 rgba(75,46,18,.18)}
+html[data-theme=western] .boardrow .rank{color:#8a5a2b}
+html[data-theme=western] .chip{background:#f8eed6;color:#43290f;border:2px double #5b3a1e;border-radius:4px}
+html[data-theme=western] .answer.win{outline-color:#43290f}
+
 /* ── WHIMSY: hover reactions ─────────────────────────────────────────────
    Purely decorative play for mouse users (hover-capable, fine pointer);
    touch screens skip it and prefers-reduced-motion collapses it globally.
@@ -621,6 +659,8 @@ html[data-theme=blueprint] .answer.win{outline-color:#fff;border-style:solid}
   html[data-theme=vapor] .answer:hover:not(:active){transform:translateY(-4px) skewX(-2deg);filter:saturate(1.5) brightness(1.15)}
   html[data-theme=spooky] .answer:hover:not(:active){animation:shiver .3s ease-in-out 2}
   html[data-theme=blueprint] .answer:hover:not(:active){background:rgba(255,255,255,.12);border-style:solid}
+  html[data-theme=stadium] .answer:hover:not(:active){transform:translateY(-4px);filter:brightness(1.35)}
+  html[data-theme=western] .answer:hover:not(:active){transform:rotate(0deg) translateY(-3px)}
 }
 
 /* ── Misc ───────────────────────────────────────────────────────────────── */
@@ -764,6 +804,8 @@ Describe tonight in one word!
         <option value="vapor">🌴 Vaporwave</option>
         <option value="spooky">🎃 Spooky</option>
         <option value="blueprint">📐 Blueprint</option>
+        <option value="stadium">⚽ Stadium</option>
+        <option value="western">🤠 Western</option>
       </select></div>
       <div class="row" style="align-items:stretch">
         <div style="flex:1;min-width:170px" class="field"><label for="font-display">Display font (headings)</label><select class="fontsel" id="font-display"></select></div>
@@ -965,8 +1007,9 @@ function show(id){
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   $(id).classList.add('active');
   window.scrollTo(0,0);
-  hideSnapHint(); // a hint is about the screen it appeared on
-  hideToast();
+  // Decorations must never be able to kill navigation — if hiding the
+  // hint/toast throws for any reason, the screen switch above stands.
+  try { hideSnapHint(); hideToast(); } catch(e){ console.warn(e); }
 }
 
 /* Chat bubble pointing at the 📸 button (poll results, final podium).
@@ -1208,7 +1251,7 @@ const DEFAULT_COLORS = ['#4F2CBD','#FFB800','#FF4E6A','#19C6B2'];
 /* Structural skins (see the THEMES CSS block). Colors and fonts from the
    pickers keep applying inside every theme. Whitelist-validated because
    the name travels through the database to players. */
-const THEMES = ['classic','arcade','nintendo','doodle','editorial','brutalist','aurora','terminal','candy','vapor','spooky','blueprint'];
+const THEMES = ['classic','arcade','nintendo','doodle','editorial','brutalist','aurora','terminal','candy','vapor','spooky','blueprint','stadium','western'];
 let currentTheme = 'classic';
 function applyLook(colors, theme){
   applyTheme(colors);
@@ -1232,6 +1275,7 @@ function applyLook(colors, theme){
     doodle: '#2f2a22', editorial: '#141414', candy: '#4a3b63',
     nintendo: '#12263c',
     vapor: '#ffe9f8', spooky: '#f2e9d8', blueprint: '#eaf3ff',
+    stadium: '#eefff2', western: '#3d2410',
     brutalist: textOn(c[1])
   }[theme];
   if (ink) r.setProperty('--ink', ink);
@@ -1249,7 +1293,8 @@ const THEME_DECOR = {
   editorial:[], brutalist:['▲','■','●','◆'],
   aurora:['✨','⭐','🌠','🪐'], terminal:['>','$','101','//'],
   candy:['🍬','🍭','🧁','🍩'], vapor:['🌴','📼','🕶️','🛼'],
-  spooky:['🎃','🧹','🐈‍⬛','👻','🦇','🕷️'], blueprint:['📐','📏','✏️','🔩']
+  spooky:['🎃','🧹','🐈‍⬛','👻','🦇','🕷️'], blueprint:['📐','📏','✏️','🔩'],
+  stadium:['⚽','🏆','🎺','📣','🥅'], western:['🤠','🌵','🐎','⭐','🌾']
 };
 function renderDecor(theme){
   const layer = document.getElementById('decor');
@@ -1267,7 +1312,7 @@ function renderDecor(theme){
 const THEME_ICONS = {
   classic:'⚡', arcade:'🕹️', nintendo:'🍄', doodle:'✏️', editorial:'📰',
   brutalist:'🚧', aurora:'🌌', terminal:'💻', candy:'🍬',
-  vapor:'🌴', spooky:'🎃', blueprint:'📐'
+  vapor:'🌴', spooky:'🎃', blueprint:'📐', stadium:'⚽', western:'🤠'
 };
 function setFavicon(colors, theme){
   try {
@@ -1277,7 +1322,8 @@ function setFavicon(colors, theme){
       arcade:'#0a0a20', terminal:'#04140b', aurora:'#131a38',
       editorial:'#fafaf6', doodle:'#fbf5e9', nintendo:'#a8d8ff',
       candy:'#fbe3ee', brutalist:c[1],
-      vapor:'#2d1157', spooky:'#120a1c', blueprint:'#0e3a66'
+      vapor:'#2d1157', spooky:'#120a1c', blueprint:'#0e3a66',
+      stadium:'#0b3d1f', western:'#efe2c4'
     }[theme] || c[0];
     const cv = document.createElement('canvas');
     cv.width = cv.height = 64;
@@ -1634,7 +1680,15 @@ SFX.MUSIC = {
   // Precise little sonar pings, drafting-table calm
   blueprint:{ ms:230, wave:'square', vol:.03, len:.06, bassWave:'sine', bassVol:.07,
               bass:[98,110,130.8,87.3], riff:[0,null,1,null,2,3,null,1],
-              arps:[[392,440,523.3,587.3],[440,493.9,587.3,659.3],[523.3,587.3,659.3,784],[349.2,392,440,523.3]] }
+              arps:[[392,440,523.3,587.3],[440,493.9,587.3,659.3],[523.3,587.3,659.3,784],[349.2,392,440,523.3]] },
+  // Terrace chant: stomp-stomp-brass over a driving low pulse
+  stadium:  { ms:240, wave:'square', vol:.055, len:.12, bassWave:'sawtooth', bassVol:.07, fifth:true,
+              bass:[98,98,110,87.3], riff:[0,0,2,null,1,1,3,null],
+              arps:[[261.6,329.6,392,523.3],[293.7,370,440,587.3],[261.6,329.6,392,523.3],[220,277.2,329.6,440]] },
+  // Saloon piano: quick oom-pah ragtime bounce
+  western:  { ms:190, wave:'triangle', vol:.085, len:.16, bassWave:'triangle', bassVol:.09, fifth:true,
+              bass:[130.8,98,130.8,87.3], riff:[0,2,1,3,0,2,3,1],
+              arps:[[261.6,329.6,392,523.3],[246.9,293.7,392,493.9],[261.6,329.6,392,523.3],[220,261.6,349.2,440]] }
 };
 SFX.musicInt = null;
 SFX.startMusic = function(theme){
@@ -2384,7 +2438,11 @@ const Host = {
         ${p.last ? `<span class="bdelta">+${p.last}</span>` : ''}
         <span class="bscore">${p.score.toLocaleString()}</span>
       </div>`).join('');
-    $('btn-hb-next').onclick = () => this.showQuestion(this.qIndex + 1);
+    // Label AND handler both reset every time: renderFinalBoard repurposes
+    // this button, and a stale "← Back to podium" label survived Play-again.
+    const nextBtn = $('btn-hb-next');
+    nextBtn.textContent = 'Next question →';
+    nextBtn.onclick = () => this.showQuestion(this.qIndex + 1);
     show('s-hboard');
     SFX.play('board');
     SFX.startMusic(currentTheme); // theme loop plays while standings are up
