@@ -2059,6 +2059,7 @@ const Host = {
   },
 
   async showQuestion(i){
+    SFX.stopMusic(); // leaderboard interlude ends when the next question starts
     const q = this.quiz.questions[i];
     this.qIndex = i; this.revealed = false;
 
@@ -2386,6 +2387,7 @@ const Host = {
     $('btn-hb-next').onclick = () => this.showQuestion(this.qIndex + 1);
     show('s-hboard');
     SFX.play('board');
+    SFX.startMusic(currentTheme); // theme loop plays while standings are up
   },
 
   async showPodium(){
@@ -2459,8 +2461,9 @@ const Host = {
       <div class="boardrow"><span class="rank">${r+1}</span><span class="bname">${p.emoji} ${esc(p.name)}</span><span class="bscore">${p.score.toLocaleString()}</span></div>`).join('');
     const btn = $('btn-hb-next');
     btn.textContent = '← Back to podium';
-    btn.onclick = () => show('s-hpodium');
+    btn.onclick = () => { SFX.stopMusic(); show('s-hpodium'); };
     show('s-hboard');
+    SFX.startMusic(currentTheme); // final standings get the theme loop too
   }
 };
 
