@@ -3,7 +3,7 @@
 A serverless, Kahoot-style live quiz game in a **single HTML file** (`index.html`).
 Host on a big screen, players join on their phones with a 4-letter room code.
 
-**▶ Play it live: https://chtown12-cloud.github.io/quizdash/**
+**▶ Play it live: [https://chtown12-cloud.github.io/quizdash/](https://chtown12-cloud.github.io/quizdash/)**
 
 ## Quick start
 
@@ -15,7 +15,7 @@ Host on a big screen, players join on their phones with a 4-letter room code.
 
 ## Hosting
 
-Deployed on Github Pages at **https://chtown12-cloud.github.io/quizdash/** — connected to
+Deployed on Github Pages at **[https://chtown12-cloud.github.io/quizdash/](https://chtown12-cloud.github.io/quizdash/)** — connected to
 this repo's `main` branch, so every push redeploys automatically (free tier,
 no build step: the repo root is served as-is).
 
