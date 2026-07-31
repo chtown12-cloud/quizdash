@@ -171,6 +171,19 @@ a{color:inherit}
 }
 .field input[type=text]:focus,.field textarea:focus{border-color:var(--c1);outline:none}
 textarea.quizbox{min-height:230px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9rem;line-height:1.5;resize:vertical}
+/* Line-numbered quiz editor. The gutter is a plain overlay that mirrors
+   the textarea's own metrics — each number is sized to the height its
+   line actually occupies, so soft-wrapped lines stay in step. */
+.editor{position:relative}
+.editor textarea.quizbox{padding-left:56px}
+.gutter{
+  position:absolute;left:2px;top:2px;bottom:2px;width:46px;overflow:hidden;
+  padding:12px 8px 0 0;border-right:1px solid #E4DEF5;border-radius:10px 0 0 10px;
+  background:#F1EDFB;color:#8B83AD;text-align:right;pointer-events:none;user-select:none;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9rem;line-height:1.5;
+}
+.gutter b{display:block;font-weight:400;font-variant-numeric:tabular-nums}
+.gutter b.bad{color:#9F1136;font-weight:700;background:#FFD7E0;border-radius:4px 0 0 4px;box-shadow:-6px 0 0 #FFD7E0}
 .hint{font-size:.83rem;color:#6B6390;margin-top:6px}
 .errbox{background:#FFEDF0;border:1.5px solid #FFB3C0;color:#9F1136;border-radius:12px;padding:12px 14px;font-size:.88rem;white-space:pre-wrap;display:none}
 .okbox{background:#E8FBF4;border:1.5px solid #9BE8CC;color:#0B6B4A;border-radius:12px;padding:12px 14px;font-size:.9rem;display:none}
@@ -807,7 +820,10 @@ Describe tonight in one word!
       </details>
 
       <div class="field">
+        <div class="editor">
+        <div class="gutter" aria-hidden="true"><div id="quiz-lines"></div></div>
         <textarea class="quizbox" id="quiz-input" spellcheck="false" aria-label="Quiz text" placeholder="# My Quiz Title&#10;&#10;## Q1 | 20s | read 5s&#10;Your first question here?&#10;- The correct answer *&#10;- Another answer&#10;- A third answer&#10;&#10;## Q2 | 15s | poll&#10;Maybe a poll? (see 📖 above for closest, multi, type, cloud &amp; ⚡x2)&#10;- Option one&#10;- Option two"></textarea>
+        </div>
         <div class="row" style="margin-top:8px"><button class="btn ghost" style="color:var(--card-ink);border-color:#CFC7E8;padding:8px 16px;font-size:.9rem" id="btn-sample">Load example quiz</button><span class="hint" id="parse-status" style="margin:0"></span></div>
       </div>
       <div class="errbox" id="parse-errors"></div>
@@ -1041,6 +1057,9 @@ function show(id){
   // Decorations must never be able to kill navigation — if hiding the
   // hint/toast throws for any reason, the screen switch above stands.
   try { hideSnapHint(); hideToast(); } catch(e){ console.warn(e); }
+  // The quiz box has no width until its screen is on, so its line numbers
+  // can only be measured once we get here.
+  if (id === 's-setup') try { syncGutter(); } catch(e){ console.warn(e); }
 }
 
 /* Chat bubble pointing at the 📸 button (poll results, final podium).
@@ -3251,8 +3270,55 @@ function readColorInputs(){
     return /^#[0-9a-fA-F]{6}$/.test(v) ? v : DEFAULT_COLORS[i];
   });
 }
+// ── Quiz editor gutter ───────────────────────────────────────────────────
+// Numbers every line so "Line 3: …" in the error box points somewhere you
+// can actually find, and marks the lines the parser complained about.
+let gutterMirror = null, gutterBad = new Set();
+function syncGutter(){
+  const ta = $('quiz-input'), out = $('quiz-lines');
+  if (!ta || !out) return;
+  const lines = ta.value.split('\n');
+  const cs = getComputedStyle(ta);
+  const inner = ta.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+  if (inner > 0){
+    // Measure in a hidden twin of the text column: same width, font and
+    // wrapping, so a line that wraps to three rows gets a three-row number.
+    if (!gutterMirror){
+      gutterMirror = document.createElement('div');
+      gutterMirror.setAttribute('aria-hidden', 'true');
+      gutterMirror.style.cssText = 'position:absolute;left:-9999px;top:0;visibility:hidden;white-space:pre-wrap;overflow-wrap:break-word;padding:0;border:0';
+      document.body.appendChild(gutterMirror);
+    }
+    Object.assign(gutterMirror.style, {
+      width: inner + 'px', fontFamily: cs.fontFamily, fontSize: cs.fontSize,
+      fontWeight: cs.fontWeight, letterSpacing: cs.letterSpacing, lineHeight: cs.lineHeight
+    });
+    gutterMirror.textContent = '';
+    const rows = lines.map(l => {
+      const d = document.createElement('div');
+      d.textContent = l || ' '; // an empty line still occupies one row
+      gutterMirror.appendChild(d);
+      return d;
+    });
+    // Fractional heights matter: a 21.6px line rounded to 22 drifts a
+    // fifth of a line every ten rows, which is plainly visible down a
+    // long quiz.
+    const heights = rows.map(d => d.getBoundingClientRect().height);
+    out.innerHTML = lines.map((_, i) =>
+      `<b${gutterBad.has(i + 1) ? ' class="bad"' : ''} style="height:${heights[i].toFixed(3)}px">${i + 1}</b>`).join('');
+  }
+  out.style.transform = `translateY(${-ta.scrollTop}px)`;
+}
+
 function renderParseStatus(parsed){
   const errBox = $('parse-errors'), okBox = $('parse-ok'), status = $('parse-status');
+  // Error messages are written as "Line N: …" — pull those out so the
+  // gutter can point straight at them.
+  gutterBad = new Set((parsed.errors || []).map(e => {
+    const m = /^Line (\d+):/.exec(e);
+    return m ? Number(m[1]) : 0;
+  }).filter(Boolean));
+  syncGutter();
   if (!$('quiz-input').value.trim()){ errBox.style.display = 'none'; okBox.style.display = 'none'; status.textContent = ''; return; }
   if (parsed.errors.length){
     errBox.textContent = '⚠ Fix these before creating the room:\n• ' + parsed.errors.join('\n• ');
@@ -3358,10 +3424,15 @@ function boot(){
   let t;
   $('quiz-input').addEventListener('input', () => {
     syncCreateBtn();
+    syncGutter(); // numbers keep up with typing; the parse stays debounced
     clearTimeout(t); t = setTimeout(() => renderParseStatus(parseQuiz($('quiz-input').value)), 400);
   });
+  $('quiz-input').addEventListener('scroll', syncGutter);
+  // Width changes re-wrap the text, which changes how tall each line is
+  addEventListener('resize', syncGutter);
   $('btn-sample').onclick = () => { $('quiz-input').value = SAMPLE_QUIZ; renderParseStatus(parseQuiz(SAMPLE_QUIZ)); syncCreateBtn(); };
   syncCreateBtn();
+  syncGutter();
 
   // Setup: colors (picker <-> hex, live theme)
   const refreshLook = () => applyLook(readColorInputs(), $('theme-sel').value);
