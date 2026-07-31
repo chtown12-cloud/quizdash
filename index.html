@@ -283,14 +283,28 @@ button.answer.picked{outline:4px solid var(--ink);outline-offset:-4px;filter:bri
 .racetrack{position:relative;width:100%;max-width:820px;height:clamp(92px,16vh,150px);margin:0 auto;background:rgba(127,127,127,.13);border-radius:16px;overflow:hidden}
 .racetrack::after{content:"";position:absolute;right:9%;top:0;bottom:0;width:4px;background:repeating-linear-gradient(0deg,currentColor 0 8px,transparent 8px 16px);opacity:.35}
 .rfinish{position:absolute;right:1.5%;top:50%;transform:translateY(-50%);font-size:34px;line-height:1}
-.racer{position:absolute;font-size:24px;line-height:1;margin-left:-12px;transition:left 1.4s cubic-bezier(.25,1,.35,1);filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))}
+.racer{position:absolute;font-size:24px;line-height:1;margin-left:-12px;transition:left var(--rdur,1.4s) cubic-bezier(.25,1,.35,1);filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))}
 .racer.top1{font-size:33px;z-index:2}
 /* Podium finale race: top five jockey, back markers spin off the track,
-   the survivor sprints to the flag (all transitions — capture-safe) */
-.podrace{height:clamp(130px,22vh,200px);max-width:860px}
-.podrace .racer{font-size:32px;margin-left:-16px}
-.racer.out{transition:transform 1.1s cubic-bezier(.5,-.3,.8,.6),opacity 1.1s;transform:translateY(240px) rotate(520deg);opacity:0}
-.racer.sprint{font-size:44px;z-index:3;transition:left 1.1s cubic-bezier(.2,.8,.3,1),font-size .4s}
+   the survivor sprints to the flag (all transitions — capture-safe).
+   Each rider carries a name pill so the room can follow the drama; the
+   pill borrows .chip so every theme skins it for free. */
+.podrace{height:clamp(240px,38vh,330px);max-width:860px}
+.podrace .racer{font-size:clamp(22px,3.2vh,28px);margin-left:-14px}
+.rname{
+  position:absolute;top:calc(100% + 3px);left:50%;width:132px;margin-left:-66px;
+  padding:2px 7px;font-family:var(--font-body);font-size:clamp(9.5px,1.3vh,12px);
+  line-height:1.3;text-align:center;white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;pointer-events:none;
+}
+/* Four ways to leave the race, re-rolled every game so the exit move is
+   never a tell about what comes next */
+.racer.out{opacity:0}
+.racer.out.out-down{transition:transform 1.1s cubic-bezier(.5,-.3,.8,.6),opacity 1.1s;transform:translateY(260px) rotate(520deg)}
+.racer.out.out-up{transition:transform 1.05s cubic-bezier(.5,-.35,.75,.55),opacity 1.05s;transform:translateY(-280px) rotate(-460deg)}
+.racer.out.out-back{transition:transform 1.15s cubic-bezier(.4,0,.7,.5),opacity 1.15s;transform:translateX(-280px) rotate(-320deg) scale(.55)}
+.racer.out.out-poof{transition:transform .9s cubic-bezier(.3,1.4,.6,1),opacity .9s;transform:scale(2.6) rotate(150deg)}
+.racer.sprint{font-size:clamp(34px,5vh,44px);z-index:3;transition:left var(--sdur,1.1s) cubic-bezier(.2,.8,.3,1),font-size .4s}
 /* Word cloud (opinion questions): answers sized by popularity */
 .wcloud{display:flex;flex-wrap:wrap;gap:12px 26px;align-items:center;justify-content:center;padding:20px 10px;font-family:var(--font-display);font-weight:800;line-height:1;max-width:900px;margin:0 auto}
 .wcloud span{display:inline-block;animation:pop .5s cubic-bezier(.34,1.56,.64,1) backwards;text-shadow:0 2px 8px rgba(0,0,0,.25)}
@@ -2527,17 +2541,33 @@ const Host = {
     const st = this.standings();
     await this.pushRanks(st);
     // 🏁 Mario-Kart finale: the top five jockey on a racetrack, back
-    // markers spin off one by one (5th, 4th, 3rd, 2nd), and the survivor
-    // sprints to the flag — the jockeying is pure random shuffle, so
-    // nothing on screen leaks who wins until the eliminations say so.
-    // Phones are told how long the race runs so their reveal waits for it.
+    // markers fall away one by one (5th, 4th, 3rd, 2nd), and the survivor
+    // sprints for the flag. The whole choreography is re-rolled every
+    // game — lanes, paint order, drift speed, how wide riders roam, the
+    // beat, how many beats between exits, the exit move, the sprint —
+    // so a room that has seen it before still can't read the ending from
+    // the motion. Phones are told the race length so their own reveal
+    // lands after it.
+    const rnd = (a, b) => a + Math.random() * (b - a);
+    const pick = a => a[Math.floor(Math.random() * a.length)];
     const contenders = st.slice(0, Math.min(5, st.length));
     const doRace = contenders.length >= 2;
-    const raceMs = doRace ? 900 + (contenders.length - 1) * 2600 + 2100 : 0;
+    const beat = Math.round(rnd(620, 900));                              // jockey cadence
+    const waits = contenders.slice(1).map(() => Math.round(rnd(2, 4)));  // beats before each exit
+    const lead = Math.round(rnd(250, 550)), sprintLead = Math.round(rnd(450, 900));
+    const sprintMs = Math.round(rnd(1150, 1600));
+    const raceMs = doRace
+      ? lead + waits.reduce((s, b) => s + b, 0) * beat + sprintLead + sprintMs + 200
+      : 0;
     await Sync.update(this.path('state'), { phase: 'podium', standings: st.slice(0, 10), total: st.length, raceMs });
     show('s-hpodium');
     $('hp-drum').style.display = '';
-    $('hp-title').textContent = doRace ? '🏁 Final lap — who takes it all?' : 'And the winners are…';
+    $('hp-title').textContent = doRace ? pick([
+      '🏁 Final lap — who takes it all?',
+      '🏁 Last lap! Anyone can steal this',
+      '🏁 Too close to call…',
+      '🏁 Final lap — no clear favourite'
+    ]) : 'And the winners are…';
     ['pcol-1','pcol-2','pcol-3'].forEach(id => $(id).classList.remove('shown'));
     $('hp-fx').innerHTML = ''; // party appears only once the winner is revealed
 
@@ -2555,31 +2585,47 @@ const Host = {
     if (doRace){
       podiumEl.style.display = 'none';
       race.style.display = '';
-      // Lanes are shuffled so even vertical order gives nothing away
-      const lanes = contenders.map((_, i) => i).sort(() => Math.random() - .5);
+      const exit = pick(['out-down', 'out-up', 'out-back', 'out-poof']);
+      const exitTag = { 'out-down': '💨', 'out-up': '🎈', 'out-back': '🐌', 'out-poof': '💥' }[exit];
+      const lo = rnd(16, 30), span = rnd(30, 48);  // how wide the pack roams
+      // Slot order is shuffled, which randomises both lane and paint order:
+      // rendering the leader first would have left them permanently *under*
+      // everyone else wherever riders overlapped — a tell in itself.
+      const slots = contenders.map((_, i) => i).sort(() => Math.random() - .5);
       const step = 74 / Math.max(1, contenders.length - 1);
       race.innerHTML = `<span class="rfinish">${THEME_FINISH[currentTheme] || '🏁'}</span>` +
-        contenders.map((p, i) => `<span class="racer" title="${esc(String(p.name))}" style="top:${8 + lanes[i] * step}%;left:3%">${av(p.emoji)}</span>`).join('');
-      const racers = [...race.querySelectorAll('.racer')];
-      const jockey = () => racers.forEach(el => { if (!el.classList.contains('out') && !el.classList.contains('sprint')) el.style.left = (26 + Math.random() * 48) + '%'; });
-      $('hp-drum').textContent = `🥁 ${contenders.length} riders, one crown…`;
+        slots.map((rank, slot) => {
+          const p = contenders[rank];
+          // Ragged starting grid — a straight start line stacks the name
+          // pills into one unreadable column
+          return `<span class="racer" title="${esc(String(p.name))}" style="--rdur:${rnd(1.05, 1.75).toFixed(2)}s;--sdur:${(sprintMs / 1000).toFixed(2)}s;top:${(3 + slot * step + rnd(-1.2, 1.2)).toFixed(1)}%;left:${rnd(8, 17).toFixed(1)}%">${av(p.emoji)}<b class="chip rname">${esc(String(p.name))}</b></span>`;
+        }).join('');
+      const els = [...race.querySelectorAll('.racer')];
+      const byRank = []; slots.forEach((rank, slot) => { byRank[rank] = els[slot]; });
+      const jockey = () => els.forEach(el => { if (!el.classList.contains('out') && !el.classList.contains('sprint')) el.style.left = (lo + Math.random() * span).toFixed(1) + '%'; });
+      $('hp-drum').textContent = pick([
+        `🥁 ${contenders.length} riders, one crown…`,
+        `🥁 Anyone's race — ${contenders.length} still in it`,
+        `🥁 ${contenders.length} on the last lap…`,
+        `🥁 No clear leader with ${contenders.length} left`
+      ]);
       SFX.play('drumroll');
-      await sleep(250); jockey();
+      await sleep(lead); jockey();
       // Eliminate from the back of the field up to 2nd place
       for (let out = contenders.length - 1; out >= 1; out--){
-        for (let t = 0; t < 2; t++){ await sleep(750); if (!alive()) return; jockey(); }
-        await sleep(750); if (!alive()) return;
-        racers[out].classList.add('out');
+        const w = waits[contenders.length - 1 - out];
+        for (let t = 0; t < w; t++){ await sleep(beat); if (!alive()) return; if (t < w - 1) jockey(); }
+        byRank[out].classList.add('out', exit);
         SFX.play('wrong');
-        $('hp-drum').textContent = `💨 ${ordinal(out + 1)} place: ${contenders[out].emoji} ${contenders[out].name}`;
+        $('hp-drum').textContent = `${exitTag} ${ordinal(out + 1)} place: ${contenders[out].emoji} ${contenders[out].name}`;
         if (out > 1) SFX.play('drumroll');
       }
       // The last rider standing sprints for the flag
-      await sleep(600); if (!alive()) return;
-      racers[0].classList.add('sprint');
-      racers[0].style.left = '90%';
+      await sleep(sprintLead); if (!alive()) return;
+      byRank[0].classList.add('sprint');
+      byRank[0].style.left = '90%';
       SFX.play('start');
-      await sleep(1400); if (!alive()) return;
+      await sleep(sprintMs + 200); if (!alive()) return;
       race.style.display = 'none';
       podiumEl.style.display = '';
     } else {
