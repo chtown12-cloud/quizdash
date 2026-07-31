@@ -2540,36 +2540,51 @@ const Host = {
   async showPodium(){
     const st = this.standings();
     await this.pushRanks(st);
-    // 🏁 Mario-Kart finale: the top five jockey on a racetrack, back
-    // markers fall away one by one (5th, 4th, 3rd, 2nd), and the survivor
-    // sprints for the flag. The whole choreography is re-rolled every
-    // game — lanes, paint order, drift speed, how wide riders roam, the
-    // beat, how many beats between exits, the exit move, the sprint —
-    // so a room that has seen it before still can't read the ending from
-    // the motion. Phones are told the race length so their own reveal
-    // lands after it.
+    // 🏁 Mario-Kart finale: the top five race, the field thins from the
+    // back, and the survivor sprints for the flag. Everything about the
+    // run is re-rolled each game — which of three formats plays out
+    // (solo / pairs / photo finish), lanes, paint order, drift speeds,
+    // how wide riders roam, the beat, the gaps between exits, the exit
+    // move, whether someone makes a breakaway, the sprint — so a room
+    // that has seen it before still can't read the ending from the
+    // motion. Phones are told the race length so their reveal lands
+    // after it.
     const rnd = (a, b) => a + Math.random() * (b - a);
     const pick = a => a[Math.floor(Math.random() * a.length)];
     const contenders = st.slice(0, Math.min(5, st.length));
-    const doRace = contenders.length >= 2;
-    const beat = Math.round(rnd(620, 900));                              // jockey cadence
-    const waits = contenders.slice(1).map(() => Math.round(rnd(2, 4)));  // beats before each exit
-    const lead = Math.round(rnd(250, 550)), sprintLead = Math.round(rnd(450, 900));
-    const sprintMs = Math.round(rnd(1150, 1600));
+    const n = contenders.length;
+    const doRace = n >= 2;
+    const mode = pick(['solo', 'pairs', 'photo']);
+    // Ranks to drop, back to front — one per group. Pairs takes two at a
+    // time but never pulls the leader into a group.
+    const groups = [];
+    if (mode === 'pairs') for (let r = n - 1; r >= 1; r -= 2) groups.push(r - 1 >= 1 ? [r, r - 1] : [r]);
+    else for (let r = n - 1; r >= 1; r--) groups.push([r]);
+    const photo = mode === 'photo';
+    const beat = Math.round(rnd(620, 900));                    // jockey cadence
+    const waits = groups.map(() => photo ? 1 : Math.round(rnd(mode === 'pairs' ? 3 : 2, mode === 'pairs' ? 5 : 4)));
+    const charge = photo ? Math.round(rnd(1500, 2100)) : 0;    // the run at the line
+    const lead = Math.round(rnd(250, 550));
+    const sprintLead = photo ? Math.round(rnd(250, 500)) : Math.round(rnd(450, 900));
+    const sprintMs = photo ? Math.round(rnd(700, 1000)) : Math.round(rnd(1150, 1600));
     const raceMs = doRace
-      ? lead + waits.reduce((s, b) => s + b, 0) * beat + sprintLead + sprintMs + 200
+      ? lead + charge + waits.reduce((s, b) => s + b, 0) * beat + sprintLead + sprintMs + 200
       : 0;
     await Sync.update(this.path('state'), { phase: 'podium', standings: st.slice(0, 10), total: st.length, raceMs });
     show('s-hpodium');
     $('hp-drum').style.display = '';
-    $('hp-title').textContent = doRace ? pick([
-      '🏁 Final lap — who takes it all?',
-      '🏁 Last lap! Anyone can steal this',
-      '🏁 Too close to call…',
-      '🏁 Final lap — no clear favourite'
-    ]) : 'And the winners are…';
+    $('hp-title').textContent = doRace ? pick({
+      solo: ['🏁 Final lap — who takes it all?', '🏁 Last lap! Anyone can steal this', '🏁 Too close to call…', '🏁 Final lap — no clear favourite'],
+      pairs: ['🏁 Final lap — they drop in pairs', '🏁 Last lap: two go at a time', '🏁 Double elimination — hold on'],
+      photo: ['🏁 Photo finish — everyone at the line!', '🏁 Dead heat into the flag', '🏁 They came in together — who crossed first?']
+    }[mode]) : 'And the winners are…';
     ['pcol-1','pcol-2','pcol-3'].forEach(id => $(id).classList.remove('shown'));
     $('hp-fx').innerHTML = ''; // party appears only once the winner is revealed
+    // The end-of-game controls are revealed with the winner at the bottom of
+    // this function and never hidden again, so a second game (Play again)
+    // would otherwise inherit them — and the screenshot nudge — mid-race.
+    ['btn-hp-board','btn-hp-erase','btn-hp-home','btn-hp-again','hp-privacy'].forEach(id => { $(id).style.display = 'none'; });
+    hideSnapHint();
 
     const setCol = (id, p) => {
       const el = $(id);
@@ -2585,14 +2600,15 @@ const Host = {
     if (doRace){
       podiumEl.style.display = 'none';
       race.style.display = '';
-      const exit = pick(['out-down', 'out-up', 'out-back', 'out-poof']);
+      // At the line, losing riders slide back off it; elsewhere anything goes
+      const exit = photo ? pick(['out-back', 'out-down']) : pick(['out-down', 'out-up', 'out-back', 'out-poof']);
       const exitTag = { 'out-down': '💨', 'out-up': '🎈', 'out-back': '🐌', 'out-poof': '💥' }[exit];
       const lo = rnd(16, 30), span = rnd(30, 48);  // how wide the pack roams
       // Slot order is shuffled, which randomises both lane and paint order:
       // rendering the leader first would have left them permanently *under*
       // everyone else wherever riders overlapped — a tell in itself.
       const slots = contenders.map((_, i) => i).sort(() => Math.random() - .5);
-      const step = 74 / Math.max(1, contenders.length - 1);
+      const step = 74 / Math.max(1, n - 1);
       race.innerHTML = `<span class="rfinish">${THEME_FINISH[currentTheme] || '🏁'}</span>` +
         slots.map((rank, slot) => {
           const p = contenders[rank];
@@ -2602,28 +2618,52 @@ const Host = {
         }).join('');
       const els = [...race.querySelectorAll('.racer')];
       const byRank = []; slots.forEach((rank, slot) => { byRank[rank] = els[slot]; });
-      const jockey = () => els.forEach(el => { if (!el.classList.contains('out') && !el.classList.contains('sprint')) el.style.left = (lo + Math.random() * span).toFixed(1) + '%'; });
-      $('hp-drum').textContent = pick([
-        `🥁 ${contenders.length} riders, one crown…`,
-        `🥁 Anyone's race — ${contenders.length} still in it`,
-        `🥁 ${contenders.length} on the last lap…`,
-        `🥁 No clear leader with ${contenders.length} left`
-      ]);
+      // A breakaway: one rider — drawn uniformly, so just as often the
+      // eventual winner as not — surges clear for a few beats. Being out
+      // front means nothing, which is the point.
+      const star = (!photo && Math.random() < .55) ? Math.floor(Math.random() * n) : -1;
+      let breakBeats = star >= 0 ? Math.round(rnd(3, 6)) : 0;
+      const running = el => !el.classList.contains('out') && !el.classList.contains('sprint');
+      const jockey = () => els.forEach((el, slot) => {
+        if (!running(el)) return;
+        const clear = breakBeats > 0 && slots[slot] === star;
+        el.style.left = (clear ? rnd(60, 76) : lo + Math.random() * span).toFixed(1) + '%';
+      });
+      const toTheLine = () => els.forEach(el => { if (running(el)) el.style.left = rnd(76, 89).toFixed(1) + '%'; });
+      $('hp-drum').textContent = pick({
+        solo: [`🥁 ${n} riders, one crown…`, `🥁 Anyone's race — ${n} still in it`, `🥁 ${n} on the last lap…`, `🥁 No clear leader with ${n} left`],
+        pairs: [`🥁 ${n} riders — they fall two at a time`, `🥁 Two go every round. ${n} left…`, `🥁 ${n} in, and the field halves…`],
+        photo: [`🥁 All ${n} still level at the flag…`, `🥁 Nothing between them…`, `🥁 ${n} abreast into the line…`]
+      }[mode]);
       SFX.play('drumroll');
       await sleep(lead); jockey();
-      // Eliminate from the back of the field up to 2nd place
-      for (let out = contenders.length - 1; out >= 1; out--){
-        const w = waits[contenders.length - 1 - out];
-        for (let t = 0; t < w; t++){ await sleep(beat); if (!alive()) return; if (t < w - 1) jockey(); }
-        byRank[out].classList.add('out', exit);
-        SFX.play('wrong');
-        $('hp-drum').textContent = `${exitTag} ${ordinal(out + 1)} place: ${contenders[out].emoji} ${contenders[out].name}`;
-        if (out > 1) SFX.play('drumroll');
+      if (photo){
+        // Everyone charges the flag together and arrives level, then the
+        // line sorts them out in quick succession
+        toTheLine();
+        await sleep(charge); if (!alive()) return;
       }
-      // The last rider standing sprints for the flag
+      // Thin the field from the back, one group at a time
+      for (let g = 0; g < groups.length; g++){
+        const w = waits[g];
+        for (let t = 0; t < w; t++){
+          await sleep(beat); if (!alive()) return;
+          if (breakBeats > 0) breakBeats--;
+          if (!photo && t < w - 1) jockey();
+        }
+        groups[g].forEach(r => byRank[r].classList.add('out', exit));
+        SFX.play('wrong');
+        const who = groups[g].map(r => `${contenders[r].emoji} ${contenders[r].name}`).join('  &  ');
+        const where = groups[g].length > 1
+          ? groups[g].map(r => ordinal(r + 1)).join(' & ')
+          : `${ordinal(groups[g][0] + 1)} place`;
+        $('hp-drum').textContent = `${exitTag} ${where}: ${who}`;
+        if (g < groups.length - 1) SFX.play('drumroll');
+      }
+      // The last rider standing takes the flag
       await sleep(sprintLead); if (!alive()) return;
       byRank[0].classList.add('sprint');
-      byRank[0].style.left = '90%';
+      byRank[0].style.left = photo ? '93%' : '90%';
       SFX.play('start');
       await sleep(sprintMs + 200); if (!alive()) return;
       race.style.display = 'none';
