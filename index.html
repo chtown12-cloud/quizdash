@@ -280,11 +280,11 @@ button.answer.picked{outline:4px solid var(--ink);outline-offset:-4px;filter:bri
 /* 🏁 Avatar racetrack (leaderboard): everyone's emoji sprints to their
    score position; leader races biggest. Uses transitions (not keyframe
    animations), so 📸 captures land on the finished positions. */
-.racetrack{position:relative;width:100%;max-width:820px;height:clamp(92px,16vh,150px);margin:0 auto;background:rgba(127,127,127,.13);border-radius:16px;overflow:hidden}
+.racetrack{position:relative;width:100%;max-width:820px;height:min(calc(var(--lanes,4) * 26px + 18px),34vh);min-height:92px;margin:0 auto;background:rgba(127,127,127,.13);border-radius:16px;overflow:hidden}
 .racetrack::after{content:"";position:absolute;right:9%;top:0;bottom:0;width:4px;background:repeating-linear-gradient(0deg,currentColor 0 8px,transparent 8px 16px);opacity:.35}
 .rfinish{position:absolute;right:1.5%;top:50%;transform:translateY(-50%);font-size:34px;line-height:1}
-.racer{position:absolute;font-size:24px;line-height:1;margin-left:-12px;transition:left var(--rdur,1.4s) cubic-bezier(.25,1,.35,1);filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))}
-.racer.top1{font-size:33px;z-index:2}
+.racer{position:absolute;font-size:var(--rsize,24px);line-height:1;margin-left:calc(var(--rsize,24px) / -2);transition:left var(--rdur,1.4s) cubic-bezier(.25,1,.35,1);filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))}
+.racer.top1{font-size:calc(var(--rsize,24px) * 1.38);z-index:2}
 /* Podium finale race: top five jockey, back markers spin off the track,
    the survivor sprints to the flag (all transitions — capture-safe).
    Each rider carries a name pill so the room can follow the drama; the
@@ -2501,14 +2501,33 @@ const Host = {
   // to their score position (top 60 race; the leader runs biggest).
   renderRace(st){
     const track = $('hb-race');
-    const max = Math.max(1, st.length ? st[0].score : 1);
     const shown = st.slice(0, 60);
-    const lanes = Math.min(8, Math.max(3, Math.ceil(shown.length / 7)));
+    const k = shown.length;
+    // Placing purely by score/leader piles everyone up: a full room ends a
+    // question within a few points of each other, so every emoji lands on
+    // the same spot. Blend the score gap with even spacing by rank — the
+    // order stays exactly right and the field always fans out across the
+    // track, however tightly bunched the scores are.
+    const hi = k ? shown[0].score : 0, lo = k ? shown[k - 1].score : 0;
+    const spread = hi - lo;
+    const posOf = r => {
+      const even = k > 1 ? 1 - r / (k - 1) : 1;
+      // Everyone level (nobody scored yet, or a clean sweep): the score
+      // term says nothing, so spacing alone has to carry the whole track
+      return spread <= 0 ? even : .55 * ((shown[r].score - lo) / spread) + .45 * even;
+    };
+    // More runners, more lanes — and the track grows with them, so a big
+    // field doesn't stack emojis on top of each other. Lanes stay few
+    // enough to leave room for the standings underneath: now that the
+    // field fans out horizontally, riders sharing a lane are far apart.
+    const lanes = Math.min(8, Math.max(3, Math.ceil(k / 8)));
+    track.style.setProperty('--lanes', lanes);
+    track.style.setProperty('--rsize', (k > 40 ? 17 : k > 24 ? 20 : 24) + 'px');
     track.innerHTML = `<span class="rfinish">${THEME_FINISH[currentTheme] || '🏁'}</span>` +
-      shown.map((p, r) => `<span class="racer${r === 0 ? ' top1' : ''}" title="${esc(String(p.name))}: ${p.score.toLocaleString()}" style="top:${6 + (r % lanes) * (78 / lanes)}%;left:2%;transition-delay:${Math.min(r * 55, 1200)}ms">${av(p.emoji)}</span>`).join('');
+      shown.map((p, r) => `<span class="racer${r === 0 ? ' top1' : ''}" title="${esc(String(p.name))}: ${p.score.toLocaleString()}" style="top:${(5 + (r % lanes) * (80 / lanes)).toFixed(1)}%;left:2%;transition-delay:${Math.min(r * 55, 1200)}ms">${av(p.emoji)}</span>`).join('');
     requestAnimationFrame(() => requestAnimationFrame(() => {
       track.querySelectorAll('.racer').forEach((el, r) => {
-        el.style.left = (2 + (shown[r].score / max) * 84) + '%';
+        el.style.left = (2 + posOf(r) * 84).toFixed(2) + '%';
       });
     }));
   },
