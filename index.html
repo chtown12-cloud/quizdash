@@ -171,6 +171,19 @@ a{color:inherit}
 }
 .field input[type=text]:focus,.field textarea:focus{border-color:var(--c1);outline:none}
 textarea.quizbox{min-height:230px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9rem;line-height:1.5;resize:vertical}
+/* Line-numbered quiz editor. The gutter is a plain overlay that mirrors
+   the textarea's own metrics — each number is sized to the height its
+   line actually occupies, so soft-wrapped lines stay in step. */
+.editor{position:relative}
+.editor textarea.quizbox{padding-left:56px}
+.gutter{
+  position:absolute;left:2px;top:2px;bottom:2px;width:46px;overflow:hidden;
+  padding:12px 8px 0 0;border-right:1px solid #E4DEF5;border-radius:10px 0 0 10px;
+  background:#F1EDFB;color:#8B83AD;text-align:right;pointer-events:none;user-select:none;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9rem;line-height:1.5;
+}
+.gutter b{display:block;font-weight:400;font-variant-numeric:tabular-nums}
+.gutter b.bad{color:#9F1136;font-weight:700;background:#FFD7E0;border-radius:4px 0 0 4px;box-shadow:-6px 0 0 #FFD7E0}
 .hint{font-size:.83rem;color:#6B6390;margin-top:6px}
 .errbox{background:#FFEDF0;border:1.5px solid #FFB3C0;color:#9F1136;border-radius:12px;padding:12px 14px;font-size:.88rem;white-space:pre-wrap;display:none}
 .okbox{background:#E8FBF4;border:1.5px solid #9BE8CC;color:#0B6B4A;border-radius:12px;padding:12px 14px;font-size:.9rem;display:none}
@@ -280,11 +293,11 @@ button.answer.picked{outline:4px solid var(--ink);outline-offset:-4px;filter:bri
 /* 🏁 Avatar racetrack (leaderboard): everyone's emoji sprints to their
    score position; leader races biggest. Uses transitions (not keyframe
    animations), so 📸 captures land on the finished positions. */
-.racetrack{position:relative;width:100%;max-width:820px;height:clamp(92px,16vh,150px);margin:0 auto;background:rgba(127,127,127,.13);border-radius:16px;overflow:hidden}
+.racetrack{position:relative;width:100%;max-width:820px;height:min(calc(var(--lanes,4) * 26px + 18px),34vh);min-height:92px;margin:0 auto;background:rgba(127,127,127,.13);border-radius:16px;overflow:hidden}
 .racetrack::after{content:"";position:absolute;right:9%;top:0;bottom:0;width:4px;background:repeating-linear-gradient(0deg,currentColor 0 8px,transparent 8px 16px);opacity:.35}
 .rfinish{position:absolute;right:1.5%;top:50%;transform:translateY(-50%);font-size:34px;line-height:1}
-.racer{position:absolute;font-size:24px;line-height:1;margin-left:-12px;transition:left var(--rdur,1.4s) cubic-bezier(.25,1,.35,1);filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))}
-.racer.top1{font-size:33px;z-index:2}
+.racer{position:absolute;font-size:var(--rsize,24px);line-height:1;margin-left:calc(var(--rsize,24px) / -2);transition:left var(--rdur,1.4s) cubic-bezier(.25,1,.35,1);filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))}
+.racer.top1{font-size:calc(var(--rsize,24px) * 1.38);z-index:2}
 /* Podium finale race: top five jockey, back markers spin off the track,
    the survivor sprints to the flag (all transitions — capture-safe).
    Each rider carries a name pill so the room can follow the drama; the
@@ -807,7 +820,10 @@ Describe tonight in one word!
       </details>
 
       <div class="field">
+        <div class="editor">
+        <div class="gutter" aria-hidden="true"><div id="quiz-lines"></div></div>
         <textarea class="quizbox" id="quiz-input" spellcheck="false" aria-label="Quiz text" placeholder="# My Quiz Title&#10;&#10;## Q1 | 20s | read 5s&#10;Your first question here?&#10;- The correct answer *&#10;- Another answer&#10;- A third answer&#10;&#10;## Q2 | 15s | poll&#10;Maybe a poll? (see 📖 above for closest, multi, type, cloud &amp; ⚡x2)&#10;- Option one&#10;- Option two"></textarea>
+        </div>
         <div class="row" style="margin-top:8px"><button class="btn ghost" style="color:var(--card-ink);border-color:#CFC7E8;padding:8px 16px;font-size:.9rem" id="btn-sample">Load example quiz</button><span class="hint" id="parse-status" style="margin:0"></span></div>
       </div>
       <div class="errbox" id="parse-errors"></div>
@@ -1041,6 +1057,9 @@ function show(id){
   // Decorations must never be able to kill navigation — if hiding the
   // hint/toast throws for any reason, the screen switch above stands.
   try { hideSnapHint(); hideToast(); } catch(e){ console.warn(e); }
+  // The quiz box has no width until its screen is on, so its line numbers
+  // can only be measured once we get here.
+  if (id === 's-setup') try { syncGutter(); } catch(e){ console.warn(e); }
 }
 
 /* Chat bubble pointing at the 📸 button (poll results, final podium).
@@ -2501,14 +2520,33 @@ const Host = {
   // to their score position (top 60 race; the leader runs biggest).
   renderRace(st){
     const track = $('hb-race');
-    const max = Math.max(1, st.length ? st[0].score : 1);
     const shown = st.slice(0, 60);
-    const lanes = Math.min(8, Math.max(3, Math.ceil(shown.length / 7)));
+    const k = shown.length;
+    // Placing purely by score/leader piles everyone up: a full room ends a
+    // question within a few points of each other, so every emoji lands on
+    // the same spot. Blend the score gap with even spacing by rank — the
+    // order stays exactly right and the field always fans out across the
+    // track, however tightly bunched the scores are.
+    const hi = k ? shown[0].score : 0, lo = k ? shown[k - 1].score : 0;
+    const spread = hi - lo;
+    const posOf = r => {
+      const even = k > 1 ? 1 - r / (k - 1) : 1;
+      // Everyone level (nobody scored yet, or a clean sweep): the score
+      // term says nothing, so spacing alone has to carry the whole track
+      return spread <= 0 ? even : .55 * ((shown[r].score - lo) / spread) + .45 * even;
+    };
+    // More runners, more lanes — and the track grows with them, so a big
+    // field doesn't stack emojis on top of each other. Lanes stay few
+    // enough to leave room for the standings underneath: now that the
+    // field fans out horizontally, riders sharing a lane are far apart.
+    const lanes = Math.min(8, Math.max(3, Math.ceil(k / 8)));
+    track.style.setProperty('--lanes', lanes);
+    track.style.setProperty('--rsize', (k > 40 ? 17 : k > 24 ? 20 : 24) + 'px');
     track.innerHTML = `<span class="rfinish">${THEME_FINISH[currentTheme] || '🏁'}</span>` +
-      shown.map((p, r) => `<span class="racer${r === 0 ? ' top1' : ''}" title="${esc(String(p.name))}: ${p.score.toLocaleString()}" style="top:${6 + (r % lanes) * (78 / lanes)}%;left:2%;transition-delay:${Math.min(r * 55, 1200)}ms">${av(p.emoji)}</span>`).join('');
+      shown.map((p, r) => `<span class="racer${r === 0 ? ' top1' : ''}" title="${esc(String(p.name))}: ${p.score.toLocaleString()}" style="top:${(5 + (r % lanes) * (80 / lanes)).toFixed(1)}%;left:2%;transition-delay:${Math.min(r * 55, 1200)}ms">${av(p.emoji)}</span>`).join('');
     requestAnimationFrame(() => requestAnimationFrame(() => {
       track.querySelectorAll('.racer').forEach((el, r) => {
-        el.style.left = (2 + (shown[r].score / max) * 84) + '%';
+        el.style.left = (2 + posOf(r) * 84).toFixed(2) + '%';
       });
     }));
   },
@@ -2540,36 +2578,51 @@ const Host = {
   async showPodium(){
     const st = this.standings();
     await this.pushRanks(st);
-    // 🏁 Mario-Kart finale: the top five jockey on a racetrack, back
-    // markers fall away one by one (5th, 4th, 3rd, 2nd), and the survivor
-    // sprints for the flag. The whole choreography is re-rolled every
-    // game — lanes, paint order, drift speed, how wide riders roam, the
-    // beat, how many beats between exits, the exit move, the sprint —
-    // so a room that has seen it before still can't read the ending from
-    // the motion. Phones are told the race length so their own reveal
-    // lands after it.
+    // 🏁 Mario-Kart finale: the top five race, the field thins from the
+    // back, and the survivor sprints for the flag. Everything about the
+    // run is re-rolled each game — which of three formats plays out
+    // (solo / pairs / photo finish), lanes, paint order, drift speeds,
+    // how wide riders roam, the beat, the gaps between exits, the exit
+    // move, whether someone makes a breakaway, the sprint — so a room
+    // that has seen it before still can't read the ending from the
+    // motion. Phones are told the race length so their reveal lands
+    // after it.
     const rnd = (a, b) => a + Math.random() * (b - a);
     const pick = a => a[Math.floor(Math.random() * a.length)];
     const contenders = st.slice(0, Math.min(5, st.length));
-    const doRace = contenders.length >= 2;
-    const beat = Math.round(rnd(620, 900));                              // jockey cadence
-    const waits = contenders.slice(1).map(() => Math.round(rnd(2, 4)));  // beats before each exit
-    const lead = Math.round(rnd(250, 550)), sprintLead = Math.round(rnd(450, 900));
-    const sprintMs = Math.round(rnd(1150, 1600));
+    const n = contenders.length;
+    const doRace = n >= 2;
+    const mode = pick(['solo', 'pairs', 'photo']);
+    // Ranks to drop, back to front — one per group. Pairs takes two at a
+    // time but never pulls the leader into a group.
+    const groups = [];
+    if (mode === 'pairs') for (let r = n - 1; r >= 1; r -= 2) groups.push(r - 1 >= 1 ? [r, r - 1] : [r]);
+    else for (let r = n - 1; r >= 1; r--) groups.push([r]);
+    const photo = mode === 'photo';
+    const beat = Math.round(rnd(620, 900));                    // jockey cadence
+    const waits = groups.map(() => photo ? 1 : Math.round(rnd(mode === 'pairs' ? 3 : 2, mode === 'pairs' ? 5 : 4)));
+    const charge = photo ? Math.round(rnd(1500, 2100)) : 0;    // the run at the line
+    const lead = Math.round(rnd(250, 550));
+    const sprintLead = photo ? Math.round(rnd(250, 500)) : Math.round(rnd(450, 900));
+    const sprintMs = photo ? Math.round(rnd(700, 1000)) : Math.round(rnd(1150, 1600));
     const raceMs = doRace
-      ? lead + waits.reduce((s, b) => s + b, 0) * beat + sprintLead + sprintMs + 200
+      ? lead + charge + waits.reduce((s, b) => s + b, 0) * beat + sprintLead + sprintMs + 200
       : 0;
     await Sync.update(this.path('state'), { phase: 'podium', standings: st.slice(0, 10), total: st.length, raceMs });
     show('s-hpodium');
     $('hp-drum').style.display = '';
-    $('hp-title').textContent = doRace ? pick([
-      '🏁 Final lap — who takes it all?',
-      '🏁 Last lap! Anyone can steal this',
-      '🏁 Too close to call…',
-      '🏁 Final lap — no clear favourite'
-    ]) : 'And the winners are…';
+    $('hp-title').textContent = doRace ? pick({
+      solo: ['🏁 Final lap — who takes it all?', '🏁 Last lap! Anyone can steal this', '🏁 Too close to call…', '🏁 Final lap — no clear favourite'],
+      pairs: ['🏁 Final lap — they drop in pairs', '🏁 Last lap: two go at a time', '🏁 Double elimination — hold on'],
+      photo: ['🏁 Photo finish — everyone at the line!', '🏁 Dead heat into the flag', '🏁 They came in together — who crossed first?']
+    }[mode]) : 'And the winners are…';
     ['pcol-1','pcol-2','pcol-3'].forEach(id => $(id).classList.remove('shown'));
     $('hp-fx').innerHTML = ''; // party appears only once the winner is revealed
+    // The end-of-game controls are revealed with the winner at the bottom of
+    // this function and never hidden again, so a second game (Play again)
+    // would otherwise inherit them — and the screenshot nudge — mid-race.
+    ['btn-hp-board','btn-hp-erase','btn-hp-home','btn-hp-again','hp-privacy'].forEach(id => { $(id).style.display = 'none'; });
+    hideSnapHint();
 
     const setCol = (id, p) => {
       const el = $(id);
@@ -2585,14 +2638,15 @@ const Host = {
     if (doRace){
       podiumEl.style.display = 'none';
       race.style.display = '';
-      const exit = pick(['out-down', 'out-up', 'out-back', 'out-poof']);
+      // At the line, losing riders slide back off it; elsewhere anything goes
+      const exit = photo ? pick(['out-back', 'out-down']) : pick(['out-down', 'out-up', 'out-back', 'out-poof']);
       const exitTag = { 'out-down': '💨', 'out-up': '🎈', 'out-back': '🐌', 'out-poof': '💥' }[exit];
       const lo = rnd(16, 30), span = rnd(30, 48);  // how wide the pack roams
       // Slot order is shuffled, which randomises both lane and paint order:
       // rendering the leader first would have left them permanently *under*
       // everyone else wherever riders overlapped — a tell in itself.
       const slots = contenders.map((_, i) => i).sort(() => Math.random() - .5);
-      const step = 74 / Math.max(1, contenders.length - 1);
+      const step = 74 / Math.max(1, n - 1);
       race.innerHTML = `<span class="rfinish">${THEME_FINISH[currentTheme] || '🏁'}</span>` +
         slots.map((rank, slot) => {
           const p = contenders[rank];
@@ -2602,28 +2656,52 @@ const Host = {
         }).join('');
       const els = [...race.querySelectorAll('.racer')];
       const byRank = []; slots.forEach((rank, slot) => { byRank[rank] = els[slot]; });
-      const jockey = () => els.forEach(el => { if (!el.classList.contains('out') && !el.classList.contains('sprint')) el.style.left = (lo + Math.random() * span).toFixed(1) + '%'; });
-      $('hp-drum').textContent = pick([
-        `🥁 ${contenders.length} riders, one crown…`,
-        `🥁 Anyone's race — ${contenders.length} still in it`,
-        `🥁 ${contenders.length} on the last lap…`,
-        `🥁 No clear leader with ${contenders.length} left`
-      ]);
+      // A breakaway: one rider — drawn uniformly, so just as often the
+      // eventual winner as not — surges clear for a few beats. Being out
+      // front means nothing, which is the point.
+      const star = (!photo && Math.random() < .55) ? Math.floor(Math.random() * n) : -1;
+      let breakBeats = star >= 0 ? Math.round(rnd(3, 6)) : 0;
+      const running = el => !el.classList.contains('out') && !el.classList.contains('sprint');
+      const jockey = () => els.forEach((el, slot) => {
+        if (!running(el)) return;
+        const clear = breakBeats > 0 && slots[slot] === star;
+        el.style.left = (clear ? rnd(60, 76) : lo + Math.random() * span).toFixed(1) + '%';
+      });
+      const toTheLine = () => els.forEach(el => { if (running(el)) el.style.left = rnd(76, 89).toFixed(1) + '%'; });
+      $('hp-drum').textContent = pick({
+        solo: [`🥁 ${n} riders, one crown…`, `🥁 Anyone's race — ${n} still in it`, `🥁 ${n} on the last lap…`, `🥁 No clear leader with ${n} left`],
+        pairs: [`🥁 ${n} riders — they fall two at a time`, `🥁 Two go every round. ${n} left…`, `🥁 ${n} in, and the field halves…`],
+        photo: [`🥁 All ${n} still level at the flag…`, `🥁 Nothing between them…`, `🥁 ${n} abreast into the line…`]
+      }[mode]);
       SFX.play('drumroll');
       await sleep(lead); jockey();
-      // Eliminate from the back of the field up to 2nd place
-      for (let out = contenders.length - 1; out >= 1; out--){
-        const w = waits[contenders.length - 1 - out];
-        for (let t = 0; t < w; t++){ await sleep(beat); if (!alive()) return; if (t < w - 1) jockey(); }
-        byRank[out].classList.add('out', exit);
-        SFX.play('wrong');
-        $('hp-drum').textContent = `${exitTag} ${ordinal(out + 1)} place: ${contenders[out].emoji} ${contenders[out].name}`;
-        if (out > 1) SFX.play('drumroll');
+      if (photo){
+        // Everyone charges the flag together and arrives level, then the
+        // line sorts them out in quick succession
+        toTheLine();
+        await sleep(charge); if (!alive()) return;
       }
-      // The last rider standing sprints for the flag
+      // Thin the field from the back, one group at a time
+      for (let g = 0; g < groups.length; g++){
+        const w = waits[g];
+        for (let t = 0; t < w; t++){
+          await sleep(beat); if (!alive()) return;
+          if (breakBeats > 0) breakBeats--;
+          if (!photo && t < w - 1) jockey();
+        }
+        groups[g].forEach(r => byRank[r].classList.add('out', exit));
+        SFX.play('wrong');
+        const who = groups[g].map(r => `${contenders[r].emoji} ${contenders[r].name}`).join('  &  ');
+        const where = groups[g].length > 1
+          ? groups[g].map(r => ordinal(r + 1)).join(' & ')
+          : `${ordinal(groups[g][0] + 1)} place`;
+        $('hp-drum').textContent = `${exitTag} ${where}: ${who}`;
+        if (g < groups.length - 1) SFX.play('drumroll');
+      }
+      // The last rider standing takes the flag
       await sleep(sprintLead); if (!alive()) return;
       byRank[0].classList.add('sprint');
-      byRank[0].style.left = '90%';
+      byRank[0].style.left = photo ? '93%' : '90%';
       SFX.play('start');
       await sleep(sprintMs + 200); if (!alive()) return;
       race.style.display = 'none';
@@ -3192,8 +3270,55 @@ function readColorInputs(){
     return /^#[0-9a-fA-F]{6}$/.test(v) ? v : DEFAULT_COLORS[i];
   });
 }
+// ── Quiz editor gutter ───────────────────────────────────────────────────
+// Numbers every line so "Line 3: …" in the error box points somewhere you
+// can actually find, and marks the lines the parser complained about.
+let gutterMirror = null, gutterBad = new Set();
+function syncGutter(){
+  const ta = $('quiz-input'), out = $('quiz-lines');
+  if (!ta || !out) return;
+  const lines = ta.value.split('\n');
+  const cs = getComputedStyle(ta);
+  const inner = ta.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+  if (inner > 0){
+    // Measure in a hidden twin of the text column: same width, font and
+    // wrapping, so a line that wraps to three rows gets a three-row number.
+    if (!gutterMirror){
+      gutterMirror = document.createElement('div');
+      gutterMirror.setAttribute('aria-hidden', 'true');
+      gutterMirror.style.cssText = 'position:absolute;left:-9999px;top:0;visibility:hidden;white-space:pre-wrap;overflow-wrap:break-word;padding:0;border:0';
+      document.body.appendChild(gutterMirror);
+    }
+    Object.assign(gutterMirror.style, {
+      width: inner + 'px', fontFamily: cs.fontFamily, fontSize: cs.fontSize,
+      fontWeight: cs.fontWeight, letterSpacing: cs.letterSpacing, lineHeight: cs.lineHeight
+    });
+    gutterMirror.textContent = '';
+    const rows = lines.map(l => {
+      const d = document.createElement('div');
+      d.textContent = l || ' '; // an empty line still occupies one row
+      gutterMirror.appendChild(d);
+      return d;
+    });
+    // Fractional heights matter: a 21.6px line rounded to 22 drifts a
+    // fifth of a line every ten rows, which is plainly visible down a
+    // long quiz.
+    const heights = rows.map(d => d.getBoundingClientRect().height);
+    out.innerHTML = lines.map((_, i) =>
+      `<b${gutterBad.has(i + 1) ? ' class="bad"' : ''} style="height:${heights[i].toFixed(3)}px">${i + 1}</b>`).join('');
+  }
+  out.style.transform = `translateY(${-ta.scrollTop}px)`;
+}
+
 function renderParseStatus(parsed){
   const errBox = $('parse-errors'), okBox = $('parse-ok'), status = $('parse-status');
+  // Error messages are written as "Line N: …" — pull those out so the
+  // gutter can point straight at them.
+  gutterBad = new Set((parsed.errors || []).map(e => {
+    const m = /^Line (\d+):/.exec(e);
+    return m ? Number(m[1]) : 0;
+  }).filter(Boolean));
+  syncGutter();
   if (!$('quiz-input').value.trim()){ errBox.style.display = 'none'; okBox.style.display = 'none'; status.textContent = ''; return; }
   if (parsed.errors.length){
     errBox.textContent = '⚠ Fix these before creating the room:\n• ' + parsed.errors.join('\n• ');
@@ -3299,10 +3424,15 @@ function boot(){
   let t;
   $('quiz-input').addEventListener('input', () => {
     syncCreateBtn();
+    syncGutter(); // numbers keep up with typing; the parse stays debounced
     clearTimeout(t); t = setTimeout(() => renderParseStatus(parseQuiz($('quiz-input').value)), 400);
   });
+  $('quiz-input').addEventListener('scroll', syncGutter);
+  // Width changes re-wrap the text, which changes how tall each line is
+  addEventListener('resize', syncGutter);
   $('btn-sample').onclick = () => { $('quiz-input').value = SAMPLE_QUIZ; renderParseStatus(parseQuiz(SAMPLE_QUIZ)); syncCreateBtn(); };
   syncCreateBtn();
+  syncGutter();
 
   // Setup: colors (picker <-> hex, live theme)
   const refreshLook = () => applyLook(readColorInputs(), $('theme-sel').value);
