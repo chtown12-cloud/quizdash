@@ -948,6 +948,7 @@ Describe tonight in one word!
     <div class="votechart" id="hq-chart"></div>
     <div class="row" style="justify-content:center;min-height:64px">
       <div class="drum" id="hq-drum" style="display:none"></div>
+      <button class="btn ghost" id="btn-hq-skip" style="display:none"></button>
       <button class="btn big" id="btn-hq-next" style="display:none"></button>
     </div>
   </div>
@@ -2322,12 +2323,14 @@ const Host = {
       : { text: q.text, options: q.options, duration: q.duration, type: q.type || 'quiz', x2: !!q.x2 };
 
     const pv = Number.isInteger(q.preview) ? q.preview : PREVIEW_SECS;
+    this.skipPreview = false;
     if (pv > 0){
       await Sync.set(this.path('state'), {
         phase: 'preview', qIndex: i, total: this.quiz.questions.length, previewSecs: pv,
         q: qPayload
       });
       if (this.stopTimer){ this.stopTimer(); this.stopTimer = null; }
+      this.showSkip('preview');
       await this.runPreview(pv);
       if (!this.room || this.revealed || this.qIndex !== i) return; // aborted (Home, etc.)
     }
@@ -2355,6 +2358,7 @@ const Host = {
       });
     }
     SFX.play(q.x2 ? 'double' : 'board');
+    this.showSkip('question');
 
     this.stopTimer = startTimerUI($('hq-timer'), $('hq-timerbar'), q.duration);
     clearTimeout(this.timeout);
@@ -2388,14 +2392,34 @@ const Host = {
       numEl.textContent = r;
       if (r <= 3) SFX.play('blip');
       await sleep(1000);
-      if (!this.room) return;
+      if (!this.room || this.skipPreview) break;  // Home, or the host skipped ahead
     }
     drum.style.display = 'none';
+  },
+
+  // The host's escape hatch from waiting. During the reading countdown it
+  // opens the answers early; once answers are open it ends the question
+  // exactly as the timer running out would, so one player who wandered
+  // off can't hold up the room. endQuestion() is idempotent, so a second
+  // press (or the timer firing at the same moment) changes nothing.
+  showSkip(mode){
+    const b = $('btn-hq-skip');
+    if (!b) return;
+    if (!mode){ b.style.display = 'none'; b.onclick = null; return; }
+    b.textContent = mode === 'preview' ? 'Skip reading →' : 'Skip ahead →';
+    b.title = mode === 'preview'
+      ? 'Open the answers now instead of waiting out the reading time'
+      : 'Close answering now and reveal — no need to wait for stragglers';
+    b.style.display = '';
+    b.onclick = mode === 'preview'
+      ? () => { this.skipPreview = true; this.showSkip(null); SFX.play('tap'); }
+      : () => { this.showSkip(null); this.endQuestion(); };
   },
 
   async endQuestion(){
     if (this.revealed) return;
     this.revealed = true;
+    this.showSkip(null);   // nothing left to skip past
     clearTimeout(this.timeout);
     if (this.stopTimer) this.stopTimer();
     if (this.unsubAnswers){ this.unsubAnswers(); this.unsubAnswers = null; }
