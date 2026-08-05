@@ -257,10 +257,21 @@ details.docs[open] summary::after{transform:rotate(90deg)}
 }
 .answer .shape{position:absolute;left:16px;width:32px;height:32px;display:flex;align-items:center;justify-content:center}
 .answer .shape svg{width:100%;height:100%;filter:drop-shadow(0 2px 2px rgba(0,0,0,.25))}
-.answer.a0{background:var(--b0);color:var(--t0)}
-.answer.a1{background:var(--b1);color:var(--t1)}
-.answer.a2{background:var(--b2);color:var(--t2)}
-.answer.a3{background:var(--b3);color:var(--t3)}
+/* Every option carries its own colour as custom properties, so a theme
+   styles ".answer" once instead of once per index — and the number of
+   options stops mattering. --ac is the fill, --at the text on that fill,
+   --afg the contrast-guarded colour the neon skins draw text/borders in. */
+.answer{background:var(--ac);color:var(--at)}
+.answer.a0{--ac:var(--b0);--at:var(--t0);--afg:var(--bfg0,var(--b0))}
+.answer.a1{--ac:var(--b1);--at:var(--t1);--afg:var(--bfg1,var(--b1))}
+.answer.a2{--ac:var(--b2);--at:var(--t2);--afg:var(--bfg2,var(--b2))}
+.answer.a3{--ac:var(--b3);--at:var(--t3);--afg:var(--bfg3,var(--b3))}
+.answer.a4{--ac:var(--b4);--at:var(--t4);--afg:var(--bfg4,var(--b4))}
+.answer.a5{--ac:var(--b5);--at:var(--t5);--afg:var(--bfg5,var(--b5))}
+.answer.a6{--ac:var(--b6);--at:var(--t6);--afg:var(--bfg6,var(--b6))}
+.answer.a7{--ac:var(--b7);--at:var(--t7);--afg:var(--bfg7,var(--b7))}
+.answer.a8{--ac:var(--b8);--at:var(--t8);--afg:var(--bfg8,var(--b8))}
+.answer.a9{--ac:var(--b9);--at:var(--t9);--afg:var(--bfg9,var(--b9))}
 button.answer:active{transform:translateY(4px) scale(.99);box-shadow:0 1px 0 rgba(0,0,0,.25)}
 /* Losing options stay readable on reveal — the vote counts are the point */
 .answer.dim{opacity:.55;filter:saturate(.35)}
@@ -455,10 +466,7 @@ select.fontsel:focus{border-color:var(--c1);outline:none}
 html[data-theme=arcade] body{background:radial-gradient(900px 500px at 50% -10%,color-mix(in srgb,var(--b0) 14%,transparent),transparent 60%),radial-gradient(700px 500px at 90% 110%,color-mix(in srgb,var(--b1) 12%,transparent),transparent 60%),color-mix(in srgb,var(--c1) 22%,#050514)}
 html[data-theme=arcade] body::before{content:"";position:fixed;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.13) 0 2px,transparent 2px 5px);pointer-events:none;z-index:0}
 html[data-theme=arcade] .answer{background:rgba(255,255,255,.03);border:2.5px solid;border-radius:8px;text-transform:uppercase;letter-spacing:.06em}
-html[data-theme=arcade] .answer.a0{border-color:var(--bfg0,var(--b0));color:var(--bfg0,var(--b0));box-shadow:0 0 18px color-mix(in srgb,var(--bfg0,var(--b0)) 35%,transparent),inset 0 0 22px color-mix(in srgb,var(--bfg0,var(--b0)) 8%,transparent)}
-html[data-theme=arcade] .answer.a1{border-color:var(--bfg1,var(--b1));color:var(--bfg1,var(--b1));box-shadow:0 0 18px color-mix(in srgb,var(--bfg1,var(--b1)) 35%,transparent),inset 0 0 22px color-mix(in srgb,var(--bfg1,var(--b1)) 8%,transparent)}
-html[data-theme=arcade] .answer.a2{border-color:var(--bfg2,var(--b2));color:var(--bfg2,var(--b2));box-shadow:0 0 18px color-mix(in srgb,var(--bfg2,var(--b2)) 35%,transparent),inset 0 0 22px color-mix(in srgb,var(--bfg2,var(--b2)) 8%,transparent)}
-html[data-theme=arcade] .answer.a3{border-color:var(--bfg3,var(--b3));color:var(--bfg3,var(--b3));box-shadow:0 0 18px color-mix(in srgb,var(--bfg3,var(--b3)) 35%,transparent),inset 0 0 22px color-mix(in srgb,var(--bfg3,var(--b3)) 8%,transparent)}
+html[data-theme=arcade] .answer{border-color:var(--afg);color:var(--afg);box-shadow:0 0 18px color-mix(in srgb,var(--afg) 35%,transparent),inset 0 0 22px color-mix(in srgb,var(--afg) 8%,transparent)}
 html[data-theme=arcade] .pill{background:transparent;border:2px solid var(--tfg,var(--c2));color:var(--tfg,var(--c2));border-radius:4px}
 html[data-theme=arcade] .roomcode{border:2px solid var(--tfg,var(--c2));background:rgba(255,255,255,.03);box-shadow:0 0 26px color-mix(in srgb,var(--tfg,var(--c2)) 40%,transparent)}
 html[data-theme=arcade] .timernum{color:var(--tfg,var(--c2));text-shadow:0 0 14px var(--tfg,var(--c2))}
@@ -486,10 +494,11 @@ html[data-theme=nintendo] .qrcard{border:4px solid #1b1b1b;box-shadow:8px 8px 0 
 /* ✏️ Hand-drawn Doodle — paper, wobbly ink borders, pastel fills */
 html[data-theme=doodle] body{background:color-mix(in srgb,var(--c1) 5%,#fbf5e9);background-image:radial-gradient(color-mix(in srgb,var(--c1) 20%,#e7dcc4) 1.3px,transparent 1.3px);background-size:26px 26px}
 html[data-theme=doodle] .answer{border:3.5px solid #2f2a22;color:#2f2a22;border-radius:255px 15px 225px 15px/15px 225px 15px 255px;box-shadow:4px 5px 0 rgba(47,42,34,.2)}
-html[data-theme=doodle] .answer.a0{background:color-mix(in srgb,var(--b0) 30%,#fff);transform:rotate(-.8deg)}
-html[data-theme=doodle] .answer.a1{background:color-mix(in srgb,var(--b1) 30%,#fff);border-radius:15px 255px 15px 225px/225px 15px 255px 15px;transform:rotate(.7deg)}
-html[data-theme=doodle] .answer.a2{background:color-mix(in srgb,var(--b2) 30%,#fff);border-radius:225px 15px 255px 15px/15px 255px 15px 225px;transform:rotate(.5deg)}
-html[data-theme=doodle] .answer.a3{background:color-mix(in srgb,var(--b3) 30%,#fff);border-radius:15px 225px 15px 255px/255px 15px 225px 15px;transform:rotate(-.7deg)}
+html[data-theme=doodle] .answer{background:color-mix(in srgb,var(--ac) 30%,#fff)}
+html[data-theme=doodle] .answer:is(.a0,.a4,.a8){transform:rotate(-.8deg)}
+html[data-theme=doodle] .answer:is(.a1,.a5,.a9){border-radius:15px 255px 15px 225px/225px 15px 255px 15px;transform:rotate(.7deg)}
+html[data-theme=doodle] .answer:is(.a2,.a6){border-radius:225px 15px 255px 15px/15px 255px 15px 225px;transform:rotate(.5deg)}
+html[data-theme=doodle] .answer:is(.a3,.a7){border-radius:15px 225px 15px 255px/255px 15px 225px 15px;transform:rotate(-.7deg)}
 html[data-theme=doodle] .answer .shape{background:#2f2a22;border-radius:50%;padding:5px}
 html[data-theme=doodle] .pill{background:#fff;color:#2f2a22;border:3px solid #2f2a22;border-radius:225px 15px 255px 15px/15px 255px 15px 225px}
 html[data-theme=doodle] .roomcode{background:#fff;color:#2f2a22;border:3.5px solid #2f2a22;border-radius:255px 25px 225px 25px/25px 225px 25px 255px;box-shadow:5px 6px 0 rgba(47,42,34,.18)}
@@ -507,8 +516,7 @@ html[data-theme=editorial] .answers{counter-reset:opt;gap:0;grid-template-column
 html[data-theme=editorial] .answer{counter-increment:opt;background:transparent;color:#141414;border:none;border-bottom:1.5px solid #d5d5cd;border-radius:0;box-shadow:none;min-height:64px}
 html[data-theme=editorial] .answer:first-child{border-top:1.5px solid #141414}
 html[data-theme=editorial] .answer::before{content:"0" counter(opt);position:absolute;left:16px;font-size:.85rem;font-weight:700;font-variant-numeric:tabular-nums}
-html[data-theme=editorial] .answer.a0::before{color:color-mix(in srgb,var(--b0) 60%,#141414)} html[data-theme=editorial] .answer.a1::before{color:color-mix(in srgb,var(--b1) 60%,#141414)}
-html[data-theme=editorial] .answer.a2::before{color:color-mix(in srgb,var(--b2) 60%,#141414)} html[data-theme=editorial] .answer.a3::before{color:color-mix(in srgb,var(--b3) 60%,#141414)}
+html[data-theme=editorial] .answer::before{color:color-mix(in srgb,var(--ac) 60%,#141414)}
 html[data-theme=editorial] .answer .shape{display:none}
 html[data-theme=editorial] .answer.win{outline:none;background:color-mix(in srgb,var(--c2) 20%,#fff);transform:none}
 html[data-theme=editorial] .answer.dim{opacity:.55}
@@ -540,8 +548,7 @@ html[data-theme=brutalist] .answer.win{outline:6px solid #000}
 html[data-theme=aurora] body{background:color-mix(in srgb,var(--c1) 30%,#0b1026)}
 html[data-theme=aurora] body::before{content:"";position:fixed;inset:-20%;background:radial-gradient(600px 420px at 22% 18%,color-mix(in srgb,var(--b2) 42%,transparent),transparent 65%),radial-gradient(700px 480px at 78% 30%,color-mix(in srgb,var(--b3) 45%,transparent),transparent 65%),radial-gradient(640px 520px at 55% 95%,color-mix(in srgb,var(--b1) 36%,transparent),transparent 65%);filter:blur(48px);pointer-events:none;z-index:-1}
 html[data-theme=aurora] .answer{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.28);border-radius:22px;backdrop-filter:blur(14px);box-shadow:0 12px 40px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.25);color:#f2f6ff}
-html[data-theme=aurora] .answer.a0{border-left:6px solid var(--b0)} html[data-theme=aurora] .answer.a1{border-left:6px solid var(--b1)}
-html[data-theme=aurora] .answer.a2{border-left:6px solid var(--b2)} html[data-theme=aurora] .answer.a3{border-left:6px solid var(--b3)}
+html[data-theme=aurora] .answer{border-left:6px solid var(--ac)}
 html[data-theme=aurora] .roomcode{background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.35);backdrop-filter:blur(12px)}
 html[data-theme=aurora] .boardrow{background:rgba(255,255,255,.1);color:#f2f6ff;backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.22)}
 html[data-theme=aurora] .boardrow .rank{color:#fff}
@@ -572,10 +579,7 @@ html[data-theme=terminal] .answer.win{outline-color:var(--tfg,var(--c2))}
 /* 🍬 Candy Clay — pastel field, squishy 3D cards */
 html[data-theme=candy] body{background:linear-gradient(160deg,color-mix(in srgb,var(--b1) 22%,#fff),color-mix(in srgb,var(--c1) 15%,#fff) 55%,color-mix(in srgb,var(--b2) 20%,#fff))}
 html[data-theme=candy] .answer{border-radius:32px;box-shadow:10px 10px 24px rgba(0,0,0,.12),-4px -4px 12px #fff,inset 2px 3px 6px rgba(255,255,255,.55)}
-html[data-theme=candy] .answer.a0{background:linear-gradient(145deg,color-mix(in srgb,var(--b0) 78%,#fff),var(--b0))}
-html[data-theme=candy] .answer.a1{background:linear-gradient(145deg,color-mix(in srgb,var(--b1) 78%,#fff),var(--b1))}
-html[data-theme=candy] .answer.a2{background:linear-gradient(145deg,color-mix(in srgb,var(--b2) 78%,#fff),var(--b2))}
-html[data-theme=candy] .answer.a3{background:linear-gradient(145deg,color-mix(in srgb,var(--b3) 78%,#fff),var(--b3))}
+html[data-theme=candy] .answer{background:linear-gradient(145deg,color-mix(in srgb,var(--ac) 78%,#fff),var(--ac))}
 html[data-theme=candy] .answer .shape{background:rgba(255,255,255,.35);border-radius:40%;padding:5px}
 html[data-theme=candy] .pill{background:#fff;color:#6b5a8e;border:none;box-shadow:6px 6px 14px rgba(0,0,0,.08)}
 html[data-theme=candy] .roomcode{background:#fff;color:#5b4585;border:none;box-shadow:10px 10px 24px rgba(0,0,0,.1),-6px -6px 14px #fff}
@@ -592,10 +596,7 @@ html[data-theme=vapor] body{background:linear-gradient(180deg,#140744,color-mix(
 html[data-theme=vapor] body::before{content:"";position:fixed;left:-40%;right:-40%;bottom:-14%;height:52%;background:repeating-linear-gradient(0deg,color-mix(in srgb,var(--tfg,var(--c2)) 60%,transparent) 0 2px,transparent 2px 44px),repeating-linear-gradient(90deg,color-mix(in srgb,var(--tfg,var(--c2)) 60%,transparent) 0 2px,transparent 2px 66px);transform:perspective(340px) rotateX(58deg);transform-origin:50% 100%;opacity:.4;pointer-events:none;z-index:0}
 html[data-theme=vapor] body::after{content:"";position:fixed;top:5%;left:50%;width:220px;height:220px;margin-left:-110px;border-radius:50%;background:linear-gradient(180deg,var(--b1) 0 45%,var(--b0) 60%,transparent 62%);opacity:.3;filter:blur(2px);pointer-events:none;z-index:0}
 html[data-theme=vapor] .answer{background:rgba(255,255,255,.06);border:2px solid;border-radius:14px;font-style:italic;letter-spacing:.04em;backdrop-filter:blur(6px)}
-html[data-theme=vapor] .answer.a0{border-color:var(--bfg0,var(--b0));color:var(--bfg0,var(--b0));box-shadow:0 0 22px color-mix(in srgb,var(--bfg0,var(--b0)) 30%,transparent)}
-html[data-theme=vapor] .answer.a1{border-color:var(--bfg1,var(--b1));color:var(--bfg1,var(--b1));box-shadow:0 0 22px color-mix(in srgb,var(--bfg1,var(--b1)) 30%,transparent)}
-html[data-theme=vapor] .answer.a2{border-color:var(--bfg2,var(--b2));color:var(--bfg2,var(--b2));box-shadow:0 0 22px color-mix(in srgb,var(--bfg2,var(--b2)) 30%,transparent)}
-html[data-theme=vapor] .answer.a3{border-color:var(--bfg3,var(--b3));color:var(--bfg3,var(--b3));box-shadow:0 0 22px color-mix(in srgb,var(--bfg3,var(--b3)) 30%,transparent)}
+html[data-theme=vapor] .answer{border-color:var(--afg);color:var(--afg);box-shadow:0 0 22px color-mix(in srgb,var(--afg) 30%,transparent)}
 html[data-theme=vapor] .pill{background:rgba(255,255,255,.08);border:1.5px solid var(--tfg,var(--c2));color:var(--tfg,var(--c2));border-radius:999px}
 html[data-theme=vapor] .roomcode{background:rgba(255,255,255,.06);border:2px solid var(--tfg,var(--c2));color:#fff;text-shadow:0 0 18px var(--tfg,var(--c2));backdrop-filter:blur(8px)}
 html[data-theme=vapor] .qtext{font-style:italic;text-shadow:3px 3px 0 color-mix(in srgb,var(--b1) 45%,transparent)}
@@ -612,10 +613,11 @@ html[data-theme=spooky] body{background:radial-gradient(560px 380px at 82% 4%,rg
 html[data-theme=spooky] body::before{content:"";position:fixed;top:26px;right:8%;width:110px;height:110px;border-radius:50%;background:radial-gradient(circle at 38% 34%,#f4efce,#d8d2a4 70%);box-shadow:0 0 60px 18px rgba(240,235,190,.25);opacity:.85;pointer-events:none;z-index:0}
 html[data-theme=spooky] body::after{content:"🕸️";position:fixed;top:-14px;left:-10px;font-size:120px;line-height:1;opacity:.22;pointer-events:none;z-index:0;transform:rotate(-8deg)}
 html[data-theme=spooky] .answer{background:#161022;border:2px solid;border-radius:16px 16px 5px 5px}
-html[data-theme=spooky] .answer.a0{--tilt:-.7deg;border-color:var(--bfg0,var(--b0));color:var(--bfg0,var(--b0));transform:rotate(var(--tilt))}
-html[data-theme=spooky] .answer.a1{--tilt:.6deg;border-color:var(--bfg1,var(--b1));color:var(--bfg1,var(--b1));transform:rotate(var(--tilt))}
-html[data-theme=spooky] .answer.a2{--tilt:.5deg;border-color:var(--bfg2,var(--b2));color:var(--bfg2,var(--b2));transform:rotate(var(--tilt))}
-html[data-theme=spooky] .answer.a3{--tilt:-.6deg;border-color:var(--bfg3,var(--b3));color:var(--bfg3,var(--b3));transform:rotate(var(--tilt))}
+html[data-theme=spooky] .answer{border-color:var(--afg);color:var(--afg);transform:rotate(var(--tilt))}
+html[data-theme=spooky] .answer:is(.a0,.a4,.a8){--tilt:-.7deg}
+html[data-theme=spooky] .answer:is(.a1,.a5,.a9){--tilt:.6deg}
+html[data-theme=spooky] .answer:is(.a2,.a6){--tilt:.5deg}
+html[data-theme=spooky] .answer:is(.a3,.a7){--tilt:-.6deg}
 html[data-theme=spooky] .answer .shape{background:rgba(255,255,255,.1);border-radius:50%;padding:5px}
 html[data-theme=spooky] .qtext{text-shadow:0 0 22px color-mix(in srgb,var(--tfg,var(--c2)) 45%,transparent)}
 html[data-theme=spooky] .pill{background:#161022;border:1.5px solid var(--tfg,var(--c2));color:var(--tfg,var(--c2))}
@@ -649,10 +651,7 @@ html[data-theme=blueprint] .answer.win{outline-color:#fff;border-style:solid}
 html[data-theme=stadium] body{background:radial-gradient(700px 400px at 10% -8%,rgba(255,255,235,.16),transparent 60%),radial-gradient(700px 400px at 90% -8%,rgba(255,255,235,.16),transparent 60%),color-mix(in srgb,var(--c1) 20%,#07240f)}
 html[data-theme=stadium] body::before{content:"";position:fixed;left:0;right:0;bottom:0;height:110px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.05) 0 90px,rgba(0,0,0,.14) 90px 180px),linear-gradient(180deg,#0d3a1c,#0a2e16);border-top:3px solid rgba(255,255,255,.55);pointer-events:none;z-index:0}
 html[data-theme=stadium] .answer{background:#06140b;border:2px solid;border-radius:10px;text-transform:uppercase;letter-spacing:.05em;font-weight:800}
-html[data-theme=stadium] .answer.a0{border-color:var(--bfg0,var(--b0));color:var(--bfg0,var(--b0));box-shadow:0 0 16px color-mix(in srgb,var(--bfg0,var(--b0)) 28%,transparent),inset 0 0 18px rgba(0,0,0,.55)}
-html[data-theme=stadium] .answer.a1{border-color:var(--bfg1,var(--b1));color:var(--bfg1,var(--b1));box-shadow:0 0 16px color-mix(in srgb,var(--bfg1,var(--b1)) 28%,transparent),inset 0 0 18px rgba(0,0,0,.55)}
-html[data-theme=stadium] .answer.a2{border-color:var(--bfg2,var(--b2));color:var(--bfg2,var(--b2));box-shadow:0 0 16px color-mix(in srgb,var(--bfg2,var(--b2)) 28%,transparent),inset 0 0 18px rgba(0,0,0,.55)}
-html[data-theme=stadium] .answer.a3{border-color:var(--bfg3,var(--b3));color:var(--bfg3,var(--b3));box-shadow:0 0 16px color-mix(in srgb,var(--bfg3,var(--b3)) 28%,transparent),inset 0 0 18px rgba(0,0,0,.55)}
+html[data-theme=stadium] .answer{border-color:var(--afg);color:var(--afg);box-shadow:0 0 16px color-mix(in srgb,var(--afg) 28%,transparent),inset 0 0 18px rgba(0,0,0,.55)}
 html[data-theme=stadium] .pill{background:#06140b;border:2px solid var(--tfg,var(--c2));color:var(--tfg,var(--c2));border-radius:8px;text-transform:uppercase;font-size:.8rem;letter-spacing:.06em}
 html[data-theme=stadium] .roomcode{background:#06140b;border:3px solid var(--tfg,var(--c2));color:var(--tfg,var(--c2));border-radius:12px;text-shadow:0 0 14px var(--tfg,var(--c2))}
 html[data-theme=stadium] .qtext{text-transform:uppercase;text-shadow:0 2px 0 rgba(0,0,0,.5)}
@@ -667,10 +666,10 @@ html[data-theme=stadium] .answer.win{outline-color:#fff}
 /* 🤠 Western — parchment, wanted-poster double rules, saloon warmth */
 html[data-theme=western] body{background-color:color-mix(in srgb,var(--c1) 6%,#efe2c4);background-image:radial-gradient(rgba(91,58,30,.09) 1.5px,transparent 1.5px),radial-gradient(700px 320px at 50% 110%,rgba(160,108,54,.32),transparent 70%);background-size:22px 22px,auto}
 html[data-theme=western] .answer{background:#f8eed6;border:3px double #5b3a1e;border-radius:4px;color:#43290f;font-weight:700;box-shadow:3px 4px 0 rgba(75,46,18,.25)}
-html[data-theme=western] .answer.a0{transform:rotate(-.5deg)}
-html[data-theme=western] .answer.a1{transform:rotate(.4deg)}
-html[data-theme=western] .answer.a2{transform:rotate(.3deg)}
-html[data-theme=western] .answer.a3{transform:rotate(-.4deg)}
+html[data-theme=western] .answer:is(.a0,.a4,.a8){transform:rotate(-.5deg)}
+html[data-theme=western] .answer:is(.a1,.a5,.a9){transform:rotate(.4deg)}
+html[data-theme=western] .answer:is(.a2,.a6){transform:rotate(.3deg)}
+html[data-theme=western] .answer:is(.a3,.a7){transform:rotate(-.4deg)}
 html[data-theme=western] .answer .shape{background:#5b3a1e;border-radius:50%;padding:5px}
 html[data-theme=western] .pill{background:#f8eed6;border:2px double #5b3a1e;color:#43290f;border-radius:4px;text-transform:uppercase;letter-spacing:.08em;font-size:.8rem}
 html[data-theme=western] .roomcode{background:#f8eed6;border:4px double #5b3a1e;color:#43290f;border-radius:6px;box-shadow:4px 5px 0 rgba(75,46,18,.2)}
@@ -1313,15 +1312,56 @@ function rgbToHex(r,g,b){ return '#' + [r,g,b].map(v => Math.max(0,Math.min(255,
 function luminance(hex){ const [r,g,b] = hexToRgb(hex).map(v => { v/=255; return v <= .03928 ? v/12.92 : Math.pow((v+.055)/1.055, 2.4); }); return .2126*r + .7152*g + .0722*b; }
 function textOn(hex){ return luminance(hex) > 0.4 ? '#181026' : '#ffffff'; }
 function shade(hex, f){ const [r,g,b] = hexToRgb(hex); return f < 0 ? rgbToHex(r*(1+f), g*(1+f), b*(1+f)) : rgbToHex(r+(255-r)*f, g+(255-g)*f, b+(255-b)*f); }
-function rotateHue(hex, deg){
-  let [r,g,b] = hexToRgb(hex).map(v=>v/255);
-  const max=Math.max(r,g,b), min=Math.min(r,g,b); let h=0,s=0,l=(max+min)/2;
+function toHsl(hex){
+  const [r,g,b] = hexToRgb(hex).map(v=>v/255);
+  const max=Math.max(r,g,b), min=Math.min(r,g,b); let h=0,s=0; const l=(max+min)/2;
   if (max!==min){ const d=max-min; s = l>0.5 ? d/(2-max-min) : d/(max+min);
     h = max===r ? ((g-b)/d + (g<b?6:0)) : max===g ? (b-r)/d + 2 : (r-g)/d + 4; h/=6; }
-  h = (h + deg/360) % 1;
+  return { h, s, l };
+}
+function fromHsl(h, s, l){
+  h = ((h % 1) + 1) % 1;
   const q = l < .5 ? l*(1+s) : l+s-l*s, p = 2*l-q;
   const f = t => { t = (t%1+1)%1; if (t<1/6) return p+(q-p)*6*t; if (t<1/2) return q; if (t<2/3) return p+(q-p)*(2/3-t)*6; return p; };
   return rgbToHex(f(h+1/3)*255, f(h)*255, f(h-1/3)*255);
+}
+function rotateHue(hex, deg){ const { h, s, l } = toHsl(hex); return fromHsl(h + deg/360, s, l); }
+// Distance between two hues on the wheel, the short way round (0….5)
+const hueGap = (a, b) => { const d = Math.abs(a - b) % 1; return Math.min(d, 1 - d); };
+
+/* The host picks four colors, but a long poll needs ten. Rather than
+   inventing hues at random, walk the color wheel: drop each new color
+   into the widest gap between the hues already in play, and let it
+   borrow its saturation and lightness from its nearest neighbour so it
+   reads as part of the same palette. The four picks are never moved, so
+   ordinary questions look exactly as the host chose. A greyscale palette
+   has no hues to spread out, so there we step lightness instead. */
+function expandPalette(base, want){
+  const out = base.slice();
+  // Widest gap in lightness, counting the near-black and near-white ends,
+  // so a palette with no usable hue still yields distinct steps
+  const byLightness = () => {
+    const stops = [.08, ...out.map(c => toHsl(c).l), .92].sort((a, b) => a - b);
+    let widest = -1, at = .5;
+    for (let i = 0; i < stops.length - 1; i++){
+      if (stops[i + 1] - stops[i] > widest){ widest = stops[i + 1] - stops[i]; at = (stops[i] + stops[i + 1]) / 2; }
+    }
+    const { h, s } = toHsl(out[0]);
+    return fromHsl(h, s, at);
+  };
+  while (out.length < want){
+    const hues = out.map(c => toHsl(c).h).sort((a, b) => a - b);
+    let widest = -1, at = 0;
+    for (let i = 0; i < hues.length; i++){
+      const lo = hues[i], hi = i === hues.length - 1 ? hues[0] + 1 : hues[i + 1];
+      if (hi - lo > widest){ widest = hi - lo; at = (lo + (hi - lo) / 2) % 1; }
+    }
+    const near = out.reduce((a, b) => hueGap(toHsl(b).h, at) < hueGap(toHsl(a).h, at) ? b : a);
+    const { s, l } = toHsl(near);
+    // A grey neighbour has no hue worth borrowing — space by lightness there
+    out.push(s < .12 ? byLightness() : fromHsl(at, s, l));
+  }
+  return out;
 }
 const DEFAULT_COLORS = ['#4F2CBD','#FFB800','#FF4E6A','#19C6B2'];
 
@@ -1450,7 +1490,9 @@ function applyTheme(colors){
   r.setProperty('--ink', textOn(c[0]));
   r.setProperty('--c1-deep', shade(c[0], -0.35));
   r.setProperty('--c1-soft', shade(c[0], 0.22));
-  const btns = [c[1], c[2], c[3], shade(c[0], 0.35)];
+  // The first four are the host's own picks and never move; the rest are
+  // spread across the unused parts of the color wheel for long polls.
+  const btns = expandPalette([c[1], c[2], c[3], shade(c[0], 0.35)], ANSWER_COLORS);
   btns.forEach((col,i) => {
     r.setProperty('--b'+i, col); r.setProperty('--t'+i, textOn(col));
     // Neon skins draw the answer TEXT in the button color on a near-black
@@ -1601,11 +1643,17 @@ The Earth is flat.
 - False *
 
 ## Poll | 15s | read 3s | poll
-No wrong answers here — what should we order for the next social?
-- Pizza
-- Tacos
-- Sushi
-- Burgers
+No wrong answers here, and polls can list up to 10 — where would you rather be stranded?
+- A desert island
+- A space station
+- A haunted castle
+- The North Pole
+- A runaway train
+- A lighthouse
+- A submarine
+- A hot air balloon
+- A jungle treehouse
+- Somewhere with wifi
 
 ## Closest guess | 20s | read 3s | closest
 Type a number, nearest wins: how many bones are in the adult human body?
@@ -1642,8 +1690,8 @@ function scoreFor(elapsed, duration){
 /* Answer shapes (the QuizDash signature — chunky white glyphs) */
 // The first four are the classic set and never move — a two-to-four-option
 // question looks exactly as it always has. The rest only ever appear on
-// polls, which may run to POLL_MAX options; colors cycle every four, so
-// the shape is what tells options 5–10 apart.
+// polls, which may run to POLL_MAX options and get their own colors too
+// (see expandPalette), so shape and color both stay unique to an option.
 const SHAPES = [
   '<svg viewBox="0 0 32 32"><path d="M18 2 6 18h8l-2 12L26 13h-9l3-11z" fill="#fff"/></svg>',                     // bolt
   '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="12" fill="#fff"/></svg>',                                  // circle
@@ -1657,9 +1705,8 @@ const SHAPES = [
   '<svg viewBox="0 0 32 32"><path d="M16 3l13 9.4-5 15.3H8L3 12.4z" fill="#fff"/></svg>'                          // pentagon
 ];
 const POLL_MAX = 10;   // polls may list this many options; every other type stays at 4
-// Options past the fourth reuse the four answer colors in order — themes
-// only style .answer.a0–a3, so cycling keeps all fourteen skins working.
-const optColor = i => i % 4;
+const ANSWER_COLORS = 10;  // --b0…--b9, the first four straight from the host's picks
+const optColor = i => i % ANSWER_COLORS;
 /* ════════════════ CONFETTI (tiny, dependency-free) ════════════════ */
 const Confetti = {
   parts: [], running: false,
