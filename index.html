@@ -693,6 +693,52 @@ html[data-theme=western] .boardrow .rank{color:#8a5a2b}
 html[data-theme=western] .chip{background:#f8eed6;color:#43290f;border:2px double #5b3a1e;border-radius:4px}
 html[data-theme=western] .answer.win{outline-color:#43290f}
 
+/* Deep Sea — sunlight shafts through cold water, glassy cards adrift */
+html[data-theme=deepsea] body{background:radial-gradient(900px 520px at 50% -14%,rgba(120,232,255,.18),transparent 62%),linear-gradient(180deg,#04263b 0%,#03192b 55%,#02101d 100%)}
+html[data-theme=deepsea] body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;background:repeating-linear-gradient(101deg,rgba(160,240,255,.055) 0 3px,transparent 3px 30px)}
+html[data-theme=deepsea] .answer{background:rgba(9,58,86,.55);border:1px solid rgba(160,240,255,.26);border-left:7px solid var(--ac);border-radius:24px;backdrop-filter:blur(9px);box-shadow:0 12px 34px rgba(0,0,0,.42),inset 0 1px 0 rgba(200,250,255,.2);color:#dff6ff}
+html[data-theme=deepsea] .answer .shape{background:rgba(200,250,255,.14);border-radius:50%;padding:5px}
+html[data-theme=deepsea] .pill{background:rgba(9,58,86,.6);border:1px solid rgba(160,240,255,.32);color:#dff6ff;border-radius:999px}
+html[data-theme=deepsea] .roomcode{background:rgba(9,58,86,.5);border:2px solid rgba(160,240,255,.45);border-radius:20px;text-shadow:0 0 18px rgba(160,240,255,.6)}
+html[data-theme=deepsea] .qtext{text-shadow:0 0 26px rgba(120,232,255,.4)}
+html[data-theme=deepsea] .timernum{color:var(--tfg,var(--c2));text-shadow:0 0 16px var(--tfg,var(--c2))}
+html[data-theme=deepsea] .timerbar{background:rgba(160,240,255,.14);border:1px solid rgba(160,240,255,.3)}
+html[data-theme=deepsea] .btn{border-radius:999px}
+html[data-theme=deepsea] .boardrow{background:rgba(9,58,86,.55);color:#dff6ff;border:1px solid rgba(160,240,255,.26);border-radius:18px;backdrop-filter:blur(6px)}
+html[data-theme=deepsea] .chip{background:rgba(9,58,86,.6);color:#dff6ff;border:1px solid rgba(160,240,255,.3)}
+html[data-theme=deepsea] .answer.win{outline-color:#dff6ff}
+
+/* Film Noir — hard white light on black, colour only as a slab of ink */
+html[data-theme=noir] body{background:radial-gradient(760px 480px at 20% -12%,rgba(255,255,255,.16),transparent 58%),#101010}
+html[data-theme=noir] body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;background:repeating-linear-gradient(38deg,rgba(255,255,255,.035) 0 1px,transparent 1px 4px),repeating-linear-gradient(-52deg,rgba(0,0,0,.09) 0 1px,transparent 1px 3px)}
+html[data-theme=noir] .answer{background:#f4f4f4;color:#101010;border:0;border-left:11px solid var(--ac);border-radius:0;box-shadow:9px 9px 0 rgba(0,0,0,.6);text-transform:uppercase;letter-spacing:.04em;font-weight:800}
+html[data-theme=noir] .answer .shape{background:#101010;border-radius:0;padding:5px}
+html[data-theme=noir] .pill{background:#f4f4f4;color:#101010;border-radius:0;font-weight:800;letter-spacing:.05em;text-transform:uppercase}
+html[data-theme=noir] .roomcode{background:#f4f4f4;color:#101010;border:0;border-radius:0;box-shadow:9px 9px 0 rgba(0,0,0,.6)}
+html[data-theme=noir] .qtext{text-transform:uppercase;letter-spacing:.02em;text-shadow:0 3px 18px rgba(0,0,0,.9)}
+html[data-theme=noir] .timernum{color:#f4f4f4;font-variant-numeric:tabular-nums}
+html[data-theme=noir] .timerbar{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.5);border-radius:0}
+html[data-theme=noir] .timerbar>div{border-radius:0}
+html[data-theme=noir] .btn{border-radius:0;text-transform:uppercase;letter-spacing:.06em;box-shadow:6px 6px 0 rgba(0,0,0,.6)}
+html[data-theme=noir] .boardrow{background:#f4f4f4;color:#101010;border-radius:0;box-shadow:6px 6px 0 rgba(0,0,0,.5)}
+html[data-theme=noir] .chip{background:#f4f4f4;color:#101010;border-radius:0;font-weight:800}
+html[data-theme=noir] .answer.win{outline-color:#f4f4f4}
+
+/* Disco — mirror-ball spotlights and glossy pill buttons */
+html[data-theme=disco] body{background:radial-gradient(620px 440px at 14% -10%,rgba(255,86,214,.32),transparent 60%),radial-gradient(620px 440px at 86% -10%,rgba(255,201,74,.3),transparent 60%),radial-gradient(760px 520px at 50% 112%,rgba(104,72,255,.38),transparent 62%),#1b0726}
+html[data-theme=disco] body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;background:radial-gradient(circle at 12% 22%,rgba(255,255,255,.5) 0 1px,transparent 2px),radial-gradient(circle at 68% 12%,rgba(255,255,255,.45) 0 1px,transparent 2px),radial-gradient(circle at 34% 74%,rgba(255,255,255,.4) 0 1px,transparent 2px),radial-gradient(circle at 88% 62%,rgba(255,255,255,.45) 0 1px,transparent 2px);background-size:220px 220px,300px 300px,260px 260px,340px 340px}
+html[data-theme=disco] .answer{border-radius:999px;background:linear-gradient(165deg,color-mix(in srgb,var(--ac) 82%,#fff),var(--ac));box-shadow:0 7px 0 rgba(0,0,0,.38),0 0 28px color-mix(in srgb,var(--ac) 45%,transparent),inset 0 2px 4px rgba(255,255,255,.45)}
+html[data-theme=disco] .answer .shape{background:rgba(255,255,255,.32);border-radius:50%;padding:5px}
+html[data-theme=disco] .pill{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.4);color:#ffe9fb;border-radius:999px}
+html[data-theme=disco] .roomcode{background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.45);border-radius:999px;text-shadow:0 0 20px rgba(255,140,240,.8)}
+html[data-theme=disco] .qtext{text-shadow:0 0 30px rgba(255,120,230,.5)}
+html[data-theme=disco] .timernum{color:var(--tfg,var(--c2));text-shadow:0 0 16px var(--tfg,var(--c2))}
+html[data-theme=disco] .timerbar{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.35)}
+html[data-theme=disco] .btn{border-radius:999px}
+html[data-theme=disco] .boardrow{background:rgba(255,255,255,.12);color:#ffe9fb;border:1px solid rgba(255,255,255,.32);border-radius:999px;backdrop-filter:blur(6px)}
+html[data-theme=disco] .chip{background:rgba(255,255,255,.14);color:#ffe9fb;border:1px solid rgba(255,255,255,.38)}
+html[data-theme=disco] .answer.win{outline-color:#fff}
+
 /* ── WHIMSY: hover reactions ─────────────────────────────────────────────
    Purely decorative play for mouse users (hover-capable, fine pointer);
    touch screens skip it and prefers-reduced-motion collapses it globally.
@@ -740,6 +786,9 @@ html[data-theme=western] .answer.win{outline-color:#43290f}
   html[data-theme=blueprint] .answer:hover:not(:active){background:rgba(255,255,255,.12);border-style:solid}
   html[data-theme=stadium] .answer:hover:not(:active){transform:translateY(-4px);filter:brightness(1.35)}
   html[data-theme=western] .answer:hover:not(:active){transform:rotate(0deg) translateY(-3px)}
+  html[data-theme=deepsea] .answer:hover:not(:active){transform:translateY(-5px);box-shadow:0 18px 44px rgba(0,0,0,.5),inset 0 1px 0 rgba(200,250,255,.28)}
+  html[data-theme=noir] .answer:hover:not(:active){transform:translate(-3px,-3px);box-shadow:13px 13px 0 rgba(0,0,0,.6)}
+  html[data-theme=disco] .answer:hover:not(:active){animation:jelly .55s;filter:brightness(1.12) saturate(1.2)}
 }
 
 /* ── Misc ───────────────────────────────────────────────────────────────── */
@@ -873,6 +922,9 @@ html[data-theme=western] .answer.win{outline-color:#43290f}
         <option value="blueprint">📐 Blueprint</option>
         <option value="stadium">⚽ Stadium</option>
         <option value="western">🤠 Western</option>
+        <option value="deepsea">🐙 Deep Sea</option>
+        <option value="noir">🕵️ Film Noir</option>
+        <option value="disco">🪩 Disco</option>
       </select></div>
       <div class="row" style="align-items:stretch">
         <div style="flex:1;min-width:170px" class="field"><label for="font-display">Display font (headings)</label><select class="fontsel" id="font-display"></select></div>
@@ -1365,7 +1417,7 @@ const DEFAULT_COLORS = ['#4F2CBD','#FFB800','#FF4E6A','#19C6B2'];
 /* Structural skins (see the THEMES CSS block). Colors and fonts from the
    pickers keep applying inside every theme. Whitelist-validated because
    the name travels through the database to players. */
-const THEMES = ['classic','arcade','nintendo','doodle','editorial','brutalist','aurora','terminal','candy','vapor','spooky','blueprint','stadium','western'];
+const THEMES = ['classic','arcade','nintendo','doodle','editorial','brutalist','aurora','terminal','candy','vapor','spooky','blueprint','stadium','western','deepsea','noir','disco'];
 let currentTheme = 'classic';
 function applyLook(colors, theme){
   applyTheme(colors);
@@ -1390,6 +1442,7 @@ function applyLook(colors, theme){
     nintendo: '#12263c',
     vapor: '#ffe9f8', spooky: '#f2e9d8', blueprint: '#eaf3ff',
     stadium: '#eefff2', western: '#3d2410',
+    deepsea: '#dff6ff', noir: '#f5f5f5', disco: '#ffe9fb',
     brutalist: textOn(c[1])
   }[theme];
   if (ink) r.setProperty('--ink', ink);
@@ -1408,14 +1461,17 @@ const THEME_DECOR = {
   aurora:['✨','⭐','🌠','🪐'], terminal:['>','$','101','//'],
   candy:['🍬','🍭','🧁','🍩'], vapor:['🌴','📼','🕶️','🛼'],
   spooky:['🎃','🧹','🐈‍⬛','👻','🦇','🕷️'], blueprint:['📐','📏','✏️','🔩'],
-  stadium:['⚽','🏆','🎺','📣','🥅'], western:['🤠','🌵','🐎','⭐','🌾']
+  stadium:['⚽','🏆','🎺','📣','🥅'], western:['🤠','🌵','🐎','⭐','🌾'],
+  deepsea:['🐙','🐠','🫧','🐚','🪸','🐋'], noir:['🕵️','🚬','🎩','🗝️','☂️'],
+  disco:['🪩','✨','🕺','💃','🎶']
 };
 
 /* What the avatar racetrack races toward, per theme */
 const THEME_FINISH = {
   classic:'🏁', arcade:'🏁', nintendo:'🏰', doodle:'🎯', editorial:'🗞️',
   brutalist:'⬛', aurora:'🌟', terminal:'█', candy:'🍭', vapor:'🌅',
-  spooky:'⚰️', blueprint:'📐', stadium:'🥅', western:'💰'
+  spooky:'⚰️', blueprint:'📐', stadium:'🥅', western:'💰',
+  deepsea:'🐋', noir:'🗝️', disco:'🪩'
 };
 
 /* Rivalry whispers, in each theme's voice. {n} = rival name, {g} = gap. */
@@ -1433,7 +1489,10 @@ const THEME_VOICE = {
   spooky:   { lead:'👑 The graveyard is yours… for now.', passed:'👻 You spooked right past {n}!', chase:'🦇 {n} floats {g} pts ahead — haunt them!', guard:'🎃 {n} lurks {g} pts behind you… don’t look back!' },
   blueprint:{ lead:'📐 FIG. 1: you, at the top.', passed:'📏 You now measure above {n}.', chase:'✏️ {n}: +{g} pts. Revise your estimate.', guard:'🔩 {n}: −{g} pts. Reinforce your lead.' },
   stadium:  { lead:'🏆 Top of the table — defend the title!', passed:'⚽ You nutmegged {n}!', chase:'📣 {n} leads by {g} — press higher!', guard:'🥅 {n} is {g} behind — park the bus!' },
-  western:  { lead:'🤠 Fastest gun in the west!', passed:'🐎 You outdrew {n}!', chase:'🌵 {n} rides {g} pts ahead — giddy up!', guard:'⭐ {n} is {g} back — watch yourself, partner!' }
+  western:  { lead:'🤠 Fastest gun in the west!', passed:'🐎 You outdrew {n}!', chase:'🌵 {n} rides {g} pts ahead — giddy up!', guard:'⭐ {n} is {g} back — watch yourself, partner!' },
+  deepsea:  { lead:'🐋 Top of the food chain down here.', passed:'🐙 You slipped past {n} in the dark.', chase:'🫧 {n} drifts {g} pts above — rise!', guard:'🦈 {n} is {g} pts below… something is circling.' },
+  noir:     { lead:'🕵️ You’re the prime suspect. In first.', passed:'🚬 {n} never saw you coming.', chase:'🗝️ {n} is {g} pts ahead. Follow the lead.', guard:'☂️ {n} trails by {g}. Watch your back.' },
+  disco:    { lead:'🪩 You own this dancefloor!', passed:'🕺 You spun right past {n}!', chase:'✨ {n} is {g} pts hotter — turn it up!', guard:'💃 {n} is {g} pts behind — keep the groove!' }
 };
 function renderDecor(theme){
   const layer = document.getElementById('decor');
@@ -1451,7 +1510,8 @@ function renderDecor(theme){
 const THEME_ICONS = {
   classic:'⚡', arcade:'🕹️', nintendo:'🍄', doodle:'✏️', editorial:'📰',
   brutalist:'🚧', aurora:'🌌', terminal:'💻', candy:'🍬',
-  vapor:'🌴', spooky:'🎃', blueprint:'📐', stadium:'⚽', western:'🤠'
+  vapor:'🌴', spooky:'🎃', blueprint:'📐', stadium:'⚽', western:'🤠',
+  deepsea:'🐙', noir:'🕵️', disco:'🪩'
 };
 function setFavicon(colors, theme){
   try {
@@ -1462,7 +1522,8 @@ function setFavicon(colors, theme){
       editorial:'#fafaf6', doodle:'#fbf5e9', nintendo:'#a8d8ff',
       candy:'#fbe3ee', brutalist:c[1],
       vapor:'#2d1157', spooky:'#120a1c', blueprint:'#0e3a66',
-      stadium:'#0b3d1f', western:'#efe2c4'
+      stadium:'#0b3d1f', western:'#efe2c4',
+      deepsea:'#04263b', noir:'#101010', disco:'#1b0726'
     }[theme] || c[0];
     const cv = document.createElement('canvas');
     cv.width = cv.height = 64;
@@ -1830,6 +1891,30 @@ const SFX = {
     o.connect(g).connect(c.destination);
     o.start(t); o.stop(t + dur + .05);
   },
+  // Filtered noise burst — the raw material for hats, snares and shakers
+  noise(at, dur, vol, hz = 6000, type = 'highpass'){
+    const c = this.ctx; if (!c) return;
+    const t = c.currentTime + at;
+    const n = Math.max(1, Math.floor(c.sampleRate * dur));
+    const buf = c.createBuffer(1, n, c.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
+    const src = c.createBufferSource(); src.buffer = buf;
+    const f = c.createBiquadFilter(); f.type = type; f.frequency.value = hz;
+    const g = c.createGain();
+    g.gain.setValueAtTime(Math.max(.0001, vol), t);
+    g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    src.connect(f).connect(g).connect(c.destination);
+    src.start(t); src.stop(t + dur + .02);
+  },
+  // One character per step in a theme's `drums` pattern
+  drum(kind, at, vol){
+    if (kind === 'k'){ this.tone(125, at, .17, 'sine', vol * 1.7, -90); }          // kick
+    else if (kind === 's'){ this.noise(at, .13, vol, 1900, 'bandpass'); this.tone(190, at, .09, 'triangle', vol * .5, -70); } // snare / clap
+    else if (kind === 'h'){ this.noise(at, .04, vol * .55, 7500); }                // closed hat
+    else if (kind === 'H'){ this.noise(at, .15, vol * .5, 6500); }                 // open hat
+    else if (kind === 'c'){ this.noise(at, .5, vol * .45, 4000); }                 // shaker swell
+  },
   play(name){ if (this.muted || !this.ensure()) return; (this.bank[name] || (() => {}))(); },
   bank: {
     join(){ SFX.tone(520, 0, .09, 'triangle', .14); SFX.tone(780, .07, .13, 'triangle', .14); },
@@ -1861,77 +1946,164 @@ document.addEventListener('pointerdown', () => SFX.ensure());
    while waiting. Each theme gets its own tune — same engine, different
    spec: tempo (ms per step), waveform, 4-bar chord progression (arps),
    an 8-step riff pattern (null = rest), and a bass line. */
+/* ── Music engine ─────────────────────────────────────────────────────────
+   Each theme is a small arrangement, not a jingle. A bar is 8 steps; the
+   chord walks through `arps` one bar at a time, while `riff` (the melody)
+   runs at its own length — 32 steps against 4 bars means the tune never
+   repeats inside a loop. Riff values 0–3 pick a chord tone, 4–7 the same
+   tone an octave up. Optional layers: `harm` (counter-melody), `bassPat`
+   (a stepped bassline instead of one note per bar, as multiples of the
+   bar's root), `drums` (one character per step) and `swing` (how late the
+   off-beats land). Everything optional defaults to the old behaviour. */
 SFX.MUSIC = {
-  // Gentle C–Am–F–G arpeggios over a soft bass (the original loop)
-  classic:  { ms:240, wave:'triangle', vol:.09, len:.26, bassWave:'sine', bassVol:.11, fifth:true,
-              bass:[130.8,110,87.3,98], riff:[0,1,2,3,2,1,3,1],
+  // Gentle C–Am–F–G, a wandering top line over soft thirds
+  classic:  { ms:240, wave:'triangle', vol:.085, len:.26, bassWave:'sine', bassVol:.11, fifth:true,
+              bass:[130.8,110,87.3,98],
+              riff:[0,2,4,2, 3,1,2,null, 1,3,5,3, 2,0,1,null, 0,2,4,6, 5,4,2,null, 3,1,2,0, 1,null,null,null],
+              harm:[0,null,null,null, 2,null,null,null], harmOct:.5, harmVol:.05, harmWave:'sine', harmLen:.9,
+              drums:'..h...h.', drumVol:.028,
               arps:[[261.6,329.6,392,523.3],[220,261.6,329.6,440],[174.6,220,261.6,349.2],[196,246.9,293.7,392]] },
-  // Driving minor-key chiptune, fast square-wave eighths
+  // Driving minor chiptune with a proper backbeat
   arcade:   { ms:150, wave:'square', vol:.05, len:.12, bassWave:'square', bassVol:.05, fifth:true,
-              bass:[110,87.3,130.8,98], riff:[0,2,1,3,0,2,3,2],
+              bass:[110,87.3,130.8,98],
+              riff:[0,4,2,5, 3,null,2,1, 4,6,5,4, 2,null,1,0, 0,4,2,5, 7,6,5,4, 3,2,1,2, 3,null,2,null],
+              harm:[null,null,2,null,null,null,0,null], harmOct:.5, harmVol:.022, harmWave:'square',
+              drums:'k.h.s.h.', drumVol:.05,
               arps:[[220,261.6,329.6,440],[174.6,220,261.6,349.2],[261.6,329.6,392,523.3],[196,246.9,293.7,392]] },
-  // Bouncy overworld major with skipped beats for swing
-  nintendo: { ms:170, wave:'square', vol:.05, len:.13, bassWave:'triangle', bassVol:.09, fifth:true,
-              bass:[130.8,98,110,87.3], riff:[0,2,null,3,2,null,1,2],
+  // Bouncy overworld skip, swung, with a light shuffle beat
+  nintendo: { ms:170, wave:'square', vol:.05, len:.13, bassWave:'triangle', bassVol:.09, fifth:true, swing:.14,
+              bass:[130.8,98,110,87.3],
+              riff:[0,null,2,4, null,3,2,null, 1,null,3,5, null,4,3,null, 0,null,2,4, 6,5,4,2, 1,2,3,null, 2,null,null,null],
+              harm:[0,null,null,null,2,null,null,null], harmOct:.5, harmVol:.03, harmWave:'triangle',
+              drums:'k..h.k.h', drumVol:.04,
               arps:[[261.6,329.6,392,523.3],[196,246.9,293.7,392],[220,261.6,329.6,440],[174.6,220,261.6,349.2]] },
-  // Whimsical wandering pentatonic, unhurried
-  doodle:   { ms:300, wave:'triangle', vol:.08, len:.3, bassWave:'sine', bassVol:.1,
-              bass:[130.8,110,87.3,98], riff:[0,2,1,3,null,2,0,1],
+  // Whimsical pentatonic wandering, no percussion — it should feel unhurried
+  doodle:   { ms:300, wave:'triangle', vol:.075, len:.3, bassWave:'sine', bassVol:.1,
+              bass:[130.8,110,87.3,98],
+              riff:[0,2,null,1, 3,null,2,null, 1,0,null,2, 3,2,null,null, 0,1,2,3, null,4,2,null, 3,null,1,0, null,2,null,null],
+              harm:[null,null,null,0,null,null,null,2], harmOct:.5, harmVol:.035, harmWave:'sine', harmLen:.8,
               arps:[[261.6,293.7,392,440],[220,261.6,293.7,329.6],[174.6,220,261.6,293.7],[196,220,246.9,293.7]] },
-  // Sparse, calm seventh-chord tones with lots of air
+  // Sparse sevenths with lots of air — a slow pad answers the melody
   editorial:{ ms:420, wave:'sine', vol:.07, len:.8, bassWave:'sine', bassVol:.08,
-              bass:[130.8,87.3,110,98], riff:[0,null,2,null,3,null,1,null],
+              bass:[130.8,87.3,110,98],
+              riff:[0,null,null,null, 2,null,3,null, 1,null,null,null, 4,null,2,null, 3,null,null,null, 1,null,2,null, 0,null,null,null, null,null,null,null],
+              harm:[2,null,null,null,null,null,null,null], harmOct:.5, harmVol:.04, harmWave:'sine', harmLen:2.6,
               arps:[[261.6,329.6,392,493.9],[174.6,261.6,329.6,440],[220,261.6,329.6,493.9],[196,246.9,293.7,392]] },
-  // Stark low sawtooth pulses over a sub-bass thud
+  // Stark sawtooth pulses over a sub thud, now with a hammering beat
   brutalist:{ ms:200, wave:'sawtooth', vol:.045, len:.09, bassWave:'square', bassVol:.07,
-              bass:[55,43.7,49,41.2], riff:[0,0,null,1,0,null,2,3],
+              bass:[55,43.7,49,41.2],
+              riff:[0,null,0,null, 1,null,null,2, 0,null,0,null, 3,null,2,null],
+              drums:'k...k..s', drumVol:.065,
               arps:[[110,130.8,146.8,164.8],[87.3,110,130.8,146.8],[98,110,146.8,164.8],[82.4,110,123.5,164.8]] },
-  // Slow overlapping sine pads, dreamy seventh chords
-  aurora:   { ms:620, wave:'sine', vol:.06, len:2.4, bassWave:'sine', bassVol:.07,
-              bass:[130.8,110,87.3,98], riff:[0,null,2,null,1,null,3,null],
+  // Slow overlapping pads, a shimmer an octave up, no rhythm at all
+  aurora:   { ms:620, wave:'sine', vol:.055, len:2.4, bassWave:'sine', bassVol:.07,
+              bass:[130.8,110,87.3,98],
+              riff:[0,null,2,null, 1,null,3,null, 4,null,2,null, 3,null,1,null, 2,null,5,null, 3,null,1,null, 0,null,2,null, null,null,null,null],
+              harm:[null,null,null,null,6,null,null,null], harmOct:1, harmVol:.028, harmWave:'sine', harmLen:3.2,
               arps:[[261.6,329.6,392,493.9],[220,261.6,329.6,392],[174.6,220,261.6,329.6],[196,246.9,293.7,392]] },
-  // Sparse minor-pentatonic blips over a low drone
+  // Sparse minor blips over a drone, with a faint machine tick
   terminal: { ms:220, wave:'square', vol:.04, len:.07, bassWave:'sawtooth', bassVol:.05,
-              bass:[55,55,65.4,49], riff:[0,null,2,0,null,3,null,1],
+              bass:[55,55,65.4,49],
+              riff:[0,null,2,0, null,3,null,1, 2,null,4,2, null,1,null,3, 0,null,2,0, null,5,4,null, 3,null,1,null, 2,null,null,null],
+              drums:'h.......', drumVol:.02,
               arps:[[220,261.6,293.7,392],[293.7,329.6,392,440],[220,261.6,329.6,392],[196,220,261.6,293.7]] },
-  // Sweet music-box arpeggios an octave up
-  candy:    { ms:210, wave:'sine', vol:.09, len:.45, bassWave:'triangle', bassVol:.07, fifth:true,
-              bass:[261.6,220,174.6,196], riff:[0,1,2,3,2,3,1,0],
+  // Music-box arpeggios with a soft shaker keeping time
+  candy:    { ms:210, wave:'sine', vol:.085, len:.45, bassWave:'triangle', bassVol:.07, fifth:true,
+              bass:[261.6,220,174.6,196],
+              riff:[0,1,2,3, 4,3,2,1, 2,3,4,5, 3,2,1,null, 0,2,4,6, 5,4,3,2, 1,2,3,4, 2,null,null,null],
+              harm:[0,null,null,null,2,null,null,null], harmOct:.5, harmVol:.035, harmWave:'triangle', harmLen:.7,
+              drums:'..h...h.', drumVol:.025,
               arps:[[523.3,659.3,784,1046.5],[440,523.3,659.3,880],[349.2,440,523.3,698.5],[392,493.9,587.3,784]] },
-  // Slow dreamy synthwave: long soft saw pads over a sunset bass
-  vapor:    { ms:480, wave:'sawtooth', vol:.04, len:1.8, bassWave:'sine', bassVol:.09,
-              bass:[130.8,110,87.3,98], riff:[0,null,1,null,2,null,3,1],
+  // Sunset synthwave: long saw pads, a lazy beat, off-beats pushed late
+  vapor:    { ms:480, wave:'sawtooth', vol:.04, len:1.8, bassWave:'sine', bassVol:.09, swing:.1,
+              bass:[130.8,110,87.3,98],
+              riff:[0,null,1,null, 2,null,3,1, 4,null,3,null, 2,null,1,null, 5,null,4,null, 3,null,2,1, 0,null,2,null, null,null,null,null],
+              harm:[null,null,null,null,0,null,null,null], harmOct:.5, harmVol:.035, harmWave:'sawtooth', harmLen:2.2,
+              drums:'k...s...', drumVol:.05,
               arps:[[261.6,329.6,392,493.9],[220,261.6,329.6,392],[174.6,220,261.6,329.6],[196,246.9,293.7,349.2]] },
-  // Creepy minor waltz over a chromatic downward-creeping bass
+  // Creepy minor waltz, chromatic bass creeping down, a distant knock
   spooky:   { ms:340, wave:'triangle', vol:.07, len:.5, bassWave:'sawtooth', bassVol:.045,
-              bass:[55,51.9,49,46.2], riff:[0,null,1,0,2,null,1,3],
+              bass:[55,51.9,49,46.2],
+              riff:[0,null,1,0, 2,null,1,3, 2,null,3,2, 4,null,3,1, 0,null,1,0, 5,null,4,3, 2,null,1,null, 0,null,null,null],
+              harm:[null,null,null,null,null,null,0,null], harmOct:.5, harmVol:.03, harmWave:'triangle', harmLen:1.1,
+              drums:'..k.....', drumVol:.035,
               arps:[[220,261.6,311.1,329.6],[207.7,246.9,311.1,415.3],[174.6,207.7,246.9,293.7],[164.8,196,233.1,311.1]] },
-  // Precise little sonar pings, drafting-table calm
+  // Precise sonar pings on a drafting-table pulse
   blueprint:{ ms:230, wave:'square', vol:.03, len:.06, bassWave:'sine', bassVol:.07,
-              bass:[98,110,130.8,87.3], riff:[0,null,1,null,2,3,null,1],
+              bass:[98,110,130.8,87.3],
+              riff:[0,null,1,null, 2,3,null,1, 4,null,3,null, 2,1,null,0, 0,null,1,null, 5,4,null,3, 2,null,1,null, 0,null,null,null],
+              drums:'..h..h..', drumVol:.022,
               arps:[[392,440,523.3,587.3],[440,493.9,587.3,659.3],[523.3,587.3,659.3,784],[349.2,392,440,523.3]] },
-  // Terrace chant: stomp-stomp-brass over a driving low pulse
+  // Terrace chant: stomp-stomp-brass over claps
   stadium:  { ms:240, wave:'square', vol:.055, len:.12, bassWave:'sawtooth', bassVol:.07, fifth:true,
-              bass:[98,98,110,87.3], riff:[0,0,2,null,1,1,3,null],
+              bass:[98,98,110,87.3],
+              riff:[0,0,2,null, 1,1,3,null, 4,4,2,null, 3,3,1,null, 0,0,2,null, 5,4,3,2, 1,1,3,null, 2,null,null,null],
+              harm:[0,0,null,null,2,2,null,null], harmOct:.5, harmVol:.028, harmWave:'square',
+              drums:'k.s.k.ss', drumVol:.055,
               arps:[[261.6,329.6,392,523.3],[293.7,370,440,587.3],[261.6,329.6,392,523.3],[220,277.2,329.6,440]] },
-  // Saloon piano: quick oom-pah ragtime bounce
-  western:  { ms:190, wave:'triangle', vol:.085, len:.16, bassWave:'triangle', bassVol:.09, fifth:true,
-              bass:[130.8,98,130.8,87.3], riff:[0,2,1,3,0,2,3,1],
-              arps:[[261.6,329.6,392,523.3],[246.9,293.7,392,493.9],[261.6,329.6,392,523.3],[220,261.6,349.2,440]] }
+  // Saloon ragtime: swung right hand over a proper oom-pah left hand
+  western:  { ms:190, wave:'triangle', vol:.08, len:.16, bassWave:'triangle', bassVol:.085, swing:.16,
+              bass:[130.8,98,130.8,87.3],
+              bassPat:[1,null,1.5,null,1,null,1.5,null], bassLen:.22,
+              riff:[0,2,1,3, 4,3,2,1, 0,2,3,5, 4,2,1,null, 0,2,1,3, 6,5,4,3, 2,1,2,3, 1,null,null,null],
+              drums:'..h...h.', drumVol:.03,
+              arps:[[261.6,329.6,392,523.3],[246.9,293.7,392,493.9],[261.6,329.6,392,523.3],[220,261.6,349.2,440]] },
+  // Deep sea: slow sine swells, a shimmer far above, the odd drip
+  deepsea:  { ms:520, wave:'sine', vol:.055, len:2.1, bassWave:'sine', bassVol:.085,
+              bass:[98,87.3,73.4,82.4],
+              riff:[0,null,2,null, null,3,null,null, 1,null,3,null, null,2,null,null, 4,null,2,null, null,5,null,3, 2,null,1,null, null,null,null,null],
+              harm:[null,null,null,null,null,null,6,null], harmOct:1, harmVol:.022, harmWave:'sine', harmLen:2.8,
+              arps:[[196,233.1,293.7,349.2],[174.6,220,261.6,329.6],[146.8,174.6,220,261.6],[164.8,196,246.9,293.7]],
+              drums:'.......h', drumVol:.014 },
+  // Smoky jazz club: swung melody, brushed hats, a walking bass
+  noir:     { ms:250, wave:'triangle', vol:.055, len:.34, bassWave:'triangle', bassVol:.075, swing:.3,
+              bass:[73.4,98,65.4,55],
+              bassPat:[1,null,1.33,null,1.5,null,1.78,null], bassLen:.3,
+              riff:[0,null,2,3, null,1,2,null, 4,null,3,2, null,1,null,0, 2,null,3,4, null,5,3,null, 1,null,2,1, 0,null,null,null],
+              harm:[null,null,null,null,2,null,null,null], harmOct:.5, harmVol:.028, harmWave:'sine', harmLen:1.1,
+              arps:[[146.8,174.6,220,261.6],[196,246.9,293.7,349.2],[130.8,164.8,196,246.9],[110,138.6,164.8,196]],
+              drums:'h.hh.h.s', drumVol:.03 },
+  // Mirror-ball disco: four on the floor, open hats, octave bass
+  disco:    { ms:190, wave:'sawtooth', vol:.042, len:.13, bassWave:'triangle', bassVol:.08,
+              bass:[110,130.8,146.8,98],
+              bassPat:[1,null,2,null,1,null,2,null], bassLen:.16,
+              riff:[0,null,4,2, null,3,null,null, 1,null,5,3, null,2,null,null, 4,6,5,4, 2,null,3,null, 1,2,3,4, 2,null,null,null],
+              harm:[null,null,null,null,0,null,2,null], harmOct:1, harmVol:.022, harmWave:'square',
+              arps:[[220,261.6,329.6,392],[261.6,329.6,392,493.9],[293.7,349.2,440,523.3],[196,246.9,293.7,392]],
+              drums:'kHkHkHkH', drumVol:.045 }
 };
 SFX.musicInt = null;
 SFX.startMusic = function(theme){
   if (this.musicInt || !this.ensure()) return;
   const m = this.MUSIC[theme] || this.MUSIC.classic;
   const barSecs = m.ms * 8 / 1000;
+  const swing = (m.swing || 0) * m.ms / 1000;   // how late the off-beats land
   let step = 0;
   this.musicInt = setInterval(() => {
     if (this.ctx && this.ctx.state !== 'running') this.ensure(); // keep nudging until audio wakes
     if (!this.muted && this.ctx && this.ctx.state === 'running'){
-      const bar = Math.floor(step / 8) % m.arps.length, pos = step % 8, n = m.riff[pos];
-      if (n != null) this.tone(m.arps[bar][n], 0, m.len, m.wave, m.vol);
-      if (pos === 0) this.tone(m.bass[bar], 0, barSecs * .85, m.bassWave, m.bassVol);
-      if (m.fifth && pos === 4) this.tone(m.bass[bar] * 1.5, 0, barSecs * .4, m.bassWave, m.bassVol * .55);
+      const bar = Math.floor(step / 8) % m.arps.length, pos = step % 8;
+      const chord = m.arps[bar];
+      const at = (pos % 2) ? swing : 0;
+      const accent = pos === 0 ? 1.3 : pos === 4 ? 1.12 : 1;   // lean on the downbeats
+      const pitch = v => chord[v % chord.length] * (v >= chord.length ? 2 : 1);
+      const n = m.riff[step % m.riff.length];
+      if (n != null) this.tone(pitch(n), at, m.len, m.wave, m.vol * accent);
+      if (m.harm){
+        const h = m.harm[step % m.harm.length];
+        if (h != null) this.tone(pitch(h) * (m.harmOct || 1), at, m.harmLen || m.len, m.harmWave || m.wave, m.harmVol || m.vol * .45);
+      }
+      if (m.bassPat){
+        const b = m.bassPat[step % m.bassPat.length];
+        if (b != null) this.tone(m.bass[bar] * b, at, m.bassLen || m.ms / 1000 * .95, m.bassWave, m.bassVol);
+      } else {
+        if (pos === 0) this.tone(m.bass[bar], 0, barSecs * .85, m.bassWave, m.bassVol);
+        if (m.fifth && pos === 4) this.tone(m.bass[bar] * 1.5, 0, barSecs * .4, m.bassWave, m.bassVol * .55);
+      }
+      if (m.drums){
+        const d = m.drums[step % m.drums.length];
+        if (d && d !== '.') this.drum(d, at, m.drumVol || .05);
+      }
     }
     step++;
   }, m.ms);
