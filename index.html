@@ -194,7 +194,7 @@ textarea.quizbox{min-height:230px;font-family:ui-monospace,SFMono-Regular,Menlo,
 .qsum-m{font-variant-numeric:tabular-nums;opacity:.65;font-size:.85em;flex:none}
 .qtag{flex:none;font-size:.74em;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:999px;background:#0B6B4A;color:#E8FBF4;min-width:62px;text-align:center}
 .qtag.t-poll{background:#7A5CFF} .qtag.t-closest{background:#C2571E} .qtag.t-multi{background:#0E7490}
-.qtag.t-typed{background:#9333EA} .qtag.t-cloud{background:#BE185D} .qtag.t-x2{background:#B45309;min-width:0}
+.qtag.t-typed{background:#9333EA} .qtag.t-cloud{background:#BE185D} .qtag.t-spot{background:#0F766E} .qtag.t-x2{background:#B45309;min-width:0}
 .qtag.t-img{background:#1F6F8B;min-width:0}
 /* Pasted screenshots waiting to be used, under the quiz box */
 .shot-strip{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start}
@@ -203,6 +203,20 @@ textarea.quizbox{min-height:230px;font-family:ui-monospace,SFMono-Regular,Menlo,
 .shot figcaption{display:flex;align-items:center;gap:4px;font-size:.72rem;color:#6B6390;margin-top:5px;white-space:nowrap}
 .shot-x{margin-left:auto;border:0;background:transparent;color:#9F1136;font-weight:800;cursor:pointer;font-size:.9rem;line-height:1;padding:0 2px}
 .shot-note{flex-basis:100%;margin:0}
+/* Tap-the-spot: the picture is the answer sheet */
+.tapwrap{position:relative;display:inline-block;line-height:0;max-width:100%;border-radius:14px;overflow:hidden;box-shadow:var(--shadow);cursor:crosshair;touch-action:manipulation}
+.tapwrap img{display:block;max-width:100%;max-height:clamp(180px,42vh,460px);width:auto;height:auto}
+.tapwrap.small img{max-height:clamp(120px,26vh,240px)}
+.tapwrap.done{cursor:default}
+.tapdot{position:absolute;width:15px;height:15px;margin:-7.5px 0 0 -7.5px;border-radius:50%;background:var(--bfg1,var(--b1));box-shadow:0 1px 4px rgba(0,0,0,.5);animation:pop .35s cubic-bezier(.34,1.56,.64,1) backwards}
+.tapdot.hit{background:var(--bfg2,var(--b2))}
+.tapdot.mine{width:23px;height:23px;margin:-11.5px 0 0 -11.5px;outline:3px solid #fff;z-index:3}
+.tapring{position:absolute;transform:translate(-50%,-50%);height:0;border-radius:50%;border:3px dashed #fff;box-shadow:0 0 0 2px rgba(0,0,0,.45),inset 0 0 0 2px rgba(0,0,0,.45);z-index:2;pointer-events:none}
+.aimback{position:fixed;inset:0;background:rgba(12,8,28,.72);z-index:80;display:flex;align-items:center;justify-content:center;padding:20px}
+.aimbox{background:var(--card);color:var(--card-ink);border-radius:16px;padding:16px;max-width:min(94vw,900px);max-height:92vh;overflow:auto;box-shadow:var(--shadow)}
+.aimbox .tapwrap img{max-height:64vh}
+.qtag.t-img{border:0;cursor:pointer;font-family:inherit}
+.tapmark{position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;border:3px solid #fff;background:color-mix(in srgb,var(--c2) 70%,transparent);box-shadow:0 2px 8px rgba(0,0,0,.5);pointer-events:none;z-index:3}
 textarea.quizbox.dropping{border-color:var(--c1);background:#F3EFFF}
 
 /* ── Color picker rows ──────────────────────────────────────────────────── */
@@ -893,6 +907,7 @@ html[data-theme=disco] .answer.win{outline-color:#fff}
             <li><code>## Your question here?</code> — starts a question. Whatever follows <code>##</code> <b>is</b> the question.</li>
             <li><code>- Answer</code> — each answer on its own line. Mark the right one by ending it with <code>*</code> (<code>+</code>, <code>✓</code> and <code>✔</code> work too). <code>*</code> and <code>•</code> work as bullets if that's what your notes app produces.</li>
             <li><b>True/False</b> is just a question with two answers: <code>- True</code> / <code>- False *</code>.</li>
+            <li><b>Tap the spot</b> — give a question a picture and a point on it, and players tap the picture instead of picking an option: <code>= 62%, 38%</code> (across, then down). Don't type that by hand — click <b>🖼 aim</b> next to the question in the green box and click the picture. Add <code>± 6%</code> to change how close counts, default 10%. The reveal shows where the whole room tapped.</li>
             <li><b>A screenshot</b> — just paste it (or drag the file in). It's shrunk, kept as an attachment, and referenced from your quiz as <code>![](shot-1)</code>, so the picture never clutters the text. Attachments live in this browser only; <b>Save with pictures</b> writes a self-contained copy to send to someone else.</li>
             <li><b>A picture by link</b> — paste an image link on its own line, or use <code>![](https://…)</code>. It shows under the question on the big screen and on every phone. Links must be <code>https://</code>; the picture is fetched by each device, so nothing large travels through the game itself. A link that fails just leaves the question without a picture.</li>
             <li><b>Timings</b> — put them at the end of the title line and every question inherits them: <code># Friday Quiz | 20s | read 5s</code>. That's the <b>answer timer</b> (1–300s, default 20) and the <b>reading time</b> before answers appear (0–30s, default 5; <code>read 0s</code> skips it).</li>
@@ -1676,7 +1691,7 @@ function stripSettings(line){
   return got;
 }
 
-const TYPE_LABEL = { quiz:'quiz', poll:'poll', closest:'closest', multi:'multi', typed:'type', cloud:'cloud' };
+const TYPE_LABEL = { quiz:'quiz', poll:'poll', closest:'closest', multi:'multi', typed:'type', cloud:'cloud', spot:'tap' };
 function parseQuiz(text){
   const lines = (text || '').split(/\r?\n/);
   const errors = [], questions = [];
@@ -1696,7 +1711,8 @@ function parseQuiz(text){
     // otherwise. Everything below is unambiguous, so no type ever has to be
     // spelled out; the setup screen echoes back what each question became.
     if (!q.type){
-      if (q.target !== undefined) q.type = 'closest';
+      if (q.spot) q.type = 'spot';
+      else if (q.target !== undefined) q.type = 'closest';
       else if (q.accepted.length) q.type = 'typed';
       else if (!q.options.length) q.type = 'cloud';
       else if (q.corrects.length === 0) q.type = 'poll';
@@ -1705,7 +1721,10 @@ function parseQuiz(text){
       q.inferred = true;
     }
     if (!q.text) errors.push(`${who}: question text is missing — write it on the "##" line.`);
-    if (q.type === 'closest'){
+    if (q.type === 'spot'){
+      if (!q.image) errors.push(`${who}: a tap-the-spot question needs a picture — paste a screenshot or add an image link.`);
+      if (q.options.length) errors.push(`${who}: tap-the-spot questions take no "-" options — everyone taps the picture instead.`);
+    } else if (q.type === 'closest'){
       if (q.target === undefined) errors.push(`${who}: a closest-guess question needs its answer as "= number" (e.g. "= 1665").`);
       if (q.options.length) errors.push(`${who}: closest-guess questions take a "= number" line, not "-" options.`);
     } else if (q.type === 'cloud'){
@@ -1752,7 +1771,7 @@ function parseQuiz(text){
       finalize(cur);
       const s = stripSettings(line.replace(/^##\s*/, ''));
       if (s.bad) errors.push(`Line ${i+1}: ${s.bad}.`);
-      cur = { head: s.text, label: '', duration: s.dur != null ? s.dur : defDur,
+      cur = { head: s.text, label: '', line: i, duration: s.dur != null ? s.dur : defDur,
               preview: s.preview != null ? s.preview : defPreview,
               type: s.type, x2: s.x2, inferred: false, image: '',
               text: '', options: [], accepted: [], correct: -1, corrects: [] };
@@ -1782,6 +1801,13 @@ function parseQuiz(text){
       if (!cur) { errors.push(`Line ${i+1}: found a "=" answer before any "##" question.`); return; }
       const body = line.replace(/^=\s*/, '').trim();
       if (!body){ errors.push(`Line ${i+1}: "=" needs an answer after it, e.g. "= 1665" or "= Paris".`); return; }
+      const pt = body.match(/^(\d+(?:\.\d+)?)\s*%\s*[, ]\s*(\d+(?:\.\d+)?)\s*%(?:\s*(?:±|\+-)\s*(\d+(?:\.\d+)?)\s*%)?$/);
+      if (pt){
+        if (cur.spot){ errors.push(`Line ${i+1}: only one spot per question.`); return; }
+        cur.spot = { x: +pt[1], y: +pt[2], r: pt[3] ? +pt[3] : SPOT_RADIUS };
+        if (cur.spot.x > 100 || cur.spot.y > 100) errors.push(`Line ${i+1}: a spot is a percentage across and down the picture, so both need to be 100% or less.`);
+        return;
+      }
       const num = body.match(/^(-?\d+(?:[.,]\d+)?)$/);
       // A number is a closest-guess target; anything else is an accepted
       // typed answer, and extra "=" lines are alternate spellings.
@@ -1882,7 +1908,8 @@ const SHAPES = [
   '<svg viewBox="0 0 32 32"><path d="M13 4h6v9h9v6h-9v9h-6v-9H4v-6h9z" fill="#fff"/></svg>',                      // plus
   '<svg viewBox="0 0 32 32"><path d="M16 3l13 9.4-5 15.3H8L3 12.4z" fill="#fff"/></svg>'                          // pentagon
 ];
-const POLL_MAX = 10;   // polls may list this many options; every other type stays at 4
+const POLL_MAX = 10;
+const SPOT_RADIUS = 10;   // default "close enough", as a % of the picture's width   // polls may list this many options; every other type stays at 4
 const ANSWER_COLORS = 10;  // --b0…--b9, the first four straight from the host's picks
 const optColor = i => i % ANSWER_COLORS;
 /* ════════════════ CONFETTI (tiny, dependency-free) ════════════════ */
@@ -2181,7 +2208,7 @@ const CLOUD_LINE = '💬 Reading the room…'; // …and so do word clouds
 // Reveal-phase writes are merges, so every flag is reset explicitly each
 // time — otherwise a stale poll/closest/multi/typed flag from one question
 // would leak into the next reveal.
-const REVEAL_RESET = { correct: -1, dist: null, poll: false, closest: false, target: null, multi: false, corrects: null, typed: false, cloud: false, answerText: null };
+const REVEAL_RESET = { correct: -1, dist: null, poll: false, closest: false, spot: false, target: null, multi: false, corrects: null, typed: false, cloud: false, answerText: null };
 /* Every question opens with a read-only preview so slow-loading phones
    lose reading time, never answering time — the answer timer starts for
    everyone at the same moment. Default seconds; override per question
@@ -2315,7 +2342,9 @@ const Shots = {
     if (ta){
       const at = ta.selectionStart ?? ta.value.length;
       const before = ta.value.slice(0, at), after = ta.value.slice(at);
-      const pad = (before && !before.endsWith('\n') ? '\n' : '') + line + (after && !after.startsWith('\n') ? '\n' : '');
+      // Always close the line: pasting at the very end used to leave the
+      // token open, so the next thing typed ran onto the picture's line.
+      const pad = (before && !before.endsWith('\n') ? '\n' : '') + line + (after.startsWith('\n') ? '' : '\n');
       ta.value = before + pad + after;
       const pos = before.length + pad.length;
       ta.selectionStart = ta.selectionEnd = pos;
@@ -2396,6 +2425,51 @@ function setQImage(el, url){
   el.onload = () => { el.hidden = false; };
   el.hidden = true;              // stays hidden until it actually loads
   el.src = url;
+}
+/* A picture with points marked on it, as percentages of the picture
+   itself — used for tapping during the question and for the heat of
+   everyone's guesses at the reveal. */
+function tapImageHTML(url, dots, spot, cls){
+  const ring = spot ? `<span class="tapring" style="left:${spot.x}%;top:${spot.y}%;width:${spot.r * 2}%;padding-bottom:${spot.r * 2}%"></span>` : '';
+  const pts = (dots || []).map(d =>
+    `<span class="tapdot${d.hit ? ' hit' : ''}${d.mine ? ' mine' : ''}" style="left:${d.x}%;top:${d.y}%"${d.title ? ` title="${esc(d.title)}"` : ''}></span>`).join('');
+  return `<div class="tapwrap ${cls || ''}"><img src="${url}" alt="">${ring}${pts}</div>`;
+}
+/* Click a point on the picture and the "= 62%, 38%" line is written into
+   the quiz for you — nobody should be typing percentages by hand. */
+function aimPicker(line){
+  const ta = $('quiz-input');
+  const lines = ta.value.split('\n');
+  const imgLine = lines.slice(line).findIndex(l => /^\s*(!\[[^\]]*\]\(|https?:\/\/|data:image\/)/.test(l.trim()));
+  const q = parseQuiz(ta.value).questions.find(x => x.line === line);
+  if (!q || !q.image) return;
+  const url = Shots.resolve(q.image);
+  const back = document.createElement('div');
+  back.className = 'aimback';
+  back.innerHTML = `<div class="aimbox"><p class="hint" style="margin:0 0 8px">Click the spot players have to find${q.spot ? ' — the current one is ringed' : ''}.</p>`
+    + tapImageHTML(url, [], q.spot || null, 'aimimg')
+    + `<div class="row" style="margin-top:10px;justify-content:flex-end"><button class="btn ghost" type="button">Cancel</button></div></div>`;
+  document.body.appendChild(back);
+  const close = () => back.remove();
+  back.querySelector('.btn').onclick = close;
+  back.onclick = e => { if (e.target === back) close(); };
+  back.querySelector('.tapwrap').onclick = e => {
+    const img = back.querySelector('.tapwrap img'), r = img.getBoundingClientRect();
+    if (!r.width) return;
+    const x = Math.round(Math.max(0, Math.min(100, (e.clientX - r.left) / r.width * 100)) * 10) / 10;
+    const y = Math.round(Math.max(0, Math.min(100, (e.clientY - r.top) / r.height * 100)) * 10) / 10;
+    const coord = `= ${x}%, ${y}%`;
+    // replace this question's existing spot line, or add one after the picture
+    const end = lines.findIndex((l, i) => i > line && /^##(\s|$)/.test(l.trim()));
+    const stop = end === -1 ? lines.length : end;
+    const existing = lines.findIndex((l, i) => i > line && i < stop && /^=\s*[\d.]+\s*%/.test(l.trim()));
+    if (existing !== -1) lines[existing] = coord;
+    else lines.splice(imgLine === -1 ? line + 1 : line + imgLine + 1, 0, coord);
+    ta.value = lines.join('\n');
+    ta.dispatchEvent(new Event('input'));
+    close();
+    showToast(`Target set to ${x}% across, ${y}% down.`);
+  };
 }
 function answerButtonHTML(opt, i, tag){
   return `<${tag} class="answer a${optColor(i)}" data-i="${i}"><span class="shape">${SHAPES[i % SHAPES.length]}</span><span>${esc(opt)}</span></${tag}>`;
@@ -2694,7 +2768,14 @@ const Host = {
         const upd = {};
         for (const id of slice){
           const e = Math.round((at / 1000 + Math.random() * .8) * 100) / 100;
-          if (q.type === 'closest'){
+          if (q.type === 'spot'){
+            // most aim near it, some are well off — a believable spread
+            const near = Math.random() < .55;
+            const spread = near ? q.spot.r * 1.1 : 38;
+            const ang = Math.random() * Math.PI * 2, dist = Math.random() * spread;
+            upd[id] = { x: Math.round(Math.max(0, Math.min(100, q.spot.x + Math.cos(ang) * dist)) * 10) / 10,
+                        y: Math.round(Math.max(0, Math.min(100, q.spot.y + Math.sin(ang) * dist)) * 10) / 10, e };
+          } else if (q.type === 'closest'){
             upd[id] = { g: Math.round(q.target * (1 + (Math.random() - .5) * .8) * 100) / 100, e };
           } else if (q.type === 'typed'){
             // ~60% type an accepted answer (sometimes SHOUTED), the rest miss
@@ -2752,7 +2833,7 @@ const Host = {
     // What phones need to render the question. Closest/typed/cloud send
     // no options — and never the target or accepted answers, so the
     // answer can't be sniffed from the database mid-question.
-    const freeText = q.type === 'closest' || q.type === 'typed' || q.type === 'cloud';
+    const freeText = q.type === 'closest' || q.type === 'typed' || q.type === 'cloud' || q.type === 'spot';
     const qPayload = freeText
       ? { text: q.text, duration: q.duration, type: q.type, x2: !!q.x2 }
       : { text: q.text, options: q.options, duration: q.duration, type: q.type || 'quiz', x2: !!q.x2 };
@@ -2779,7 +2860,8 @@ const Host = {
     const bigHint = {
       closest: '🎯 Type your best guess on your phone — closest wins!',
       typed: '✍️ Type your answer on your phone — spelling is forgiven!',
-      cloud: '💬 Type a word or phrase on your phone — we\'ll build a cloud!'
+      cloud: '💬 Type a word or phrase on your phone — we\'ll build a cloud!',
+      spot: '🎯 Tap the spot on your phone!'
     }[q.type];
     if (bigHint){
       $('hq-answers').classList.remove('many');
@@ -2880,7 +2962,9 @@ const Host = {
     drum.style.display = 'none';
 
     const answers = (await Sync.get(this.path('answers/' + i))) || {};
-    if (q.type === 'closest'){
+    if (q.type === 'spot'){
+      await this.revealSpot(q, answers);
+    } else if (q.type === 'closest'){
       await this.revealClosest(q, answers);
     } else if (q.type === 'typed' || isCloud){
       await this.revealText(q, answers);
@@ -3008,6 +3092,41 @@ const Host = {
   // Closest-guess reveal: rank everyone by distance to the target.
   // Nearest band earns 1000, each band further earns proportionally less;
   // equal guesses share the same band (and the same points).
+  // Tap-the-spot: score is a hit or a miss against the author's tolerance,
+  // then speed-scaled like a normal question. The big screen shows where
+  // the whole room tapped, which is the point of the format.
+  async revealSpot(q, answers){
+    const dots = [], hits = [];
+    for (const [pid, p] of Object.entries(this.players)){
+      const a = answers[pid];
+      if (!a || !Number.isFinite(Number(a.x)) || !Number.isFinite(Number(a.y))) continue;
+      const x = Number(a.x), y = Number(a.y);
+      const hit = Math.hypot(x - q.spot.x, y - q.spot.y) <= q.spot.r;
+      dots.push({ x, y, hit, title: `${p.name}${hit ? ' ✓' : ''}` });
+      if (hit) hits.push({ pid, e: Number(a.e) || q.duration });
+    }
+    const ptsBy = {};
+    hits.forEach(h => { ptsBy[h.pid] = scoreFor(h.e, q.duration) * (q.x2 ? 2 : 1); });
+
+    const updates = {};
+    for (const [pid, p] of Object.entries(this.players)){
+      const pts = ptsBy[pid] || 0;
+      this.players[pid] = { ...p, score: (Number(p.score) || 0) + pts, last: pts, lastCorrect: pts > 0, answered: !!answers[pid] };
+      updates[pid] = this.players[pid];
+    }
+    await Sync.update(this.path('players'), updates);
+
+    const votes = dots.length;
+    $('hq-answers').classList.remove('many');
+    $('hq-answers').innerHTML =
+      `<div class="guessbox">${tapImageHTML(Shots.resolve(q.image), dots, q.spot)}
+       <p style="font-weight:800;font-size:1.15rem">${hits.length} of ${votes} found it${votes ? ` · ${Math.round(hits.length / votes * 100)}%` : ''}</p></div>`;
+    setQImage($('hq-img'), '');   // the reveal carries its own copy
+    $('hq-timer').textContent = '🎯';
+    SFX.play('reveal');
+    await Sync.update(this.path('state'), { ...REVEAL_RESET, phase: 'reveal', spot: true, target: q.spot });
+  },
+
   async revealClosest(q, answers){
     const entries = [];
     for (const pid of Object.keys(this.players)){
@@ -3471,14 +3590,40 @@ const Player = {
     this.receivedAt = Date.now();
     $('pq-progress').textContent = `Q${s.qIndex + 1} / ${s.total}`;
     $('pq-text').textContent = s.q.text;
-    setQImage($('pq-img'), s.q.img);
+    this.lastImg = s.q.img || '';   // kept for the reveal, which carries no question
+    setQImage($('pq-img'), s.q.type === 'spot' ? '' : s.q.img);
     $('pq-x2').style.display = s.q.x2 ? '' : 'none';
     document.getElementById('s-pquestion').classList.toggle('x2on', !!s.q.x2);
     if (s.q.x2) SFX.play('double'); // ⚡ the stakes just went up
     $('pq-locked').style.display = 'none';
     const grid = $('pq-answers');
     grid.style.display = '';
-    if (s.q.type === 'closest'){
+    if (s.q.type === 'spot'){
+      // Tap-the-spot: the picture itself is the answer sheet. Tapping only
+      // moves a marker — nothing is sent until it's locked in, so a stray
+      // touch while reading costs nothing.
+      grid.innerHTML = `<div class="guessbox">
+        ${tapImageHTML(s.q.img, [], null, 'pick')}
+        <button class="btn big" id="pq-tap-btn" disabled>Tap the picture first</button>
+        <p class="small muted">Tap where you think it is, then lock it in.</p>
+      </div>`;
+      const wrap = grid.querySelector('.tapwrap'), btn = $('pq-tap-btn');
+      const mark = document.createElement('span');
+      mark.className = 'tapmark'; mark.hidden = true;
+      wrap.appendChild(mark);
+      let pick = null;
+      wrap.onclick = e => {
+        if (this.myAnswer !== null) return;
+        const img = wrap.querySelector('img'), r = img.getBoundingClientRect();
+        if (!r.width || !r.height) return;
+        pick = { x: Math.max(0, Math.min(100, (e.clientX - r.left) / r.width * 100)),
+                 y: Math.max(0, Math.min(100, (e.clientY - r.top) / r.height * 100)) };
+        mark.style.left = pick.x + '%'; mark.style.top = pick.y + '%'; mark.hidden = false;
+        btn.disabled = false; btn.textContent = 'Lock it in 🎯';
+        SFX.play('tap');
+      };
+      btn.onclick = () => { if (pick) this.answerSpot(pick, s); };
+    } else if (s.q.type === 'closest'){
       // Closest-guess: a number pad instead of option buttons
       grid.innerHTML = `<div class="guessbox">
         <input type="number" step="any" inputmode="decimal" id="pq-guess" placeholder="123…" aria-label="Your guess">
@@ -3562,6 +3707,15 @@ const Player = {
 
   // Closest-guess answer: myAnswer holds the guessed number, and the
   // payload carries g (guess) instead of c (choice index).
+  answerSpot(pt, s){
+    if (this.myAnswer !== null || !pt) return;
+    this.myAnswer = pt;
+    SFX.play('tap');
+    const elapsed = Math.min(s.q.duration, (Date.now() - this.receivedAt) / 1000);
+    Sync.set(this.path(`answers/${s.qIndex}/${this.id}`),
+      { x: Math.round(pt.x * 10) / 10, y: Math.round(pt.y * 10) / 10, e: Math.round(elapsed * 100) / 100 });
+    this.lockOut();
+  },
   answerGuess(val, s){
     if (this.myAnswer !== null) return;
     const g = Number(String(val).trim().replace(',', '.'));
@@ -3625,6 +3779,17 @@ const Player = {
         <h1 class="display" style="font-size:2.2rem">${answered ? 'Vote counted!' : 'No vote this time'}</h1>
         ${picked != null ? `<p style="font-weight:700">You picked: ${esc(String(picked))}</p>` : ''}
         <p class="muted">See how the room voted on the big screen.</p>`;
+    } else if (s.spot){
+      // Tap-the-spot: the picture again, with the answer ringed and your tap on it
+      const t = s.target || {};
+      const mine = answered && this.myAnswer && Number.isFinite(this.myAnswer.x) ? this.myAnswer : null;
+      const hit = pts > 0;
+      SFX.play(hit ? 'correct' : answered ? 'wrong' : 'board');
+      $('pr-body').innerHTML = `
+        <div class="bigmark">${answered ? (hit ? '🎯' : '❌') : '⏳'}</div>
+        <h1 class="display" style="font-size:1.9rem">${answered ? (hit ? 'You found it!' : 'Not quite') : 'No tap this round'}</h1>
+        ${this.lastImg ? tapImageHTML(this.lastImg, mine ? [{ x: mine.x, y: mine.y, hit, mine: true }] : [], t, 'small done') : ''}
+        <div class="points-pop">+${pts.toLocaleString()}</div>`;
     } else if (s.closest){
       // Closest-guess: show the target, your distance and your points
       const target = Number(s.target);
@@ -3902,10 +4067,11 @@ function renderParseStatus(parsed){
       + `<ol class="qsum">` + parsed.questions.map(q =>
           `<li><span class="qtag t-${q.type}">${TYPE_LABEL[q.type] || q.type}</span>`
           + (q.x2 ? `<span class="qtag t-x2">⚡2×</span>` : '')
-          + (q.image ? `<span class="qtag t-img">🖼</span>` : '')
+          + (q.image ? `<button type="button" class="qtag t-img" data-aim="${q.line}" title="Set the tap-the-spot target on this picture">🖼 aim</button>` : '')
           + `<span class="qsum-t">${esc(q.text)}</span>`
           + `<span class="qsum-m">${q.duration}s</span></li>`).join('')
       + `</ol>`;
+    okBox.querySelectorAll('[data-aim]').forEach(b => { b.onclick = () => aimPicker(Number(b.dataset.aim)); });
     okBox.style.display = 'block';
     status.textContent = '';
   }
