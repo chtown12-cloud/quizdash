@@ -196,6 +196,14 @@ textarea.quizbox{min-height:230px;font-family:ui-monospace,SFMono-Regular,Menlo,
 .qtag.t-poll{background:#7A5CFF} .qtag.t-closest{background:#C2571E} .qtag.t-multi{background:#0E7490}
 .qtag.t-typed{background:#9333EA} .qtag.t-cloud{background:#BE185D} .qtag.t-x2{background:#B45309;min-width:0}
 .qtag.t-img{background:#1F6F8B;min-width:0}
+/* Pasted screenshots waiting to be used, under the quiz box */
+.shot-strip{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start}
+.shot{margin:0;width:132px;background:#FBFAFF;border:1.5px solid #DDD7EE;border-radius:10px;padding:6px;overflow:hidden}
+.shot img{display:block;width:100%;height:74px;object-fit:cover;border-radius:6px;background:#EEE9F8}
+.shot figcaption{display:flex;align-items:center;gap:4px;font-size:.72rem;color:#6B6390;margin-top:5px;white-space:nowrap}
+.shot-x{margin-left:auto;border:0;background:transparent;color:#9F1136;font-weight:800;cursor:pointer;font-size:.9rem;line-height:1;padding:0 2px}
+.shot-note{flex-basis:100%;margin:0}
+textarea.quizbox.dropping{border-color:var(--c1);background:#F3EFFF}
 
 /* ── Color picker rows ──────────────────────────────────────────────────── */
 .colors{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
@@ -885,7 +893,8 @@ html[data-theme=disco] .answer.win{outline-color:#fff}
             <li><code>## Your question here?</code> — starts a question. Whatever follows <code>##</code> <b>is</b> the question.</li>
             <li><code>- Answer</code> — each answer on its own line. Mark the right one by ending it with <code>*</code> (<code>+</code>, <code>✓</code> and <code>✔</code> work too). <code>*</code> and <code>•</code> work as bullets if that's what your notes app produces.</li>
             <li><b>True/False</b> is just a question with two answers: <code>- True</code> / <code>- False *</code>.</li>
-            <li><b>A picture</b> — paste an image link on its own line, or use <code>![](https://…)</code>. It shows under the question on the big screen and on every phone. Links must be <code>https://</code>; the picture is fetched by each device, so nothing large travels through the game itself. A link that fails just leaves the question without a picture.</li>
+            <li><b>A screenshot</b> — just paste it (or drag the file in). It's shrunk, kept as an attachment, and referenced from your quiz as <code>![](shot-1)</code>, so the picture never clutters the text. Attachments live in this browser only; <b>Save with pictures</b> writes a self-contained copy to send to someone else.</li>
+            <li><b>A picture by link</b> — paste an image link on its own line, or use <code>![](https://…)</code>. It shows under the question on the big screen and on every phone. Links must be <code>https://</code>; the picture is fetched by each device, so nothing large travels through the game itself. A link that fails just leaves the question without a picture.</li>
             <li><b>Timings</b> — put them at the end of the title line and every question inherits them: <code># Friday Quiz | 20s | read 5s</code>. That's the <b>answer timer</b> (1–300s, default 20) and the <b>reading time</b> before answers appear (0–30s, default 5; <code>read 0s</code> skips it).</li>
             <li><b>Changing one question</b> — put the setting at the end of its own line instead: <code>## A tricky one? 45s</code>.</li>
             <li><code>x2</code> — <b>⚡ double points</b> for that question: <code>## Which ocean is the largest? x2</code>. Golden banner, glow and a riser on every screen — save it for the finale. (Polls and word clouds score nothing, so they can't be doubled.)</li>
@@ -902,8 +911,9 @@ html[data-theme=disco] .answer.win{outline-color:#fff}
         <div class="gutter" aria-hidden="true"><div id="quiz-lines"></div></div>
         <textarea class="quizbox" id="quiz-input" spellcheck="false" aria-label="Quiz text" placeholder="# My Quiz Title | 20s | read 5s&#10;&#10;## Your first question here?&#10;- The correct answer *&#10;- Another answer&#10;- A third answer&#10;&#10;## No star means it&#39;s just a poll&#10;- Option one&#10;- Option two&#10;&#10;## How many bones in the adult body?&#10;= 206"></textarea>
         </div>
-        <div class="row" style="margin-top:8px"><button class="btn ghost" style="color:var(--card-ink);border-color:#CFC7E8;padding:8px 16px;font-size:.9rem" id="btn-sample">Load example quiz</button><span class="hint" id="parse-status" style="margin:0"></span></div>
+        <div class="row" style="margin-top:8px"><button class="btn ghost" style="color:var(--card-ink);border-color:#CFC7E8;padding:8px 16px;font-size:.9rem" id="btn-sample">Load example quiz</button><button class="btn ghost" style="color:var(--card-ink);border-color:#CFC7E8;padding:8px 16px;font-size:.9rem" id="btn-export" hidden>💾 Save with pictures</button><span class="hint" id="parse-status" style="margin:0"></span></div>
       </div>
+      <div class="shot-strip" id="shot-strip" hidden></div>
       <div class="errbox" id="parse-errors"></div>
       <div class="okbox" id="parse-ok"></div>
     </div>
@@ -1754,7 +1764,13 @@ function parseQuiz(text){
     if (mdImg || bareImg) {
       const url = (mdImg ? mdImg[1] : bareImg[1]).trim();
       if (!cur) { errors.push(`Line ${i+1}: found a picture before any "##" question.`); return; }
-      if (!/^(https:\/\/|data:image\/)/i.test(url)){
+      if (/^shot-\d+$/.test(url)){
+        // A pasted screenshot, held as an attachment rather than in the text
+        if (!Shots.items.has(url)){
+          errors.push(`Line ${i+1}: ${url} isn't attached any more — paste the screenshot again.`);
+          return;
+        }
+      } else if (!/^(https:\/\/|data:image\/)/i.test(url)){
         errors.push(`Line ${i+1}: pictures must be https:// links — "${url.slice(0, 40)}" won't load.`);
         return;
       }
@@ -2235,6 +2251,142 @@ const PALETTES = [
 ];
 
 /* ════════════════ SHARED UI BITS ════════════════ */
+/* ════════════════ PASTED SCREENSHOTS ════════════════════════════════════
+   A screenshot on your laptop has no link to paste, so the quiz box takes
+   the image itself: paste or drop one and it is shrunk, kept here as an
+   attachment, and referenced from the text by a short token — ![](shot-1).
+   Keeping the bytes out of the text is the whole point: the quiz stays
+   readable, the line-number gutter stays fast, and only at game time is
+   the picture folded into the question payload phones already download.
+   Nothing is uploaded anywhere; "Save with pictures" writes a portable
+   copy with the tokens expanded, for sending the quiz to someone else. */
+const Shots = {
+  MAX_W: 1400,            // wide enough that a dashboard's labels survive
+  BUDGET: 120 * 1024,     // per picture, before base64
+  items: new Map(),       // token -> data URI
+  seq: 0,
+  db: null,
+
+  bytes(url){ return Math.round((url.length - url.indexOf(',') - 1) * 0.75); },
+  total(){ let n = 0; for (const u of this.items.values()) n += this.bytes(u); return n; },
+  // A token resolves to its picture; anything else (an https link) passes through
+  resolve(ref){ return ref && this.items.has(ref) ? this.items.get(ref) : ref; },
+  has(ref){ return /^shot-\d+$/.test(ref || '') ? this.items.has(ref) : true; },
+
+  async shrink(file){
+    const bmp = await createImageBitmap(file);
+    const probe = document.createElement('canvas');
+    probe.width = probe.height = 8;
+    // WebP is far smaller for flat UI screenshots; fall back where it isn't
+    // supported (toDataURL quietly returns a PNG then).
+    const type = probe.toDataURL('image/webp', .8).startsWith('data:image/webp') ? 'image/webp' : 'image/jpeg';
+    const cv = document.createElement('canvas');
+    const ctx2 = cv.getContext('2d');
+    let best = null;
+    // Quality alone can't always reach the budget — a noisy or photographic
+    // screenshot needs fewer pixels too. Give up resolution only after
+    // quality, since legibility is the whole point of a screenshot.
+    for (const maxW of [this.MAX_W, 1100, 900, 700]){
+      const scale = Math.min(1, maxW / bmp.width);
+      const w = Math.max(1, Math.round(bmp.width * scale)), h = Math.max(1, Math.round(bmp.height * scale));
+      cv.width = w; cv.height = h;
+      ctx2.drawImage(bmp, 0, 0, w, h);
+      for (const q of [.85, .72, .6, .48, .38]){
+        const url = cv.toDataURL(type, q);
+        best = { url, w, h };
+        if (this.bytes(url) <= this.BUDGET){ if (bmp.close) bmp.close(); return best; }
+      }
+    }
+    if (bmp.close) bmp.close();
+    best.over = true;   // pathological image — attach it, but say so
+    return best;
+  },
+
+  async attach(file, ta){
+    if (!/^image\//.test(file.type)) return;
+    let shot;
+    try { shot = await this.shrink(file); }
+    catch(e){ console.warn(e); showToast('That image could not be read.'); return; }
+    const token = 'shot-' + (++this.seq);
+    this.items.set(token, shot.url);
+    this.save(token, shot.url);
+    // Drop the reference on its own line where the cursor is
+    const line = `![](${token})`;
+    if (ta){
+      const at = ta.selectionStart ?? ta.value.length;
+      const before = ta.value.slice(0, at), after = ta.value.slice(at);
+      const pad = (before && !before.endsWith('\n') ? '\n' : '') + line + (after && !after.startsWith('\n') ? '\n' : '');
+      ta.value = before + pad + after;
+      const pos = before.length + pad.length;
+      ta.selectionStart = ta.selectionEnd = pos;
+      ta.dispatchEvent(new Event('input'));
+    }
+    this.render();
+    showToast(shot.over
+      ? `Screenshot added at ${shot.w}×${shot.h}, but it's ${Math.round(this.bytes(shot.url)/1024)}KB — crop it tighter so phones load it quickly.`
+      : `Screenshot added — ${shot.w}×${shot.h}, ${Math.round(this.bytes(shot.url) / 1024)}KB`);
+  },
+
+  remove(token){
+    this.items.delete(token);
+    this.del(token);
+    this.render();
+    const ta = $('quiz-input');
+    if (ta && ta.value.includes(token)){
+      ta.value = ta.value.split('\n').filter(l => !l.includes(`(${token})`)).join('\n');
+      ta.dispatchEvent(new Event('input'));
+    }
+  },
+
+  render(){
+    const strip = $('shot-strip');
+    if (!strip) return;
+    if (!this.items.size){ strip.hidden = true; strip.innerHTML = ''; return; }
+    strip.hidden = false;
+    const kb = Math.round(this.total() / 1024);
+    strip.innerHTML = [...this.items].map(([t, u]) =>
+      `<figure class="shot"><img src="${u}" alt=""><figcaption>${t} · ${Math.round(this.bytes(u)/1024)}KB`
+      + `<button type="button" class="shot-x" data-shot="${t}" title="Remove ${t}">✕</button></figcaption></figure>`).join('')
+      + `<p class="hint shot-note">${this.items.size} screenshot${this.items.size === 1 ? '' : 's'} · ${kb}KB — each player downloads this once per question.`
+      + (kb > 600 ? ' <b>That is a lot to push to phones; consider cropping tighter.</b>' : '') + '</p>';
+    strip.querySelectorAll('.shot-x').forEach(b => { b.onclick = () => this.remove(b.dataset.shot); });
+  },
+
+  /* Best-effort persistence so a reload doesn't lose your crops. */
+  open(){
+    return new Promise(res => {
+      if (this.db) return res(this.db);
+      let rq;
+      try { rq = indexedDB.open('quizdash-shots', 1); } catch(e){ return res(null); }
+      rq.onupgradeneeded = () => rq.result.createObjectStore('shots');
+      rq.onsuccess = () => { this.db = rq.result; res(this.db); };
+      rq.onerror = () => res(null);
+    });
+  },
+  async save(token, url){
+    const db = await this.open(); if (!db) return;
+    try { db.transaction('shots', 'readwrite').objectStore('shots').put(url, token); } catch(e){}
+  },
+  async del(token){
+    const db = await this.open(); if (!db) return;
+    try { db.transaction('shots', 'readwrite').objectStore('shots').delete(token); } catch(e){}
+  },
+  async load(){
+    const db = await this.open(); if (!db) return;
+    try {
+      const st = db.transaction('shots', 'readonly').objectStore('shots');
+      const keys = await new Promise(r => { const q = st.getAllKeys(); q.onsuccess = () => r(q.result || []); q.onerror = () => r([]); });
+      const vals = await new Promise(r => { const q = st.getAll(); q.onsuccess = () => r(q.result || []); q.onerror = () => r([]); });
+      keys.forEach((k, i) => {
+        this.items.set(k, vals[i]);
+        const n = Number(String(k).replace('shot-', ''));
+        if (n > this.seq) this.seq = n;
+      });
+      this.render();
+    } catch(e){}
+  }
+};
+
 // Show a question's picture, or hide the slot entirely. A link that fails
 // to load hides itself too, so a broken URL costs a picture, not a game.
 function setQImage(el, url){
@@ -2581,7 +2733,7 @@ const Host = {
     $('hq-progress').textContent = `Q${i+1} / ${this.quiz.questions.length}`;
     $('hq-room').textContent = this.room;
     $('hq-text').textContent = q.text;
-    setQImage($('hq-img'), q.image);
+    setQImage($('hq-img'), Shots.resolve(q.image));
     $('hq-total').textContent = Object.keys(this.players).length;
     $('hq-answered').textContent = '0';
     $('hq-answers').innerHTML = '';
@@ -2606,7 +2758,7 @@ const Host = {
       : { text: q.text, options: q.options, duration: q.duration, type: q.type || 'quiz', x2: !!q.x2 };
     // Only the link travels — every phone fetches the picture itself, so
     // the database never carries more than a URL.
-    if (q.image) qPayload.img = q.image;
+    if (q.image) qPayload.img = Shots.resolve(q.image);
 
     const pv = Number.isInteger(q.preview) ? q.preview : PREVIEW_SECS;
     this.skipPreview = false;
@@ -3844,6 +3996,7 @@ function boot(){
   // guide: with an empty quiz box it reads "Add questions" and jumps the
   // host to the box instead of failing a create.
   const syncCreateBtn = () => {
+    $('btn-export').hidden = !Shots.items.size;
     const empty = !$('quiz-input').value.trim();
     $('btn-create').textContent = empty ? '✍️ Add questions' : 'Create room →';
     $('btn-create').dataset.empty = empty ? '1' : '';
@@ -3855,6 +4008,39 @@ function boot(){
     clearTimeout(t); t = setTimeout(() => renderParseStatus(parseQuiz($('quiz-input').value)), 400);
   });
   $('quiz-input').addEventListener('scroll', syncGutter);
+  // Paste or drop a screenshot straight into the quiz box. Text pastes are
+  // untouched — we only step in when the clipboard actually holds an image.
+  const ta = $('quiz-input');
+  ta.addEventListener('paste', e => {
+    const item = [...((e.clipboardData && e.clipboardData.items) || [])].find(i => i.type.startsWith('image/'));
+    if (!item) return;
+    const file = item.getAsFile();
+    if (!file) return;
+    e.preventDefault();
+    Shots.attach(file, ta);
+  });
+  ta.addEventListener('dragover', e => {
+    if ([...e.dataTransfer.types].includes('Files')){ e.preventDefault(); ta.classList.add('dropping'); }
+  });
+  ['dragleave','drop'].forEach(ev => ta.addEventListener(ev, () => ta.classList.remove('dropping')));
+  ta.addEventListener('drop', e => {
+    const files = [...(e.dataTransfer.files || [])].filter(f => /^image\//.test(f.type));
+    if (!files.length) return;
+    e.preventDefault();
+    files.forEach(f => Shots.attach(f, ta));
+  });
+  // Tokens live only in this browser, so offer a self-contained copy to
+  // send elsewhere: same quiz with every screenshot written out in full.
+  $('btn-export').onclick = () => {
+    let text = ta.value;
+    Shots.items.forEach((url, token) => { text = text.split(`(${token})`).join(`(${url})`); });
+    const a = document.createElement('a');
+    a.href = 'data:text/markdown;charset=utf-8,' + encodeURIComponent(text);
+    a.download = (parseQuiz(ta.value).title || 'quiz').replace(/[^\w -]+/g, '').trim().slice(0, 40) + '.md';
+    a.click();
+    showToast('Saved a copy with the pictures written in.');
+  };
+  Shots.load();
   // Width changes re-wrap the text, which changes how tall each line is
   addEventListener('resize', syncGutter);
   $('btn-sample').onclick = () => { $('quiz-input').value = SAMPLE_QUIZ; renderParseStatus(parseQuiz(SAMPLE_QUIZ)); syncCreateBtn(); };
