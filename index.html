@@ -203,6 +203,31 @@ textarea.quizbox{min-height:230px;font-family:ui-monospace,SFMono-Regular,Menlo,
 .shot figcaption{display:flex;align-items:center;gap:4px;font-size:.72rem;color:#6B6390;margin-top:5px;white-space:nowrap}
 .shot-x{margin-left:auto;border:0;background:transparent;color:#9F1136;font-weight:800;cursor:pointer;font-size:.9rem;line-height:1;padding:0 2px}
 .shot-note{flex-basis:100%;margin:0}
+/* Two views of one quiz: form cards, or the markdown behind them */
+.modetabs{display:flex;gap:6px;background:#F1EDFB;padding:4px;border-radius:12px;align-self:flex-start}
+.modetab{border:0;background:transparent;color:#6B6390;font-weight:700;font-size:.92rem;padding:7px 14px;border-radius:9px;cursor:pointer;font-family:inherit}
+.modetab.on{background:#fff;color:var(--card-ink);box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.lookbox>summary{cursor:pointer;font-size:1rem;color:var(--card-ink);padding:4px 0;list-style:none}
+.lookbox>summary::-webkit-details-marker{display:none}
+.lookbox>summary::before{content:"▸ ";opacity:.6}
+.lookbox[open]>summary::before{content:"▾ "}
+.qcard{border:1.5px solid #DDD7EE;border-radius:14px;padding:12px;margin-bottom:10px;background:#FDFCFF}
+.qcard-top{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.qcard-n{font-weight:800;color:#6B6390;font-size:.85rem;min-width:26px}
+.qcard select.qtype{flex:none;width:auto;padding:6px 8px;font-size:.85rem;border:1.5px solid #DDD7EE;border-radius:9px;background:#FBFAFF;color:var(--card-ink);font-family:inherit}
+.qcard-tools{margin-left:auto;display:flex;gap:2px}
+.qcard-tools button{border:0;background:transparent;cursor:pointer;font-size:.95rem;padding:3px 5px;border-radius:7px;color:#6B6390}
+.qcard-tools button:hover{background:#EEE9F8}
+.qcard input[type=text],.qcard input[type=number]{width:100%;border:1.5px solid #DDD7EE;border-radius:10px;padding:9px 11px;background:#fff;color:var(--card-ink);font-family:inherit;font-size:.95rem}
+.qcard .qtext-in{font-weight:700}
+.qopt{display:flex;align-items:center;gap:8px;margin-top:6px}
+.qopt input[type=radio],.qopt input[type=checkbox]{flex:none;width:19px;height:19px;accent-color:var(--c1)}
+.qopt button{border:0;background:transparent;color:#9F1136;cursor:pointer;font-weight:800;padding:0 4px}
+.qrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:9px}
+.qmini{border:1.5px solid #DDD7EE;background:#fff;border-radius:9px;padding:5px 10px;font-size:.82rem;cursor:pointer;color:#6B6390;font-family:inherit;font-weight:600}
+.qmini.on{background:#FFF3D6;border-color:#E7C56B;color:#7A5A12}
+.qthumb{height:44px;border-radius:7px;border:1.5px solid #DDD7EE;display:block}
+.qhint{font-size:.8rem;color:#6B6390;margin:7px 0 0}
 /* Tap-the-spot: the picture is the answer sheet */
 .tapwrap{position:relative;display:inline-block;line-height:0;max-width:100%;border-radius:14px;overflow:hidden;box-shadow:var(--shadow);cursor:crosshair;touch-action:manipulation}
 .tapwrap img{display:block;max-width:100%;max-height:clamp(180px,42vh,460px);width:auto;height:auto}
@@ -857,7 +882,18 @@ html[data-theme=disco] .answer.win{outline-color:#fff}
   <div class="topbar"><div class="logo"><span class="bolt">⚡</span> QuizDash</div><div class="spacer"></div><button class="btn ghost" style="padding:8px 16px" onclick="show('s-landing')">← Back</button></div>
   <div class="wrap-wide stack" style="gap:18px">
     <div class="card stack">
-      <div><h2>1 · Paste your quiz</h2><p class="hint" style="margin-top:0">Write it in any notes app and paste it here. Write the question, list the answers, star the right one — QuizDash works out the rest.</p></div>
+      <div><h2>1 · Your questions</h2><p class="hint" style="margin-top:0">Add them one at a time, or switch to markdown and paste a whole quiz at once — they're two views of the same thing.</p></div>
+      <div class="modetabs" role="tablist">
+        <button type="button" class="modetab on" id="tab-build" role="tab">🧱 Build</button>
+        <button type="button" class="modetab" id="tab-write" role="tab">✍️ Markdown</button>
+      </div>
+      <div id="build-pane">
+        <div class="field"><label for="q-title">Quiz title</label><input type="text" id="q-title" placeholder="Friday Team Quiz" autocomplete="off"></div>
+        <div class="field"><label for="q-timer">Seconds to answer · reading time</label><div class="qrow"><input type="number" id="q-timer" min="1" max="300" style="max-width:110px" aria-label="Answer timer"><input type="number" id="q-read" min="0" max="30" style="max-width:110px" aria-label="Reading time"><span class="qhint">seconds · applies to every question unless one says otherwise</span></div></div>
+        <div id="qlist"></div>
+        <div class="row"><button type="button" class="btn" id="btn-addq">+ Add question</button></div>
+      </div>
+      <div id="write-pane" hidden>
 
       <details class="docs">
         <summary>📖 How to write your quiz</summary>
@@ -928,13 +964,15 @@ html[data-theme=disco] .answer.win{outline-color:#fff}
         </div>
         <div class="row" style="margin-top:8px"><button class="btn ghost" style="color:var(--card-ink);border-color:#CFC7E8;padding:8px 16px;font-size:.9rem" id="btn-sample">Load example quiz</button><button class="btn ghost" style="color:var(--card-ink);border-color:#CFC7E8;padding:8px 16px;font-size:.9rem" id="btn-export" hidden>💾 Save with pictures</button><span class="hint" id="parse-status" style="margin:0"></span></div>
       </div>
+      </div>
       <div class="shot-strip" id="shot-strip" hidden></div>
       <div class="errbox" id="parse-errors"></div>
       <div class="okbox" id="parse-ok"></div>
     </div>
 
     <div class="card stack">
-      <div><h2>2 · Look &amp; feel</h2><p class="hint" style="margin-top:0">Pick colors and fonts — the page restyles live, and players' phones get the same look. Feeling lucky? Hit the dice.</p></div>
+      <details class="lookbox"><summary><b>2 · Look &amp; feel</b> — theme, colours and fonts</summary>
+      <div><h2 style="display:none">2 · Look &amp; feel</h2><p class="hint" style="margin-top:0">Pick colors and fonts — the page restyles live, and players' phones get the same look. Feeling lucky? Hit the dice.</p></div>
       <div class="row">
         <button class="btn" style="font-size:1rem;padding:12px 22px" id="btn-random">🎲 Surprise me!</button>
         <span class="hint" style="margin:0">random color palette + font pairing</span>
@@ -970,7 +1008,7 @@ html[data-theme=disco] .answer.win{outline-color:#fff}
       </div>
       <div class="row"><button class="btn ghost" style="color:var(--card-ink);border-color:#CFC7E8;padding:8px 16px;font-size:.9rem" id="btn-derive">✨ Only have 2 colors? Auto-fill 3 &amp; 4</button>
       <button class="btn ghost" style="color:var(--card-ink);border-color:#CFC7E8;padding:8px 16px;font-size:.9rem" id="btn-resetcols">Reset defaults</button></div>
-    </div>
+    </div></details>
 
     <div class="errbox" id="create-err"></div>
     <div class="row" style="justify-content:center;padding-bottom:10px">
@@ -1838,6 +1876,41 @@ function parseQuiz(text){
   return { title: title || 'Untitled Quiz', questions, errors };
 }
 
+/* The other direction: turn parsed questions back into the plain text that
+   produced them. This is what lets the form builder and the markdown box be
+   two views of one document rather than two systems — the builder edits a
+   model, this writes the text, and the text stays the single source of
+   truth. Per-question timings are emitted only where they differ from the
+   quiz-wide defaults, so a builder-made quiz reads as cleanly as a
+   hand-written one. */
+function quizToText(quiz){
+  const dur = quiz.duration || 20, prev = Number.isInteger(quiz.preview) ? quiz.preview : PREVIEW_SECS;
+  const head = [`# ${quiz.title || 'My Quiz'}`];
+  if (dur !== 20 || prev !== PREVIEW_SECS) head.push(`${dur}s`, `read ${prev}s`);
+  const out = [head.join(' | ')];
+  (quiz.questions || []).forEach(q => {
+    const bits = [q.text || ''];
+    if ((q.duration || dur) !== dur) bits.push(`${q.duration}s`);
+    if (Number.isInteger(q.preview) && q.preview !== prev) bits.push(`read ${q.preview}s`);
+    if (q.x2) bits.push('x2');
+    out.push('', '## ' + bits.join(' | '));
+    if (q.image) out.push(`![](${q.image})`);
+    if (q.type === 'spot' && q.spot){
+      out.push(`= ${q.spot.x}%, ${q.spot.y}%` + (q.spot.r !== SPOT_RADIUS ? ` ± ${q.spot.r}%` : ''));
+    } else if (q.type === 'closest' && q.target !== undefined){
+      out.push(`= ${q.target}`);
+    } else if (q.type === 'typed'){
+      (q.accepted && q.accepted.length ? q.accepted : q.options).forEach(a => out.push(`= ${a}`));
+    } else if (q.type !== 'cloud'){
+      (q.options || []).forEach((o, i) => {
+        const right = q.type === 'multi' ? (q.corrects || []).includes(i) : q.type === 'quiz' && q.correct === i;
+        out.push(`- ${o}${right ? ' *' : ''}`);
+      });
+    }
+  });
+  return out.join('\n') + '\n';
+}
+
 const SAMPLE_QUIZ = `# Friday Team Quiz | 20s | read 5s
 
 ## What is the capital of France?
@@ -2351,9 +2424,11 @@ const Shots = {
       ta.dispatchEvent(new Event('input'));
     }
     this.render();
+    const done = token;
     showToast(shot.over
       ? `Screenshot added at ${shot.w}×${shot.h}, but it's ${Math.round(this.bytes(shot.url)/1024)}KB — crop it tighter so phones load it quickly.`
       : `Screenshot added — ${shot.w}×${shot.h}, ${Math.round(this.bytes(shot.url) / 1024)}KB`);
+    return done;
   },
 
   remove(token){
@@ -4043,6 +4118,193 @@ function syncGutter(){
   out.style.transform = `translateY(${-ta.scrollTop}px)`;
 }
 
+/* ════════════════ FORM BUILDER ══════════════════════════════════════════
+   A second view of the same quiz. It never holds state of its own for long:
+   every edit updates a model, quizToText() writes that model back into the
+   markdown box, and the markdown stays the single source of truth. Switching
+   to Build re-reads the text, so pasting a whole quiz and then building on
+   it works without any syncing.
+   ═══════════════════════════════════════════════════════════════════════ */
+const Q_TYPES = [
+  ['quiz',    'Multiple choice'],
+  ['multi',   'Pick all that apply'],
+  ['poll',    'Poll (no right answer)'],
+  ['closest', 'Closest number'],
+  ['typed',   'Type the answer'],
+  ['spot',    'Tap the spot'],
+  ['cloud',   'Word cloud']
+];
+const Builder = {
+  qs: [], title: '', dur: 20, prev: PREVIEW_SECS,
+  blank(){ return { text:'', type:'quiz', options:['',''], correct:0, corrects:[], accepted:[''], target:'', image:'', spot:null, x2:false }; },
+
+  // Re-read the markdown box — the text is always what'strue
+  seed(){
+    const parsed = parseQuiz($('quiz-input').value);
+    this.title = parsed.title === 'Untitled Quiz' ? '' : parsed.title;
+    // the quiz-wide defaults are whatever the first question inherited
+    this.dur = parsed.questions.length ? parsed.questions[0].duration : 20;
+    this.prev = parsed.questions.length ? parsed.questions[0].preview : PREVIEW_SECS;
+    const t = $('q-title'), d = $('q-timer'), r = $('q-read');
+    if (t) t.value = this.title;
+    if (d) d.value = this.dur;
+    if (r) r.value = this.prev;
+    this.qs = parsed.questions.map(q => ({
+      text: q.text || '', type: q.type || 'quiz',
+      options: q.type === 'typed' ? ['',''] : (q.options.length ? q.options.slice() : ['','']),
+      correct: q.correct, corrects: (q.corrects || []).slice(),
+      accepted: q.type === 'typed' ? ((q.accepted && q.accepted.length ? q.accepted : q.options).slice()) : [''],
+      target: q.target === undefined ? '' : q.target,
+      image: q.image || '', spot: q.spot || null, x2: !!q.x2,
+      duration: q.duration, preview: q.preview
+    }));
+    if (!this.qs.length) this.qs = [this.blank()];
+  },
+
+  // Model -> markdown -> reparse. Everything downstream already listens.
+  sync(){
+    const ta = $('quiz-input');
+    ta.value = quizToText({ title: this.title || 'My Quiz', duration: this.dur, preview: this.prev, questions: this.qs.map(q => ({
+      ...q,
+      options: q.type === 'typed' ? q.accepted.filter(a => a.trim()) : q.options,
+      accepted: q.accepted.filter(a => a.trim()),
+      target: q.target === '' ? undefined : Number(q.target)
+    })) });
+    ta.dispatchEvent(new Event('input'));
+  },
+
+  optionsHTML(q, i){
+    const kind = q.type === 'multi' ? 'checkbox' : 'radio';
+    const mark = q.type === 'poll' ? '' : 'mark';
+    return q.options.map((o, j) => `<div class="qopt">`
+      + (q.type === 'poll' ? '<span style="width:19px;flex:none"></span>'
+         : `<input type="${kind}" ${kind === 'radio' ? `name="c${i}"` : ''} data-${mark}="${j}" `
+           + `${(q.type === 'multi' ? q.corrects.includes(j) : q.correct === j) ? 'checked' : ''} aria-label="Correct answer">`)
+      + `<input type="text" data-opt="${j}" value="${esc(o)}" placeholder="Answer ${j + 1}">`
+      + (q.options.length > 2 ? `<button type="button" data-delopt="${j}" title="Remove">✕</button>` : '')
+      + `</div>`).join('')
+      + `<div class="qrow"><button type="button" class="qmini" data-addopt="1">+ Answer</button>`
+      + (q.type === 'poll' ? `<span class="qhint">Up to ${POLL_MAX} — nobody scores points.</span>` : '') + `</div>`;
+  },
+
+  bodyHTML(q, i){
+    if (q.type === 'cloud') return `<p class="qhint">Everyone types a word or short phrase on their phone — no options, no points.</p>`;
+    if (q.type === 'closest') return `<div class="qrow"><input type="number" step="any" data-target value="${esc(q.target)}" placeholder="The number, e.g. 206" style="max-width:220px"></div>`;
+    if (q.type === 'typed') return q.accepted.map((a, j) => `<div class="qopt"><span style="width:19px;flex:none">=</span>`
+        + `<input type="text" data-acc="${j}" value="${esc(a)}" placeholder="${j ? 'Also accept…' : 'The answer'}">`
+        + (q.accepted.length > 1 ? `<button type="button" data-delacc="${j}" title="Remove">✕</button>` : '') + `</div>`).join('')
+      + `<div class="qrow"><button type="button" class="qmini" data-addacc="1">+ Alternative spelling</button></div>`;
+    if (q.type === 'spot') return q.image
+      ? `<div class="qrow"><button type="button" class="qmini" data-aimq="${i}">🎯 ${q.spot ? `Target: ${q.spot.x}%, ${q.spot.y}%` : 'Set the target'}</button></div>`
+      : `<p class="qhint">Add a picture below, then set the spot players have to find.</p>`;
+    return this.optionsHTML(q, i);
+  },
+
+  render(){
+    const list = $('qlist');
+    if (!list) return;
+    list.innerHTML = this.qs.map((q, i) => `<div class="qcard" data-q="${i}">
+      <div class="qcard-top">
+        <span class="qcard-n">Q${i + 1}</span>
+        <select class="qtype" data-type aria-label="Question type">${Q_TYPES.map(([v, l]) =>
+          `<option value="${v}"${q.type === v ? ' selected' : ''}>${l}</option>`).join('')}</select>
+        <span class="qcard-tools">
+          ${this.qs.length > 1 ? `<button type="button" data-up title="Move up" ${i ? '' : 'disabled style="opacity:.3"'}>↑</button>
+          <button type="button" data-down title="Move down" ${i < this.qs.length - 1 ? '' : 'disabled style="opacity:.3"'}>↓</button>` : ''}
+          <button type="button" data-dup title="Duplicate">⧉</button>
+          <button type="button" data-del title="Delete">🗑</button>
+        </span>
+      </div>
+      <input type="text" class="qtext-in" data-text value="${esc(q.text)}" placeholder="Your question…">
+      ${this.bodyHTML(q, i)}
+      <div class="qrow">
+        ${q.image ? `<img class="qthumb" src="${esc(Shots.resolve(q.image))}" alt="">
+          <button type="button" class="qmini" data-delimg>Remove picture</button>`
+          : `<button type="button" class="qmini" data-addimg>🖼 Add picture</button>`}
+        ${q.type === 'poll' || q.type === 'cloud' ? '' :
+          `<button type="button" class="qmini${q.x2 ? ' on' : ''}" data-x2>⚡ Double points</button>`}
+      </div>
+    </div>`).join('');
+    this.wire(list);
+  },
+
+  wire(list){
+    list.querySelectorAll('.qcard').forEach(card => {
+      const i = Number(card.dataset.q), q = this.qs[i];
+      const on = (sel, ev, fn) => card.querySelectorAll(sel).forEach(el => el.addEventListener(ev, fn));
+      const restructure = () => { this.sync(); this.render(); };
+      // typing never re-renders — that would steal the caret mid-word
+      on('[data-text]', 'input', e => { q.text = e.target.value; this.sync(); });
+      on('[data-opt]', 'input', e => { q.options[+e.target.dataset.opt] = e.target.value; this.sync(); });
+      on('[data-acc]', 'input', e => { q.accepted[+e.target.dataset.acc] = e.target.value; this.sync(); });
+      on('[data-target]', 'input', e => { q.target = e.target.value; this.sync(); });
+      on('[data-mark]', 'change', e => {
+        const j = +e.target.dataset.mark;
+        if (q.type === 'multi') q.corrects = e.target.checked ? [...new Set([...q.corrects, j])] : q.corrects.filter(c => c !== j);
+        else q.correct = j;
+        this.sync();
+      });
+      on('[data-addopt]', 'click', () => { if (q.options.length < (q.type === 'poll' ? POLL_MAX : 4)) q.options.push(''); restructure(); });
+      on('[data-delopt]', 'click', e => {
+        const j = +e.target.dataset.delopt;
+        q.options.splice(j, 1);
+        q.corrects = q.corrects.filter(c => c !== j).map(c => c > j ? c - 1 : c);
+        if (q.correct === j) q.correct = 0; else if (q.correct > j) q.correct--;
+        restructure();
+      });
+      on('[data-addacc]', 'click', () => { q.accepted.push(''); restructure(); });
+      on('[data-delacc]', 'click', e => { q.accepted.splice(+e.target.dataset.delacc, 1); restructure(); });
+      on('[data-type]', 'change', e => {
+        q.type = e.target.value;
+        if (q.type === 'multi' && !q.corrects.length && q.correct >= 0) q.corrects = [q.correct];
+        if (q.type === 'poll'){ q.correct = -1; q.corrects = []; q.x2 = false; }
+        if (q.type === 'cloud') q.x2 = false;
+        restructure();
+      });
+      on('[data-x2]', 'click', () => { q.x2 = !q.x2; restructure(); });
+      on('[data-up]', 'click', () => { if (i) { this.qs.splice(i - 1, 0, this.qs.splice(i, 1)[0]); restructure(); } });
+      on('[data-down]', 'click', () => { if (i < this.qs.length - 1) { this.qs.splice(i + 1, 0, this.qs.splice(i, 1)[0]); restructure(); } });
+      on('[data-dup]', 'click', () => { this.qs.splice(i + 1, 0, JSON.parse(JSON.stringify(q))); restructure(); });
+      on('[data-del]', 'click', () => {
+        this.qs.splice(i, 1);
+        if (!this.qs.length) this.qs = [this.blank()];
+        restructure();
+      });
+      on('[data-delimg]', 'click', () => { q.image = ''; q.spot = null; restructure(); });
+      on('[data-addimg]', 'click', () => {
+        const f = document.createElement('input');
+        f.type = 'file'; f.accept = 'image/*';
+        f.onchange = async () => {
+          if (!f.files || !f.files[0]) return;
+          const token = await Shots.attach(f.files[0], null);
+          if (token){ q.image = token; restructure(); }
+        };
+        f.click();
+      });
+      on('[data-aimq]', 'click', () => { this.sync(); const line = this.lineOf(i); if (line != null) aimPicker(line); });
+    });
+  },
+
+  // Which markdown line this card's "##" ended up on, so the aim picker
+  // can write the "= x%, y%" back into the text.
+  lineOf(i){
+    const q = parseQuiz($('quiz-input').value).questions[i];
+    return q ? q.line : null;
+  },
+
+  setMode(mode, remember = true){
+    const build = mode === 'build';
+    $('build-pane').hidden = !build;
+    $('write-pane').hidden = build;
+    $('tab-build').classList.toggle('on', build);
+    $('tab-write').classList.toggle('on', !build);
+    $('parse-ok').style.display = build ? 'none' : ($('parse-ok').textContent ? 'block' : 'none');
+    if (build){ this.seed(); this.render(); }
+    if (remember) { try { localStorage.setItem('qd-mode', mode); } catch(e){} }
+    if (!build) syncGutter();
+  }
+};
+
 function renderParseStatus(parsed){
   const errBox = $('parse-errors'), okBox = $('parse-ok'), status = $('parse-status');
   // Error messages are written as "Line N: …" — pull those out so the
@@ -4072,7 +4334,7 @@ function renderParseStatus(parsed){
           + `<span class="qsum-m">${q.duration}s</span></li>`).join('')
       + `</ol>`;
     okBox.querySelectorAll('[data-aim]').forEach(b => { b.onclick = () => aimPicker(Number(b.dataset.aim)); });
-    okBox.style.display = 'block';
+    okBox.style.display = $('build-pane') && !$('build-pane').hidden ? 'none' : 'block';
     status.textContent = '';
   }
 }
@@ -4207,9 +4469,19 @@ function boot(){
     showToast('Saved a copy with the pictures written in.');
   };
   Shots.load();
+  $('tab-build').onclick = () => Builder.setMode('build');
+  $('tab-write').onclick = () => Builder.setMode('write');
+  $('btn-addq').onclick = () => { Builder.qs.push(Builder.blank()); Builder.sync(); Builder.render(); };
+  $('q-title').addEventListener('input', e => { Builder.title = e.target.value; Builder.sync(); });
+  $('q-timer').addEventListener('input', e => { Builder.dur = Math.max(1, Math.min(300, +e.target.value || 20)); Builder.sync(); });
+  $('q-read').addEventListener('input', e => { Builder.prev = Math.max(0, Math.min(30, +e.target.value || 0)); Builder.sync(); });
+  // New hosts get the form builder; anyone who switches keeps their choice.
+  let mode = 'build';
+  try { mode = localStorage.getItem('qd-mode') || 'build'; } catch(e){}
+  Builder.setMode(mode, false);
   // Width changes re-wrap the text, which changes how tall each line is
   addEventListener('resize', syncGutter);
-  $('btn-sample').onclick = () => { $('quiz-input').value = SAMPLE_QUIZ; renderParseStatus(parseQuiz(SAMPLE_QUIZ)); syncCreateBtn(); };
+  $('btn-sample').onclick = () => { $('quiz-input').value = SAMPLE_QUIZ; renderParseStatus(parseQuiz(SAMPLE_QUIZ)); syncCreateBtn(); if (!$('build-pane').hidden){ Builder.seed(); Builder.render(); } };
   syncCreateBtn();
   syncGutter();
 
