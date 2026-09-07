@@ -79,7 +79,7 @@
      fallback transport loads its responses as script tags (JSONP) inside a
      hidden iframe, and in connect-src spelled out exactly (not only as a
      wildcard) because WebKit mishandles wildcard matching for WebSockets. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://www.gstatic.com https://*.firebasedatabase.app https://quizdash-eba72-default-rtdb.europe-west1.firebasedatabase.app; connect-src https://*.firebasedatabase.app wss://*.firebasedatabase.app https://quizdash-eba72-default-rtdb.europe-west1.firebasedatabase.app wss://quizdash-eba72-default-rtdb.europe-west1.firebasedatabase.app; frame-src 'self'; img-src data:; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://www.gstatic.com https://*.firebasedatabase.app https://quizdash-eba72-default-rtdb.europe-west1.firebasedatabase.app; connect-src https://*.firebasedatabase.app wss://*.firebasedatabase.app https://quizdash-eba72-default-rtdb.europe-west1.firebasedatabase.app wss://quizdash-eba72-default-rtdb.europe-west1.firebasedatabase.app; frame-src 'self'; img-src data: https:; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>QuizDash — live quiz game</title>
 <link rel="icon" id="favicon">
@@ -195,6 +195,7 @@ textarea.quizbox{min-height:230px;font-family:ui-monospace,SFMono-Regular,Menlo,
 .qtag{flex:none;font-size:.74em;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:999px;background:#0B6B4A;color:#E8FBF4;min-width:62px;text-align:center}
 .qtag.t-poll{background:#7A5CFF} .qtag.t-closest{background:#C2571E} .qtag.t-multi{background:#0E7490}
 .qtag.t-typed{background:#9333EA} .qtag.t-cloud{background:#BE185D} .qtag.t-x2{background:#B45309;min-width:0}
+.qtag.t-img{background:#1F6F8B;min-width:0}
 
 /* ── Color picker rows ──────────────────────────────────────────────────── */
 .colors{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
@@ -240,6 +241,11 @@ details.docs[open] summary::after{transform:rotate(90deg)}
 
 /* ── Question stage (host) ──────────────────────────────────────────────── */
 .qtext{font-family:var(--font-display);font-weight:800;font-size:clamp(1.5rem,4.2vw,2.9rem);line-height:1.15;text-align:center;text-wrap:balance;max-width:900px}
+/* Optional picture for a question. Height-capped so the answers stay on
+   screen, and it shrinks further when a long poll needs the room. */
+.qimg{display:block;width:auto;height:auto;max-width:min(100%,760px);max-height:clamp(150px,30vh,360px);margin:0 auto;border-radius:16px;object-fit:contain;background:rgba(127,127,127,.14);box-shadow:var(--shadow)}
+#pq-img{max-height:clamp(110px,22vh,230px);border-radius:12px}
+.answers.many + .qimg,.qimg:has(+ .answers.many){max-height:clamp(110px,20vh,220px)}
 .timerbar{width:100%;max-width:720px;height:12px;background:rgba(255,255,255,.2);border-radius:999px;overflow:hidden}
 .timerbar>div{height:100%;background:var(--c2);border-radius:999px;width:100%}
 .timernum{font-family:var(--font-display);font-weight:800;font-size:2.4rem;min-width:2ch;text-align:center}
@@ -879,6 +885,7 @@ html[data-theme=disco] .answer.win{outline-color:#fff}
             <li><code>## Your question here?</code> — starts a question. Whatever follows <code>##</code> <b>is</b> the question.</li>
             <li><code>- Answer</code> — each answer on its own line. Mark the right one by ending it with <code>*</code> (<code>+</code>, <code>✓</code> and <code>✔</code> work too). <code>*</code> and <code>•</code> work as bullets if that's what your notes app produces.</li>
             <li><b>True/False</b> is just a question with two answers: <code>- True</code> / <code>- False *</code>.</li>
+            <li><b>A picture</b> — paste an image link on its own line, or use <code>![](https://…)</code>. It shows under the question on the big screen and on every phone. Links must be <code>https://</code>; the picture is fetched by each device, so nothing large travels through the game itself. A link that fails just leaves the question without a picture.</li>
             <li><b>Timings</b> — put them at the end of the title line and every question inherits them: <code># Friday Quiz | 20s | read 5s</code>. That's the <b>answer timer</b> (1–300s, default 20) and the <b>reading time</b> before answers appear (0–30s, default 5; <code>read 0s</code> skips it).</li>
             <li><b>Changing one question</b> — put the setting at the end of its own line instead: <code>## A tricky one? 45s</code>.</li>
             <li><code>x2</code> — <b>⚡ double points</b> for that question: <code>## Which ocean is the largest? x2</code>. Golden banner, glow and a riser on every screen — save it for the finale. (Polls and word clouds score nothing, so they can't be doubled.)</li>
@@ -992,6 +999,7 @@ html[data-theme=disco] .answer.win{outline-color:#fff}
     </div>
     <div class="row" style="justify-content:center"><div class="x2badge" id="hq-x2" style="display:none">⚡ DOUBLE POINTS ⚡</div></div>
     <div class="qtext" id="hq-text"></div>
+    <img class="qimg" id="hq-img" alt="" hidden>
     <div class="answers" id="hq-answers"></div>
     <div class="votechart" id="hq-chart"></div>
     <div class="row" style="justify-content:center;min-height:64px">
@@ -1068,6 +1076,7 @@ html[data-theme=disco] .answer.win{outline-color:#fff}
     <div class="hoststats" style="width:100%"><div class="timernum" id="pq-timer">20</div><div class="timerbar" style="flex:1"><div id="pq-timerbar"></div></div></div>
     <div class="row" style="justify-content:center"><div class="x2badge" id="pq-x2" style="display:none">⚡ DOUBLE POINTS ⚡</div></div>
     <div class="qtext" id="pq-text" style="font-size:clamp(1.15rem,4.5vw,1.7rem)"></div>
+    <img class="qimg" id="pq-img" alt="" hidden>
     <div class="answers" id="pq-answers"></div>
     <div id="pq-locked" style="display:none" class="stack center">
       <div class="bigmark" id="pq-locked-mark">⏱️</div>
@@ -1215,28 +1224,44 @@ async function snapScreen(){
       else if (el.tagName === 'SELECT') [...el.options].forEach(o => o.toggleAttribute('selected', o.value === src.value));
       else el.setAttribute('value', src.value);
     });
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">` +
-      `<foreignObject width="100%" height="100%">${new XMLSerializer().serializeToString(clone)}</foreignObject></svg>`;
-    const img = new Image();
-    await new Promise((res, rej) => {
-      img.onload = res; img.onerror = () => rej(new Error('SVG rasterize failed'));
-      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
-    });
     // Cap total pixels so a very tall capture (500-player list) can't
     // blow up canvas memory.
     const scale = Math.min(2, window.devicePixelRatio || 1, Math.sqrt(9e6 / (W * H)));
-    const cv = document.createElement('canvas');
-    cv.width = Math.round(W * scale); cv.height = Math.round(H * scale);
-    const x = cv.getContext('2d');
-    x.scale(scale, scale);
-    x.drawImage(img, 0, 0, W, H);
+    const paint = async () => {
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">` +
+        `<foreignObject width="100%" height="100%">${new XMLSerializer().serializeToString(clone)}</foreignObject></svg>`;
+      const img = new Image();
+      await new Promise((res, rej) => {
+        img.onload = res; img.onerror = () => rej(new Error('SVG rasterize failed'));
+        img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+      });
+      const cv = document.createElement('canvas');
+      cv.width = Math.round(W * scale); cv.height = Math.round(H * scale);
+      const x = cv.getContext('2d');
+      x.scale(scale, scale);
+      x.drawImage(img, 0, 0, W, H);
+      return cv;
+    };
+    let cv = await paint(), dataUrl, droppedImage = false;
+    try {
+      dataUrl = cv.toDataURL('image/png');
+    } catch(err){
+      // A question picture served without CORS headers taints the canvas
+      // and the export is refused — redraw without it rather than lose
+      // the whole screenshot.
+      clone.querySelectorAll('img.qimg').forEach(n => n.remove());
+      cv = await paint();
+      dataUrl = cv.toDataURL('image/png');
+      droppedImage = true;
+    }
 
     const scr = document.querySelector('.screen.active');
     const stamp = new Date().toISOString().slice(0, 19).replace('T', '_').replace(/:/g, '');
     const a = document.createElement('a');
     a.download = `quizdash-${scr ? scr.id.replace(/^s-/, '') : 'screen'}-${stamp}.png`;
-    a.href = cv.toDataURL('image/png');
+    a.href = dataUrl;
     a.click();
+    if (droppedImage) showToast('Screenshot saved — the question picture couldn\u2019t be included.');
 
     // Shutter feedback: white flash + confirmation on the button
     const flash = document.createElement('div');
@@ -1719,8 +1744,22 @@ function parseQuiz(text){
       if (s.bad) errors.push(`Line ${i+1}: ${s.bad}.`);
       cur = { head: s.text, label: '', duration: s.dur != null ? s.dur : defDur,
               preview: s.preview != null ? s.preview : defPreview,
-              type: s.type, x2: s.x2, inferred: false,
+              type: s.type, x2: s.x2, inferred: false, image: '',
               text: '', options: [], accepted: [], correct: -1, corrects: [] };
+      return;
+    }
+    // A picture for the question: markdown ![](url), or a bare image link
+    const mdImg = line.match(/^!\[[^\]]*\]\(\s*(\S+?)\s*\)$/);
+    const bareImg = line.match(/^(https?:\/\/\S+\.(?:png|jpe?g|gif|webp|svg|avif)(?:\?\S*)?|data:image\/\S+)$/i);
+    if (mdImg || bareImg) {
+      const url = (mdImg ? mdImg[1] : bareImg[1]).trim();
+      if (!cur) { errors.push(`Line ${i+1}: found a picture before any "##" question.`); return; }
+      if (!/^(https:\/\/|data:image\/)/i.test(url)){
+        errors.push(`Line ${i+1}: pictures must be https:// links — "${url.slice(0, 40)}" won't load.`);
+        return;
+      }
+      if (cur.image){ errors.push(`Line ${i+1}: only one picture per question.`); return; }
+      cur.image = url;
       return;
     }
     if (/^=\s*/.test(line)) {
@@ -1765,9 +1804,11 @@ const SAMPLE_QUIZ = `# Friday Team Quiz | 20s | read 5s
 - Berlin
 - Madrid
 
-## The Earth is flat.
-- True
-- False *
+## Which planet is this?
+![](https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Saturn_during_Equinox.jpg/640px-Saturn_during_Equinox.jpg)
+- Saturn *
+- Jupiter
+- Neptune
 
 ## Where would you rather be stranded? 25s
 - A desert island
@@ -2194,6 +2235,16 @@ const PALETTES = [
 ];
 
 /* ════════════════ SHARED UI BITS ════════════════ */
+// Show a question's picture, or hide the slot entirely. A link that fails
+// to load hides itself too, so a broken URL costs a picture, not a game.
+function setQImage(el, url){
+  if (!el) return;
+  if (!url){ el.hidden = true; el.removeAttribute('src'); return; }
+  el.onerror = () => { el.hidden = true; };
+  el.onload = () => { el.hidden = false; };
+  el.hidden = true;              // stays hidden until it actually loads
+  el.src = url;
+}
 function answerButtonHTML(opt, i, tag){
   return `<${tag} class="answer a${optColor(i)}" data-i="${i}"><span class="shape">${SHAPES[i % SHAPES.length]}</span><span>${esc(opt)}</span></${tag}>`;
 }
@@ -2530,6 +2581,7 @@ const Host = {
     $('hq-progress').textContent = `Q${i+1} / ${this.quiz.questions.length}`;
     $('hq-room').textContent = this.room;
     $('hq-text').textContent = q.text;
+    setQImage($('hq-img'), q.image);
     $('hq-total').textContent = Object.keys(this.players).length;
     $('hq-answered').textContent = '0';
     $('hq-answers').innerHTML = '';
@@ -2552,6 +2604,9 @@ const Host = {
     const qPayload = freeText
       ? { text: q.text, duration: q.duration, type: q.type, x2: !!q.x2 }
       : { text: q.text, options: q.options, duration: q.duration, type: q.type || 'quiz', x2: !!q.x2 };
+    // Only the link travels — every phone fetches the picture itself, so
+    // the database never carries more than a URL.
+    if (q.image) qPayload.img = q.image;
 
     const pv = Number.isInteger(q.preview) ? q.preview : PREVIEW_SECS;
     this.skipPreview = false;
@@ -3238,6 +3293,7 @@ const Player = {
     this.myAnswer = null;
     $('pq-progress').textContent = `Q${s.qIndex + 1} / ${s.total}`;
     $('pq-text').textContent = s.q.text;
+    setQImage($('pq-img'), s.q.img);
     $('pq-x2').style.display = s.q.x2 ? '' : 'none';
     document.getElementById('s-pquestion').classList.toggle('x2on', !!s.q.x2);
     const grid = $('pq-answers');
@@ -3263,6 +3319,7 @@ const Player = {
     this.receivedAt = Date.now();
     $('pq-progress').textContent = `Q${s.qIndex + 1} / ${s.total}`;
     $('pq-text').textContent = s.q.text;
+    setQImage($('pq-img'), s.q.img);
     $('pq-x2').style.display = s.q.x2 ? '' : 'none';
     document.getElementById('s-pquestion').classList.toggle('x2on', !!s.q.x2);
     if (s.q.x2) SFX.play('double'); // ⚡ the stakes just went up
@@ -3693,6 +3750,7 @@ function renderParseStatus(parsed){
       + `<ol class="qsum">` + parsed.questions.map(q =>
           `<li><span class="qtag t-${q.type}">${TYPE_LABEL[q.type] || q.type}</span>`
           + (q.x2 ? `<span class="qtag t-x2">⚡2×</span>` : '')
+          + (q.image ? `<span class="qtag t-img">🖼</span>` : '')
           + `<span class="qsum-t">${esc(q.text)}</span>`
           + `<span class="qsum-m">${q.duration}s</span></li>`).join('')
       + `</ol>`;
