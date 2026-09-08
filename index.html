@@ -210,8 +210,12 @@ textarea.quizbox{min-height:230px;font-family:ui-monospace,SFMono-Regular,Menlo,
 .lookbox>summary{cursor:pointer;font-size:1rem;color:var(--card-ink);padding:4px 0;list-style:none}
 .lookbox>summary::-webkit-details-marker{display:none}
 .lookbox>summary::before{content:"▸ ";opacity:.6}
+.lookbox[open]>summary{margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid #EEE9F8}
+.lookbox .row{gap:14px;row-gap:12px}
+.lookbox .hint{margin-bottom:4px}
 .lookbox[open]>summary::before{content:"▾ "}
 .qcard{border:1.5px solid #DDD7EE;border-radius:14px;padding:12px;margin-bottom:10px;background:#FDFCFF}
+.qcard.dropping{border-color:var(--c1);background:#F3EFFF;box-shadow:0 0 0 3px rgba(79,44,189,.15)}
 .qcard-top{display:flex;gap:8px;align-items:center;margin-bottom:8px}
 .qcard-n{font-weight:800;color:#6B6390;font-size:.85rem;min-width:26px}
 .qcard select.qtype{flex:none;width:auto;padding:6px 8px;font-size:.85rem;border:1.5px solid #DDD7EE;border-radius:9px;background:#FBFAFF;color:var(--card-ink);font-family:inherit}
@@ -972,7 +976,7 @@ html[data-theme=disco] .answer.win{outline-color:#fff}
 
     <div class="card stack">
       <details class="lookbox"><summary><b>2 · Look &amp; feel</b> — theme, colours and fonts</summary>
-      <div><h2 style="display:none">2 · Look &amp; feel</h2><p class="hint" style="margin-top:0">Pick colors and fonts — the page restyles live, and players' phones get the same look. Feeling lucky? Hit the dice.</p></div>
+      <div class="stack" style="gap:14px"><h2 style="display:none">2 · Look &amp; feel</h2><p class="hint" style="margin-top:0">Pick colors and fonts — the page restyles live, and players' phones get the same look. Feeling lucky? Hit the dice.</p></div>
       <div class="row">
         <button class="btn" style="font-size:1rem;padding:12px 22px" id="btn-random">🎲 Surprise me!</button>
         <span class="hint" style="margin:0">random color palette + font pairing</span>
@@ -1687,6 +1691,8 @@ function readSetting(tok, hasSep){
   if (d) return { dur: +d[1] };
   if (!hasSep) return null;          // the rest need an explicit separator
   if (/^double$/i.test(t)) return { x2: true };
+  if (/^quiz$/i.test(t)) return { type: 'quiz' };
+  if (/^spot$/i.test(t)) return { type: 'spot' };
   if (/^poll$/i.test(t)) return { type: 'poll' };
   if (/^closest$/i.test(t)) return { type: 'closest' };
   if (/^multi$/i.test(t)) return { type: 'multi' };
@@ -1889,20 +1895,39 @@ function quizToText(quiz){
   if (dur !== 20 || prev !== PREVIEW_SECS) head.push(`${dur}s`, `read ${prev}s`);
   const out = [head.join(' | ')];
   (quiz.questions || []).forEach(q => {
+    // Blank boxes in the builder aren't answers yet, so they don't get written
+    const kept = (q.options || []).map((o, i) => ({ o, i })).filter(x => String(x.o).trim());
+    const acc = (q.accepted || []).filter(a => String(a).trim());
+    const hasTarget = q.target !== undefined && q.target !== '' && q.target !== null;
+    // Types are normally inferred from shape. A half-built question has no
+    // shape to read yet — an unfinished "tap the spot" is just a picture —
+    // so name the type explicitly until the shape can speak for itself.
+    const needsFlag = {
+      quiz:    kept.length < 2 || !kept.some(x => x.i === q.correct),
+      multi:   kept.length < 2 || !kept.some(x => (q.corrects || []).includes(x.i)),
+      poll:    kept.length < 2,
+      closest: !hasTarget,
+      typed:   !acc.length,
+      spot:    !q.spot,
+      cloud:   false
+    }[q.type];
     const bits = [q.text || ''];
     if ((q.duration || dur) !== dur) bits.push(`${q.duration}s`);
     if (Number.isInteger(q.preview) && q.preview !== prev) bits.push(`read ${q.preview}s`);
+    if (needsFlag) bits.push(q.type === 'typed' ? 'type' : q.type);
     if (q.x2) bits.push('x2');
     out.push('', '## ' + bits.join(' | '));
     if (q.image) out.push(`![](${q.image})`);
-    if (q.type === 'spot' && q.spot){
-      out.push(`= ${q.spot.x}%, ${q.spot.y}%` + (q.spot.r !== SPOT_RADIUS ? ` ± ${q.spot.r}%` : ''));
-    } else if (q.type === 'closest' && q.target !== undefined){
-      out.push(`= ${q.target}`);
+    if (q.type === 'spot'){
+      if (q.spot) out.push(`= ${q.spot.x}%, ${q.spot.y}%` + (q.spot.r !== SPOT_RADIUS ? ` ± ${q.spot.r}%` : ''));
+    } else if (q.type === 'closest'){
+      if (hasTarget) out.push(`= ${q.target}`);
     } else if (q.type === 'typed'){
-      (q.accepted && q.accepted.length ? q.accepted : q.options).forEach(a => out.push(`= ${a}`));
-    } else if (q.type !== 'cloud'){
-      (q.options || []).forEach((o, i) => {
+      acc.forEach(a => out.push(`= ${a}`));
+    } else if (q.type === 'quiz' || q.type === 'multi' || q.type === 'poll'){
+      // Only these three carry "-" answers; the others must never emit any,
+      // or a leftover answer box turns into a validation error you can't see.
+      kept.forEach(({ o, i }) => {
         const right = q.type === 'multi' ? (q.corrects || []).includes(i) : q.type === 'quiz' && q.correct === i;
         out.push(`- ${o}${right ? ' *' : ''}`);
       });
@@ -2542,6 +2567,8 @@ function aimPicker(line){
     else lines.splice(imgLine === -1 ? line + 1 : line + imgLine + 1, 0, coord);
     ta.value = lines.join('\n');
     ta.dispatchEvent(new Event('input'));
+    // the cards are a view of this text, so let them re-read it
+    if ($('build-pane') && !$('build-pane').hidden){ Builder.seed(); Builder.render(); }
     close();
     showToast(`Target set to ${x}% across, ${y}% down.`);
   };
@@ -2696,7 +2723,7 @@ const Host = {
 
   async createRoom(){
     const parsed = parseQuiz($('quiz-input').value);
-    if (parsed.errors.length){ renderParseStatus(parsed); return; }
+    if (parsed.errors.length){ renderParseStatus(parsed, true); return; }
     const btn = $('btn-create'), errBox = $('create-err');
     errBox.style.display = 'none';
     btn.disabled = true; btn.textContent = 'Connecting…';
@@ -4220,7 +4247,8 @@ const Builder = {
       <div class="qrow">
         ${q.image ? `<img class="qthumb" src="${esc(Shots.resolve(q.image))}" alt="">
           <button type="button" class="qmini" data-delimg>Remove picture</button>`
-          : `<button type="button" class="qmini" data-addimg>🖼 Add picture</button>`}
+          : `<button type="button" class="qmini" data-addimg>🖼 Add picture</button>
+             <span class="qhint">…or drop one here, or paste with the card selected</span>`}
         ${q.type === 'poll' || q.type === 'cloud' ? '' :
           `<button type="button" class="qmini${q.x2 ? ' on' : ''}" data-x2>⚡ Double points</button>`}
       </div>
@@ -4282,6 +4310,30 @@ const Builder = {
         f.click();
       });
       on('[data-aimq]', 'click', () => { this.sync(); const line = this.lineOf(i); if (line != null) aimPicker(line); });
+      // Drop a file anywhere on the card, or paste one while it's focused —
+      // the same gesture the markdown box takes.
+      const take = async file => {
+        const token = await Shots.attach(file, null);
+        if (token){ q.image = token; this.sync(); this.render(); }
+      };
+      card.addEventListener('dragover', e => {
+        if ([...e.dataTransfer.types].includes('Files')){ e.preventDefault(); card.classList.add('dropping'); }
+      });
+      ['dragleave','drop'].forEach(ev => card.addEventListener(ev, () => card.classList.remove('dropping')));
+      card.addEventListener('drop', e => {
+        const f = [...(e.dataTransfer.files || [])].find(x => /^image\//.test(x.type));
+        if (!f) return;
+        e.preventDefault(); e.stopPropagation();
+        take(f);
+      });
+      card.addEventListener('paste', e => {
+        const it = [...((e.clipboardData && e.clipboardData.items) || [])].find(x => x.type.startsWith('image/'));
+        if (!it) return;
+        const f = it.getAsFile();
+        if (!f) return;
+        e.preventDefault(); e.stopPropagation();
+        take(f);
+      });
     });
   },
 
@@ -4305,7 +4357,7 @@ const Builder = {
   }
 };
 
-function renderParseStatus(parsed){
+function renderParseStatus(parsed, force){
   const errBox = $('parse-errors'), okBox = $('parse-ok'), status = $('parse-status');
   // Error messages are written as "Line N: …" — pull those out so the
   // gutter can point straight at them.
@@ -4317,7 +4369,11 @@ function renderParseStatus(parsed){
   if (!$('quiz-input').value.trim()){ errBox.style.display = 'none'; okBox.style.display = 'none'; status.textContent = ''; return; }
   if (parsed.errors.length){
     errBox.textContent = '⚠ Fix these before creating the room:\n• ' + parsed.errors.join('\n• ');
-    errBox.style.display = 'block'; okBox.style.display = 'none';
+    // In Build mode the cards are the interface, so an in-progress question
+    // shouldn't turn the screen red; Create still shows everything.
+    const building = $('build-pane') && !$('build-pane').hidden;
+    errBox.style.display = (building && !force) ? 'none' : 'block';
+    okBox.style.display = 'none';
     status.textContent = '';
   } else {
     errBox.style.display = 'none';
