@@ -237,8 +237,17 @@ textarea.quizbox{min-height:230px;font-family:ui-monospace,SFMono-Regular,Menlo,
 .lookbox>summary::-webkit-details-marker{display:none}
 .lookbox>summary::before{content:"▸ ";opacity:.6}
 .lookbox[open]>summary{margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid #EEE9F8}
-.lookbox .row{gap:14px;row-gap:12px}
-.lookbox .hint{margin-bottom:4px}
+/* grouped like the timing cards in Build: one tinted card per concern */
+.lookbody{display:grid;gap:14px}
+.lookhead{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.lookhead .hint{margin:0;flex:1;min-width:200px}
+.qmini.lucky{padding:8px 14px;font-size:.88rem;background:#FFF6DC;border-color:#F3D27A;color:#7A5A12}
+.lookgroup{background:#F7F4FE;border:1.5px solid #E4DEF5;border-radius:12px;padding:12px 14px 14px}
+.lookgroup-h{display:block;font-weight:700;font-size:.92rem;margin-bottom:10px;color:var(--card-ink)}
+.lookgroup .field{margin:0}
+.lookgroup .field label{font-size:.8rem;font-weight:600;color:#6B6390;margin-bottom:5px}
+.lookpair{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:560px){.lookpair{grid-template-columns:1fr}.lookgroup .colors{grid-template-columns:repeat(2,minmax(0,1fr))}.lookgroup .color-slot{padding:7px 8px;gap:8px}.lookgroup .color-slot input[type=color]{width:32px;height:32px}.lookgroup .color-slot .role{white-space:normal;line-height:1.25;font-size:.72rem;overflow:visible}.lookgroup .color-slot input[type=color]{width:28px;height:28px}}
 .lookbox[open]>summary::before{content:"▾ "}
 /* Each question is its own lifted card: white on the tinted panel, a
    soft shadow, and a stripe in the quiz's main colour down the left.
@@ -305,11 +314,14 @@ textarea.quizbox{min-height:230px;font-family:ui-monospace,SFMono-Regular,Menlo,
 textarea.quizbox.dropping{border-color:var(--c1);background:#F3EFFF}
 
 /* ── Color picker rows ──────────────────────────────────────────────────── */
-.colors{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
-.color-slot{display:flex;align-items:center;gap:8px;background:#FBFAFF;border:2px solid #DDD7EE;border-radius:12px;padding:8px 10px}
+.colors{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.color-slot{display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid #DDD7EE;border-radius:10px;padding:8px 10px}
+.color-slot>div{flex:1;min-width:0}
+.color-slot{min-width:0}.color-slot input[type=text]{min-width:0}.lookbody>*{min-width:0}
 .color-slot input[type=color]{width:38px;height:38px;border:none;background:none;padding:0;border-radius:8px;cursor:pointer}
 .color-slot input[type=text]{width:100%;border:none;background:transparent;font-family:ui-monospace,monospace;font-size:.9rem;color:var(--card-ink)}
-.color-slot .role{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6B6390;display:block}
+.color-slot .role{font-size:.78rem;font-weight:700;color:#6B6390;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.color-slot .role i{font-style:normal;font-weight:500;opacity:.75}
 
 /* ── Docs (How to write a quiz) ─────────────────────────────────────────── */
 .doctable{border-collapse:collapse;width:100%;margin:8px 0 4px;font-size:.92em}
@@ -568,7 +580,7 @@ button.answer.picked{outline:4px solid var(--ink);outline-offset:-4px;filter:bri
 @keyframes toastpop{from{opacity:0;transform:translate(-50%,-14px) scale(.85)}}
 @media (hover:hover) and (pointer:fine){.snaphint:hover{transform:rotate(-1.5deg) scale(1.03)}}
 .homebtn{padding:8px 16px !important;font-size:.9rem !important}
-select.fontsel{width:100%;border:2px solid #DDD7EE;border-radius:12px;padding:11px 12px;background:#FBFAFF;color:var(--card-ink);cursor:pointer}
+select.fontsel{width:100%;border:1.5px solid #DDD7EE;border-radius:10px;padding:9px 11px;background:#fff;color:var(--card-ink);cursor:pointer;font-size:.95rem}
 select.fontsel:focus{border-color:var(--c1);outline:none}
 
 /* ── Avatars & emoji reactions ──────────────────────────────────────────── */
@@ -1098,12 +1110,14 @@ html[data-theme=disco] .answer.win{outline-color:#fff}
 
     <div class="card stack">
       <details class="lookbox"><summary><b>2 · Look &amp; feel</b> — theme, colours and fonts</summary>
-      <div class="stack" style="gap:14px"><h2 style="display:none">2 · Look &amp; feel</h2><p class="hint" style="margin-top:0">Pick colors and fonts — the page restyles live, and players' phones get the same look. Feeling lucky? Hit the dice.</p></div>
-      <div class="row">
-        <button class="btn" style="font-size:1rem;padding:12px 22px" id="btn-random">🎲 Surprise me!</button>
-        <span class="hint" style="margin:0">random color palette + font pairing</span>
-      </div>
-      <div class="field"><label for="theme-sel">Theme</label><select class="fontsel" id="theme-sel">
+      <div class="lookbody">
+        <div class="lookhead">
+          <p class="hint">The page restyles as you go, and players' phones get the same look.</p>
+          <button type="button" class="qmini lucky" id="btn-random" title="Random colour palette and font pairing">🎲 Surprise me</button>
+        </div>
+        <div class="lookgroup">
+          <label class="lookgroup-h" for="theme-sel">🎨 Theme</label>
+          <select class="fontsel" id="theme-sel">
         <option value="classic">🎪 Classic QuizDash</option>
         <option value="arcade">🕹️ Arcade Neon</option>
         <option value="nintendo">🍄 Nintendo</option>
@@ -1121,20 +1135,29 @@ html[data-theme=disco] .answer.win{outline-color:#fff}
         <option value="deepsea">🐙 Deep Sea</option>
         <option value="noir">🕵️ Film Noir</option>
         <option value="disco">🪩 Disco</option>
-      </select></div>
-      <div class="row" style="align-items:stretch">
-        <div style="flex:1;min-width:170px" class="field"><label for="font-display">Display font (headings)</label><select class="fontsel" id="font-display"></select></div>
-        <div style="flex:1;min-width:170px" class="field"><label for="font-body">Body font</label><select class="fontsel" id="font-body"></select></div>
-      </div>
-      <div class="colors">
-        <div class="color-slot"><input type="color" id="col-0" value="#4F2CBD"><div style="flex:1"><span class="role">1 · Background</span><input type="text" id="hex-0" value="#4F2CBD" maxlength="7" aria-label="Color 1 hex"></div></div>
-        <div class="color-slot"><input type="color" id="col-1" value="#FFB800"><div style="flex:1"><span class="role">2 · Accent / CTA</span><input type="text" id="hex-1" value="#FFB800" maxlength="7" aria-label="Color 2 hex"></div></div>
-        <div class="color-slot"><input type="color" id="col-2" value="#FF4E6A"><div style="flex:1"><span class="role">3 · Answers (optional)</span><input type="text" id="hex-2" value="#FF4E6A" maxlength="7" aria-label="Color 3 hex"></div></div>
-        <div class="color-slot"><input type="color" id="col-3" value="#19C6B2"><div style="flex:1"><span class="role">4 · Answers (optional)</span><input type="text" id="hex-3" value="#19C6B2" maxlength="7" aria-label="Color 4 hex"></div></div>
-      </div>
-      <div class="row"><button class="btn ghost" style="color:var(--card-ink);border-color:#CFC7E8;padding:8px 16px;font-size:.9rem" id="btn-derive">✨ Only have 2 colors? Auto-fill 3 &amp; 4</button>
-      <button class="btn ghost" style="color:var(--card-ink);border-color:#CFC7E8;padding:8px 16px;font-size:.9rem" id="btn-resetcols">Reset defaults</button></div>
-    </div></details>
+          </select>
+        </div>
+        <div class="lookgroup">
+          <span class="lookgroup-h">🔤 Fonts</span>
+          <div class="lookpair">
+            <div class="field"><label for="font-display">Headings</label><select class="fontsel" id="font-display"></select></div>
+            <div class="field"><label for="font-body">Body text</label><select class="fontsel" id="font-body"></select></div>
+          </div>
+        </div>
+        <div class="lookgroup">
+          <span class="lookgroup-h">🌈 Colours</span>
+          <div class="colors">
+            <div class="color-slot"><input type="color" id="col-0" value="#4F2CBD" aria-label="Background colour"><div><span class="role">Background</span><input type="text" id="hex-0" value="#4F2CBD" maxlength="7" aria-label="Color 1 hex"></div></div>
+            <div class="color-slot"><input type="color" id="col-1" value="#FFB800" aria-label="Accent colour"><div><span class="role">Accent &amp; buttons</span><input type="text" id="hex-1" value="#FFB800" maxlength="7" aria-label="Color 2 hex"></div></div>
+            <div class="color-slot"><input type="color" id="col-2" value="#FF4E6A" aria-label="Answer colour 3"><div><span class="role">Answers <i>optional</i></span><input type="text" id="hex-2" value="#FF4E6A" maxlength="7" aria-label="Color 3 hex"></div></div>
+            <div class="color-slot"><input type="color" id="col-3" value="#19C6B2" aria-label="Answer colour 4"><div><span class="role">Answers <i>optional</i></span><input type="text" id="hex-3" value="#19C6B2" maxlength="7" aria-label="Color 4 hex"></div></div>
+          </div>
+          <div class="qrow">
+            <button type="button" class="qmini" id="btn-derive" title="Only have 2 colours? Make the answer colours from the accent">✨ Fill answers from my 2 colours</button>
+            <button type="button" class="qmini" id="btn-resetcols">Reset colours</button>
+          </div>
+        </div>
+      </div></details>
 
     <div class="errbox" id="create-err"></div>
     <div class="row" style="justify-content:center;padding-bottom:10px">
