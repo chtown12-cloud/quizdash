@@ -240,7 +240,12 @@ textarea.quizbox{min-height:230px;font-family:ui-monospace,SFMono-Regular,Menlo,
 .lookbox .row{gap:14px;row-gap:12px}
 .lookbox .hint{margin-bottom:4px}
 .lookbox[open]>summary::before{content:"▾ "}
-.qcard{border:1.5px solid #DDD7EE;border-radius:14px;padding:12px;margin-bottom:10px;background:#FDFCFF}
+/* Each question is its own lifted card: white on the tinted panel, a
+   soft shadow, and a stripe in the quiz's main colour down the left.
+   The one being edited glows so it's clear where you are. */
+.qcard{border:1.5px solid #E4DEF5;border-left:5px solid var(--c1);border-radius:14px;padding:14px 14px 14px 13px;margin-bottom:16px;background:#fff;box-shadow:0 1px 2px rgba(40,20,110,.06),0 6px 18px rgba(40,20,110,.10);transition:box-shadow .2s,border-color .2s}
+.qcard:hover{box-shadow:0 1px 2px rgba(40,20,110,.08),0 10px 26px rgba(40,20,110,.15)}
+.qcard:focus-within{border-color:#C9BEEB;border-left-color:var(--c1);box-shadow:0 0 0 3px rgba(79,44,189,.12),0 10px 26px rgba(40,20,110,.15)}
 .qcard.dropping{border-color:var(--c1);background:#F3EFFF;box-shadow:0 0 0 3px rgba(79,44,189,.15)}
 .qcard-top{display:flex;gap:8px;align-items:center;margin-bottom:8px}
 .qcard-n{font-weight:800;color:#6B6390;font-size:.85rem;min-width:26px}
@@ -257,8 +262,9 @@ textarea.quizbox{min-height:230px;font-family:ui-monospace,SFMono-Regular,Menlo,
 #qlist.sorting .qtext-in{pointer-events:none}
 .qcard.dragging{border-color:var(--c1);background:#F6F2FF;box-shadow:0 14px 34px rgba(40,20,110,.28);transform:scale(1.015);position:relative;z-index:2}
 .btn.ghost.cardghost{color:var(--card-ink);border-color:#CFC7E8}
-.qcard select.qtype{flex:none;width:auto;padding:6px 8px;font-size:.85rem;border:1.5px solid #DDD7EE;border-radius:9px;background:#FBFAFF;color:var(--card-ink);font-family:inherit}
-.qcard-tools{margin-left:auto;display:flex;gap:2px}
+.qcard select.qtype{flex:0 1 auto;min-width:0;width:auto;padding:6px 8px;font-size:.85rem;border:1.5px solid #DDD7EE;border-radius:9px;background:#FBFAFF;color:var(--card-ink);font-family:inherit}
+.qcard-tools{margin-left:auto;display:flex;gap:2px;flex:none}
+@media (max-width:480px){.qcard-top{gap:5px}.qcard-tools button{padding:3px 3px}.qcard{padding:12px 10px 12px 10px}}
 .qcard-tools button{border:0;background:transparent;cursor:pointer;font-size:.95rem;padding:3px 5px;border-radius:7px;color:#6B6390}
 .qcard-tools button:hover{background:#EEE9F8}
 .qcard input[type=text],.qcard input[type=number]{width:100%;border:1.5px solid #DDD7EE;border-radius:10px;padding:9px 11px;background:#fff;color:var(--card-ink);font-family:inherit;font-size:.95rem}
