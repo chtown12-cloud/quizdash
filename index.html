@@ -1223,6 +1223,82 @@ function show(id){
   if (id === 's-setup') try { syncGutter(); } catch(e){ console.warn(e); }
 }
 
+/* ── Presenter screens always fit the window ─────────────────────────────
+   Nobody scrolls a projector. When a question, reveal, leaderboard or
+   podium is taller than the window, the parts that can give do so in
+   order: pictures shrink first (down to a still-useful size), then the
+   vote chart's bars, and only then does the whole screen scale down —
+   zoom re-lays out text rather than blurring it. Re-runs whenever the
+   screen's content changes, a picture loads, or the window resizes. */
+const HOST_SCREENS = ['s-hquestion', 's-hboard', 's-hpodium'];
+function fitHost(){
+  const scr = document.querySelector('.screen.active');
+  if (!scr || !HOST_SCREENS.includes(scr.id)) return;
+  const stack = scr.querySelector(':scope > .center.stack');
+  if (!stack) return;
+  const imgs = [...stack.querySelectorAll('img.qimg, .tapwrap img')];
+  const bars = [...stack.querySelectorAll('.vctrack')];
+  const chart = $('hq-chart');
+  const rows = [...stack.querySelectorAll('#hb-rows > .boardrow')];
+  // The final standings list is everyone, on purpose — that one may scroll
+  const everyone = scr.id === 's-hboard' && $('hb-rows').dataset.all === '1';
+  // Once answers are revealed the picture has done its job and can give more
+  const revealed = scr.id === 's-hquestion' && $('btn-hq-next').style.display !== 'none';
+  // Start from the natural layout every time, so a bigger window grows back
+  stack.style.zoom = ''; stack.style.gap = '';
+  imgs.forEach(i => { i.style.maxHeight = ''; });
+  bars.forEach(b => { b.style.height = ''; });
+  if (chart) chart.style.display = '';
+  rows.forEach(r => { r.style.display = ''; });
+  // Layout height, not scrollHeight: cards and rows sliding in on entry
+  // poke out for a moment, and that must not shrink the screen for good
+  const over = () => scr.offsetHeight - innerHeight;
+  let x = over();
+  const done = () => x <= 1;
+  if (!done()){ stack.style.gap = '12px'; x = over(); }
+  for (const img of imgs){
+    if (done()) break;
+    const h = img.getBoundingClientRect().height;
+    if (!h) continue;                       // hidden or not loaded yet
+    img.style.maxHeight = Math.max(revealed ? 100 : 150, Math.floor(h - x)) + 'px';
+    x = over();
+  }
+  if (!done() && bars.length){
+    const h = bars[0].getBoundingClientRect().height;
+    bars.forEach(b => { b.style.height = Math.max(56, Math.floor(h - x)) + 'px'; });
+    x = over();
+  }
+  // Every answer card already carries its votes and %, so the chart is
+  // the first thing a cramped reveal can do without
+  if (!done() && revealed && chart && chart.childElementCount){ chart.style.display = 'none'; x = over(); }
+  if (everyone) return fitWatch.takeRecords();
+  // Scale the whole screen evenly — the race track can't be squashed on its
+  // own without its runners piling on top of each other
+  const zoomTo = floor => {
+    for (let k = 0; k < 5 && !done(); k++){
+      const z = Number(stack.style.zoom) || 1;
+      if (z <= floor) break;
+      const h = stack.getBoundingClientRect().height;
+      stack.style.zoom = Math.max(floor, z * (h - x - 2) / h).toFixed(3);
+      x = over();
+    }
+  };
+  // A shorter top list beats a tiny one: top 5, then scale a little, then top 3
+  const trimTo = n => { for (let i = rows.length - 1; i >= n && !done(); i--){ rows[i].style.display = 'none'; x = over(); } };
+  trimTo(5);
+  zoomTo(.75);
+  trimTo(3);
+  zoomTo(.5);
+  fitWatch.takeRecords();                   // our own style changes aren't news
+}
+let fitRaf = 0;
+function scheduleFit(){ cancelAnimationFrame(fitRaf); fitRaf = requestAnimationFrame(fitHost); }
+const fitWatch = new MutationObserver(scheduleFit);
+HOST_SCREENS.forEach(id => fitWatch.observe(document.getElementById(id),
+  { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['class', 'hidden', 'style', 'src'] }));
+document.addEventListener('load', e => { if (e.target && e.target.tagName === 'IMG') scheduleFit(); }, true);
+addEventListener('resize', scheduleFit);
+
 /* Chat bubble pointing at the 📸 button (poll results, final podium).
    Auto-hides, and goes away on tap or when the screen changes. */
 let snapHintTimer = null;
@@ -3379,6 +3455,7 @@ const Host = {
     await Sync.update(this.path('state'), { phase: 'board', standings: st.slice(0, 10), total: st.length });
     $('hb-progress').textContent = `After Q${this.qIndex + 1} / ${this.quiz.questions.length}`;
     $('hb-room').textContent = this.room;
+    $('hb-rows').dataset.all = '';
     $('hb-rows').innerHTML = st.slice(0, 8).map((p, r) => `
       <div class="boardrow">
         <span class="rank">${r+1}</span>
@@ -3587,6 +3664,7 @@ const Host = {
     $('hb-progress').textContent = 'Final standings';
     $('hb-room').textContent = this.room;
     this.renderRace(st);
+    $('hb-rows').dataset.all = '1';
     $('hb-rows').innerHTML = st.map((p, r) => `
       <div class="boardrow"><span class="rank">${r+1}</span><span class="bname">${p.emoji} ${esc(p.name)}</span><span class="bscore">${p.score.toLocaleString()}</span></div>`).join('');
     const btn = $('btn-hb-next');
