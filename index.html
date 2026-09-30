@@ -551,6 +551,49 @@ select.fontsel:focus{border-color:var(--c1);outline:none}
 .floatemo{position:fixed;bottom:-64px;font-size:2.5rem;z-index:55;pointer-events:none;animation:floatup 3s ease-in forwards}
 @keyframes floatup{0%{opacity:1}100%{transform:translateY(-115vh) rotate(var(--rot,0deg));opacity:0}}
 
+/* ── Landing: rotating headline, self-playing demo, three steps ───────── */
+.hero{font-size:clamp(2.2rem,7vw,4rem);font-weight:800;line-height:1.08;text-wrap:balance}
+/* the rotating word gets its own line, so a longer word never shoves
+   the rest of the page around */
+.hero-rot{display:block;white-space:nowrap}
+.hero-word{display:inline-block;color:var(--c2);transform-origin:50% 60%}
+.hero-word.flip{animation:wordflip .5s cubic-bezier(.22,1,.36,1)}
+@keyframes wordflip{0%{opacity:0;transform:translateY(.45em) rotateX(70deg)}100%{opacity:1;transform:none}}
+.hero-bang i{display:inline-block;font-style:normal;animation:bang 1.6s ease-in-out infinite;transform-origin:50% 90%}
+.hero-bang i+i{animation-delay:.18s}
+@keyframes bang{0%,60%,100%{transform:rotate(0)}70%{transform:rotate(-14deg) translateY(-4px)}85%{transform:rotate(10deg)}}
+.demo{width:min(100%,560px);background:rgba(0,0,0,.2);border:1.5px solid rgba(255,255,255,.18);border-radius:20px;padding:14px 16px 16px;box-shadow:0 20px 50px rgba(0,0,0,.28);text-align:center;min-height:262px;display:flex;flex-direction:column;gap:10px;transition:opacity .35s}
+.demo.out{opacity:0}
+.demo-top{display:flex;align-items:center;gap:8px;font-size:.72rem;font-weight:700}
+.demo-pill{background:rgba(255,255,255,.14);border-radius:999px;padding:3px 10px;white-space:nowrap}
+.demo-crowd{flex:1;display:flex;justify-content:center;flex-wrap:wrap;gap:1px;min-height:18px;font-size:.9rem;line-height:1}
+.demo-crowd span{animation:pop .35s cubic-bezier(.22,1.4,.36,1) backwards}
+.demo-bar{height:6px;background:rgba(255,255,255,.18);border-radius:99px;overflow:hidden}
+.demo-bar div{height:100%;width:100%;background:var(--c2);border-radius:99px}
+.demo-text{font-family:var(--font-display);font-weight:800;font-size:clamp(1.05rem,3.4vw,1.35rem);line-height:1.2;min-height:1.3em}
+.demo-body{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:8px;align-content:center}
+.demo .answer{min-height:42px;padding:8px 10px 8px 38px;font-size:.85rem;border-radius:11px;position:relative;overflow:hidden;animation:cardIn .4s cubic-bezier(.22,1,.36,1) backwards}
+.demo .answer .shape{left:10px;width:20px;height:20px}
+.demo .answer.dim{opacity:.4}
+.demo .answer.win{box-shadow:0 0 0 3px var(--ink),0 6px 18px rgba(0,0,0,.3);transform:scale(1.03);transition:transform .3s}
+.demo-fill{position:absolute;left:0;bottom:0;height:4px;width:0;background:rgba(255,255,255,.75);transition:width 1s cubic-bezier(.22,1,.36,1)}
+.demo-n{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-weight:800;font-size:.8rem;opacity:0;transition:opacity .4s}
+.demo-pts{grid-column:1/-1;font-family:var(--font-display);font-weight:800;color:var(--c2);animation:ptsup 1.4s ease-out both}
+@keyframes ptsup{0%{opacity:0;transform:translateY(10px) scale(.7)}25%{opacity:1;transform:scale(1.15)}100%{opacity:1;transform:none}}
+.demo-cloud{grid-column:1/-1;display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:4px 12px;min-height:120px}
+.demo-cloud span{font-family:var(--font-display);font-weight:800;animation:pop .4s cubic-bezier(.22,1.4,.36,1) backwards}
+.demo-line{grid-column:1/-1;position:relative;height:96px;margin:0 6px}
+.demo-line::after{content:"";position:absolute;left:0;right:0;bottom:24px;height:2px;background:currentColor;opacity:.3}
+.demo-line .g{position:absolute;bottom:30px;transform:translateX(-50%);font-size:1rem;animation:pop .35s backwards}
+.demo-line .t{position:absolute;bottom:0;transform:translateX(-50%);font-weight:800;font-size:.8rem;white-space:nowrap;opacity:0;transition:opacity .4s}
+.demo-line .t.on{opacity:1}
+.demo-line .pin{position:absolute;bottom:18px;width:3px;height:64px;margin-left:-1.5px;background:var(--c2);border-radius:2px;transform:scaleY(0);transform-origin:bottom;transition:transform .5s cubic-bezier(.22,1.4,.36,1)}
+.demo-line .pin.on{transform:scaleY(1)}
+.steps{list-style:none;display:flex;flex-wrap:wrap;justify-content:center;gap:10px;padding:0;margin:0}
+.steps li{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.1);border-radius:999px;padding:8px 16px 8px 10px;font-size:.88rem}
+.steps li span{font-size:1.2rem}
+.steps li b{font-weight:800}
+
 /* ── Reduced motion ─────────────────────────────────────────────────────── */
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
@@ -903,12 +946,25 @@ html[data-theme=disco] .answer.win{outline-color:#fff}
 <section class="screen active" id="s-landing">
   <div class="topbar"><div class="logo"><span class="bolt">⚡</span> QuizDash</div><div class="spacer"></div><span class="badge-online" id="sync-badge"><span class="dot off"></span>Local demo mode</span></div>
   <div class="center stack" style="gap:22px">
-    <h1 class="display" style="font-size:clamp(2.2rem,7vw,4rem);font-weight:800;text-wrap:balance">Big-screen quizzes!!</h1>
-    <p class="muted" style="max-width:460px">Paste a quiz, share a room code, and battle it out — speed and accuracy both count.</p>
+    <h1 class="display hero" aria-label="Big-screen quizzes!!">Big-screen <span class="hero-rot" aria-hidden="true"><span class="hero-word" id="hero-word">quizzes</span><span class="hero-bang"><i>!</i><i>!</i></span></span></h1>
+    <p class="muted" style="max-width:480px">Build a quiz, share a room code, and battle it out on everyone's phones — speed and accuracy both count.</p>
     <div class="row" style="justify-content:center">
       <button class="btn big" id="btn-go-host">🎤 Host a game</button>
       <button class="btn big ghost" id="btn-go-join">📱 Join a game</button>
     </div>
+    <!-- A tiny big screen that plays itself: shows what a game looks like
+         before anyone has to read a word about it -->
+    <div class="demo" id="demo" aria-hidden="true">
+      <div class="demo-top"><span class="demo-pill" id="demo-q">Q1</span><span class="demo-crowd" id="demo-crowd"></span><span class="demo-pill">Room <b>QUIZ</b></span></div>
+      <div class="demo-bar"><div id="demo-timer"></div></div>
+      <div class="demo-text" id="demo-text"></div>
+      <div class="demo-body" id="demo-body"></div>
+    </div>
+    <ol class="steps">
+      <li><span>✍️</span><b>Build it</b> in a form or paste text</li>
+      <li><span>📱</span><b>Players scan</b> the room code</li>
+      <li><span>🏆</span><b>Race</b> to the podium</li>
+    </ol>
     <p class="small muted" id="sync-explain">Local demo mode: host and players must be tabs in <b>this same browser</b>. Add a Firebase config (instructions inside this file) for real multi-device play.</p>
   </div>
   <div class="footer-note">Single-file app · no accounts · works on Netlify, GitHub Pages, or straight from your desktop</div>
@@ -1230,6 +1286,7 @@ function show(id){
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   $(id).classList.add('active');
   window.scrollTo(0,0);
+  if (typeof Demo !== 'undefined'){ if (id === 's-landing') Demo.start(); else Demo.stop(); }
   // Decorations must never be able to kill navigation — if hiding the
   // hint/toast throws for any reason, the screen switch above stands.
   try { hideSnapHint(); hideToast(); } catch(e){ console.warn(e); }
@@ -4923,7 +4980,104 @@ function boot(){
     setTimeout(() => Player.join(), 800); // give the new transport a beat to connect
   }
 }
+/* ── Landing demo: a looping, self-playing miniature of the big screen ─
+   Cycles a quiz question, a poll, a word cloud and a closest-number
+   guess, so the front page shows what a game feels like. Runs only while
+   the landing page is visible; reduced-motion users get one still frame. */
+const Demo = {
+  run: 0,
+  WORDS: ['quizzes', 'polls', 'word clouds', 'trivia nights', 'team games'],
+  SCENES: [
+    { kind: 'quiz', q: 'What is the capital of France?', opts: ['Paris', 'London', 'Berlin', 'Madrid'], votes: [9, 2, 1, 2], win: 0 },
+    { kind: 'poll', q: 'Pineapple on pizza?', opts: ['Yes, obviously', 'Absolutely not', 'Only on Fridays'], votes: [5, 6, 3] },
+    { kind: 'cloud', q: 'Describe tonight in one word!', words: [['epic', 5], ['pizza', 3], ['chaos', 4], ['fun', 3], ['legendary', 2], ['loud', 1], ['vibes', 2], ['wow', 1], ['cozy', 1]] },
+    { kind: 'closest', q: 'How many bones are in the human body?', guesses: [150, 180, 199, 212, 230, 260, 300], target: 206 }
+  ],
+  calm(){ return matchMedia('(prefers-reduced-motion: reduce)').matches; },
+  start(){
+    const id = ++this.run;
+    if (this.calm()){ this.scene(this.SCENES[0], id, true); return; }
+    this.words(id);
+    this.loop(id);
+  },
+  stop(){ this.run++; },
+  async wait(ms, id){ await sleep(ms); while (id === this.run && document.hidden) await sleep(500); return id === this.run; },
+  async words(id){
+    const el = $('hero-word');
+    for (let i = 1; ; i++){
+      if (!(await this.wait(2400, id))) return;
+      el.textContent = this.WORDS[i % this.WORDS.length];
+      el.classList.remove('flip'); void el.offsetWidth; el.classList.add('flip');
+    }
+  },
+  async loop(id){
+    for (let i = 0; ; i++){
+      if (!(await this.scene(this.SCENES[i % this.SCENES.length], id, false))) return;
+    }
+  },
+  // Plays one scene; resolves false if the landing page was left
+  async scene(sc, id, still){
+    const box = $('demo'), body = $('demo-body'), timer = $('demo-timer'), crowd = $('demo-crowd');
+    const n = this.SCENES.indexOf(sc) + 1;
+    box.classList.remove('out');
+    $('demo-q').textContent = `Q${n} / ${this.SCENES.length}`;
+    $('demo-text').textContent = sc.q;
+    body.innerHTML = '';
+    timer.style.transition = 'none'; timer.style.width = '100%';
+    // the crowd drifts in
+    const faces = AVATARS.slice().sort(() => Math.random() - .5).slice(0, 14);
+    crowd.innerHTML = faces.map((e, i) => `<span style="animation-delay:${still ? 0 : i * 70}ms">${e}</span>`).join('');
+    if (!still && !(await this.wait(900, id))) return false;
+    // answers open, the clock runs
+    if (sc.opts){
+      body.innerHTML = sc.opts.map((o, i) => answerButtonHTML(o, i, 'div').replace('</div>', '<i class="demo-fill"></i><b class="demo-n"></b></div>')).join('');
+      if (sc.opts.length === 3) body.lastElementChild.style.gridColumn = '1/-1';
+    } else if (sc.kind === 'cloud'){
+      body.innerHTML = '<div class="demo-cloud"></div>';
+    } else {
+      body.innerHTML = '<div class="demo-line"></div>';
+    }
+    if (!still){
+      void timer.offsetWidth;
+      timer.style.transition = 'width 2.6s linear'; timer.style.width = '0%';
+    }
+    if (sc.kind === 'cloud'){
+      const cloud = body.firstElementChild;
+      for (const [w, k] of sc.words){
+        cloud.insertAdjacentHTML('beforeend', `<span style="font-size:${.8 + k * .28}rem;color:var(--${['c2','c3','c4','ink'][k % 4]})">${w}</span>`);
+        if (!still && !(await this.wait(260, id))) return false;
+      }
+    } else if (sc.kind === 'closest'){
+      const line = body.firstElementChild, lo = 120, hi = 320, pos = v => ((v - lo) / (hi - lo) * 100) + '%';
+      for (const g of sc.guesses){
+        line.insertAdjacentHTML('beforeend', `<span class="g" style="left:${pos(g)}">${faces[sc.guesses.indexOf(g)]}</span>`);
+        if (!still && !(await this.wait(300, id))) return false;
+      }
+      line.insertAdjacentHTML('beforeend', `<i class="pin" style="left:${pos(sc.target)}"></i><span class="t" style="left:${pos(sc.target)}">🎯 ${sc.target}</span>`);
+    }
+    if (!still && !(await this.wait(sc.kind === 'quiz' || sc.kind === 'poll' ? 2600 : 900, id))) return false;
+    // the reveal
+    if (sc.opts){
+      const total = sc.votes.reduce((a, b) => a + b, 0);
+      body.querySelectorAll('.answer').forEach((el, i) => {
+        el.querySelector('.demo-fill').style.width = Math.round(sc.votes[i] / total * 100) + '%';
+        const num = el.querySelector('.demo-n'); num.textContent = sc.votes[i]; num.style.opacity = 1;
+        if (sc.win !== undefined) el.classList.add(i === sc.win ? 'win' : 'dim');
+      });
+      if (sc.win !== undefined) body.insertAdjacentHTML('beforeend', '<div class="demo-pts">✅ +950 ⚡ fastest finger</div>');
+    } else if (sc.kind === 'closest'){
+      body.querySelectorAll('.pin, .t').forEach(el => el.classList.add('on'));
+      body.insertAdjacentHTML('beforeend', '<div class="demo-pts">🎯 212 was closest!</div>');
+    }
+    if (still) return true;
+    if (!(await this.wait(2600, id))) return false;
+    box.classList.add('out');
+    return this.wait(400, id);
+  }
+};
+
 boot();
+if ($('s-landing').classList.contains('active')) Demo.start();
 </script>
 </body>
 </html>
