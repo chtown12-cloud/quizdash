@@ -63,6 +63,11 @@ what can be written:
   the host clicks "Play again", or instantly via the "🧹 Erase game data"
   button. Players' browsers keep nothing either — the temporary player id
   lives in sessionStorage and is dropped at the podium.
+- **Quizzes aren't stored online.** The host's own browser keeps the quiz
+  being written (and any pasted screenshots) so a reload or a closed tab
+  doesn't lose it — it never leaves that browser until a room is created.
+  **💾 Download** saves it as a `.md` file (pictures included) and
+  **📂 Open** loads it back, on any computer.
 - **Player devices:** the page ships a Content-Security-Policy that only
   permits Google Fonts, the Firebase SDK, and this game's own database — any
   injected script or call to another server is blocked by the browser. All
@@ -79,22 +84,22 @@ what can be written:
 
 ## Writing a quiz
 
-The paste format is documented on the host setup screen inside the app:
+Build it question by question in the app, or paste plain text in the
+**Markdown** tab — they're two views of the same quiz:
 
 ```
 # Friday Team Quiz
 
-## Q1 | 20s
-What is the capital of France?
+## What is the capital of France?
 - Paris *
 - London
 - Berlin
-- Madrid
 ```
 
-Mark the correct answer with a trailing `*` (a `✓` also works).
-The `| 20s` sets the answer timer (default 20s). Every question opens with a
-read-only preview before answers unlock — 5 seconds by default, adjustable
-per question with `| read 10s` (0–30; `read 0s` skips it):
-`## Q1 | 20s | read 10s`.
+`#` is the title, `##` a question, `-` an answer, and `*` marks the right one.
+The kind of question comes from its shape: no `*` is a poll, several `*` is
+pick-all-that-apply, `= 206` is closest-number, `= Mars` is type-the-answer,
+and no answers at all is a word cloud. Timers go at the end of the title line
+(`# Friday Team Quiz | 30s | read 5s`) or of one question (`## Tricky? 45s`),
+and `x2` doubles a question's points.
 Correct answers earn 500–1000 points scaled by speed; wrong answers earn 0.
