@@ -153,6 +153,11 @@ a{color:inherit}
 .btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
 .btn.ghost{background:rgba(255,255,255,.12);color:var(--ink);border:1.5px solid rgba(255,255,255,.35);box-shadow:none}
 .btn.big{font-size:1.25rem;padding:18px 38px;border-radius:18px}
+/* The host's way forward must never scroll off a laptop screen. A tall
+   reveal (picture + answers + vote chart) used to push Next below the
+   fold, and a host who can't see it thinks the game has frozen. */
+.hostbar{position:sticky;bottom:14px;z-index:6}
+.hostbar .btn.ghost{background:var(--ink-back,rgba(16,10,36,.7));backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 /* Focus ring follows the page ink so it stays visible on light themes
    (doodle/editorial/candy/nintendo); inside white cards it uses card ink. */
 .btn:focus-visible,.answer:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
@@ -207,6 +212,18 @@ textarea.quizbox{min-height:230px;font-family:ui-monospace,SFMono-Regular,Menlo,
 .modetabs{display:flex;gap:6px;background:#F1EDFB;padding:4px;border-radius:12px;align-self:flex-start}
 .modetab{border:0;background:transparent;color:#6B6390;font-weight:700;font-size:.92rem;padding:7px 14px;border-radius:9px;cursor:pointer;font-family:inherit}
 .modetab.on{background:#fff;color:var(--card-ink);box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.modebar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.modebar .modetabs{align-self:auto}
+.filebtns{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap}
+.filebtns .qmini{padding:7px 12px;font-size:.86rem}
+/* an amber dot: there are changes this quiz file doesn't have yet */
+#btn-download.due::after{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:#F59E0B;margin-left:6px;vertical-align:1px}
+.savebox{max-width:min(94vw,460px);padding:22px}
+.savebox h3{margin:0 0 6px;font-size:1.2rem}
+.savebox p{margin:0 0 16px;line-height:1.5;color:#4A4270}
+.savebox .row{justify-content:flex-end;gap:8px}
+.savebox .btn{font-size:1rem;padding:11px 18px}
+.savebox .btn.ghost{color:var(--card-ink);border-color:#CFC7E8}
 .lookbox>summary{cursor:pointer;font-size:1rem;color:var(--card-ink);padding:4px 0;list-style:none}
 .lookbox>summary::-webkit-details-marker{display:none}
 .lookbox>summary::before{content:"▸ ";opacity:.6}
@@ -255,10 +272,10 @@ textarea.quizbox.dropping{border-color:var(--c1);background:#F3EFFF}
 .color-slot input[type=text]{width:100%;border:none;background:transparent;font-family:ui-monospace,monospace;font-size:.9rem;color:var(--card-ink)}
 .color-slot .role{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6B6390;display:block}
 
-/* ── Docs (How to write your quiz) ──────────────────────────────────────── */
+/* ── Docs (How to write a quiz) ─────────────────────────────────────────── */
 .doctable{border-collapse:collapse;width:100%;margin:8px 0 4px;font-size:.92em}
 .doctable td{border-top:1px solid #E4DEF5;padding:6px 10px 6px 0;vertical-align:top}
-.doctable td:first-child{white-space:nowrap;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em;opacity:.85;width:1%;padding-right:18px}
+.doctable td:first-child{white-space:nowrap;color:#6B6390;width:1%;padding-right:18px}
 details.docs{background:#F4F1FB;border-radius:12px;padding:0;overflow:hidden}
 details.docs summary{cursor:pointer;font-weight:700;padding:14px 16px;list-style:none;display:flex;align-items:center;gap:8px}
 details.docs summary::-webkit-details-marker{display:none}
@@ -270,6 +287,13 @@ details.docs[open] summary::after{transform:rotate(90deg)}
 .docs-body pre code{background:none;padding:0}
 .docs-body ul{padding-left:20px;margin:8px 0}
 .docs-body li{margin:4px 0}
+.docs-start{display:flex;gap:6px 22px;align-items:center;flex-wrap:wrap}
+.docs-start pre{flex:1 1 250px;margin:10px 0}
+.docs-body .docs-rules{list-style:none;padding:0;margin:0;font-size:1rem}
+.docs-rules li{margin:7px 0}
+.docs-rules code{font-weight:800;display:inline-block;min-width:2.1em;text-align:center}
+details.docs-more{margin-top:10px}
+details.docs-more summary{cursor:pointer;font-weight:700;color:#6B6390}
 
 /* ── Room code / lobby ──────────────────────────────────────────────────── */
 .roomcode{
@@ -886,10 +910,18 @@ html[data-theme=disco] .answer.win{outline-color:#fff}
   <div class="topbar"><div class="logo"><span class="bolt">⚡</span> QuizDash</div><div class="spacer"></div><button class="btn ghost" style="padding:8px 16px" onclick="show('s-landing')">← Back</button></div>
   <div class="wrap-wide stack" style="gap:18px">
     <div class="card stack">
-      <div><h2>1 · Your questions</h2><p class="hint" style="margin-top:0">Add them one at a time, or switch to markdown and paste a whole quiz at once — they're two views of the same thing.</p></div>
-      <div class="modetabs" role="tablist">
-        <button type="button" class="modetab on" id="tab-build" role="tab">🧱 Build</button>
-        <button type="button" class="modetab" id="tab-write" role="tab">✍️ Markdown</button>
+      <div><h2>1 · Your questions</h2><p class="hint" style="margin-top:0">Build it question by question, or paste a whole quiz in Markdown. <b>Quizzes aren't stored online</b> — Download keeps a copy you can open again anywhere.</p></div>
+      <div class="modebar">
+        <div class="modetabs" role="tablist">
+          <button type="button" class="modetab on" id="tab-build" role="tab">🧱 Build</button>
+          <button type="button" class="modetab" id="tab-write" role="tab">✍️ Markdown</button>
+        </div>
+        <div class="filebtns">
+          <button type="button" class="qmini" id="btn-new" title="Start a blank quiz">New</button>
+          <button type="button" class="qmini" id="btn-open" title="Open a quiz file you downloaded before">📂 Open</button>
+          <button type="button" class="qmini" id="btn-download" title="Save this quiz as a file (pictures included)">💾 Download</button>
+          <input type="file" id="file-open" accept=".md,.markdown,.txt,text/markdown,text/plain" hidden>
+        </div>
       </div>
       <div id="build-pane">
         <div class="field"><label for="q-title">Quiz title</label><input type="text" id="q-title" placeholder="Friday Team Quiz" autocomplete="off"></div>
@@ -900,64 +932,42 @@ html[data-theme=disco] .answer.win{outline-color:#fff}
       <div id="write-pane" hidden>
 
       <details class="docs">
-        <summary>📖 How to write your quiz</summary>
+        <summary>📖 How to write a quiz</summary>
         <div class="docs-body">
-          <p>Each quiz is plain text with three ingredients: a <b>title line</b>, <b>question headers</b>, and <b>answer options</b>.</p>
-<pre><code># Friday Team Quiz | 20s | read 5s
+          <div class="docs-start">
+<pre><code># Friday Quiz
 
 ## What is the capital of France?
 - Paris *
 - London
-- Berlin
-
-## Where would you rather be stranded?
-- A desert island
-- A space station
-- A lighthouse
-
-## How many bones are in the adult human body?
-= 206
-
-## Which of these are planets?
-- Mars *
-- Pluto
-- Venus *
-
-## Which planet is known as the Red Planet?
-= Mars
-= the red planet
-
-## Describe tonight in one word!
-
-## Which ocean is the largest? x2
-- Pacific *
-- Atlantic</code></pre>
-          <p><b>You never have to say what kind of question it is.</b> QuizDash reads that from the shape of what you wrote:</p>
+- Berlin</code></pre>
+            <ul class="docs-rules">
+              <li><code>#</code> the title</li>
+              <li><code>##</code> a question</li>
+              <li><code>-</code> an answer</li>
+              <li><code>*</code> marks the right one</li>
+            </ul>
+          </div>
+          <p>That's a whole quiz. For other kinds of question, change what goes under the <code>##</code>:</p>
           <table class="doctable">
-            <tr><td>One answer starred</td><td><b>Quiz</b> — fastest correct answer scores most</td></tr>
-            <tr><td>Several answers starred</td><td><b>Pick all that apply</b> — partial credit, wrong picks subtract</td></tr>
-            <tr><td>No stars at all</td><td><b>Poll</b> — no points, up to 10 options, just how the room voted</td></tr>
-            <tr><td><code>= 206</code> (a number)</td><td><b>Closest guess</b> — everyone types a number, nearest wins</td></tr>
-            <tr><td><code>= Mars</code> (words)</td><td><b>Type the answer</b> — extra <code>=</code> lines are alternate spellings</td></tr>
-            <tr><td>No answers at all</td><td><b>Word cloud</b> — everyone types a word, no points</td></tr>
+            <tr><td>no <code>*</code> at all</td><td><b>Poll</b> — no points, up to 10 options</td></tr>
+            <tr><td>several <code>*</code></td><td><b>Pick all that apply</b></td></tr>
+            <tr><td><code>= 206</code></td><td><b>Closest number</b> wins</td></tr>
+            <tr><td><code>= Mars</code></td><td><b>Type the answer</b> — more <code>=</code> lines for other spellings</td></tr>
+            <tr><td>nothing</td><td><b>Word cloud</b> — everyone types a word</td></tr>
+            <tr><td>paste a picture</td><td>Shows with the question. Click <b>🖼 aim</b> in the green box to make it <b>tap the spot</b></td></tr>
           </table>
-          <p>The green box under the box tells you how each question was read, so you can check at a glance.</p>
-          <ul>
-            <li><code># Title</code> — one line starting with a single <code>#</code>. Shown in the lobby.</li>
-            <li><code>## Your question here?</code> — starts a question. Whatever follows <code>##</code> <b>is</b> the question.</li>
-            <li><code>- Answer</code> — each answer on its own line. Mark the right one by ending it with <code>*</code> (<code>+</code>, <code>✓</code> and <code>✔</code> work too). <code>*</code> and <code>•</code> work as bullets if that's what your notes app produces.</li>
-            <li><b>True/False</b> is just a question with two answers: <code>- True</code> / <code>- False *</code>.</li>
-            <li><b>Tap the spot</b> — give a question a picture and a point on it, and players tap the picture instead of picking an option: <code>= 62%, 38%</code> (across, then down). Don't type that by hand — click <b>🖼 aim</b> next to the question in the green box and click the picture. Add <code>± 6%</code> to change how close counts, default 10%. The reveal shows where the whole room tapped.</li>
-            <li><b>A screenshot</b> — just paste it (or drag the file in). It's shrunk, kept as an attachment, and referenced from your quiz as <code>![](shot-1)</code>, so the picture never clutters the text. Attachments live in this browser only; <b>Save with pictures</b> writes a self-contained copy to send to someone else.</li>
-            <li><b>A picture by link</b> — paste an image link on its own line, or use <code>![](https://…)</code>. It shows under the question on the big screen and on every phone. Links must be <code>https://</code>; the picture is fetched by each device, so nothing large travels through the game itself. A link that fails just leaves the question without a picture.</li>
-            <li><b>Timings</b> — put them at the end of the title line and every question inherits them: <code># Friday Quiz | 20s | read 5s</code>. That's the <b>answer timer</b> (1–300s, default 20) and the <b>reading time</b> before answers appear (0–30s, default 5; <code>read 0s</code> skips it).</li>
-            <li><b>Changing one question</b> — put the setting at the end of its own line instead: <code>## A tricky one? 45s</code>.</li>
-            <li><code>x2</code> — <b>⚡ double points</b> for that question: <code>## Which ocean is the largest? x2</code>. Golden banner, glow and a riser on every screen — save it for the finale. (Polls and word clouds score nothing, so they can't be doubled.)</li>
-            <li><b>Separators are up to you.</b> <code>| 30s | x2</code>, <code>/ 30s / x2</code>, <code>, 30s, x2</code> or just <code>30s x2</code> all mean the same thing. Nothing is read as a setting unless it really is one, so <code>## Name a film - any film</code> stays a question. A bare timer needs the question to end first — <code>## Best song? 30s</code> works, <code>## Best song of the 30s</code> is left alone.</li>
-            <li><b>Naming a question</b> is still allowed if you like labels — put the name on the <code>##</code> line and the question on the next line: <code>## Round 2</code> then <code>Which ocean is the largest?</code>. Quizzes written the old way, flags and all, keep working exactly as before.</li>
-          </ul>
-          <p>Every question opens with a <b>read-it-first preview</b> (5 seconds unless you set <code>| read …s</code>), then the answer timer starts for everyone at the same moment — so slow-loading phones never lose scoring time.</p>
-          <p>Scoring: correct answers earn <b>500–1000 points</b> — the faster you answer, the closer to 1000. Wrong answers earn 0.</p>
+          <p class="hint">The green box under your quiz shows how each question was read.</p>
+          <details class="docs-more">
+            <summary>Timers and double points</summary>
+            <ul>
+              <li><code># Friday Quiz | 30s | read 5s</code> — seconds to answer, and to read first, for every question (normally 20 and 5)</li>
+              <li><code>## A tricky one? 45s</code> — just this question</li>
+              <li><code>## The big finale? x2</code> — double points</li>
+              <li>A picture from the web: paste its link on its own line</li>
+              <li>Right answers score 500–1000 — the faster, the more</li>
+            </ul>
+          </details>
         </div>
       </details>
 
@@ -966,7 +976,7 @@ html[data-theme=disco] .answer.win{outline-color:#fff}
         <div class="gutter" aria-hidden="true"><div id="quiz-lines"></div></div>
         <textarea class="quizbox" id="quiz-input" spellcheck="false" aria-label="Quiz text" placeholder="# My Quiz Title | 20s | read 5s&#10;&#10;## Your first question here?&#10;- The correct answer *&#10;- Another answer&#10;- A third answer&#10;&#10;## No star means it&#39;s just a poll&#10;- Option one&#10;- Option two&#10;&#10;## How many bones in the adult body?&#10;= 206"></textarea>
         </div>
-        <div class="row" style="margin-top:8px"><button class="btn ghost" style="color:var(--card-ink);border-color:#CFC7E8;padding:8px 16px;font-size:.9rem" id="btn-sample">Load example quiz</button><button class="btn ghost" style="color:var(--card-ink);border-color:#CFC7E8;padding:8px 16px;font-size:.9rem" id="btn-export" hidden>💾 Save with pictures</button><span class="hint" id="parse-status" style="margin:0"></span></div>
+        <div class="row" style="margin-top:8px"><button class="btn ghost" style="color:var(--card-ink);border-color:#CFC7E8;padding:8px 16px;font-size:.9rem" id="btn-sample">Load example quiz</button><span class="hint" id="parse-status" style="margin:0"></span></div>
       </div>
       </div>
       <div class="shot-strip" id="shot-strip" hidden></div>
@@ -1069,7 +1079,7 @@ html[data-theme=disco] .answer.win{outline-color:#fff}
     <img class="qimg" id="hq-img" alt="" hidden>
     <div class="answers" id="hq-answers"></div>
     <div class="votechart" id="hq-chart"></div>
-    <div class="row" style="justify-content:center;min-height:64px">
+    <div class="row hostbar" style="justify-content:center;min-height:64px">
       <div class="drum" id="hq-drum" style="display:none"></div>
       <button class="btn ghost" id="btn-hq-skip" style="display:none"></button>
       <button class="btn big" id="btn-hq-next" style="display:none"></button>
@@ -1084,7 +1094,7 @@ html[data-theme=disco] .answer.win{outline-color:#fff}
     <h1 class="display" style="font-size:clamp(1.8rem,5vw,3rem)">🏆 Leaderboard</h1>
     <div class="racetrack" id="hb-race" aria-hidden="true"></div>
     <div class="board" id="hb-rows"></div>
-    <button class="btn big" id="btn-hb-next">Next question →</button>
+    <div class="hostbar"><button class="btn big" id="btn-hb-next">Next question →</button></div>
   </div>
 </section>
 
@@ -1538,6 +1548,9 @@ function applyLook(colors, theme){
     brutalist: textOn(c[1])
   }[theme];
   if (ink) r.setProperty('--ink', ink);
+  // A backdrop for text that floats over the game (the pinned Skip button):
+  // the opposite of the ink, so it reads over answer cards on any theme
+  r.setProperty('--ink-back', luminance(ink || textOn(c[0])) > .4 ? 'rgba(16,10,36,.7)' : 'rgba(255,255,255,.85)');
   setFavicon(c, theme);
   renderDecor(theme);
 }
@@ -2383,8 +2396,8 @@ const PALETTES = [
    Keeping the bytes out of the text is the whole point: the quiz stays
    readable, the line-number gutter stays fast, and only at game time is
    the picture folded into the question payload phones already download.
-   Nothing is uploaded anywhere; "Save with pictures" writes a portable
-   copy with the tokens expanded, for sending the quiz to someone else. */
+   Nothing is uploaded anywhere; Download writes a portable copy with the
+   tokens expanded, and Open turns them back into attachments. */
 const Shots = {
   MAX_W: 1400,            // wide enough that a dashboard's labels survive
   BUDGET: 120 * 1024,     // per picture, before base64
@@ -2479,6 +2492,28 @@ const Shots = {
       + `<p class="hint shot-note">${this.items.size} screenshot${this.items.size === 1 ? '' : 's'} · ${kb}KB — each player downloads this once per question.`
       + (kb > 600 ? ' <b>That is a lot to push to phones; consider cropping tighter.</b>' : '') + '</p>';
     strip.querySelectorAll('.shot-x').forEach(b => { b.onclick = () => this.remove(b.dataset.shot); });
+  },
+
+  // Opening a downloaded quiz: its pictures come back as attachments, so
+  // the markdown stays readable instead of carrying screenfuls of base64.
+  adopt(text){
+    const tokenFor = url => {
+      for (const [t, u] of this.items) if (u === url) return t;
+      const token = 'shot-' + (++this.seq);
+      this.items.set(token, url);
+      this.save(token, url);
+      return token;
+    };
+    const out = text.split('\n').map(line => /^data:image\//i.test(line.trim())
+      ? `![](${tokenFor(line.trim())})`
+      : line.replace(/\((data:image\/[^)\s]+)\)/gi, (_, url) => `(${tokenFor(url)})`)).join('\n');
+    this.render();
+    return out;
+  },
+  // Forget attachments the quiz no longer uses (after New / Open)
+  prune(text){
+    [...this.items.keys()].forEach(t => { if (!text.includes(`(${t})`)){ this.items.delete(t); this.del(t); } });
+    this.render();
   },
 
   /* Best-effort persistence so a reload doesn't lose your crops. */
@@ -4357,6 +4392,111 @@ const Builder = {
   }
 };
 
+/* ── Keeping the quiz ───────────────────────────────────────────────────
+   Nothing is stored online, and a form builder makes that easy to forget:
+   people build a quiz, close the tab, and expect to find it again. So the
+   quiz autosaves in this browser, Download writes a file that opens
+   anywhere, and Create room asks (once) when there are changes that
+   haven't been downloaded. */
+const Draft = {
+  KEY: 'qd-draft', SAVED: 'qd-saved',
+  asked: false,
+  hash(s){
+    let h = 2166136261;
+    for (let i = 0; i < s.length; i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return (h >>> 0).toString(36);
+  },
+  text(){ return $('quiz-input').value; },
+  store(){
+    const v = this.text();
+    try { if (v.trim()) localStorage.setItem(this.KEY, v); else localStorage.removeItem(this.KEY); } catch(e){}
+    this.mark();
+  },
+  restore(){ try { return localStorage.getItem(this.KEY) || ''; } catch(e){ return ''; } },
+  // Downloaded, opened from a file, or the untouched example: nothing to lose
+  markSaved(){
+    try { localStorage.setItem(this.SAVED, this.hash(this.text().trim())); } catch(e){}
+    this.mark();
+  },
+  dirty(){
+    const v = this.text().trim();
+    if (!v) return false;
+    let saved = null;
+    try { saved = localStorage.getItem(this.SAVED); } catch(e){}
+    return saved !== this.hash(v);
+  },
+  mark(){
+    const b = $('btn-download');
+    if (!b) return;
+    const due = this.dirty();
+    b.classList.toggle('due', due);
+    b.title = due ? 'You have changes that aren\'t in a downloaded file yet' : 'Save this quiz as a file (pictures included)';
+  },
+  download(){
+    if (!this.text().trim()){ showToast('Nothing to download yet — add a question first.'); return; }
+    // Attachments only exist in this browser, so write them into the file
+    let text = this.text();
+    Shots.items.forEach((url, token) => { text = text.split(`(${token})`).join(`(${url})`); });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([text], { type: 'text/markdown;charset=utf-8' }));
+    a.download = (parseQuiz(this.text()).title.replace(/[^\w -]+/g, '').trim().slice(0, 40) || 'quiz') + '.md';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    this.markSaved();
+    showToast(`Downloaded ${a.download} — bring it back any time with 📂 Open.`);
+  },
+  // Swap in a whole quiz (New / Open / the example); the cards re-read it
+  replace(text){
+    const ta = $('quiz-input');
+    ta.value = text;
+    ta.dispatchEvent(new Event('input'));
+    renderParseStatus(parseQuiz(text));
+    if (!$('build-pane').hidden){ Builder.seed(); Builder.render(); }
+    this.store();
+  },
+  async open(file){
+    let text;
+    try { text = await file.text(); } catch(e){ showToast('That file could not be read.'); return; }
+    if (!/^\s*#/m.test(text)){ showToast('That doesn\'t look like a quiz file — it needs # and ## lines.'); return; }
+    text = Shots.adopt(text);
+    Shots.prune(text);
+    this.replace(text);
+    this.markSaved();
+    showToast('Opened ' + file.name);
+  },
+  // Before anything replaces work that only exists in this browser.
+  // Resolves true when it's fine to go ahead.
+  async okToReplace(what){
+    if (!this.dirty()) return true;
+    const k = await askBox('Download this quiz first?',
+      `The quiz you're working on hasn't been downloaded, so ${what} will lose it for good.`,
+      [{ key: 'go', label: 'Don\'t save' }, { key: 'save', label: '💾 Download first', primary: true }]);
+    if (k === 'save') this.download();
+    return k !== null;
+  }
+};
+
+// A small yes/no card over the page. Resolves with the chosen button's
+// key, or null if the host backs out (Esc, or a click outside).
+function askBox(title, body, buttons){
+  return new Promise(res => {
+    const back = document.createElement('div');
+    back.className = 'aimback';
+    back.innerHTML = `<div class="aimbox savebox" role="dialog" aria-modal="true" aria-labelledby="askbox-h">`
+      + `<h3 id="askbox-h">${title}</h3><p>${body}</p><div class="row">`
+      + buttons.map(b => `<button type="button" class="btn${b.primary ? '' : ' ghost'}" data-k="${b.key}">${b.label}</button>`).join('')
+      + `</div></div>`;
+    document.body.appendChild(back);
+    const onKey = e => { if (e.key === 'Escape') done(null); };
+    const done = k => { back.remove(); document.removeEventListener('keydown', onKey); res(k); };
+    document.addEventListener('keydown', onKey);
+    back.onclick = e => { if (e.target === back) done(null); };
+    back.querySelectorAll('[data-k]').forEach(b => { b.onclick = () => done(b.dataset.k); });
+    const main = back.querySelector('.btn:not(.ghost)');
+    if (main) main.focus();
+  });
+}
+
 function renderParseStatus(parsed, force){
   const errBox = $('parse-errors'), okBox = $('parse-ok'), status = $('parse-status');
   // Error messages are written as "Line N: …" — pull those out so the
@@ -4410,7 +4550,6 @@ function boot(){
   }
 
   // Landing
-  $('btn-go-host').onclick = () => show('s-setup');
   $('btn-go-join').onclick = () => show('s-join');
 
   // Sound toggle (remembered across visits)
@@ -4480,7 +4619,6 @@ function boot(){
   // guide: with an empty quiz box it reads "Add questions" and jumps the
   // host to the box instead of failing a create.
   const syncCreateBtn = () => {
-    $('btn-export').hidden = !Shots.items.size;
     const empty = !$('quiz-input').value.trim();
     $('btn-create').textContent = empty ? '✍️ Add questions' : 'Create room →';
     $('btn-create').dataset.empty = empty ? '1' : '';
@@ -4489,8 +4627,10 @@ function boot(){
   $('quiz-input').addEventListener('input', () => {
     syncCreateBtn();
     syncGutter(); // numbers keep up with typing; the parse stays debounced
-    clearTimeout(t); t = setTimeout(() => renderParseStatus(parseQuiz($('quiz-input').value)), 400);
+    clearTimeout(t); t = setTimeout(() => { renderParseStatus(parseQuiz($('quiz-input').value)); Draft.store(); }, 400);
   });
+  // …and whatever was typed in the last 400ms still makes it on the way out
+  addEventListener('pagehide', () => Draft.store());
   $('quiz-input').addEventListener('scroll', syncGutter);
   // Paste or drop a screenshot straight into the quiz box. Text pastes are
   // untouched — we only step in when the clipboard actually holds an image.
@@ -4513,33 +4653,55 @@ function boot(){
     e.preventDefault();
     files.forEach(f => Shots.attach(f, ta));
   });
-  // Tokens live only in this browser, so offer a self-contained copy to
-  // send elsewhere: same quiz with every screenshot written out in full.
-  $('btn-export').onclick = () => {
-    let text = ta.value;
-    Shots.items.forEach((url, token) => { text = text.split(`(${token})`).join(`(${url})`); });
-    const a = document.createElement('a');
-    a.href = 'data:text/markdown;charset=utf-8,' + encodeURIComponent(text);
-    a.download = (parseQuiz(ta.value).title || 'quiz').replace(/[^\w -]+/g, '').trim().slice(0, 40) + '.md';
-    a.click();
-    showToast('Saved a copy with the pictures written in.');
+  $('btn-download').onclick = () => Draft.download();
+  $('btn-open').onclick = () => $('file-open').click();
+  $('file-open').onchange = async e => {
+    const f = e.target.files && e.target.files[0];
+    e.target.value = '';                        // so the same file can be opened twice
+    if (f && await Draft.okToReplace('opening another file')) Draft.open(f);
   };
-  Shots.load();
+  $('btn-new').onclick = async () => {
+    if (!(await Draft.okToReplace('starting a new one'))) return;
+    Shots.prune('');
+    Draft.replace('');
+    showToast('Fresh start — add your first question.');
+  };
+  // Pictures load from IndexedDB a beat after the text, so let the cards
+  // and the checks look again once they're in.
+  Shots.load().then(() => {
+    if (!ta.value.trim()) return;
+    renderParseStatus(parseQuiz(ta.value));
+    if (!$('build-pane').hidden){ Builder.seed(); Builder.render(); }
+  });
   $('tab-build').onclick = () => Builder.setMode('build');
   $('tab-write').onclick = () => Builder.setMode('write');
   $('btn-addq').onclick = () => { Builder.qs.push(Builder.blank()); Builder.sync(); Builder.render(); };
   $('q-title').addEventListener('input', e => { Builder.title = e.target.value; Builder.sync(); });
   $('q-timer').addEventListener('input', e => { Builder.dur = Math.max(1, Math.min(300, +e.target.value || 20)); Builder.sync(); });
   $('q-read').addEventListener('input', e => { Builder.prev = Math.max(0, Math.min(30, +e.target.value || 0)); Builder.sync(); });
+  // Bring back the quiz from last time — closing the tab shouldn't cost it
+  const draft = Draft.restore();
+  let restored = false;
+  if (draft.trim()){ ta.value = draft; restored = true; }
   // New hosts get the form builder; anyone who switches keeps their choice.
   let mode = 'build';
   try { mode = localStorage.getItem('qd-mode') || 'build'; } catch(e){}
   Builder.setMode(mode, false);
   // Width changes re-wrap the text, which changes how tall each line is
   addEventListener('resize', syncGutter);
-  $('btn-sample').onclick = () => { $('quiz-input').value = SAMPLE_QUIZ; renderParseStatus(parseQuiz(SAMPLE_QUIZ)); syncCreateBtn(); if (!$('build-pane').hidden){ Builder.seed(); Builder.render(); } };
+  $('btn-sample').onclick = async () => {
+    if (!(await Draft.okToReplace('loading the example'))) return;
+    Draft.replace(SAMPLE_QUIZ);
+    Draft.markSaved();   // nothing of yours in it yet
+  };
   syncCreateBtn();
   syncGutter();
+  Draft.mark();
+  // Say so the first time the host opens the editor, not on the landing page
+  $('btn-go-host').onclick = () => {
+    show('s-setup');
+    if (restored){ restored = false; showToast('Your quiz is back where you left it. 💾 Download keeps a copy of your own.'); }
+  };
 
   // Setup: colors (picker <-> hex, live theme)
   const refreshLook = () => applyLook(readColorInputs(), $('theme-sel').value);
@@ -4564,13 +4726,23 @@ function boot(){
     refreshLook();
   };
 
-  $('btn-create').onclick = () => {
+  $('btn-create').onclick = async () => {
     if ($('btn-create').dataset.empty){
-      const box = $('quiz-input');
+      const box = $('build-pane').hidden ? $('quiz-input') : $('qlist');
       box.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      box.focus({ preventScroll: true });
+      if (box.focus) box.focus({ preventScroll: true });
       SFX.play('blip');
       return;
+    }
+    // Once per visit, and only for a quiz that's ready to play: the moment
+    // a host is done building is the moment to make sure they keep it.
+    if (!Draft.asked && Draft.dirty() && !parseQuiz(Draft.text()).errors.length){
+      Draft.asked = true;
+      const k = await askBox('💾 Keep a copy of this quiz?',
+        'QuizDash doesn\'t store quizzes online. This browser remembers your draft, but that\'s the only copy — download it to keep it safe, share it, or run it from another computer.',
+        [{ key: 'skip', label: 'Not now' }, { key: 'save', label: '💾 Download & continue', primary: true }]);
+      if (k === null) return;
+      if (k === 'save') Draft.download();
     }
     Host.createRoom();
   };
