@@ -218,6 +218,15 @@ textarea.quizbox{min-height:230px;font-family:ui-monospace,SFMono-Regular,Menlo,
 .filebtns .qmini{padding:7px 12px;font-size:.86rem}
 /* an amber dot: there are changes this quiz file doesn't have yet */
 #btn-download.due::after{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:#F59E0B;margin-left:6px;vertical-align:1px}
+/* The one-time "save your quiz" reminder under the tabs */
+/* floats at the bottom so it's seen wherever the host has scrolled to */
+.savenudge{position:fixed;left:16px;right:16px;bottom:calc(18px + env(safe-area-inset-bottom));margin:0 auto;max-width:620px;z-index:70;display:flex;align-items:center;gap:12px;background:#FFF6DC;border:1.5px solid #F3D27A;color:#5A4410;border-radius:14px;padding:14px 16px;font-size:.92rem;line-height:1.45;text-align:left;box-shadow:0 14px 40px rgba(0,0,0,.35);animation:cardIn .4s cubic-bezier(.22,1,.36,1)}
+.savenudge[hidden]{display:none}
+.savenudge-i{font-size:1.5rem;flex:none}
+.savenudge>div{flex:1}
+.savenudge .btn{flex:none;font-size:.9rem;padding:9px 16px}
+.savenudge-x{flex:none;background:none;border:0;color:#8A6D1E;font-size:1rem;padding:4px 6px;border-radius:6px;cursor:pointer}
+@media (max-width:560px){.savenudge{flex-wrap:wrap;bottom:calc(76px + env(safe-area-inset-bottom))}.savenudge>div{flex-basis:calc(100% - 80px)}}
 .savebox{max-width:min(94vw,460px);padding:22px}
 .savebox h3{margin:0 0 6px;font-size:1.2rem}
 .savebox p{margin:0 0 16px;line-height:1.5;color:#4A4270}
@@ -922,6 +931,12 @@ html[data-theme=disco] .answer.win{outline-color:#fff}
           <button type="button" class="qmini" id="btn-download" title="Save this quiz as a file (pictures included)">💾 Download</button>
           <input type="file" id="file-open" accept=".md,.markdown,.txt,text/markdown,text/plain" hidden>
         </div>
+      </div>
+      <div class="savenudge" id="save-nudge" role="status" hidden>
+        <span class="savenudge-i" aria-hidden="true">💾</span>
+        <div><b>Make sure to save your quiz!</b> It downloads as a small Markdown file that you can open here again any time to play or edit.</div>
+        <button type="button" class="btn" id="nudge-save">Download</button>
+        <button type="button" class="savenudge-x" id="nudge-x" aria-label="Dismiss" title="Dismiss">✕</button>
       </div>
       <div id="build-pane">
         <div class="field"><label for="q-title">Quiz title</label><input type="text" id="q-title" placeholder="Friday Team Quiz" autocomplete="off"></div>
@@ -4489,6 +4504,24 @@ const Draft = {
     const v = this.text();
     try { if (v.trim()) localStorage.setItem(this.KEY, v); else localStorage.removeItem(this.KEY); } catch(e){}
     this.mark();
+    this.nudge();
+  },
+  // A new quiz that's grown to three real questions and was never saved
+  // gets one friendly reminder. Dismissed or downloaded, it stays gone
+  // until the host starts another quiz with New.
+  NUDGED: 'qd-nudged',
+  nudge(){
+    const box = $('save-nudge');
+    if (!box) return;
+    let seen = false;
+    try { seen = localStorage.getItem(this.NUDGED) === '1'; } catch(e){}
+    if (seen || !this.dirty()){ box.hidden = true; return; }
+    const n = parseQuiz(this.text()).questions.filter(q => (q.text || '').trim()).length;
+    if (n >= 3 && box.hidden){ box.hidden = false; SFX.play('blip'); }
+  },
+  unnudge(forget){
+    try { if (forget) localStorage.removeItem(this.NUDGED); else localStorage.setItem(this.NUDGED, '1'); } catch(e){}
+    const box = $('save-nudge'); if (box) box.hidden = true;
   },
   restore(){ try { return localStorage.getItem(this.KEY) || ''; } catch(e){ return ''; } },
   // Downloaded, opened from a file, or the untouched example: nothing to lose
@@ -4521,6 +4554,7 @@ const Draft = {
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 5000);
     this.markSaved();
+    this.unnudge();
     showToast(`Downloaded ${a.download} — bring it back any time with 📂 Open.`);
   },
   // Swap in a whole quiz (New / Open / the example); the cards re-read it
@@ -4732,6 +4766,8 @@ function boot(){
     files.forEach(f => Shots.attach(f, ta));
   });
   $('btn-download').onclick = () => Draft.download();
+  $('nudge-save').onclick = () => Draft.download();
+  $('nudge-x').onclick = () => Draft.unnudge();
   $('btn-open').onclick = () => $('file-open').click();
   $('file-open').onchange = async e => {
     const f = e.target.files && e.target.files[0];
@@ -4741,6 +4777,7 @@ function boot(){
   $('btn-new').onclick = async () => {
     if (!(await Draft.okToReplace('starting a new one'))) return;
     Shots.prune('');
+    Draft.unnudge(true);   // a new quiz earns its own reminder
     Draft.replace('');
     showToast('Fresh start — add your first question.');
   };
