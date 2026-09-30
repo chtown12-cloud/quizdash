@@ -244,6 +244,19 @@ textarea.quizbox{min-height:230px;font-family:ui-monospace,SFMono-Regular,Menlo,
 .qcard.dropping{border-color:var(--c1);background:#F3EFFF;box-shadow:0 0 0 3px rgba(79,44,189,.15)}
 .qcard-top{display:flex;gap:8px;align-items:center;margin-bottom:8px}
 .qcard-n{font-weight:800;color:#6B6390;font-size:.85rem;min-width:26px}
+/* drag handle: grab it and move the card; touch-action keeps a phone from
+   scrolling the page instead */
+.qgrip{flex:none;border:0;background:transparent;color:#A89FC6;font-size:1.15rem;line-height:1;padding:4px 3px;border-radius:7px;cursor:grab;touch-action:none;user-select:none}
+.qgrip:hover{color:#6B6390;background:#EEE9F8}
+#qlist.sorting,#qlist.sorting *{cursor:grabbing!important;user-select:none}
+/* while sorting, every card folds to its header and question, so moving
+   Q8 to Q1 is a short drag rather than a scroll through every answer */
+#qlist.sorting .qcard>:not(.qcard-top):not(.qtext-in){display:none}
+#qlist.sorting .qcard{padding:8px 12px}
+#qlist.sorting .qcard-top{margin-bottom:6px}
+#qlist.sorting .qtext-in{pointer-events:none}
+.qcard.dragging{border-color:var(--c1);background:#F6F2FF;box-shadow:0 14px 34px rgba(40,20,110,.28);transform:scale(1.015);position:relative;z-index:2}
+.btn.ghost.cardghost{color:var(--card-ink);border-color:#CFC7E8}
 .qcard select.qtype{flex:none;width:auto;padding:6px 8px;font-size:.85rem;border:1.5px solid #DDD7EE;border-radius:9px;background:#FBFAFF;color:var(--card-ink);font-family:inherit}
 .qcard-tools{margin-left:auto;display:flex;gap:2px}
 .qcard-tools button{border:0;background:transparent;cursor:pointer;font-size:.95rem;padding:3px 5px;border-radius:7px;color:#6B6390}
@@ -998,7 +1011,7 @@ html[data-theme=disco] .answer.win{outline-color:#fff}
         <div class="field"><label for="q-title">Quiz title</label><input type="text" id="q-title" placeholder="Friday Team Quiz" autocomplete="off"></div>
         <div class="field"><label for="q-timer">Seconds to answer · reading time</label><div class="qrow"><input type="number" id="q-timer" min="1" max="300" style="max-width:110px" aria-label="Answer timer"><input type="number" id="q-read" min="0" max="30" style="max-width:110px" aria-label="Reading time"><span class="qhint">seconds · applies to every question unless one says otherwise</span></div></div>
         <div id="qlist"></div>
-        <div class="row"><button type="button" class="btn" id="btn-addq">+ Add question</button></div>
+        <div class="row"><button type="button" class="btn" id="btn-addq">+ Add question</button><button type="button" class="btn ghost cardghost" id="btn-sample-b">Load example quiz</button></div>
       </div>
       <div id="write-pane" hidden>
 
@@ -4417,6 +4430,7 @@ const Builder = {
     if (!list) return;
     list.innerHTML = this.qs.map((q, i) => `<div class="qcard" data-q="${i}">
       <div class="qcard-top">
+        ${this.qs.length > 1 ? `<button type="button" class="qgrip" data-grip title="Drag to reorder" aria-label="Drag to reorder">⠿</button>` : ''}
         <span class="qcard-n">Q${i + 1}</span>
         <select class="qtype" data-type aria-label="Question type">${Q_TYPES.map(([v, l]) =>
           `<option value="${v}"${q.type === v ? ' selected' : ''}>${l}</option>`).join('')}</select>
@@ -4439,6 +4453,67 @@ const Builder = {
       </div>
     </div>`).join('');
     this.wire(list);
+    this.grip(list);
+  },
+
+  // Drag a card by its ⠿ handle. Cards reshuffle live as it passes their
+  // middles, the page scrolls near the edges, and letting go writes the
+  // new order back into the markdown. Pointer events, so touch works too.
+  grip(list){
+    list.querySelectorAll('[data-grip]').forEach(h => h.addEventListener('pointerdown', e => {
+      if (e.button > 0) return;
+      e.preventDefault();
+      const card = h.closest('.qcard'), from = Number(card.dataset.q);
+      card.classList.add('dragging');
+      // Fold the list, then scroll so the grabbed card stays under the pointer
+      const top0 = card.getBoundingClientRect().top;
+      list.classList.add('sorting');
+      scrollBy(0, card.getBoundingClientRect().top - top0);
+      let y = e.clientY, raf = 0;
+      const place = () => {
+        const before = [...list.querySelectorAll('.qcard:not(.dragging)')]
+          .find(c => { const r = c.getBoundingClientRect(); return y < r.top + r.height / 2; });
+        if (before){ if (card.nextElementSibling !== before) list.insertBefore(card, before); }
+        else if (list.lastElementChild !== card) list.appendChild(card);
+        [...list.children].forEach((c, k) => { const n = c.querySelector('.qcard-n'); if (n) n.textContent = 'Q' + (k + 1); });
+      };
+      const tick = () => {
+        if (y < 70) scrollBy(0, -14); else if (y > innerHeight - 70) scrollBy(0, 14);
+        place();
+        raf = requestAnimationFrame(tick);
+      };
+      raf = requestAnimationFrame(tick);
+      const move = ev => { y = ev.clientY; };
+      const up = () => {
+        cancelAnimationFrame(raf);
+        removeEventListener('pointermove', move);
+        removeEventListener('pointerup', up);
+        removeEventListener('pointercancel', up);
+        card.classList.remove('dragging');
+        const order = [...list.querySelectorAll('.qcard')].map(c => Number(c.dataset.q));
+        const to = order.indexOf(from);
+        const top1 = card.getBoundingClientRect().top;
+        list.classList.remove('sorting');
+        if (to !== from){
+          this.qs = order.map(k => this.qs[k]);
+          this.sync();
+          showToast(`Moved Q${from + 1} to Q${to + 1}`);
+        }
+        this.render();
+        // Unfolded, the moved card stays where it was dropped
+        const moved = list.querySelector(`.qcard[data-q="${to}"]`);
+        if (moved){
+          scrollBy(0, moved.getBoundingClientRect().top - top1);
+          moved.classList.add('dropping');
+          setTimeout(() => moved.classList.remove('dropping'), 700);
+        }
+      };
+      // On the window, not the handle: moving the card through the list
+      // re-inserts it, which would drop a pointer capture mid-drag
+      addEventListener('pointermove', move);
+      addEventListener('pointerup', up);
+      addEventListener('pointercancel', up);
+    }));
   },
 
   wire(list){
@@ -4861,6 +4936,7 @@ function boot(){
   Builder.setMode(mode, false);
   // Width changes re-wrap the text, which changes how tall each line is
   addEventListener('resize', syncGutter);
+  $('btn-sample-b').onclick = () => $('btn-sample').onclick();
   $('btn-sample').onclick = async () => {
     if (!(await Draft.okToReplace('loading the example'))) return;
     Draft.replace(SAMPLE_QUIZ);
