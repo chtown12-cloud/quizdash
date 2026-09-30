@@ -277,6 +277,17 @@ textarea.quizbox{min-height:230px;font-family:ui-monospace,SFMono-Regular,Menlo,
 .qmini.on{background:#FFF3D6;border-color:#E7C56B;color:#7A5A12}
 .qthumb{height:44px;border-radius:7px;border:1.5px solid #DDD7EE;display:block}
 .qhint{font-size:.8rem;color:#6B6390;margin:7px 0 0}
+/* Quiz-wide timings: two labelled steppers rather than two bare boxes */
+.timings{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0 18px}
+@media (max-width:560px){.timings{grid-template-columns:1fr}}
+.timing{background:#F7F4FE;border:1.5px solid #E4DEF5;border-radius:12px;padding:12px 14px}
+.timing label{display:block;font-weight:700;font-size:.92rem;margin-bottom:8px}
+.stepper{display:inline-flex;align-items:center;border:1.5px solid #D6CEEE;border-radius:10px;background:#fff;overflow:hidden}
+.stepper button{width:36px;height:38px;border:0;background:#F1EDFB;color:var(--card-ink);font-size:1.15rem;font-weight:800;cursor:pointer;font-family:inherit}
+.stepper button:hover{background:#E6DFFA}
+.stepper input{width:52px;border:0;text-align:center;font-weight:800;font-size:1.05rem;color:var(--card-ink);background:transparent;font-family:inherit;-moz-appearance:textfield;appearance:textfield}
+.stepper input::-webkit-inner-spin-button,.stepper input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.stepper span{font-size:.82rem;color:#6B6390;padding-right:10px}
 /* Tap-the-spot: the picture is the answer sheet */
 .tapwrap{position:relative;display:inline-block;line-height:0;max-width:100%;border-radius:14px;overflow:hidden;box-shadow:var(--shadow);cursor:crosshair;touch-action:manipulation}
 .tapwrap img{display:block;max-width:100%;max-height:clamp(180px,42vh,460px);width:auto;height:auto}
@@ -1015,7 +1026,18 @@ html[data-theme=disco] .answer.win{outline-color:#fff}
       </div>
       <div id="build-pane">
         <div class="field"><label for="q-title">Quiz title</label><input type="text" id="q-title" placeholder="Friday Team Quiz" autocomplete="off"></div>
-        <div class="field"><label for="q-timer">Seconds to answer · reading time</label><div class="qrow"><input type="number" id="q-timer" min="1" max="300" style="max-width:110px" aria-label="Answer timer"><input type="number" id="q-read" min="0" max="30" style="max-width:110px" aria-label="Reading time"><span class="qhint">seconds · applies to every question unless one says otherwise</span></div></div>
+        <div class="timings">
+          <div class="timing">
+            <label for="q-timer">⏱️ Time to answer</label>
+            <div class="stepper"><button type="button" data-step="q-timer" data-d="-5" aria-label="5 seconds less">−</button><input type="number" id="q-timer" min="1" max="300" inputmode="numeric"><span>sec</span><button type="button" data-step="q-timer" data-d="5" aria-label="5 seconds more">+</button></div>
+            <p class="qhint">How long players get to answer each question.</p>
+          </div>
+          <div class="timing">
+            <label for="q-read">👀 Reading time</label>
+            <div class="stepper"><button type="button" data-step="q-read" data-d="-1" aria-label="1 second less">−</button><input type="number" id="q-read" min="0" max="30" inputmode="numeric"><span>sec</span><button type="button" data-step="q-read" data-d="1" aria-label="1 second more">+</button></div>
+            <p class="qhint">The question shows on its own first, so everyone can read it before answers open.</p>
+          </div>
+        </div>
         <div id="qlist"></div>
         <div class="row"><button type="button" class="btn" id="btn-addq">+ Add question</button><button type="button" class="btn ghost cardghost" id="btn-sample-b">Load example quiz</button></div>
       </div>
@@ -4932,6 +4954,13 @@ function boot(){
   $('q-title').addEventListener('input', e => { Builder.title = e.target.value; Builder.sync(); });
   $('q-timer').addEventListener('input', e => { Builder.dur = Math.max(1, Math.min(300, +e.target.value || 20)); Builder.sync(); });
   $('q-read').addEventListener('input', e => { Builder.prev = Math.max(0, Math.min(30, +e.target.value || 0)); Builder.sync(); });
+  // − / + beside each: step, clamp to the field's range, and show the result
+  document.querySelectorAll('[data-step]').forEach(b => b.addEventListener('click', () => {
+    const inp = $(b.dataset.step);
+    const v = Math.max(+inp.min, Math.min(+inp.max, (+inp.value || 0) + Number(b.dataset.d)));
+    inp.value = v;
+    inp.dispatchEvent(new Event('input'));
+  }));
   // Bring back the quiz from last time — closing the tab shouldn't cost it
   const draft = Draft.restore();
   let restored = false;
