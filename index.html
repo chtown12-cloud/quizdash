@@ -157,6 +157,11 @@ a{color:inherit}
    reveal (picture + answers + vote chart) used to push Next below the
    fold, and a host who can't see it thinks the game has frozen. */
 .hostbar{position:sticky;bottom:14px;z-index:6}
+.createbar{gap:10px;align-items:center}
+.keytip{margin-top:-10px;opacity:.6}
+.keytip kbd{font:inherit;font-weight:700;border:1px solid currentColor;border-radius:5px;padding:0 5px}
+@media (hover:none){.keytip{display:none}}
+@media (max-width:480px){.createbar .btn.big{padding:15px 24px;font-size:1.1rem}.createbar #btn-test{padding:12px 14px}}
 .hostbar .btn.ghost{background:var(--ink-back,rgba(16,10,36,.7));backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 /* Focus ring follows the page ink so it stays visible on light themes
    (doodle/editorial/candy/nintendo); inside white cards it uses card ink. */
@@ -220,13 +225,13 @@ textarea.quizbox{min-height:230px;font-family:ui-monospace,SFMono-Regular,Menlo,
 #btn-download.due::after{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:#F59E0B;margin-left:6px;vertical-align:1px}
 /* The one-time "save your quiz" reminder under the tabs */
 /* floats at the bottom so it's seen wherever the host has scrolled to */
-.savenudge{position:fixed;left:16px;right:16px;bottom:calc(18px + env(safe-area-inset-bottom));margin:0 auto;max-width:620px;z-index:70;display:flex;align-items:center;gap:12px;background:#FFF6DC;border:1.5px solid #F3D27A;color:#5A4410;border-radius:14px;padding:14px 16px;font-size:.92rem;line-height:1.45;text-align:left;box-shadow:0 14px 40px rgba(0,0,0,.35);animation:cardIn .4s cubic-bezier(.22,1,.36,1)}
+.savenudge{position:fixed;left:16px;right:16px;bottom:calc(96px + env(safe-area-inset-bottom));margin:0 auto;max-width:620px;z-index:70;display:flex;align-items:center;gap:12px;background:#FFF6DC;border:1.5px solid #F3D27A;color:#5A4410;border-radius:14px;padding:14px 16px;font-size:.92rem;line-height:1.45;text-align:left;box-shadow:0 14px 40px rgba(0,0,0,.35);animation:cardIn .4s cubic-bezier(.22,1,.36,1)}
 .savenudge[hidden]{display:none}
 .savenudge-i{font-size:1.5rem;flex:none}
 .savenudge>div{flex:1}
 .savenudge .btn{flex:none;font-size:.9rem;padding:9px 16px}
 .savenudge-x{flex:none;background:none;border:0;color:#8A6D1E;font-size:1rem;padding:4px 6px;border-radius:6px;cursor:pointer}
-@media (max-width:560px){.savenudge{flex-wrap:wrap;bottom:calc(76px + env(safe-area-inset-bottom))}.savenudge>div{flex-basis:calc(100% - 80px)}}
+@media (max-width:560px){.savenudge{flex-wrap:wrap;bottom:calc(92px + env(safe-area-inset-bottom))}.savenudge>div{flex-basis:calc(100% - 80px)}}
 .savebox{max-width:min(94vw,460px);padding:22px}
 .savebox h3{margin:0 0 6px;font-size:1.2rem}
 .savebox p{margin:0 0 16px;line-height:1.5;color:#4A4270}
@@ -273,6 +278,15 @@ textarea.quizbox{min-height:230px;font-family:ui-monospace,SFMono-Regular,Menlo,
 .btn.ghost.cardghost{color:var(--card-ink);border-color:#CFC7E8}
 .qcard select.qtype{flex:0 1 auto;min-width:0;width:auto;padding:6px 8px;font-size:.85rem;border:1.5px solid #DDD7EE;border-radius:9px;background:#FBFAFF;color:var(--card-ink);font-family:inherit}
 .qcard-tools{margin-left:auto;display:flex;gap:2px;flex:none}
+.qtime{flex:none;display:inline-flex;align-items:center;gap:2px;border:1.5px solid #DDD7EE;border-radius:9px;background:#FBFAFF;padding:0 7px;font-size:.82rem;color:#6B6390;cursor:text}
+.qtime:focus-within{border-color:var(--c1)}
+.qcard .qtime input[type=number]{width:3.2em;border:0;background:transparent;padding:6px 2px;font-size:.85rem;font-weight:700;text-align:right;color:var(--card-ink);-moz-appearance:textfield;appearance:textfield}
+.qtime input::-webkit-inner-spin-button,.qtime input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.qtime input::placeholder{color:#A89FC6;font-weight:600}
+.qwarn{margin:8px 0 0;font-size:.84rem;font-weight:600;color:#8A5A00;background:#FFF6DC;border:1px solid #F3D27A;border-radius:8px;padding:6px 10px}
+.qwarn[hidden]{display:none}
+.qcard.warn{border-left-color:#F0B429}
+.toast-act{margin-left:12px;border:0;border-radius:8px;padding:5px 12px;font:inherit;font-weight:800;background:var(--c2);color:#1b1230;cursor:pointer}
 @media (max-width:480px){.qcard-top{gap:5px}.qcard-tools button{padding:3px 3px}.qcard{padding:12px 10px 12px 10px}}
 .qcard-tools button{border:0;background:transparent;cursor:pointer;font-size:.95rem;padding:3px 5px;border-radius:7px;color:#6B6390}
 .qcard-tools button:hover{background:#EEE9F8}
@@ -1158,9 +1172,12 @@ html[data-theme=disco] .answer.win{outline-color:#fff}
           </div>
         </div>
       </div></details>
+    </div>
 
     <div class="errbox" id="create-err"></div>
-    <div class="row" style="justify-content:center;padding-bottom:10px">
+    <!-- pinned to the bottom so a long quiz never hides the way forward -->
+    <div class="row hostbar createbar" style="justify-content:center;padding-bottom:10px">
+      <button class="btn ghost" id="btn-test" title="Walk through every screen with 10 pretend players — no phones needed">🧪 Test run</button>
       <button class="btn big" id="btn-create">Create room →</button>
     </div>
   </div>
@@ -1181,6 +1198,7 @@ html[data-theme=disco] .answer.win{outline-color:#fff}
          never scrolls past a wall of participants to find it -->
     <button class="btn big" id="btn-start" disabled>Start game 🚀</button>
     <p class="small muted" id="hlobby-hint" style="margin-top:-8px">Waiting for at least 1 player…</p>
+    <p class="small muted keytip">Tip: <kbd>→</kbd> or <kbd>Space</kbd> moves the game along — presentation clickers work too.</p>
     <div class="row" style="justify-content:center;gap:12px">
       <span class="count-badge"><span id="hlobby-count">0</span></span><span style="font-weight:600">players in</span>
     </div>
@@ -1454,9 +1472,15 @@ function hideSnapHint(){
 
 /* Top-center toast — used where a browser dialog would be unreliable */
 let toastTimer = null;
-function showToast(text, ms = 4500){
+function showToast(text, ms = 4500, action){
   const t = $('toast');
   t.textContent = text;
+  if (action){
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'toast-act'; b.textContent = action.label;
+    b.onclick = e => { e.stopPropagation(); hideToast(); action.run(); };
+    t.appendChild(b);
+  }
   t.hidden = false;
   t.onclick = hideToast;
   clearTimeout(toastTimer);
@@ -2104,7 +2128,7 @@ function parseQuiz(text){
   finalize(cur);
 
   if (!questions.length) errors.push('No questions found. Every question starts with a "##" line.');
-  return { title: title || 'Untitled Quiz', questions, errors };
+  return { title: title || 'Untitled Quiz', questions, errors, duration: defDur, preview: defPreview };
 }
 
 /* The other direction: turn parsed questions back into the plain text that
@@ -2970,8 +2994,25 @@ const Host = {
 
   async createRoom(){
     const parsed = parseQuiz($('quiz-input').value);
-    if (parsed.errors.length){ renderParseStatus(parsed, true); return; }
-    const btn = $('btn-create'), errBox = $('create-err');
+    const errBox = $('create-err');
+    if (parsed.errors.length){
+      // In Build mode, point at the cards themselves rather than at markdown
+      // line numbers the host has never seen
+      if (!$('build-pane').hidden){
+        Builder.showAll = true;
+        const n = Builder.flag();
+        const first = document.querySelector('#qlist .qcard.warn');
+        if (n && first){
+          errBox.textContent = `⚠ ${n === 1 ? 'One question needs' : n + ' questions need'} a little more before you can play — ${n === 1 ? "it's" : "they're"} marked in amber.`;
+          errBox.style.display = 'block';
+          first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return false;
+        }
+      }
+      renderParseStatus(parsed, true);
+      return false;
+    }
+    const btn = $('btn-create');
     errBox.style.display = 'none';
     btn.disabled = true; btn.textContent = 'Connecting…';
     try {
@@ -2979,6 +3020,7 @@ const Host = {
         throw new Error('no live connection to the game server — check your network, or reload and try again');
       btn.textContent = 'Creating room…';
       await this._createRoom(parsed);
+      return true;
     } catch(e){
       console.error('createRoom failed:', e);
       errBox.textContent = '⚠ Could not create the room — ' + (e && e.message ? e.message : e) + '.\n' +
@@ -3048,7 +3090,9 @@ const Host = {
       $('hlobby-count').textContent = list.length;
       $('hlobby-players').innerHTML = list.map(([id,p]) => `<span class="chip">${av(p.emoji)} ${esc(p.name)}</span>`).join('');
       $('btn-start').disabled = list.length === 0;
-      $('hlobby-hint').textContent = list.length === 0 ? 'Waiting for at least 1 player…' : 'Start whenever you\'re ready!';
+      $('hlobby-hint').textContent = this.testRun
+        ? '🧪 Test run — 10 pretend players are in. Press Start to walk through every screen.'
+        : list.length === 0 ? 'Waiting for at least 1 player…' : 'Start whenever you\'re ready!';
     });
     // Reactions: players send an index into REACTIONS; float the new ones
     // up the big screen (throttled to 20 per update so a stampede stays fun).
@@ -4412,15 +4456,18 @@ const Q_TYPES = [
 ];
 const Builder = {
   qs: [], title: '', dur: 20, prev: PREVIEW_SECS,
+  touched: new WeakSet(),
   blank(){ return { text:'', type:'quiz', options:['',''], correct:0, corrects:[], accepted:[''], target:'', image:'', spot:null, x2:false }; },
 
   // Re-read the markdown box — the text is always what'strue
   seed(){
     const parsed = parseQuiz($('quiz-input').value);
     this.title = parsed.title === 'Untitled Quiz' ? '' : parsed.title;
-    // the quiz-wide defaults are whatever the first question inherited
-    this.dur = parsed.questions.length ? parsed.questions[0].duration : 20;
-    this.prev = parsed.questions.length ? parsed.questions[0].preview : PREVIEW_SECS;
+    // Quiz-wide defaults come from the title line. A question keeps its own
+    // timing only where it really differs — otherwise changing the quiz-wide
+    // timer would leave every existing question pinned to the old value.
+    this.dur = parsed.duration;
+    this.prev = parsed.preview;
     const t = $('q-title'), d = $('q-timer'), r = $('q-read');
     if (t) t.value = this.title;
     if (d) d.value = this.dur;
@@ -4432,21 +4479,64 @@ const Builder = {
       accepted: q.type === 'typed' ? ((q.accepted && q.accepted.length ? q.accepted : q.options).slice()) : [''],
       target: q.target === undefined ? '' : q.target,
       image: q.image || '', spot: q.spot || null, x2: !!q.x2,
-      duration: q.duration, preview: q.preview
+      duration: q.duration !== this.dur ? q.duration : undefined,
+      preview: q.preview !== this.prev ? q.preview : undefined
     }));
     if (!this.qs.length) this.qs = [this.blank()];
   },
 
   // Model -> markdown -> reparse. Everything downstream already listens.
+  // A card nobody has typed into yet — left out of the quiz, never an error
+  isBlank(q){
+    return !q.text.trim() && !q.image && q.target === '' && !q.options.some(o => o.trim()) && !q.accepted.some(a => a.trim());
+  },
+
+  // What still stops this card from being playable, in Build-mode words
+  problem(q){
+    const opts = q.options.filter(o => o.trim()).length;
+    if (!q.text.trim()) return 'Type the question.';
+    if (q.type === 'quiz'){
+      if (opts < 2) return 'Add at least 2 answers.';
+      if (!(q.options[q.correct] || '').trim()) return 'Tick the right answer.';
+    }
+    if (q.type === 'multi'){
+      if (opts < 2) return 'Add at least 2 answers.';
+      if (!q.corrects.some(c => (q.options[c] || '').trim())) return 'Tick every right answer (at least one).';
+    }
+    if (q.type === 'poll' && opts < 2) return 'Add at least 2 options.';
+    if (q.type === 'closest' && (q.target === '' || !Number.isFinite(Number(q.target)))) return 'Enter the number that wins.';
+    if (q.type === 'typed' && !q.accepted.some(a => a.trim())) return 'Enter the answer players must type.';
+    if (q.type === 'spot' && !q.image) return 'Add a picture, then set the spot.';
+    if (q.type === 'spot' && !q.spot) return 'Set the spot players have to find.';
+    return '';
+  },
+  showAll: false,   // after a failed Create, every card speaks up
+  // Refresh the amber notes without re-rendering (typing keeps its caret).
+  // A card only complains once you've started it, or after Create.
+  flag(){
+    let n = 0;
+    document.querySelectorAll('#qlist .qcard').forEach(card => {
+      const q = this.qs[Number(card.dataset.q)], box = card.querySelector('.qwarn');
+      if (!q || !box) return;
+      const msg = this.isBlank(q) ? (this.showAll && this.qs.every(x => this.isBlank(x)) ? 'Type the question.' : '') : this.problem(q);
+      box.textContent = msg ? '⚠ ' + msg : '';
+      box.hidden = !msg || (!this.showAll && !card.dataset.touched);
+      card.classList.toggle('warn', !box.hidden);
+      if (msg) n++;
+    });
+    return n;
+  },
+
   sync(){
     const ta = $('quiz-input');
-    ta.value = quizToText({ title: this.title || 'My Quiz', duration: this.dur, preview: this.prev, questions: this.qs.map(q => ({
+    ta.value = quizToText({ title: this.title || 'My Quiz', duration: this.dur, preview: this.prev, questions: this.qs.filter(q => !this.isBlank(q)).map(q => ({
       ...q,
       options: q.type === 'typed' ? q.accepted.filter(a => a.trim()) : q.options,
       accepted: q.accepted.filter(a => a.trim()),
       target: q.target === '' ? undefined : Number(q.target)
     })) });
     ta.dispatchEvent(new Event('input'));
+    this.flag();
   },
 
   optionsHTML(q, i){
@@ -4485,6 +4575,7 @@ const Builder = {
         <span class="qcard-n">Q${i + 1}</span>
         <select class="qtype" data-type aria-label="Question type">${Q_TYPES.map(([v, l]) =>
           `<option value="${v}"${q.type === v ? ' selected' : ''}>${l}</option>`).join('')}</select>
+        <label class="qtime" title="Seconds to answer this question — leave blank for the quiz's ${this.dur}s">⏱<input type="number" min="1" max="300" data-dur value="${q.duration || ''}" placeholder="${this.dur}" aria-label="Seconds to answer this question">s</label>
         <span class="qcard-tools">
           ${this.qs.length > 1 ? `<button type="button" data-up title="Move up" ${i ? '' : 'disabled style="opacity:.3"'}>↑</button>
           <button type="button" data-down title="Move down" ${i < this.qs.length - 1 ? '' : 'disabled style="opacity:.3"'}>↓</button>` : ''}
@@ -4493,6 +4584,7 @@ const Builder = {
         </span>
       </div>
       <input type="text" class="qtext-in" data-text value="${esc(q.text)}" placeholder="Your question…">
+      <p class="qwarn" role="status" hidden></p>
       ${this.bodyHTML(q, i)}
       <div class="qrow">
         ${q.image ? `<img class="qthumb" src="${esc(Shots.resolve(q.image))}" alt="">
@@ -4505,6 +4597,7 @@ const Builder = {
     </div>`).join('');
     this.wire(list);
     this.grip(list);
+    this.flag();
   },
 
   // Drag a card by its ⠿ handle. Cards reshuffle live as it passes their
@@ -4572,6 +4665,14 @@ const Builder = {
       const i = Number(card.dataset.q), q = this.qs[i];
       const on = (sel, ev, fn) => card.querySelectorAll(sel).forEach(el => el.addEventListener(ev, fn));
       const restructure = () => { this.sync(); this.render(); };
+      // once someone has worked on a card, its warning may show
+      card.addEventListener('input', () => { if (!card.dataset.touched){ card.dataset.touched = '1'; this.touched.add(q); this.flag(); } });
+      if (this.touched.has(q)) card.dataset.touched = '1';
+      on('[data-dur]', 'input', e => {
+        const v = Math.round(Number(e.target.value));
+        q.duration = v >= 1 && v <= 300 && v !== this.dur ? v : undefined;
+        this.sync();
+      });
       // typing never re-renders — that would steal the caret mid-word
       on('[data-text]', 'input', e => { q.text = e.target.value; this.sync(); });
       on('[data-opt]', 'input', e => { q.options[+e.target.dataset.opt] = e.target.value; this.sync(); });
@@ -4605,9 +4706,16 @@ const Builder = {
       on('[data-down]', 'click', () => { if (i < this.qs.length - 1) { this.qs.splice(i + 1, 0, this.qs.splice(i, 1)[0]); restructure(); } });
       on('[data-dup]', 'click', () => { this.qs.splice(i + 1, 0, JSON.parse(JSON.stringify(q))); restructure(); });
       on('[data-del]', 'click', () => {
-        this.qs.splice(i, 1);
+        const gone = this.qs.splice(i, 1)[0];
         if (!this.qs.length) this.qs = [this.blank()];
         restructure();
+        if (this.isBlank(gone)) return;       // nothing worth an undo
+        showToast(`Deleted Q${i + 1}`, 7000, { label: 'Undo', run: () => {
+          if (this.qs.length === 1 && this.isBlank(this.qs[0])) this.qs = [];
+          this.qs.splice(Math.min(i, this.qs.length), 0, gone);
+          this.sync(); this.render();
+          showToast(`Q${i + 1} is back`);
+        } });
       });
       on('[data-delimg]', 'click', () => { q.image = ''; q.spot = null; restructure(); });
       on('[data-addimg]', 'click', () => {
@@ -4651,6 +4759,7 @@ const Builder = {
   // Which markdown line this card's "##" ended up on, so the aim picker
   // can write the "= x%, y%" back into the text.
   lineOf(i){
+    i = this.qs.slice(0, i).filter(q => !this.isBlank(q)).length;
     const q = parseQuiz($('quiz-input').value).questions[i];
     return q ? q.line : null;
   },
@@ -4975,7 +5084,13 @@ function boot(){
   $('tab-write').onclick = () => Builder.setMode('write');
   $('btn-addq').onclick = () => { Builder.qs.push(Builder.blank()); Builder.sync(); Builder.render(); };
   $('q-title').addEventListener('input', e => { Builder.title = e.target.value; Builder.sync(); });
-  $('q-timer').addEventListener('input', e => { Builder.dur = Math.max(1, Math.min(300, +e.target.value || 20)); Builder.sync(); });
+  $('q-timer').addEventListener('input', e => {
+    Builder.dur = Math.max(1, Math.min(300, +e.target.value || 20));
+    // a card that matched the old default now simply follows the new one
+    Builder.qs.forEach(q => { if (q.duration === Builder.dur) q.duration = undefined; });
+    document.querySelectorAll('#qlist [data-dur]').forEach(inp => { inp.placeholder = Builder.dur; });
+    Builder.sync();
+  });
   $('q-read').addEventListener('input', e => { Builder.prev = Math.max(0, Math.min(30, +e.target.value || 0)); Builder.sync(); });
   // − / + beside each: step, clamp to the field's range, and show the result
   document.querySelectorAll('[data-step]').forEach(b => b.addEventListener('click', () => {
@@ -5050,9 +5165,39 @@ function boot(){
       if (k === null) return;
       if (k === 'save') Draft.download();
     }
+    Host.testRun = false;
     Host.createRoom();
   };
+  // Same room, same flow — plus 10 pretend players, so a host can see every
+  // screen (and learn where Next lives) before a real crowd is watching
+  $('btn-test').onclick = async () => {
+    if ($('btn-create').dataset.empty) return $('btn-create').onclick();
+    Host.testRun = true;
+    if (await Host.createRoom()){
+      await Host.addBots(10);
+      showToast('🧪 Test run: 10 pretend players joined. Press Start — or → — and they\'ll answer every question.', 7000);
+    } else Host.testRun = false;
+  };
   $('btn-start').onclick = () => Host.startGame();
+  // Presenter keys: → / Space / PageDown press whichever button moves the
+  // game on. Clickers send exactly these. Typing and focused buttons keep
+  // their normal behaviour.
+  document.addEventListener('keydown', e => {
+    if (!['ArrowRight', ' ', 'PageDown'].includes(e.key) || e.repeat || e.altKey || e.ctrlKey || e.metaKey) return;
+    const t = e.target;
+    if (t && (/^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(t.tagName) || t.isContentEditable)) return;
+    if (document.querySelector('.aimback')) return;
+    const scr = document.querySelector('.screen.active');
+    const visible = id => { const b = $(id); return b && b.offsetParent !== null && !b.disabled ? b : null; };
+    const btn = scr && ({
+      's-hlobby': () => visible('btn-start'),
+      's-hquestion': () => visible('btn-hq-next') || visible('btn-hq-skip'),
+      's-hboard': () => visible('btn-hb-next')
+    }[scr.id] || (() => null))();
+    if (!btn) return;
+    e.preventDefault();
+    btn.click();
+  });
   $('btn-join').onclick = () => Player.join();
   $('join-name').addEventListener('keydown', e => { if (e.key === 'Enter') Player.join(); });
   $('join-code').addEventListener('keydown', e => { if (e.key === 'Enter') $('join-name').focus(); });
