@@ -290,7 +290,7 @@ textarea.quizbox{min-height:230px;font-family:ui-monospace,SFMono-Regular,Menlo,
 .qwarn[hidden]{display:none}
 .qcard.warn{border-left-color:#F0B429}
 .toast-act{margin-left:12px;border:0;border-radius:8px;padding:5px 12px;font:inherit;font-weight:800;background:var(--c2);color:#1b1230;cursor:pointer}
-@media (max-width:480px){.qcard-top{gap:5px}.qcard-tools button{padding:3px 3px}.qcard{padding:12px 10px 12px 10px}}
+@media (max-width:480px){.qcard-top{gap:5px;flex-wrap:wrap}.qtime-u{display:none}.qtime{padding:0 7px}.qcard-tools button{padding:3px 3px}.qcard{padding:12px 10px 12px 10px}}
 .qcard-tools button{border:0;background:transparent;cursor:pointer;font-size:.95rem;padding:3px 5px;border-radius:7px;color:#6B6390}
 .qcard-tools button:hover{background:#EEE9F8}
 .qcard input[type=text],.qcard input[type=number]{width:100%;border:1.5px solid #DDD7EE;border-radius:10px;padding:9px 11px;background:#fff;color:var(--card-ink);font-family:inherit;font-size:.95rem}
@@ -575,6 +575,9 @@ button.answer.picked{outline:4px solid var(--ink);outline-offset:-4px;filter:bri
 @keyframes heartbeat{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
 .mutebtn{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:60;width:46px;height:46px;border-radius:50%;background:rgba(0,0,0,.35);color:#fff;font-size:1.2rem;border:1.5px solid rgba(255,255,255,.3);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center}
 .snapbtn{right:auto;left:14px}
+/* phones building a quiz: the pinned Test run / Create bar needs the
+   bottom edge, and there is nothing to screenshot or hear on this screen */
+@media (max-width:560px){body:has(#s-setup.active) .mutebtn{display:none}}
 /* Thematic background decorations: a few emoji per theme drifting gently
    behind everything (z-index:-1 keeps them under all content) */
 #decor{position:fixed;inset:0;pointer-events:none;z-index:-1;overflow:hidden}
@@ -4578,7 +4581,8 @@ const Builder = {
         <span class="qcard-n">Q${i + 1}</span>
         <select class="qtype" data-type aria-label="Question type">${Q_TYPES.map(([v, l]) =>
           `<option value="${v}"${q.type === v ? ' selected' : ''}>${l}</option>`).join('')}</select>
-        <label class="qtime" title="Seconds to answer this question — leave blank for the quiz's ${this.dur}s"><span class="qtime-i" aria-hidden="true">⏱️</span><input type="number" min="1" max="300" data-dur value="${q.duration || ''}" placeholder="${this.dur}" aria-label="Seconds to answer this question">sec</label>
+        <label class="qtime" title="Seconds to answer this question — leave blank for the quiz's ${this.dur}s"><span class="qtime-i" aria-hidden="true">⏱️</span><input type="number" min="1" max="300" data-dur value="${q.duration || ''}" placeholder="${this.dur}" aria-label="Seconds to answer this question"><span class="qtime-u">sec</span></label>
+        <label class="qtime" title="Seconds to read this question before answers open — leave blank for the quiz's ${this.prev}s, 0 to skip"><span class="qtime-i" aria-hidden="true">👀</span><input type="number" min="0" max="30" data-prev value="${Number.isInteger(q.preview) ? q.preview : ''}" placeholder="${this.prev}" aria-label="Seconds to read this question"><span class="qtime-u">sec</span></label>
         <span class="qcard-tools">
           ${this.qs.length > 1 ? `<button type="button" data-up title="Move up" ${i ? '' : 'disabled style="opacity:.3"'}>↑</button>
           <button type="button" data-down title="Move down" ${i < this.qs.length - 1 ? '' : 'disabled style="opacity:.3"'}>↓</button>` : ''}
@@ -4671,6 +4675,12 @@ const Builder = {
       // once someone has worked on a card, its warning may show
       card.addEventListener('input', () => { if (!card.dataset.touched){ card.dataset.touched = '1'; this.touched.add(q); this.flag(); } });
       if (this.touched.has(q)) card.dataset.touched = '1';
+      on('[data-prev]', 'input', e => {
+        const raw = e.target.value.trim(), v = Math.round(Number(raw));
+        // 0 is a real choice here (skip reading), so only blank means "default"
+        q.preview = raw !== '' && v >= 0 && v <= 30 && v !== this.prev ? v : undefined;
+        this.sync();
+      });
       on('[data-dur]', 'input', e => {
         const v = Math.round(Number(e.target.value));
         q.duration = v >= 1 && v <= 300 && v !== this.dur ? v : undefined;
@@ -5094,7 +5104,12 @@ function boot(){
     document.querySelectorAll('#qlist [data-dur]').forEach(inp => { inp.placeholder = Builder.dur; });
     Builder.sync();
   });
-  $('q-read').addEventListener('input', e => { Builder.prev = Math.max(0, Math.min(30, +e.target.value || 0)); Builder.sync(); });
+  $('q-read').addEventListener('input', e => {
+    Builder.prev = Math.max(0, Math.min(30, +e.target.value || 0));
+    Builder.qs.forEach(q => { if (q.preview === Builder.prev) q.preview = undefined; });
+    document.querySelectorAll('#qlist [data-prev]').forEach(inp => { inp.placeholder = Builder.prev; });
+    Builder.sync();
+  });
   // − / + beside each: step, clamp to the field's range, and show the result
   document.querySelectorAll('[data-step]').forEach(b => b.addEventListener('click', () => {
     const inp = $(b.dataset.step);
