@@ -278,9 +278,12 @@ textarea.quizbox{min-height:230px;font-family:ui-monospace,SFMono-Regular,Menlo,
 .btn.ghost.cardghost{color:var(--card-ink);border-color:#CFC7E8}
 .qcard select.qtype{flex:0 1 auto;min-width:0;width:auto;padding:6px 8px;font-size:.85rem;border:1.5px solid #DDD7EE;border-radius:9px;background:#FBFAFF;color:var(--card-ink);font-family:inherit}
 .qcard-tools{margin-left:auto;display:flex;gap:2px;flex:none}
-.qtime{flex:none;display:inline-flex;align-items:center;gap:2px;border:1.5px solid #DDD7EE;border-radius:9px;background:#FBFAFF;padding:0 7px;font-size:.82rem;color:#6B6390;cursor:text}
-.qtime:focus-within{border-color:var(--c1)}
-.qcard .qtime input[type=number]{width:3.2em;border:0;background:transparent;padding:6px 2px;font-size:.85rem;font-weight:700;text-align:right;color:var(--card-ink);-moz-appearance:textfield;appearance:textfield}
+.qtime{flex:none;display:inline-flex;align-items:center;gap:4px;border:1.5px solid #DDD7EE;border-radius:9px;background:#FBFAFF;padding:0 9px;height:34px;font-size:.82rem;color:#6B6390;cursor:text}
+.qtime-i{font-size:.95rem;line-height:1}
+/* one focus ring, on the chip — not a second box drawn around the number */
+.qtime:focus-within,.stepper:focus-within{border-color:var(--c1);box-shadow:0 0 0 3px rgba(79,44,189,.16)}
+.qtime input:focus-visible,.stepper input:focus-visible{outline:none}
+.qcard .qtime input[type=number]{width:2.4em;border:0;background:transparent;padding:0;font-size:.88rem;font-weight:700;text-align:center;color:var(--card-ink);-moz-appearance:textfield;appearance:textfield}
 .qtime input::-webkit-inner-spin-button,.qtime input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 .qtime input::placeholder{color:#A89FC6;font-weight:600}
 .qwarn{margin:8px 0 0;font-size:.84rem;font-weight:600;color:#8A5A00;background:#FFF6DC;border:1px solid #F3D27A;border-radius:8px;padding:6px 10px}
@@ -4575,7 +4578,7 @@ const Builder = {
         <span class="qcard-n">Q${i + 1}</span>
         <select class="qtype" data-type aria-label="Question type">${Q_TYPES.map(([v, l]) =>
           `<option value="${v}"${q.type === v ? ' selected' : ''}>${l}</option>`).join('')}</select>
-        <label class="qtime" title="Seconds to answer this question — leave blank for the quiz's ${this.dur}s">⏱<input type="number" min="1" max="300" data-dur value="${q.duration || ''}" placeholder="${this.dur}" aria-label="Seconds to answer this question">s</label>
+        <label class="qtime" title="Seconds to answer this question — leave blank for the quiz's ${this.dur}s"><span class="qtime-i" aria-hidden="true">⏱️</span><input type="number" min="1" max="300" data-dur value="${q.duration || ''}" placeholder="${this.dur}" aria-label="Seconds to answer this question">sec</label>
         <span class="qcard-tools">
           ${this.qs.length > 1 ? `<button type="button" data-up title="Move up" ${i ? '' : 'disabled style="opacity:.3"'}>↑</button>
           <button type="button" data-down title="Move down" ${i < this.qs.length - 1 ? '' : 'disabled style="opacity:.3"'}>↓</button>` : ''}
