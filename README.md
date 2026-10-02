@@ -68,6 +68,12 @@ what can be written:
   doesn't lose it — it never leaves that browser until a room is created.
   **💾 Download** saves it as a `.md` file (pictures included) and
   **📂 Open** loads it back, on any computer.
+- **Optional results files:** at the podium the host can download two CSVs.
+  Player results has each nickname, accuracy, and correct / incorrect /
+  no answer per question. Question summary has % correct, average time
+  and the most common wrong answer. They're built in the host's browser
+  from the game just played, and nothing is uploaded. Nicknames that look
+  like spreadsheet formulas are written as plain text.
 - **Player devices:** the page ships a Content-Security-Policy that only
   permits Google Fonts, the Firebase SDK, and this game's own database — any
   injected script or call to another server is blocked by the browser. All
