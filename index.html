@@ -619,7 +619,10 @@ select.fontsel:focus{border-color:var(--c1);outline:none}
 .hero{font-size:clamp(2.2rem,7vw,4rem);font-weight:800;line-height:1.08;text-wrap:balance}
 /* the rotating word gets its own line, so a longer word never shoves
    the rest of the page around */
-.hero-rot{display:block;white-space:nowrap}
+/* Zero-width and pinned to the centre, so the rotating word spills evenly
+   either side without ever changing the title's width — the 🎨 badge is
+   anchored to that width and must not slide out from under the pointer */
+.hero-rot{display:flex;justify-content:center;width:0;margin-left:50%;white-space:nowrap}
 .hero-word{display:inline-block;color:var(--c2);transform-origin:50% 60%}
 .hero-word.flip{animation:wordflip .5s cubic-bezier(.22,1,.36,1)}
 @keyframes wordflip{0%{opacity:0;transform:translateY(.45em) rotateX(70deg)}100%{opacity:1;transform:none}}
@@ -664,9 +667,10 @@ select.fontsel:focus{border-color:var(--c1);outline:none}
 @keyframes peekwiggle{0%,90%,100%{transform:rotate(12deg)}93%{transform:rotate(-10deg) scale(1.08)}96%{transform:rotate(18deg)}}
 .peektip{display:none;position:absolute;top:calc(100% + 10px);right:-6px;transform:rotate(8deg);white-space:nowrap;background:var(--card);color:var(--card-ink);border-radius:12px;padding:8px 12px;font-family:var(--font-body);font-size:.85rem;font-weight:700;letter-spacing:0;box-shadow:0 8px 22px rgba(0,0,0,.3);text-align:left;pointer-events:none}
 .peektip::before{content:"";position:absolute;top:-6px;right:24px;width:12px;height:12px;background:inherit;transform:rotate(45deg)}
-.peekdot.on .peektip{display:block}
-.peektip-n{display:block;font-size:.74rem;font-weight:600;opacity:.65;margin-top:2px}
-.peektip-n:empty{display:none}
+.peekdot.on.note .peektip{display:block}
+.peektip-n{display:block}
+.peekdot-face.pop{animation:pop .35s cubic-bezier(.34,1.56,.64,1)}
+.sronly{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 @media (max-width:640px){.peekdot{width:40px;height:40px;right:-46px;top:6px}.peekdot-face{font-size:1.1rem}.peektip{right:-4px}}
 .steps{list-style:none;display:flex;flex-wrap:wrap;justify-content:center;gap:10px;padding:0;margin:0}
 .steps li{display:flex;align-items:center;gap:8px;background:color-mix(in srgb,var(--ink) 10%,transparent);border-radius:999px;padding:8px 16px 8px 10px;font-size:.88rem}
@@ -1029,7 +1033,7 @@ html[data-theme=disco] .answer.win{outline-color:#fff}
       <h1 class="display hero" aria-label="Big-screen quizzes!!">Big-screen <span class="hero-rot" aria-hidden="true"><span class="hero-word" id="hero-word">quizzes</span><span class="hero-bang"><i>!</i><i>!</i></span></span></h1>
       <!-- easter egg: a sticker on the title. Hover (or tap) for a taste of
            the 17 looks and their music; each visit brings the next one -->
-      <button type="button" class="peekdot" id="theme-peek" aria-label="Peek at another theme" title="Psst — hover me"><span class="peekdot-face" aria-hidden="true">🎨</span><span class="peektip" role="status"><span id="theme-peek-label"></span><span class="peektip-n" id="theme-peek-n"></span></span></button>
+      <button type="button" class="peekdot" id="theme-peek" aria-label="Peek at another theme" title="Psst — hover me"><span class="peekdot-face" id="theme-peek-face" aria-hidden="true">🎨</span><span class="sronly" id="theme-peek-label" role="status"></span><span class="peektip"><span class="peektip-n" id="theme-peek-n"></span></span></button>
     </div>
     <p class="muted" style="max-width:480px">Build a quiz, share a room code, and battle it out on everyone's phones — speed and accuracy both count.</p>
     <div class="row" style="justify-content:center">
@@ -5514,7 +5518,7 @@ function boot(){
    host's own look. Touch has no hover, so each tap steps to the next one.
    Leaving the landing page always restores the real look. */
 const ThemePeek = {
-  i: 0, on: false, count: '',
+  i: 0, on: false,
   names(){ return Object.fromEntries([...$('theme-sel').options].map(o => [o.value, o.textContent])); },
   order(){ const home = $('theme-sel').value; return THEMES.filter(t => t !== home); },
   show(){
@@ -5525,8 +5529,10 @@ const ThemePeek = {
     // …and its music. startMusic won't replace a running loop, so stop first.
     SFX.stopMusic(); SFX.startMusic(t);
     $('theme-peek').classList.add('on');
-    $('theme-peek-label').textContent = this.names()[t] || t;
-    this.count = `${(this.i - 1) % list.length + 1} of ${list.length}`;
+    // the circle wears the theme's own emoji; its name is for screen readers
+    const name = this.names()[t] || t;
+    this.face(name.split(' ')[0]);
+    $('theme-peek-label').textContent = name;
     this.hint();
     // audio can take a beat to wake after a click, so look again shortly
     setTimeout(() => this.hint(), 400);
@@ -5536,8 +5542,14 @@ const ThemePeek = {
   hint(){
     if (!this.on) return;
     const live = SFX.ctx && SFX.ctx.state === 'running';
-    $('theme-peek-n').textContent = this.count +
-      (SFX.muted ? ' · 🔇 sound off' : live ? '' : ' · 🔈 click to hear it');
+    const note = SFX.muted ? '🔇 sound off' : live ? '' : '🔈 click to hear it';
+    $('theme-peek-n').textContent = note;
+    $('theme-peek').classList.toggle('note', !!note);
+  },
+  face(e){
+    const f = $('theme-peek-face');
+    f.textContent = e;
+    f.classList.remove('pop'); void f.offsetWidth; f.classList.add('pop');
   },
   restore(){
     if (!this.on) return;
@@ -5545,8 +5557,10 @@ const ThemePeek = {
     SFX.stopMusic();
     applyLook(readColorInputs(), $('theme-sel').value);
     $('theme-peek').classList.remove('on');
+    this.face('🎨');
     $('theme-peek-label').textContent = '';
     $('theme-peek-n').textContent = '';
+    $('theme-peek').classList.remove('note');
   },
   wire(){
     const b = $('theme-peek');
