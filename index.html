@@ -2206,6 +2206,11 @@ function quizToText(quiz){
   return out.join('\n') + '\n';
 }
 
+// The example's picture is drawn right here, not linked from another site:
+// a hotlinked photo can vanish or change its rules (Wikimedia's did), and
+// the example should work anywhere — offline demo mode included. Loading
+// the example files it as an attachment, so the markdown stays short.
+const SAMPLE_SATURN = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCA2NDAgNDAwJz48ZGVmcz48cmFkaWFsR3JhZGllbnQgaWQ9J3AnIGN4PSczOCUnIGN5PSczMiUnIHI9Jzc1JSc+PHN0b3Agb2Zmc2V0PScwJyBzdG9wLWNvbG9yPScjZmZmMWNmJy8+PHN0b3Agb2Zmc2V0PScuNScgc3RvcC1jb2xvcj0nI2UzYjU2YicvPjxzdG9wIG9mZnNldD0nMScgc3RvcC1jb2xvcj0nIzdhNGIyMicvPjwvcmFkaWFsR3JhZGllbnQ+PGxpbmVhckdyYWRpZW50IGlkPSdyJyB4MT0nMCcgeDI9JzEnPjxzdG9wIG9mZnNldD0nMCcgc3RvcC1jb2xvcj0nI2I4OTc2Nicgc3RvcC1vcGFjaXR5PScuMTUnLz48c3RvcCBvZmZzZXQ9Jy41JyBzdG9wLWNvbG9yPScjZjZlM2I0Jy8+PHN0b3Agb2Zmc2V0PScxJyBzdG9wLWNvbG9yPScjYjg5NzY2JyBzdG9wLW9wYWNpdHk9Jy4xNScvPjwvbGluZWFyR3JhZGllbnQ+PGNsaXBQYXRoIGlkPSdiJz48cmVjdCB3aWR0aD0nNjQwJyBoZWlnaHQ9JzIwMCcvPjwvY2xpcFBhdGg+PGNsaXBQYXRoIGlkPSdmJz48cmVjdCB5PScyMDAnIHdpZHRoPSc2NDAnIGhlaWdodD0nMjAwJy8+PC9jbGlwUGF0aD48Y2xpcFBhdGggaWQ9J2MnPjxjaXJjbGUgY3g9JzMyMCcgY3k9JzIwMCcgcj0nMTA4Jy8+PC9jbGlwUGF0aD48L2RlZnM+PHJlY3Qgd2lkdGg9JzY0MCcgaGVpZ2h0PSc0MDAnIGZpbGw9JyMwNTA3MTMnLz48ZyBmaWxsPScjZmZmJz48Y2lyY2xlIGN4PSc2MCcgY3k9JzUwJyByPScxLjYnLz48Y2lyY2xlIGN4PScxNTAnIGN5PSczMzAnIHI9JzEuMicvPjxjaXJjbGUgY3g9JzU2MCcgY3k9JzcwJyByPScxLjgnLz48Y2lyY2xlIGN4PSc2MDAnIGN5PSczMDAnIHI9JzEuMScvPjxjaXJjbGUgY3g9Jzk1JyBjeT0nMjAwJyByPScxJy8+PGNpcmNsZSBjeD0nNDgwJyBjeT0nMzYwJyByPScxLjQnLz48Y2lyY2xlIGN4PScyNTAnIGN5PSc0MCcgcj0nMScvPjxjaXJjbGUgY3g9JzQyMCcgY3k9JzMwJyByPScxLjInLz48Y2lyY2xlIGN4PSczMCcgY3k9JzM2MCcgcj0nMS4zJy8+PGNpcmNsZSBjeD0nNjEwJyBjeT0nMTgwJyByPScxJy8+PC9nPjxnIHRyYW5zZm9ybT0ncm90YXRlKC0xNiAzMjAgMjAwKSc+PGcgY2xpcC1wYXRoPSd1cmwoI2IpJz48ZWxsaXBzZSBjeD0nMzIwJyBjeT0nMjAwJyByeD0nMjMyJyByeT0nNTgnIGZpbGw9J25vbmUnIHN0cm9rZT0ndXJsKCNyKScgc3Ryb2tlLXdpZHRoPSczMCcvPjxlbGxpcHNlIGN4PSczMjAnIGN5PScyMDAnIHJ4PScxOTYnIHJ5PSc0NicgZmlsbD0nbm9uZScgc3Ryb2tlPScjZDljMDhjJyBzdHJva2Utb3BhY2l0eT0nLjU1JyBzdHJva2Utd2lkdGg9JzEwJy8+PC9nPjxjaXJjbGUgY3g9JzMyMCcgY3k9JzIwMCcgcj0nMTA4JyBmaWxsPSd1cmwoI3ApJy8+PGcgY2xpcC1wYXRoPSd1cmwoI2MpJyBmaWxsPScjNmIzZjFjJz48cmVjdCB4PScyMDAnIHk9JzE1MCcgd2lkdGg9JzI0MCcgaGVpZ2h0PSc5JyBvcGFjaXR5PScuMjInLz48cmVjdCB4PScyMDAnIHk9JzE3Nicgd2lkdGg9JzI0MCcgaGVpZ2h0PScxNCcgb3BhY2l0eT0nLjE2Jy8+PHJlY3QgeD0nMjAwJyB5PScyMjInIHdpZHRoPScyNDAnIGhlaWdodD0nMTAnIG9wYWNpdHk9Jy4yJy8+PHJlY3QgeD0nMjAwJyB5PScyNTAnIHdpZHRoPScyNDAnIGhlaWdodD0nMTYnIG9wYWNpdHk9Jy4xNCcvPjwvZz48ZyBjbGlwLXBhdGg9J3VybCgjZiknPjxlbGxpcHNlIGN4PSczMjAnIGN5PScyMDAnIHJ4PScyMzInIHJ5PSc1OCcgZmlsbD0nbm9uZScgc3Ryb2tlPSd1cmwoI3IpJyBzdHJva2Utd2lkdGg9JzMwJy8+PGVsbGlwc2UgY3g9JzMyMCcgY3k9JzIwMCcgcng9JzE5Nicgcnk9JzQ2JyBmaWxsPSdub25lJyBzdHJva2U9JyNkOWMwOGMnIHN0cm9rZS1vcGFjaXR5PScuNTUnIHN0cm9rZS13aWR0aD0nMTAnLz48L2c+PC9nPjwvc3ZnPg==';
 const SAMPLE_QUIZ = `# Friday Team Quiz | 20s | read 5s
 
 ## What is the capital of France?
@@ -2215,7 +2220,7 @@ const SAMPLE_QUIZ = `# Friday Team Quiz | 20s | read 5s
 - Madrid
 
 ## Which planet is this?
-![](https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Saturn_during_Equinox.jpg/640px-Saturn_during_Equinox.jpg)
+![](${SAMPLE_SATURN})
 - Saturn *
 - Jupiter
 - Neptune
@@ -5344,7 +5349,7 @@ function boot(){
   $('btn-sample-b').onclick = () => $('btn-sample').onclick();
   $('btn-sample').onclick = async () => {
     if (!(await Draft.okToReplace('loading the example'))) return;
-    Draft.replace(SAMPLE_QUIZ);
+    Draft.replace(Shots.adopt(SAMPLE_QUIZ));
     Draft.markSaved();   // nothing of yours in it yet
   };
   syncCreateBtn();
