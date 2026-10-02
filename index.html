@@ -5501,7 +5501,7 @@ function boot(){
    host's own look. Touch has no hover, so each tap steps to the next one.
    Leaving the landing page always restores the real look. */
 const ThemePeek = {
-  i: 0, on: false,
+  i: 0, on: false, count: '',
   names(){ return Object.fromEntries([...$('theme-sel').options].map(o => [o.value, o.textContent])); },
   order(){ const home = $('theme-sel').value; return THEMES.filter(t => t !== home); },
   show(){
@@ -5509,13 +5509,27 @@ const ThemePeek = {
     this.i++;
     this.on = true;
     applyLook(DEFAULT_COLORS, t);
+    // …and its music. startMusic won't replace a running loop, so stop first.
+    SFX.stopMusic(); SFX.startMusic(t);
     $('theme-peek').classList.add('on');
     $('theme-peek-label').textContent = this.names()[t] || t;
-    $('theme-peek-n').textContent = `${(this.i - 1) % list.length + 1} of ${list.length}`;
+    this.count = `${(this.i - 1) % list.length + 1} of ${list.length}`;
+    this.hint();
+    // audio can take a beat to wake after a click, so look again shortly
+    setTimeout(() => this.hint(), 400);
+  },
+  // Browsers only allow sound after a click, tap or key press on the page —
+  // a hover doesn't count. Say so on the pill rather than staying silent.
+  hint(){
+    if (!this.on) return;
+    const live = SFX.ctx && SFX.ctx.state === 'running';
+    $('theme-peek-n').textContent = this.count +
+      (SFX.muted ? ' · 🔇 sound off' : live ? '' : ' · 🔈 click to hear it');
   },
   restore(){
     if (!this.on) return;
     this.on = false;
+    SFX.stopMusic();
     applyLook(readColorInputs(), $('theme-sel').value);
     $('theme-peek').classList.remove('on');
     $('theme-peek-label').textContent = '🎨 Peek at a theme';
@@ -5526,8 +5540,9 @@ const ThemePeek = {
     b.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') this.show(); });
     b.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') this.restore(); });
     b.addEventListener('click', e => {
-      // mouse users already see it on hover; a tap, or the keyboard, steps on
-      if (e.pointerType === 'mouse') return;
+      // Mouse: the hover already shows the theme — a click just unlocks its
+      // sound. A tap, or the keyboard, steps on to the next theme.
+      if (e.pointerType === 'mouse'){ SFX.ensure(); setTimeout(() => this.hint(), 300); return; }
       this.show();
     });
     b.addEventListener('blur', () => this.restore());
