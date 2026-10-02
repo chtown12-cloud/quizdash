@@ -1277,6 +1277,11 @@ html[data-theme=disco] .answer.win{outline-color:#fff}
       <button class="btn ghost" id="btn-hp-home" style="display:none" onclick="goHome()">🏠 Home</button>
       <button class="btn" id="btn-hp-again" style="display:none">Play again</button>
     </div>
+    <div class="row" id="hp-csv" style="display:none;justify-content:center;gap:8px;align-items:center">
+      <span class="small muted">Download results (CSV):</span>
+      <button class="btn ghost" id="btn-csv-players" title="Name, accuracy, and correct / incorrect for every question">📊 Player results</button>
+      <button class="btn ghost" id="btn-csv-questions" title="Each question's % correct, average time and most common wrong answer">📋 Question summary</button>
+    </div>
     <p class="small muted" id="hp-privacy" style="display:none">Data is erased automatically when you close this tab.</p>
   </div>
 </section>
@@ -2874,6 +2879,26 @@ function countUp(el, to, ms){
 }
 // Forgiving text-answer matching: case, accents, punctuation and extra
 // whitespace never cost anyone a point ("São Paulo!" matches "sao paulo").
+/* ── CSV export ─────────────────────────────────────────────────────────
+   Excel-friendly: UTF-8 with a BOM (keeps emoji and accents), CRLF lines,
+   RFC-4180 quoting. Player-supplied text that starts with = + - @ gets a
+   leading ' so a spreadsheet shows it instead of running it as a formula. */
+function csvCell(v){
+  if (v === null || v === undefined) return '';
+  let t = String(v);
+  if (typeof v !== 'number' && /^[=+\-@\t\r]/.test(t)) t = "'" + t;
+  return /[",\r\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t;
+}
+function saveCSV(filename, rows){
+  const text = '\uFEFF' + rows.map(r => r.map(csvCell).join(',')).join('\r\n') + '\r\n';
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([text], { type: 'text/csv;charset=utf-8' }));
+  a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+}
+function clip(t, n){ t = String(t || ''); return t.length > n ? t.slice(0, n - 1).trimEnd() + '…' : t; }
+
 function normAnswer(s){
   return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
     .replace(/[^\p{L}\p{N} ]/gu, ' ').replace(/\s+/g, ' ').trim();
@@ -3184,7 +3209,25 @@ const Host = {
     SFX.startMusic(currentTheme);
   },
 
-  startGame(){ SFX.stopMusic(); this.showQuestion(0); },
+  startGame(){ SFX.stopMusic(); this.log = []; this.showQuestion(0); },
+
+  /* ── Results log ──────────────────────────────────────────────────────
+     Everyone's answer to every question, kept on the host as the game
+     runs (the room itself is erased after the podium). It feeds the two
+     optional CSV downloads on the podium. correct: true/false, or null
+     for polls and word clouds, which have no right answer. */
+  log: [],
+  logResult(i, pid, p, answer, correct, a){
+    const row = this.log[i] || (this.log[i] = { i, q: this.quiz.questions[i], res: {} });
+    const said = answer === null || answer === undefined ? '' : String(answer);
+    row.res[pid] = {
+      name: String(p.name || '').slice(0, 24),
+      answer: said,
+      answered: said !== '',
+      correct,
+      secs: a && Number.isFinite(Number(a.e)) ? Math.max(0, Number(a.e)) : null
+    };
+  },
 
   /* ── 🧪 Test players ────────────────────────────────────────────────────
      Fake players for previewing the game at crowd scale (10/100/500)
@@ -3465,6 +3508,10 @@ const Host = {
           if (correct) pts = scoreFor(Math.max(0, Number(a.e) || 0), q.duration) * (q.x2 ? 2 : 1);
         }
         const newScore = (Number(p.score) || 0) + pts; // coerce: DB values are untrusted
+        const said = !a ? '' : isMulti
+          ? (Array.isArray(a.m) ? [...new Set(a.m.filter(x => Number.isInteger(x) && x >= 0 && x < q.options.length))].sort((x, y) => x - y).map(x => q.options[x]).join(' | ') : '')
+          : (Number.isInteger(a.c) && a.c >= 0 && a.c < q.options.length ? q.options[a.c] : '');
+        this.logResult(i, pid, p, said, isPoll ? null : correct, a);
         this.players[pid] = { ...p, score: newScore, last: pts, lastCorrect: correct, answered: !!a };
         updates[pid] = this.players[pid];
       }
@@ -3529,6 +3576,7 @@ const Host = {
         }
       }
       const newScore = (Number(p.score) || 0) + pts;
+      this.logResult(this.qIndex, pid, p, raw, isCloud ? null : correct, a);
       this.players[pid] = { ...p, score: newScore, last: pts, lastCorrect: correct, answered: !!a };
       updates[pid] = this.players[pid];
     }
@@ -3576,6 +3624,9 @@ const Host = {
     const updates = {};
     for (const [pid, p] of Object.entries(this.players)){
       const pts = ptsBy[pid] || 0;
+      const a = answers[pid];
+      const tapped = a && Number.isFinite(Number(a.x)) && Number.isFinite(Number(a.y)) ? `${Number(a.x)}%, ${Number(a.y)}%` : '';
+      this.logResult(this.qIndex, pid, p, tapped, pid in ptsBy, a);
       this.players[pid] = { ...p, score: (Number(p.score) || 0) + pts, last: pts, lastCorrect: pts > 0, answered: !!answers[pid] };
       updates[pid] = this.players[pid];
     }
@@ -3609,6 +3660,8 @@ const Host = {
     for (const [pid, p] of Object.entries(this.players)){
       const pts = ptsBy[pid] || 0;
       const newScore = (Number(p.score) || 0) + pts;
+      const mine = entries.find(en => en.pid === pid);
+      this.logResult(this.qIndex, pid, p, mine ? mine.g : '', mine ? mine.band === 0 : false, answers[pid]);
       this.players[pid] = { ...p, score: newScore, last: pts, lastCorrect: pts > 0, answered: !!answers[pid] };
       updates[pid] = this.players[pid];
     }
@@ -3772,7 +3825,7 @@ const Host = {
     // The end-of-game controls are revealed with the winner at the bottom of
     // this function and never hidden again, so a second game (Play again)
     // would otherwise inherit them — and the screenshot nudge — mid-race.
-    ['btn-hp-board','btn-hp-erase','btn-hp-home','btn-hp-again','hp-privacy'].forEach(id => { $(id).style.display = 'none'; });
+    ['btn-hp-board','btn-hp-erase','btn-hp-home','btn-hp-again','hp-privacy','hp-csv'].forEach(id => { $(id).style.display = 'none'; });
     hideSnapHint();
 
     const setCol = (id, p) => {
@@ -3905,11 +3958,98 @@ const Host = {
     };
     $('hp-privacy').style.display = '';
     $('btn-hp-home').style.display = '';
+    // Built from the host's own log, so these still work after Erase
+    if (this.log.some(Boolean)){
+      $('hp-csv').style.display = 'flex';
+      $('btn-csv-players').style.display = this.gradedRows().length ? '' : 'none';
+      const name = kind => `${(this.quiz.title || 'Quiz').replace(/[^\w '&-]+/g, '').trim().slice(0, 40) || 'Quiz'} - ${kind} ${new Date().toISOString().slice(0, 10)}.csv`;
+      $('btn-csv-players').onclick = () => { saveCSV(name('player results'), this.playersCSV()); showToast('Player results downloaded.'); };
+      $('btn-csv-questions').onclick = () => { saveCSV(name('question summary'), this.questionsCSV()); showToast('Question summary downloaded.'); };
+    }
 
     $('btn-hp-board').style.display = '';
     $('btn-hp-board').onclick = () => { this.renderFinalBoard(st); };
     $('btn-hp-again').style.display = '';
     $('btn-hp-again').onclick = async () => { SFX.stopMusic(); await Sync.set(this.path(), null); show('s-setup'); };
+  },
+
+  // Who goes in the files: real players. Test players only appear when
+  // nobody else played (a 🧪 test run), so a host can try the export.
+  resultPlayers(){
+    const seen = new Map();
+    this.log.forEach(row => row && Object.entries(row.res).forEach(([pid, r]) => seen.set(pid, r.name)));
+    Object.entries(this.players).forEach(([pid, p]) => seen.set(pid, String(p.name || '').slice(0, 24)));
+    let ids = [...seen.keys()];
+    if (ids.some(id => !id.startsWith('bot'))) ids = ids.filter(id => !id.startsWith('bot'));
+    return ids.map(id => ({ id, name: seen.get(id) }));
+  },
+  gradedRows(){ return this.log.filter(row => row && row.q.type !== 'poll' && row.q.type !== 'cloud'); },
+
+  // Player results: Name, Accuracy, then Correct / Incorrect / No answer
+  // for every graded question. A–Z so it lines up with a class list.
+  playersCSV(){
+    const graded = this.gradedRows();
+    const head = ['Name', 'Accuracy', ...graded.map(row => `Q${row.i + 1}: ${clip(row.q.text, 40)}`)];
+    const rows = this.resultPlayers()
+      .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
+      .map(pl => {
+        let right = 0;
+        const cells = graded.map(row => {
+          const r = row.res[pl.id];
+          if (!r || !r.answered) return 'No answer';
+          if (r.correct) right++;
+          return r.correct ? 'Correct' : 'Incorrect';
+        });
+        return [pl.name, graded.length ? Math.round(right / graded.length * 100) + '%' : '—', ...cells];
+      });
+    return [head, ...rows];
+  },
+
+  // Question summary: what landed and what to re-teach
+  questionsCSV(){
+    const keep = new Set(this.resultPlayers().map(pl => pl.id));
+    const LABEL = Object.fromEntries(Q_TYPES);
+    const head = ['#', 'Question', 'Type', 'Right answer', 'Answered', '% correct', 'Avg seconds', 'Most common wrong answer'];
+    const rows = this.log.filter(Boolean).map(row => {
+      const q = row.q;
+      const rs = Object.entries(row.res).filter(([pid]) => keep.has(pid)).map(([, r]) => r);
+      const ans = rs.filter(r => r.answered);
+      const graded = q.type !== 'poll' && q.type !== 'cloud';
+      const right = {
+        quiz: () => q.options[q.correct],
+        multi: () => (q.corrects || []).map(c => q.options[c]).join(', '),
+        typed: () => (q.options || []).join(' / '),
+        closest: () => q.target,
+        spot: () => q.spot ? `tap at ${q.spot.x}%, ${q.spot.y}%` : ''
+      }[q.type];
+      const secs = ans.filter(r => r.secs !== null);
+      const avg = secs.length ? (secs.reduce((t, r) => t + r.secs, 0) / secs.length).toFixed(1) : '';
+      // most common among the wrong answers (or the top pick, for polls & clouds)
+      const pool = graded ? ans.filter(r => !r.correct) : ans;
+      const counts = new Map();
+      pool.forEach(r => {
+        const k = q.type === 'typed' || q.type === 'cloud' ? normAnswer(r.answer) : r.answer;
+        const c = counts.get(k) || { show: r.answer, n: 0 };
+        c.n++; counts.set(k, c);
+      });
+      const top = [...counts.values()].sort((a, b) => b.n - a.n)[0];
+      let common = '';
+      if (q.type === 'closest' && pool.length){
+        const g = pool.map(r => Number(r.answer)).filter(Number.isFinite);
+        common = g.length ? `guesses ranged ${Math.min(...g)} to ${Math.max(...g)}` : '';
+      } else if (q.type === 'spot' && pool.length){
+        common = `${pool.length} tapped somewhere else`;
+      } else if (top){
+        common = (graded ? '' : 'top pick: ') + `${top.show} (${top.n})`;
+      }
+      return [
+        row.i + 1, q.text, LABEL[q.type] || q.type, right ? right() : '—',
+        `${ans.length} of ${rs.length}`,
+        graded ? (ans.length ? Math.round(ans.filter(r => r.correct).length / ans.length * 100) + '%' : '—') : '—',
+        avg, common
+      ];
+    });
+    return [head, ...rows];
   },
 
   renderFinalBoard(st){
