@@ -301,6 +301,7 @@ textarea.quizbox{min-height:230px;font-family:ui-monospace,SFMono-Regular,Menlo,
 .qrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:9px}
 .qmini{border:1.5px solid #DDD7EE;background:#fff;border-radius:9px;padding:5px 10px;font-size:.82rem;cursor:pointer;color:#6B6390;font-family:inherit;font-weight:600}
 .qmini.on{background:#FFF3D6;border-color:#E7C56B;color:#7A5A12}
+.qseg{display:inline-flex;gap:6px}
 .qthumb{height:44px;border-radius:7px;border:1.5px solid #DDD7EE;display:block}
 .qhint{font-size:.8rem;color:#6B6390;margin:7px 0 0}
 /* Quiz-wide timings: two labelled steppers rather than two bare boxes */
@@ -477,6 +478,10 @@ button.answer.picked{outline:4px solid var(--ink);outline-offset:-4px;filter:bri
 .starget{position:absolute;top:0;bottom:0;width:3px;margin-left:-1.5px;background:var(--ink);opacity:.9;z-index:1}
 .starget span{position:absolute;top:8px;left:10px;font-family:var(--font-display);font-weight:800;font-size:1.3rem;white-space:nowrap}
 .starget span.flip{left:auto;right:10px}
+/* a range answer: the band of "spot on" between its two ends */
+.srange{position:absolute;top:0;bottom:0;background:color-mix(in srgb,var(--ink) 16%,transparent);border-left:3px solid var(--ink);border-right:3px solid var(--ink);z-index:1;min-width:6px}
+.srange span{position:absolute;top:8px;left:10px;font-family:var(--font-display);font-weight:800;font-size:1.3rem;white-space:nowrap}
+.srange span.flip{left:auto;right:10px}
 /* 🏁 Avatar racetrack (leaderboard): everyone's emoji sprints to their
    score position; leader races biggest. Uses transitions (not keyframe
    animations), so 📸 captures land on the finished positions. */
@@ -1127,6 +1132,7 @@ html[data-theme=disco] .answer.win{outline-color:#fff}
             <tr><td>no <code>*</code> at all</td><td><b>Poll</b> — no points, up to 10 options</td></tr>
             <tr><td>several <code>*</code></td><td><b>Pick all that apply</b></td></tr>
             <tr><td><code>= 206</code></td><td><b>Closest number</b> wins</td></tr>
+            <tr><td><code>= 275-300</code></td><td><b>Closest number</b> with a range — anything in between is spot on</td></tr>
             <tr><td><code>= Mars</code></td><td><b>Type the answer</b> — more <code>=</code> lines for other spellings</td></tr>
             <tr><td>nothing</td><td><b>Word cloud</b> — everyone types a word</td></tr>
             <tr><td>paste a picture</td><td>Shows with the question. Click <b>🖼 aim</b> in the green box to make it <b>tap the spot</b></td></tr>
@@ -2060,7 +2066,7 @@ function parseQuiz(text){
       if (!q.image) errors.push(`${who}: a tap-the-spot question needs a picture — paste a screenshot or add an image link.`);
       if (q.options.length) errors.push(`${who}: tap-the-spot questions take no "-" options — everyone taps the picture instead.`);
     } else if (q.type === 'closest'){
-      if (q.target === undefined) errors.push(`${who}: a closest-guess question needs its answer as "= number" (e.g. "= 1665").`);
+      if (q.target === undefined) errors.push(`${who}: a closest-guess question needs its answer as "= number" (e.g. "= 1665"), or a range like "= 275-300".`);
       if (q.options.length) errors.push(`${who}: closest-guess questions take a "= number" line, not "-" options.`);
     } else if (q.type === 'cloud'){
       if (q.options.length) errors.push(`${who}: word-cloud questions take no "-" options — everyone types their own answer.`);
@@ -2143,10 +2149,19 @@ function parseQuiz(text){
         if (cur.spot.x > 100 || cur.spot.y > 100) errors.push(`Line ${i+1}: a spot is a percentage across and down the picture, so both need to be 100% or less.`);
         return;
       }
+      // Two numbers joined by - – — or "to" make a closest-guess range
+      const rng = body.match(/^(-?\d+(?:[.,]\d+)?)\s*(?:-|–|—|to)\s*(-?\d+(?:[.,]\d+)?)$/i);
+      if (rng && !cur.accepted.length){
+        let a = Number(rng[1].replace(',', '.')), b = Number(rng[2].replace(',', '.'));
+        if (a > b) [a, b] = [b, a];
+        cur.target = a;
+        cur.targetHi = b !== a ? b : undefined;
+        return;
+      }
       const num = body.match(/^(-?\d+(?:[.,]\d+)?)$/);
       // A number is a closest-guess target; anything else is an accepted
       // typed answer, and extra "=" lines are alternate spellings.
-      if (num && !cur.accepted.length) cur.target = Number(num[1].replace(',', '.'));
+      if (num && !cur.accepted.length){ cur.target = Number(num[1].replace(',', '.')); cur.targetHi = undefined; }
       else cur.accepted.push(body);
       return;
     }
@@ -2212,7 +2227,11 @@ function quizToText(quiz){
     if (q.type === 'spot'){
       if (q.spot) out.push(`= ${q.spot.x}%, ${q.spot.y}%` + (q.spot.r !== SPOT_RADIUS ? ` ± ${q.spot.r}%` : ''));
     } else if (q.type === 'closest'){
-      if (hasTarget) out.push(`= ${q.target}`);
+      if (hasTarget){
+        const hi = q.targetHi;
+        // "to" keeps negative ranges readable: "= -10 to -5", not "= -10--5"
+        out.push(Number.isFinite(hi) && hi !== q.target ? `= ${q.target}${q.target < 0 || hi < 0 ? ' to ' : '-'}${hi}` : `= ${q.target}`);
+      }
     } else if (q.type === 'typed'){
       acc.forEach(a => out.push(`= ${a}`));
     } else if (q.type === 'quiz' || q.type === 'multi' || q.type === 'poll'){
@@ -2303,6 +2322,12 @@ const SHAPES = [
   '<svg viewBox="0 0 32 32"><path d="M16 3l13 9.4-5 15.3H8L3 12.4z" fill="#fff"/></svg>'                          // pentagon
 ];
 const POLL_MAX = 10;
+// Closest-number answers are one number ("= 206") or a range ("= 275-300").
+// A guess inside the range is spot on; outside it, the distance to the
+// nearer end decides — so the same "closest wins" banding scores both.
+function closestHi(q){ return Number.isFinite(q.targetHi) ? q.targetHi : q.target; }
+function closestDist(q, g){ const lo = q.target, hi = closestHi(q); return g < lo ? lo - g : g > hi ? g - hi : 0; }
+function closestLabel(q){ const hi = closestHi(q); return hi !== q.target ? `${q.target.toLocaleString()}–${hi.toLocaleString()}` : q.target.toLocaleString(); }
 const SPOT_RADIUS = 10;   // default "close enough", as a % of the picture's width   // polls may list this many options; every other type stays at 4
 const ANSWER_COLORS = 10;  // --b0…--b9, the first four straight from the host's picks
 const optColor = i => i % ANSWER_COLORS;
@@ -2602,7 +2627,7 @@ const CLOUD_LINE = '💬 Reading the room…'; // …and so do word clouds
 // Reveal-phase writes are merges, so every flag is reset explicitly each
 // time — otherwise a stale poll/closest/multi/typed flag from one question
 // would leak into the next reveal.
-const REVEAL_RESET = { correct: -1, dist: null, poll: false, closest: false, spot: false, target: null, multi: false, corrects: null, typed: false, cloud: false, answerText: null };
+const REVEAL_RESET = { correct: -1, dist: null, poll: false, closest: false, spot: false, target: null, targetHi: null, multi: false, corrects: null, typed: false, cloud: false, answerText: null };
 /* Every question opens with a read-only preview so slow-loading phones
    lose reading time, never answering time — the answer timer starts for
    everyone at the same moment. Default seconds; override per question
@@ -3071,16 +3096,18 @@ function renderWordCloud(container, tally, opts = {}){
 // guesses render big with the player's avatar. Dots pop in staggered —
 // `backwards` fill means the screenshot pipeline's animation freeze
 // leaves them at their natural visible state.
-function renderGuessScatter(target, entries, players){
+function renderGuessScatter(target, entries, players, targetHi = target){
   const vals = entries.map(en => en.g);
-  let lo = target, hi = target;
+  const tLo = target, tHi = targetHi, isRange = tHi !== tLo;
+  const off = v => v < tLo ? tLo - v : v > tHi ? v - tHi : 0;
+  let lo = tLo, hi = tHi;
   if (vals.length){
     // Clamp the domain to guesses within 5× the median distance from the
     // target (works at any crowd size), so one absurd guess can't squash
     // the real cluster into a single pixel. Outliers pin to the edges.
     const dists = entries.map(en => en.d).sort((a, b) => a - b);
-    const keep = Math.max(dists[Math.floor(dists.length / 2)] * 5, Math.abs(target) * .02, 1);
-    const use = entries.length >= 3 ? vals.filter(v => Math.abs(v - target) <= keep) : vals;
+    const keep = Math.max(dists[Math.floor(dists.length / 2)] * 5, Math.max(Math.abs(tLo), Math.abs(tHi)) * .02, 1);
+    const use = entries.length >= 3 ? vals.filter(v => off(v) <= keep) : vals;
     const base = use.length ? use : vals;
     lo = Math.min(lo, ...base); hi = Math.max(hi, ...base);
   }
@@ -3102,9 +3129,13 @@ function renderGuessScatter(target, entries, players){
     const y = Math.min(9 + (level - 1) * 6.8, 86); // % from the baseline up
     return `<div class="sdot${win ? ' win' : ''}${pinned ? ' pin' : ''}" style="left:${x.toFixed(2)}%;bottom:${y.toFixed(1)}%;animation-delay:${Math.min(i * 45, 1600)}ms" title="${esc(String(p.name || ''))}: ${en.g.toLocaleString()}">${win ? av(p.emoji) : ''}</div>`;
   }).join('');
-  const tx = X(target);
-  return `<div class="scatter" style="grid-column:1/-1" role="img" aria-label="Dot plot of all guesses around the answer ${target}; each stack shows how many players made that guess">
-    <div class="starget" style="left:${tx.toFixed(2)}%"><span class="${tx > 62 ? 'flip' : ''}">🎯 ${target.toLocaleString()}</span></div>
+  const tx = X(tLo), tx2 = X(tHi);
+  const label = isRange ? `${tLo.toLocaleString()}–${tHi.toLocaleString()}` : tLo.toLocaleString();
+  const marker = isRange
+    ? `<div class="srange" style="left:${tx.toFixed(2)}%;width:${(tx2 - tx).toFixed(2)}%"><span class="${(tx + tx2) / 2 > 62 ? 'flip' : ''}">🎯 ${label}</span></div>`
+    : `<div class="starget" style="left:${tx.toFixed(2)}%"><span class="${tx > 62 ? 'flip' : ''}">🎯 ${label}</span></div>`;
+  return `<div class="scatter" style="grid-column:1/-1" role="img" aria-label="Dot plot of all guesses around the answer ${label}; each stack shows how many players made that guess">
+    ${marker}
     ${dots}
   </div>`;
 }
@@ -3363,7 +3394,8 @@ const Host = {
             upd[id] = { x: Math.round(Math.max(0, Math.min(100, q.spot.x + Math.cos(ang) * dist)) * 10) / 10,
                         y: Math.round(Math.max(0, Math.min(100, q.spot.y + Math.sin(ang) * dist)) * 10) / 10, e };
           } else if (q.type === 'closest'){
-            upd[id] = { g: Math.round(q.target * (1 + (Math.random() - .5) * .8) * 100) / 100, e };
+            const mid = (q.target + closestHi(q)) / 2;
+            upd[id] = { g: Math.round(mid * (1 + (Math.random() - .5) * .8) * 100) / 100, e };
           } else if (q.type === 'typed'){
             // ~60% type an accepted answer (sometimes SHOUTED), the rest miss
             const wrong = ['banana', '42', 'idk', 'ummm', 'pizza', 'no idea'];
@@ -3726,7 +3758,7 @@ const Host = {
     const entries = [];
     for (const pid of Object.keys(this.players)){
       const a = answers[pid];
-      if (a && Number.isFinite(Number(a.g))) entries.push({ pid, g: Number(a.g), d: Math.abs(Number(a.g) - q.target) });
+      if (a && Number.isFinite(Number(a.g))) entries.push({ pid, g: Number(a.g), d: closestDist(q, Number(a.g)) });
     }
     entries.sort((x, y) => x.d - y.d);
     let lastD = null, band = -1;
@@ -3753,18 +3785,18 @@ const Host = {
       return `<div class="boardrow">
         <span class="rank">${en.band + 1}</span>
         <span class="bname">${av(p.emoji)} ${esc(String(p.name || ''))} — ${en.g.toLocaleString()}</span>
-        <span class="bdelta">${en.d === 0 ? '🎯 spot on!' : 'off by ' + en.d.toLocaleString()}</span>
+        <span class="bdelta">${en.d === 0 ? (closestHi(q) !== q.target ? '🎯 in range!' : '🎯 spot on!') : 'off by ' + en.d.toLocaleString()}</span>
         <span class="bscore">+${ptsBy[en.pid]}</span>
       </div>`;
     }).join('');
     $('hq-answers').innerHTML =
-      renderGuessScatter(q.target, entries, this.players) +
+      renderGuessScatter(q.target, entries, this.players, closestHi(q)) +
       (rows ? `<div class="board" style="grid-column:1/-1;max-width:none">${rows}</div>`
             : `<p style="grid-column:1/-1;text-align:center;font-weight:600">No guesses came in.</p>`);
     $('hq-timer').textContent = '🎯';
     SFX.play('reveal');
 
-    await Sync.update(this.path('state'), { ...REVEAL_RESET, phase: 'reveal', closest: true, target: q.target });
+    await Sync.update(this.path('state'), { ...REVEAL_RESET, phase: 'reveal', closest: true, target: q.target, targetHi: Number.isFinite(q.targetHi) ? q.targetHi : null });
   },
 
   standings(){
@@ -4098,7 +4130,7 @@ const Host = {
         quiz: () => q.options[q.correct],
         multi: () => (q.corrects || []).map(c => q.options[c]).join(', '),
         typed: () => (q.options || []).join(' / '),
-        closest: () => q.target,
+        closest: () => closestLabel(q),
         spot: () => q.spot ? `tap at ${q.spot.x}%, ${q.spot.y}%` : ''
       }[q.type];
       const secs = ans.filter(r => r.secs !== null);
@@ -4478,14 +4510,15 @@ const Player = {
         <div class="points-pop">+${pts.toLocaleString()}</div>`;
     } else if (s.closest){
       // Closest-guess: show the target, your distance and your points
-      const target = Number(s.target);
-      const off = answered ? Math.abs(Number(this.myAnswer) - target) : 0;
+      const target = Number(s.target), hi = s.targetHi != null ? Number(s.targetHi) : target;
+      const range = { target, targetHi: hi }, isRange = hi !== target;
+      const off = answered ? closestDist(range, Number(this.myAnswer)) : 0;
       SFX.play(answered && pts >= 500 ? 'correct' : answered ? 'board' : 'wrong');
       $('pr-body').innerHTML = `
         <div class="bigmark">🎯</div>
-        <h1 class="display" style="font-size:2.2rem">Answer: ${target.toLocaleString()}</h1>
+        <h1 class="display" style="font-size:2.2rem">Answer: ${closestLabel(range)}</h1>
         ${answered
-          ? `<p style="font-weight:700">You guessed ${Number(this.myAnswer).toLocaleString()} — ${off === 0 ? 'spot on! 🎉' : 'off by ' + off.toLocaleString()}</p><div class="points-pop">+${pts.toLocaleString()}</div>${x2Tag}`
+          ? `<p style="font-weight:700">You guessed ${Number(this.myAnswer).toLocaleString()} — ${off === 0 ? (isRange ? 'in range! 🎉' : 'spot on! 🎉') : 'off by ' + off.toLocaleString()}</p><div class="points-pop">+${pts.toLocaleString()}</div>${x2Tag}`
           : `<div class="points-pop">+0</div><p class="muted">No guess locked in this round.</p>`}`;
     } else if (s.cloud){
       // Word cloud: no scoring, just confirm their word made it up there
@@ -4748,7 +4781,7 @@ const Q_TYPES = [
 const Builder = {
   qs: [], title: '', dur: 20, prev: PREVIEW_SECS,
   touched: new WeakSet(),
-  blank(){ return { text:'', type:'quiz', options:['',''], correct:0, corrects:[], accepted:[''], target:'', image:'', spot:null, x2:false }; },
+  blank(){ return { text:'', type:'quiz', options:['',''], correct:0, corrects:[], accepted:[''], target:'', targetHi:'', range:false, image:'', spot:null, x2:false }; },
 
   // Re-read the markdown box — the text is always what'strue
   seed(){
@@ -4769,6 +4802,8 @@ const Builder = {
       correct: q.correct, corrects: (q.corrects || []).slice(),
       accepted: q.type === 'typed' ? ((q.accepted && q.accepted.length ? q.accepted : q.options).slice()) : [''],
       target: q.target === undefined ? '' : q.target,
+      targetHi: q.targetHi === undefined ? '' : q.targetHi,
+      range: q.targetHi !== undefined,
       image: q.image || '', spot: q.spot || null, x2: !!q.x2,
       duration: q.duration !== this.dur ? q.duration : undefined,
       preview: q.preview !== this.prev ? q.preview : undefined
@@ -4779,7 +4814,7 @@ const Builder = {
   // Model -> markdown -> reparse. Everything downstream already listens.
   // A card nobody has typed into yet — left out of the quiz, never an error
   isBlank(q){
-    return !q.text.trim() && !q.image && q.target === '' && !q.options.some(o => o.trim()) && !q.accepted.some(a => a.trim());
+    return !q.text.trim() && !q.image && q.target === '' && (q.targetHi === undefined || q.targetHi === '') && !q.options.some(o => o.trim()) && !q.accepted.some(a => a.trim());
   },
 
   // What still stops this card from being playable, in Build-mode words
@@ -4795,7 +4830,8 @@ const Builder = {
       if (!q.corrects.some(c => (q.options[c] || '').trim())) return 'Tick every right answer (at least one).';
     }
     if (q.type === 'poll' && opts < 2) return 'Add at least 2 options.';
-    if (q.type === 'closest' && (q.target === '' || !Number.isFinite(Number(q.target)))) return 'Enter the number that wins.';
+    if (q.type === 'closest' && (q.target === '' || !Number.isFinite(Number(q.target)))) return q.range ? 'Enter where the range starts and ends.' : 'Enter the number that wins.';
+    if (q.type === 'closest' && q.range && (q.targetHi === '' || !Number.isFinite(Number(q.targetHi)))) return 'Enter where the range ends.';
     if (q.type === 'typed' && !q.accepted.some(a => a.trim())) return 'Enter the answer players must type.';
     if (q.type === 'spot' && !q.image) return 'Add a picture, then set the spot.';
     if (q.type === 'spot' && !q.spot) return 'Set the spot players have to find.';
@@ -4824,7 +4860,8 @@ const Builder = {
       ...q,
       options: q.type === 'typed' ? q.accepted.filter(a => a.trim()) : q.options,
       accepted: q.accepted.filter(a => a.trim()),
-      target: q.target === '' ? undefined : Number(q.target)
+      target: q.target === '' ? undefined : Number(q.target),
+      targetHi: q.range && q.targetHi !== '' && Number.isFinite(Number(q.targetHi)) ? Number(q.targetHi) : undefined
     })) });
     ta.dispatchEvent(new Event('input'));
     this.flag();
@@ -4846,7 +4883,13 @@ const Builder = {
 
   bodyHTML(q, i){
     if (q.type === 'cloud') return `<p class="qhint">Everyone types a word or short phrase on their phone — no options, no points.</p>`;
-    if (q.type === 'closest') return `<div class="qrow"><input type="number" step="any" data-target value="${esc(q.target)}" placeholder="The number, e.g. 206" style="max-width:220px"></div>`;
+    // Exact number, or "in between": any guess inside the range is spot on
+    if (q.type === 'closest') return `<div class="qrow"><span class="qseg" role="group" aria-label="Exact number or a range">`
+        + `<button type="button" class="qmini${q.range ? '' : ' on'}" data-mode="exact" aria-pressed="${!q.range}">🎯 Exact number</button>`
+        + `<button type="button" class="qmini${q.range ? ' on' : ''}" data-mode="range" aria-pressed="${!!q.range}">↔ In between</button></span></div>`
+      + `<div class="qrow"><input type="number" step="any" data-target value="${esc(q.target)}" placeholder="${q.range ? 'From, e.g. 275' : 'The number, e.g. 206'}" style="max-width:${q.range ? 170 : 220}px" aria-label="${q.range ? 'Range starts at' : 'The winning number'}">`
+      + (q.range ? `<span class="qhint" style="margin:0">to</span><input type="number" step="any" data-targethi value="${esc(q.targetHi)}" placeholder="To, e.g. 300" style="max-width:170px" aria-label="Range ends at">` : '')
+      + `</div>` + (q.range ? `<p class="qhint">Any guess from the first number to the second is spot on — everyone else scores by how close they got.</p>` : '');
     if (q.type === 'typed') return q.accepted.map((a, j) => `<div class="qopt"><span style="width:19px;flex:none">=</span>`
         + `<input type="text" data-acc="${j}" value="${esc(a)}" placeholder="${j ? 'Also accept…' : 'The answer'}">`
         + (q.accepted.length > 1 ? `<button type="button" data-delacc="${j}" title="Remove">✕</button>` : '') + `</div>`).join('')
@@ -4976,6 +5019,11 @@ const Builder = {
       on('[data-opt]', 'input', e => { q.options[+e.target.dataset.opt] = e.target.value; this.sync(); });
       on('[data-acc]', 'input', e => { q.accepted[+e.target.dataset.acc] = e.target.value; this.sync(); });
       on('[data-target]', 'input', e => { q.target = e.target.value; this.sync(); });
+      on('[data-targethi]', 'input', e => { q.targetHi = e.target.value; this.sync(); });
+      on('[data-mode]', 'click', e => {
+        const r = e.currentTarget.dataset.mode === 'range';
+        if (r !== !!q.range){ q.range = r; restructure(); }
+      });
       on('[data-mark]', 'change', e => {
         const j = +e.target.dataset.mark;
         if (q.type === 'multi') q.corrects = e.target.checked ? [...new Set([...q.corrects, j])] : q.corrects.filter(c => c !== j);

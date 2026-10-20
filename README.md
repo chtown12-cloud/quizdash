@@ -104,7 +104,8 @@ Build it question by question in the app, or paste plain text in the
 
 `#` is the title, `##` a question, `-` an answer, and `*` marks the right one.
 The kind of question comes from its shape: no `*` is a poll, several `*` is
-pick-all-that-apply, `= 206` is closest-number, `= Mars` is type-the-answer,
+pick-all-that-apply, `= 206` is closest-number (`= 275-300` for a range,
+where anything in between is spot on), `= Mars` is type-the-answer,
 and no answers at all is a word cloud. Timers go at the end of the title line
 (`# Friday Team Quiz | 30s | read 5s`) or of one question (`## Tricky? 45s`),
 and `x2` doubles a question's points.
