@@ -289,6 +289,7 @@ textarea.quizbox{min-height:230px;font-family:ui-monospace,SFMono-Regular,Menlo,
 .qwarn{margin:8px 0 0;font-size:.84rem;font-weight:600;color:#8A5A00;background:#FFF6DC;border:1px solid #F3D27A;border-radius:8px;padding:6px 10px}
 .qwarn[hidden]{display:none}
 .qcard.warn{border-left-color:#F0B429}
+.qthumb.ansthumb{outline:3px solid #F3D27A;outline-offset:1px}
 .toast-act{margin-left:12px;border:0;border-radius:8px;padding:5px 12px;font:inherit;font-weight:800;background:var(--c2);color:#1b1230;cursor:pointer}
 @media (max-width:480px){.qcard-top{gap:5px;flex-wrap:wrap}.qtime-u{display:none}.qtime{padding:0 7px}.qcard-tools button{padding:3px 3px}.qcard{padding:12px 10px 12px 10px}}
 .qcard-tools button{border:0;background:transparent;cursor:pointer;font-size:.95rem;padding:3px 5px;border-radius:7px;color:#6B6390}
@@ -585,6 +586,8 @@ button.answer.picked{outline:4px solid var(--ink);outline-offset:-4px;filter:bri
   background:var(--ans-bg,var(--c2));color:var(--ans-fg,var(--t0));box-shadow:0 6px 0 rgba(0,0,0,.22),var(--shadow);text-align:center;
   animation:ansIn .65s cubic-bezier(.34,1.56,.64,1) both}
 .ansbig[hidden]{display:none}
+.qimg.ansimg{box-shadow:0 0 0 5px var(--c2),var(--shadow);animation:ansIn .65s .15s cubic-bezier(.34,1.56,.64,1) both}
+.pr-ansimg{max-height:30vh;margin-top:4px;box-shadow:0 0 0 4px var(--c2),var(--shadow)}
 .ansbig-t{font-family:var(--font-display);font-weight:800;font-size:clamp(2.4rem,6.5vw,5rem);line-height:1.05;text-wrap:balance}
 .ansbig.long .ansbig-t{font-size:clamp(1.8rem,4.4vw,3.4rem)}
 .ansbig-sub{font-weight:700;font-size:clamp(.95rem,1.8vw,1.25rem);opacity:.85}
@@ -1162,6 +1165,7 @@ html[data-theme=disco] .answer.win{outline-color:#fff}
               <li><code>## A tricky one? 45s</code> — just this question</li>
               <li><code>## The big finale? x2</code> — double points</li>
               <li>A picture from the web: paste its link on its own line</li>
+              <li>A picture that only appears with the answer: <code>![answer](link)</code> — or paste one, then write <code>answer</code> in its brackets</li>
               <li>Right answers score 500–1000 — the faster, the more</li>
             </ul>
           </details>
@@ -1480,7 +1484,8 @@ function fitHost(){
     if (done()) break;
     const h = img.getBoundingClientRect().height;
     if (!h) continue;                       // hidden or not loaded yet
-    img.style.maxHeight = Math.max(revealed ? 100 : 150, Math.floor(h - x)) + 'px';
+    // the answer's picture is the point of the reveal, so it keeps more size
+    img.style.maxHeight = Math.max(revealed ? (img.classList.contains('ansimg') ? 170 : 100) : 150, Math.floor(h - x)) + 'px';
     x = over();
   }
   if (!done() && bars.length){
@@ -2132,15 +2137,18 @@ function parseQuiz(text){
       if (s.bad) errors.push(`Line ${i+1}: ${s.bad}.`);
       cur = { head: s.text, label: '', line: i, duration: s.dur != null ? s.dur : defDur,
               preview: s.preview != null ? s.preview : defPreview,
-              type: s.type, x2: s.x2, inferred: false, image: '',
+              type: s.type, x2: s.x2, inferred: false, image: '', ansImage: '',
               text: '', options: [], accepted: [], correct: -1, corrects: [] };
       return;
     }
-    // A picture for the question: markdown ![](url), or a bare image link
-    const mdImg = line.match(/^!\[[^\]]*\]\(\s*(\S+?)\s*\)$/);
+    // A picture for the question: markdown ![](url), or a bare image link.
+    // ![answer](url) is the answer's picture instead — kept back until the
+    // reveal, so it can show the thing everyone was guessing at.
+    const mdImg = line.match(/^!\[([^\]]*)\]\(\s*(\S+?)\s*\)$/);
     const bareImg = line.match(/^(https?:\/\/\S+\.(?:png|jpe?g|gif|webp|svg|avif)(?:\?\S*)?|data:image\/\S+)$/i);
     if (mdImg || bareImg) {
-      const url = (mdImg ? mdImg[1] : bareImg[1]).trim();
+      const url = (mdImg ? mdImg[2] : bareImg[1]).trim();
+      const forAnswer = !!mdImg && /^(answer|reveal)$/i.test(mdImg[1].trim());
       if (!cur) { errors.push(`Line ${i+1}: found a picture before any "##" question.`); return; }
       if (/^shot-\d+$/.test(url)){
         // A pasted screenshot, held as an attachment rather than in the text
@@ -2152,7 +2160,12 @@ function parseQuiz(text){
         errors.push(`Line ${i+1}: pictures must be https:// links — "${url.slice(0, 40)}" won't load.`);
         return;
       }
-      if (cur.image){ errors.push(`Line ${i+1}: only one picture per question.`); return; }
+      if (forAnswer){
+        if (cur.ansImage){ errors.push(`Line ${i+1}: only one answer picture per question.`); return; }
+        cur.ansImage = url;
+        return;
+      }
+      if (cur.image){ errors.push(`Line ${i+1}: only one picture per question (use ![answer](…) for a picture that appears with the answer).`); return; }
       cur.image = url;
       return;
     }
@@ -2260,6 +2273,7 @@ function quizToText(quiz){
         out.push(`- ${o}${right ? ' *' : ''}`);
       });
     }
+    if (q.ansImage) out.push(`![answer](${q.ansImage})`);
   });
   return out.join('\n') + '\n';
 }
@@ -3468,6 +3482,7 @@ const Host = {
     $('hq-room').textContent = this.room;
     $('hq-text').textContent = q.text;
     this.hideAnswer();
+    $('hq-img').classList.remove('ansimg');
     setQImage($('hq-img'), Shots.resolve(q.image));
     $('hq-total').textContent = Object.keys(this.players).length;
     $('hq-answered').textContent = '0';
@@ -3696,8 +3711,11 @@ const Host = {
       SFX.play('reveal');
 
       // …then, once it's showing, tell the phones whether they got it right.
-      await Sync.update(this.path('state'), { ...REVEAL_RESET, phase: 'reveal', correct: q.correct, dist, poll: isPoll, multi: isMulti, corrects: isMulti ? corrects : null });
+      await Sync.update(this.path('state'), { ...REVEAL_RESET, ansImg: q.ansImage ? Shots.resolve(q.ansImage) : null, phase: 'reveal', correct: q.correct, dist, poll: isPoll, multi: isMulti, corrects: isMulti ? corrects : null });
     }
+
+    // The answer's own picture, if it has one, takes the picture slot now
+    if (q.ansImage){ const im = $('hq-img'); im.classList.add('ansimg'); setQImage(im, Shots.resolve(q.ansImage)); }
 
     if (isPoll || isCloud) showSnapHint('Want to save these responses? 📸 Take a screenshot!');
 
@@ -3760,7 +3778,7 @@ const Host = {
     $('hq-timer').textContent = isCloud ? '💬' : '✓';
     SFX.play('reveal');
 
-    await Sync.update(this.path('state'), { ...REVEAL_RESET, phase: 'reveal', typed: !isCloud, cloud: isCloud, answerText: isCloud ? null : String(q.options[0]) });
+    await Sync.update(this.path('state'), { ...REVEAL_RESET, ansImg: q.ansImage ? Shots.resolve(q.ansImage) : null, phase: 'reveal', typed: !isCloud, cloud: isCloud, answerText: isCloud ? null : String(q.options[0]) });
   },
 
   // Closest-guess reveal: rank everyone by distance to the target.
@@ -3802,7 +3820,7 @@ const Host = {
     this.showAnswer('🎯', votes ? `${hits.length} of ${votes} found it` : 'Nobody tapped', '');
     $('hq-timer').textContent = '🎯';
     SFX.play('reveal');
-    await Sync.update(this.path('state'), { ...REVEAL_RESET, phase: 'reveal', spot: true, target: q.spot });
+    await Sync.update(this.path('state'), { ...REVEAL_RESET, ansImg: q.ansImage ? Shots.resolve(q.ansImage) : null, phase: 'reveal', spot: true, target: q.spot });
   },
 
   async revealClosest(q, answers){
@@ -3851,7 +3869,7 @@ const Host = {
     $('hq-timer').textContent = '🎯';
     SFX.play('reveal');
 
-    await Sync.update(this.path('state'), { ...REVEAL_RESET, phase: 'reveal', closest: true, target: q.target, targetHi: Number.isFinite(q.targetHi) ? q.targetHi : null });
+    await Sync.update(this.path('state'), { ...REVEAL_RESET, ansImg: q.ansImage ? Shots.resolve(q.ansImage) : null, phase: 'reveal', closest: true, target: q.target, targetHi: Number.isFinite(q.targetHi) ? q.targetHi : null });
   },
 
   standings(){
@@ -4660,6 +4678,11 @@ const Player = {
           <div class="points-pop">+0</div>
           <p class="muted">No answer locked in. Thumbs ready for the next one!</p>`;
     }
+    // a picture that belongs to the answer only travels at the reveal
+    if (s.ansImg && /^(https:\/\/|data:image\/)/i.test(String(s.ansImg))){
+      $('pr-body').insertAdjacentHTML('beforeend', '<img class="qimg pr-ansimg" alt="">');
+      setQImage($('pr-body').lastElementChild, String(s.ansImg));
+    }
     $('react-bar').style.display = 'flex';
     show('s-presult');
   },
@@ -4848,7 +4871,7 @@ const Q_TYPES = [
 const Builder = {
   qs: [], title: '', dur: 20, prev: PREVIEW_SECS,
   touched: new WeakSet(),
-  blank(){ return { text:'', type:'quiz', options:['',''], correct:0, corrects:[], accepted:[''], target:'', targetHi:'', range:false, image:'', spot:null, x2:false }; },
+  blank(){ return { text:'', type:'quiz', options:['',''], correct:0, corrects:[], accepted:[''], target:'', targetHi:'', range:false, image:'', ansImage:'', spot:null, x2:false }; },
 
   // Re-read the markdown box — the text is always what'strue
   seed(){
@@ -4871,7 +4894,7 @@ const Builder = {
       target: q.target === undefined ? '' : q.target,
       targetHi: q.targetHi === undefined ? '' : q.targetHi,
       range: q.targetHi !== undefined,
-      image: q.image || '', spot: q.spot || null, x2: !!q.x2,
+      image: q.image || '', ansImage: q.ansImage || '', spot: q.spot || null, x2: !!q.x2,
       duration: q.duration !== this.dur ? q.duration : undefined,
       preview: q.preview !== this.prev ? q.preview : undefined
     }));
@@ -4881,7 +4904,7 @@ const Builder = {
   // Model -> markdown -> reparse. Everything downstream already listens.
   // A card nobody has typed into yet — left out of the quiz, never an error
   isBlank(q){
-    return !q.text.trim() && !q.image && q.target === '' && (q.targetHi === undefined || q.targetHi === '') && !q.options.some(o => o.trim()) && !q.accepted.some(a => a.trim());
+    return !q.text.trim() && !q.image && !q.ansImage && q.target === '' && (q.targetHi === undefined || q.targetHi === '') && !q.options.some(o => o.trim()) && !q.accepted.some(a => a.trim());
   },
 
   // What still stops this card from being playable, in Build-mode words
@@ -4995,6 +5018,13 @@ const Builder = {
              <span class="qhint">…or drop one here, or paste with the card selected</span>`}
         ${q.type === 'poll' || q.type === 'cloud' ? '' :
           `<button type="button" class="qmini${q.x2 ? ' on' : ''}" data-x2>⚡ Double points</button>`}
+      </div>
+      <div class="qrow">
+        ${q.ansImage ? `<img class="qthumb ansthumb" src="${esc(Shots.resolve(q.ansImage))}" alt="">
+          <span class="qhint" style="margin:0">🎁 Shown with the answer</span>
+          <button type="button" class="qmini" data-delans>Remove</button>`
+          : `<button type="button" class="qmini" data-addans>🎁 Add answer picture</button>
+             <span class="qhint" style="margin:0">stays hidden until the answer is revealed</span>`}
       </div>
     </div>`).join('');
     this.wire(list);
@@ -5131,6 +5161,17 @@ const Builder = {
         } });
       });
       on('[data-delimg]', 'click', () => { q.image = ''; q.spot = null; restructure(); });
+      on('[data-delans]', 'click', () => { q.ansImage = ''; restructure(); });
+      on('[data-addans]', 'click', () => {
+        const f = document.createElement('input');
+        f.type = 'file'; f.accept = 'image/*';
+        f.onchange = async () => {
+          if (!f.files || !f.files[0]) return;
+          const token = await Shots.attach(f.files[0], null);
+          if (token){ q.ansImage = token; restructure(); }
+        };
+        f.click();
+      });
       on('[data-addimg]', 'click', () => {
         const f = document.createElement('input');
         f.type = 'file'; f.accept = 'image/*';
@@ -5342,6 +5383,7 @@ function renderParseStatus(parsed, force){
       + `<ol class="qsum">` + parsed.questions.map(q =>
           `<li><span class="qtag t-${q.type}">${TYPE_LABEL[q.type] || q.type}</span>`
           + (q.x2 ? `<span class="qtag t-x2">⚡2×</span>` : '')
+          + (q.ansImage ? `<span class="qtag t-img" title="A picture shown with the answer">🎁 answer pic</span>` : '')
           + (q.image ? `<button type="button" class="qtag t-img" data-aim="${q.line}" title="Set the tap-the-spot target on this picture">🖼 aim</button>` : '')
           + `<span class="qsum-t">${esc(q.text)}</span>`
           + `<span class="qsum-m">${q.duration}s</span></li>`).join('')
