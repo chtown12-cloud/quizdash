@@ -576,6 +576,23 @@ button.answer.picked{outline:4px solid var(--ink);outline-offset:-4px;filter:bri
 .answers.many .answer:nth-child(10){animation-delay:.36s}
 @keyframes cardIn{from{opacity:0;transform:translateY(26px) scale(.96)}}
 .qtext{animation:qIn .5s cubic-bezier(.22,1,.36,1) backwards}
+/* The reveal's headline: once answering closes, the answer outranks the
+   question — the question steps down to a subtitle and the answer pops in
+   big underneath, in the winning answer's own colour where there is one */
+#s-hquestion .qtext{transition:font-size .45s cubic-bezier(.22,1,.36,1),opacity .45s}
+#s-hquestion.revealed .qtext{font-size:clamp(1.05rem,2.3vw,1.55rem);opacity:.8}
+.ansbig{display:flex;flex-direction:column;align-items:center;gap:6px;max-width:min(100%,1000px);padding:14px 36px 16px;border-radius:26px;
+  background:var(--ans-bg,var(--c2));color:var(--ans-fg,var(--t0));box-shadow:0 6px 0 rgba(0,0,0,.22),var(--shadow);text-align:center;
+  animation:ansIn .65s cubic-bezier(.34,1.56,.64,1) both}
+.ansbig[hidden]{display:none}
+.ansbig-t{font-family:var(--font-display);font-weight:800;font-size:clamp(2.4rem,6.5vw,5rem);line-height:1.05;text-wrap:balance}
+.ansbig.long .ansbig-t{font-size:clamp(1.8rem,4.4vw,3.4rem)}
+.ansbig-sub{font-weight:700;font-size:clamp(.95rem,1.8vw,1.25rem);opacity:.85}
+.ansbig.soft .ansbig-t{font-size:clamp(2rem,5vw,3.8rem)}
+.ansbig.soft{background:color-mix(in srgb,var(--ink) 12%,transparent);color:var(--ink);box-shadow:none;border:2px dashed color-mix(in srgb,var(--ink) 40%,transparent)}
+@keyframes ansIn{0%{opacity:0;transform:scale(.35) rotate(-5deg)}100%{opacity:1;transform:none}}
+/* the same answer, phone-sized, on each player's result screen */
+.anschip{font-family:var(--font-display);font-weight:800;font-size:clamp(1.4rem,6.5vw,2.1rem);line-height:1.1;background:var(--c2);color:var(--t0);border-radius:16px;padding:8px 20px;max-width:100%;text-wrap:balance;box-shadow:0 4px 0 rgba(0,0,0,.2);animation:pop .5s .1s cubic-bezier(.34,1.56,.64,1) both}
 @keyframes qIn{from{opacity:0;transform:scale(.94)}}
 .timernum.low{color:#FF5A5F;animation:heartbeat .8s ease-in-out infinite}
 .timerbar.low>div{background:#FF5A5F}
@@ -1271,6 +1288,7 @@ html[data-theme=disco] .answer.win{outline-color:#fff}
     </div>
     <div class="row" style="justify-content:center"><div class="x2badge" id="hq-x2" style="display:none">⚡ DOUBLE POINTS ⚡</div></div>
     <div class="qtext" id="hq-text"></div>
+    <div class="ansbig" id="hq-reveal" role="status" hidden></div>
     <img class="qimg" id="hq-img" alt="" hidden>
     <div class="answers" id="hq-answers"></div>
     <div class="votechart" id="hq-chart"></div>
@@ -3321,6 +3339,22 @@ const Host = {
 
   startGame(){ SFX.stopMusic(); this.log = []; this.showQuestion(0); },
 
+  // The answer takes the stage at every reveal: big banner, question steps
+  // down to a subtitle. color = the winning answer's palette slot, soft =
+  // polls and clouds (a result, not a right answer).
+  showAnswer(icon, text, sub, opts = {}){
+    const el = $('hq-reveal');
+    el.className = 'ansbig' + (opts.soft ? ' soft' : '') + (String(text).length > 22 ? ' long' : '');
+    el.style.cssText = Number.isInteger(opts.color) ? `--ans-bg:var(--b${opts.color});--ans-fg:var(--t${opts.color})` : '';
+    el.innerHTML = `<span class="ansbig-t">${icon} ${esc(String(text))}</span>${sub ? `<span class="ansbig-sub">${esc(sub)}</span>` : ''}`;
+    el.hidden = false;
+    $('s-hquestion').classList.add('revealed');
+  },
+  hideAnswer(){
+    $('hq-reveal').hidden = true;
+    $('s-hquestion').classList.remove('revealed');
+  },
+
   /* ── Results log ──────────────────────────────────────────────────────
      Everyone's answer to every question, kept on the host as the game
      runs (the room itself is erased after the podium). It feeds the two
@@ -3433,6 +3467,7 @@ const Host = {
     $('hq-progress').textContent = `Q${i+1} / ${this.quiz.questions.length}`;
     $('hq-room').textContent = this.room;
     $('hq-text').textContent = q.text;
+    this.hideAnswer();
     setQImage($('hq-img'), Shots.resolve(q.image));
     $('hq-total').textContent = Object.keys(this.players).length;
     $('hq-answered').textContent = '0';
@@ -3598,7 +3633,7 @@ const Host = {
       const corrects = isMulti ? q.corrects : null;
       const dist = q.options.map(() => 0);
       const updates = {};
-      let answeredN = 0;
+      let answeredN = 0, rightN = 0;
       for (const [pid, p] of Object.entries(this.players)){
         const a = answers[pid];
         let pts = 0, correct = false;
@@ -3623,6 +3658,7 @@ const Host = {
           ? (Array.isArray(a.m) ? [...new Set(a.m.filter(x => Number.isInteger(x) && x >= 0 && x < q.options.length))].sort((x, y) => x - y).map(x => q.options[x]).join(' | ') : '')
           : (Number.isInteger(a.c) && a.c >= 0 && a.c < q.options.length ? q.options[a.c] : '');
         this.logResult(i, pid, p, said, isPoll ? null : correct, a);
+        if (correct) rightN++;
         this.players[pid] = { ...p, score: newScore, last: pts, lastCorrect: correct, answered: !!a };
         updates[pid] = this.players[pid];
       }
@@ -3644,6 +3680,18 @@ const Host = {
         if (winners.includes(j)) el.insertAdjacentHTML('beforeend', `<span class="tick">✅</span>`);
       });
       renderVoteChart($('hq-chart'), q.options, dist, winners, isPoll);
+      const got = n => answeredN ? `${n} of ${answeredN} got ${isMulti ? 'them all' : 'it'}` : 'Nobody answered';
+      if (isPoll){
+        const total = dist.reduce((a, b) => a + b, 0), most = Math.max(...dist);
+        const tops = q.options.filter((_, j) => dist[j] === most);
+        const tie = tops.length > 1 && tops.length <= 3;
+        if (total) this.showAnswer('📊', tie ? tops.join(' & ') : tops[0],
+          `${tie ? 'Tied for top pick' : 'Top pick'} · ${most} of ${total} vote${total === 1 ? '' : 's'}${tie ? ' each' : ''}`, { soft: true });
+      } else if (isMulti){
+        this.showAnswer('✅', corrects.map(c => q.options[c]).join(' + '), got(rightN));
+      } else {
+        this.showAnswer('✅', q.options[q.correct], got(rightN), { color: optColor(q.correct) });
+      }
       $('hq-timer').textContent = isPoll ? '📊' : '✓';
       SFX.play('reveal');
 
@@ -3694,12 +3742,14 @@ const Host = {
     await Sync.update(this.path('players'), updates);
 
     if (isCloud){
+      const topWord = [...tally.values()].sort((a, b) => b.count - a.count)[0];
+      if (topWord) this.showAnswer('💬', topWord.display, `Top word · ${topWord.count} of ${answeredN} said it`, { soft: true });
       renderWordCloud($('hq-answers'), tally);
       if (!tally.size) $('hq-answers').innerHTML = `<p style="grid-column:1/-1;text-align:center;font-weight:600">No answers came in.</p>`;
     } else {
       const top = [...tally.values()].sort((a, b) => b.count - a.count).slice(0, 6);
+      this.showAnswer('✍️', String(q.options[0]), answeredN ? `${correctN} of ${answeredN} got it` : 'Nobody answered');
       $('hq-answers').innerHTML =
-        `<div class="answer win" style="grid-column:1/-1;justify-content:center;font-size:1.5rem">✍️ ${esc(String(q.options[0]))} — ${correctN} of ${answeredN} got it</div>` +
         (top.length ? `<div class="board" style="grid-column:1/-1;max-width:none">${top.map(w => `
           <div class="boardrow">
             <span class="rank">${w.correct ? '✅' : '✖'}</span>
@@ -3749,6 +3799,7 @@ const Host = {
       `<div class="guessbox">${tapImageHTML(Shots.resolve(q.image), dots, q.spot)}
        <p style="font-weight:800;font-size:1.15rem">${hits.length} of ${votes} found it${votes ? ` · ${Math.round(hits.length / votes * 100)}%` : ''}</p></div>`;
     setQImage($('hq-img'), '');   // the reveal carries its own copy
+    this.showAnswer('🎯', votes ? `${hits.length} of ${votes} found it` : 'Nobody tapped', '');
     $('hq-timer').textContent = '🎯';
     SFX.play('reveal');
     await Sync.update(this.path('state'), { ...REVEAL_RESET, phase: 'reveal', spot: true, target: q.spot });
@@ -3789,6 +3840,10 @@ const Host = {
         <span class="bscore">+${ptsBy[en.pid]}</span>
       </div>`;
     }).join('');
+    const isRange = closestHi(q) !== q.target, spotOn = entries.filter(en => en.d === 0).length;
+    this.showAnswer('🎯', closestLabel(q), !entries.length ? 'No guesses came in'
+      : spotOn ? `${spotOn} of ${entries.length} ${isRange ? 'in range' : 'spot on'}`
+      : `Closest: ${entries[0].g.toLocaleString()} (off by ${entries[0].d.toLocaleString()})`);
     $('hq-answers').innerHTML =
       renderGuessScatter(q.target, entries, this.players, closestHi(q)) +
       (rows ? `<div class="board" style="grid-column:1/-1;max-width:none">${rows}</div>`
@@ -4516,7 +4571,7 @@ const Player = {
       SFX.play(answered && pts >= 500 ? 'correct' : answered ? 'board' : 'wrong');
       $('pr-body').innerHTML = `
         <div class="bigmark">🎯</div>
-        <h1 class="display" style="font-size:2.2rem">Answer: ${closestLabel(range)}</h1>
+        <div class="anschip">🎯 ${closestLabel(range)}</div>
         ${answered
           ? `<p style="font-weight:700">You guessed ${Number(this.myAnswer).toLocaleString()} — ${off === 0 ? (isRange ? 'in range! 🎉' : 'spot on! 🎉') : 'off by ' + off.toLocaleString()}</p><div class="points-pop">+${pts.toLocaleString()}</div>${x2Tag}`
           : `<div class="points-pop">+0</div><p class="muted">No guess locked in this round.</p>`}`;
@@ -4541,13 +4596,14 @@ const Player = {
         : answered ? `
           <div class="bigmark">😵</div>
           <h1 class="display" style="font-size:2.2rem">Not this time</h1>
-          <p style="font-weight:700">You wrote “${esc(String(this.myAnswer))}” — it was “${esc(String(s.answerText || ''))}”</p>
+          <p style="font-weight:700">You wrote “${esc(String(this.myAnswer))}”</p>
+          <div class="anschip">✅ ${esc(String(s.answerText || ''))}</div>
           <div class="points-pop">+0</div>
           <p class="muted">Shake it off — next question's yours.</p>`
         : `
           <div class="bigmark">🐌</div>
           <h1 class="display" style="font-size:2.2rem">Too slow!</h1>
-          <p style="font-weight:700">It was “${esc(String(s.answerText || ''))}”</p>
+          <div class="anschip">✅ ${esc(String(s.answerText || ''))}</div>
           <div class="points-pop">+0</div>
           <p class="muted">Thumbs ready for the next one!</p>`;
     } else if (s.multi){
@@ -4557,39 +4613,50 @@ const Player = {
       const good = mine.filter(x => corrects.includes(x)).length;
       const bad = mine.length - good;
       const perfect = answered && good === corrects.length && bad === 0;
+      const opts = s.q && Array.isArray(s.q.options) ? s.q.options : [];
+      const names = corrects.map(c => opts[c]).filter(x => x != null);
+      const chip = names.length ? `<div class="anschip">✅ ${esc(names.join(' + '))}</div>` : '';
       SFX.play(perfect ? 'correct' : answered && pts > 0 ? 'board' : 'wrong');
       $('pr-body').innerHTML = perfect ? `
           <div class="bigmark">🎯</div>
           <h1 class="display" style="font-size:2.2rem">All ${corrects.length} — nailed it!</h1>
+          ${chip}
           <div class="points-pop">+${pts.toLocaleString()}</div>${x2Tag}
           <p class="muted">Perfect pick. Speed pays too.</p>`
         : answered ? `
           <div class="bigmark">${pts > 0 ? '🎳' : '😵'}</div>
           <h1 class="display" style="font-size:2.2rem">${good} of ${corrects.length} right</h1>
+          ${chip}
           ${bad ? `<p style="font-weight:700">${bad} wrong pick${bad === 1 ? '' : 's'} cost you points</p>` : ''}
           <div class="points-pop">+${pts.toLocaleString()}</div>${x2Tag}
           <p class="muted">Partial credit — check the big screen.</p>`
         : `
           <div class="bigmark">🐌</div>
           <h1 class="display" style="font-size:2.2rem">Too slow!</h1>
+          ${chip}
           <div class="points-pop">+0</div>
           <p class="muted">Lock in your picks before the timer next time!</p>`;
     } else {
       const correct = answered && this.myAnswer === s.correct;
+      const opts = s.q && Array.isArray(s.q.options) ? s.q.options : [];
+      const chip = opts[s.correct] != null ? `<div class="anschip">✅ ${esc(String(opts[s.correct]))}</div>` : '';
       SFX.play(correct ? 'correct' : 'wrong');
       $('pr-body').innerHTML = correct ? `
           <div class="bigmark">🎯</div>
           <h1 class="display" style="font-size:2.2rem">Correct!</h1>
+          ${chip}
           <div class="points-pop">+${pts.toLocaleString()}</div>${x2Tag}
           <p class="muted">Speed pays — nice one.</p>`
         : answered ? `
           <div class="bigmark">😵</div>
           <h1 class="display" style="font-size:2.2rem">Not this time</h1>
+          ${chip}
           <div class="points-pop">+0</div>
           <p class="muted">Shake it off — next question's yours.</p>`
         : `
           <div class="bigmark">🐌</div>
           <h1 class="display" style="font-size:2.2rem">Too slow!</h1>
+          ${chip}
           <div class="points-pop">+0</div>
           <p class="muted">No answer locked in. Thumbs ready for the next one!</p>`;
     }
