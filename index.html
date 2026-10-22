@@ -85,7 +85,7 @@
 <link rel="icon" id="favicon">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700;800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* ── Theme tokens (rewritten live from the host's brand colors) ─────────── */
 :root{
@@ -120,11 +120,11 @@
   --ui-line:color-mix(in srgb,var(--card-ink) 17%,var(--card));
   --ui-line-strong:color-mix(in srgb,var(--card-ink) 26%,var(--card));
   --ui-faint:color-mix(in srgb,var(--card-ink) 42%,var(--card));
-  --ui-mute:color-mix(in srgb,var(--card-ink) 66%,var(--card));
+  --ui-mute:color-mix(in srgb,var(--card-ink) 74%,var(--card));
   --ui-tint:color-mix(in srgb,var(--c1) 7%,var(--card));
   --focus:color-mix(in srgb,var(--c1) 16%,transparent);
-  --font-display:"Bricolage Grotesque",system-ui,sans-serif;
-  --font-body:"Inter",system-ui,-apple-system,sans-serif;
+  --font-display:"Barlow Condensed",system-ui,sans-serif;
+  --font-body:"Barlow",system-ui,-apple-system,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
@@ -188,7 +188,7 @@ a{color:inherit}
    fold, and a host who can't see it thinks the game has frozen. */
 .hostbar{position:sticky;bottom:14px;z-index:6}
 .createbar{gap:10px;align-items:center}
-.keytip{margin-top:-10px;opacity:.6}
+.keytip{margin-top:-10px;opacity:.8}
 .keytip kbd{font:inherit;font-weight:700;border:1px solid currentColor;border-radius:var(--r-s);padding:0 5px}
 @media (hover:none){.keytip{display:none}}
 @media (max-width:480px){.createbar .btn.big{padding:15px 24px;font-size:1.1rem}.createbar #btn-test{padding:12px 14px}}
@@ -560,7 +560,7 @@ button.answer.picked{outline:4px solid var(--ink);outline-offset:-4px;filter:bri
 .boardrow:nth-child(5){animation-delay:.37s}.boardrow:nth-child(6){animation-delay:.45s}
 .boardrow:nth-child(7){animation-delay:.53s}.boardrow:nth-child(8){animation-delay:.61s}
 @keyframes slidein{from{transform:translateX(-40px);opacity:0}to{transform:none;opacity:1}}
-.rank{font-family:var(--font-display);font-weight:800;font-size:1.3rem;width:2.2ch;text-align:center;color:var(--c1)}
+.rank{font-family:var(--font-display);font-weight:800;font-size:1.3rem;width:2.2ch;text-align:center;color:var(--card-ink)}
 .bname{font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .bscore{font-family:var(--font-display);font-weight:800;font-size:1.15rem}
 .bdelta{font-size:.8rem;font-weight:700;color:#0B6B4A;background:#E8FBF4;border-radius:var(--r-pill);padding:2px 10px}
@@ -625,7 +625,7 @@ button.answer.picked{outline:4px solid var(--ink);outline-offset:-4px;filter:bri
 .ansbig-t{font-family:var(--font-display);font-weight:800;font-size:clamp(2.4rem,6.5vw,5rem);line-height:1.05;text-wrap:balance}
 .ansbig-t .ic{width:.7em;height:.7em;margin-right:.2em;vertical-align:-.02em;stroke-width:2.8}
 .ansbig.long .ansbig-t{font-size:clamp(1.8rem,4.4vw,3.4rem)}
-.ansbig-sub{font-weight:700;font-size:clamp(.95rem,1.8vw,1.25rem);opacity:.85}
+.ansbig-sub{font-weight:700;font-size:clamp(.95rem,1.8vw,1.25rem);opacity:.95}
 .ansbig.soft .ansbig-t{font-size:clamp(2rem,5vw,3.8rem)}
 .ansbig.soft{background:color-mix(in srgb,var(--ink) 12%,transparent);color:var(--ink);box-shadow:none;border:2px dashed color-mix(in srgb,var(--ink) 40%,transparent)}
 @keyframes ansIn{0%{opacity:0;transform:scale(.8)}100%{opacity:1;transform:none}}
@@ -708,7 +708,7 @@ select.fontsel:focus{border-color:var(--c1);outline:none}
   /* measured from the centre in title-size units, not from the title's
      edge: peeking swaps fonts (and the word rotates), and the badge must
      never slide out from under the pointer */
-  left:calc(50% + var(--hero-fs) * 2.95);width:52px;height:52px;border-radius:50%;border:0;padding:3px;cursor:pointer;
+  left:calc(50% + var(--hero-fs) * 3.3);width:52px;height:52px;border-radius:50%;border:0;padding:3px;cursor:pointer;
   background:conic-gradient(var(--c2),var(--b1,#FF4E6A),var(--b2,#19C6B2),var(--b3,#7A5CFF),var(--c2));
   box-shadow:0 6px 16px rgba(0,0,0,.3);transition:transform .2s}
 .peekdot-face{pointer-events:none;display:flex;align-items:center;justify-content:center;width:100%;height:100%;border-radius:50%;background:var(--c1);color:var(--ink);font-family:var(--font-display);font-weight:800;font-size:1.25rem;line-height:1;letter-spacing:0}
@@ -736,11 +736,216 @@ select.fontsel:focus{border-color:var(--c1);outline:none}
 }
 
 /* ── THEMES ──────────────────────────────────────────────────────────────
-   Structural skins selected via html[data-theme=…]. Every theme keeps
-   reading the picked colors (--c1/--c2, --b0..--b3, --t0..--t3) and fonts
-   (--font-display/--font-body), so the color and font pickers restyle any
-   theme live. color-mix() derives tints/shades in CSS.
+   Each theme is its own system, not a skin: it resets the shape and depth
+   tokens (--r-*, --elev-*, --ledge), then sets its own surfaces, type
+   treatment, tile shape, backdrop and one signature motion. Every theme
+   still reads the picked colours (--c1/--c2, --b0..--b9) and fonts, so
+   the pickers restyle any theme live; picking a theme loads its palette
+   and fonts as the starting point.
    ───────────────────────────────────────────────────────────────────── */
+
+/* Classic — a TV quiz set: navy stage under a spotlight, a row of marquee
+   bulbs, hard-edged tiles that flip in like a game board, condensed caps */
+html[data-theme=classic]{--r-s:3px;--r-m:5px;--r-l:8px;--r-pill:5px;--ledge:0 4px 0 rgba(0,0,0,.4)}
+html[data-theme=classic] body{background:radial-gradient(80% 60% at 50% -12%,color-mix(in srgb,var(--c1) 45%,#7d8cff) 0,transparent 70%),radial-gradient(120% 80% at 50% 120%,rgba(0,0,0,.45),transparent 60%),color-mix(in srgb,var(--c1) 88%,#000);background-attachment:fixed}
+html[data-theme=classic] body::before{content:"";position:fixed;left:0;right:0;top:0;height:12px;z-index:0;pointer-events:none;
+  background:radial-gradient(circle,#fff3c4 0 2.5px,color-mix(in srgb,var(--c2) 60%,transparent) 3.5px,transparent 6px) 0 0/22px 12px repeat-x;opacity:.85}
+html[data-theme=classic] :is(.qtext,.hero,h1.display,h2.display,.ansbig-t,.roomcode,.pname,.drum,.timernum,.count-badge,.points-pop){text-transform:uppercase;letter-spacing:.01em}
+html[data-theme=classic] .hero-word{text-transform:uppercase}
+html[data-theme=classic] .answer{border-radius:var(--r-m);box-shadow:inset 0 0 0 2px rgba(255,255,255,.16),inset 0 -6px 0 rgba(0,0,0,.14),var(--ledge);font-weight:700}
+html[data-theme=classic] .answer .shape{background:rgba(0,0,0,.2);border-radius:var(--r-s);padding:5px}
+html[data-theme=classic] .answers .answer{animation-name:tileflip;transform-origin:50% 0}
+@keyframes tileflip{from{opacity:0;transform:perspective(800px) rotateX(-95deg)}to{opacity:1;transform:none}}
+html[data-theme=classic] .answer.win{outline:4px solid #fff;outline-offset:3px}
+html[data-theme=classic] .pill{background:rgba(0,0,0,.28);border-color:rgba(255,255,255,.16);backdrop-filter:none}
+html[data-theme=classic] .roomcode{background:#070b1d;border:3px solid var(--c2);color:var(--c2);box-shadow:0 0 0 8px rgba(0,0,0,.25),0 0 40px color-mix(in srgb,var(--c2) 25%,transparent)}
+html[data-theme=classic] .timerbar{height:14px;border-radius:var(--r-s);background:rgba(0,0,0,.35);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+html[data-theme=classic] .timerbar>div{border-radius:var(--r-s)}
+html[data-theme=classic] .timernum{color:var(--c2)}
+html[data-theme=classic] .boardrow{background:color-mix(in srgb,var(--c1) 55%,#03061a);color:#fff;border:1px solid rgba(255,255,255,.12);box-shadow:var(--ledge)}
+html[data-theme=classic] .boardrow .rank{color:var(--c2)}
+html[data-theme=classic] .chip{border-radius:var(--r-s)}
+html[data-theme=classic] .demo{background:rgba(0,0,0,.28);border-color:rgba(255,255,255,.12)}
+html[data-theme=classic] .ansbig{box-shadow:inset 0 0 0 2px rgba(255,255,255,.2),var(--ledge),var(--shadow)}
+
+/* Editorial — a printed scorecard: cool white paper, black ink, one red.
+   Left-aligned, ruled, tabular figures, no shadows, no rounding */
+html[data-theme=editorial]{--r-s:0px;--r-m:0px;--r-l:0px;--r-pill:0px;--ledge:none;--elev-1:none;--elev-1h:none;--elev-2:none;--shadow:none;--card-ink:#111}
+html[data-theme=editorial] body{background:color-mix(in srgb,var(--c1) 96%,#000);font-variant-numeric:tabular-nums}
+html[data-theme=editorial] .card{border:1.5px solid #111}
+html[data-theme=editorial] #s-hquestion .qtext,html[data-theme=editorial] #s-pquestion .qtext{text-align:left;align-self:stretch;max-width:900px;width:100%;margin:0 auto;letter-spacing:-.02em}
+html[data-theme=editorial] .qtext::after{content:"";display:block;height:4px;margin-top:.35em;background:var(--c2);transform-origin:0 50%;animation:inkline .7s .2s cubic-bezier(.6,0,.2,1) both}
+@keyframes inkline{from{transform:scaleX(0)}}
+html[data-theme=editorial] .answers{counter-reset:opt;gap:0;grid-template-columns:1fr;border-bottom:1.5px solid #111}
+html[data-theme=editorial] .answer{counter-increment:opt;background:transparent;color:#111;border:0;border-top:1.5px solid #111;box-shadow:none;min-height:62px;padding-left:66px}
+html[data-theme=editorial] .answer::before{content:counter(opt,upper-alpha);position:absolute;left:12px;top:50%;width:34px;height:34px;margin-top:-17px;display:grid;place-items:center;background:var(--ac);color:var(--at);font-family:var(--font-display);font-weight:800;font-size:1.05rem}
+html[data-theme=editorial] .answer .shape{display:none}
+html[data-theme=editorial] .answers.many .answer{padding-left:52px}
+html[data-theme=editorial] .answers.many .answer::before{left:8px;width:30px;height:30px;margin-top:-15px;font-size:.95rem}
+html[data-theme=editorial] .demo .answer{padding-left:42px;min-height:42px}
+html[data-theme=editorial] .demo .answer::before{left:8px;width:24px;height:24px;margin-top:-12px;font-size:.8rem}
+html[data-theme=editorial] .demo-body{gap:0}
+html[data-theme=editorial] .answer .dist{font-variant-numeric:tabular-nums}
+html[data-theme=editorial] .answer .tick{background:#111;color:#fff;border-radius:0}
+html[data-theme=editorial] .answer.win{outline:0;transform:none;background:color-mix(in srgb,var(--c2) 9%,transparent);box-shadow:inset 6px 0 0 var(--c2)}
+html[data-theme=editorial] .answer.dim{opacity:.5;filter:none}
+html[data-theme=editorial] button.answer.picked{outline:0;background:color-mix(in srgb,#111 8%,transparent);box-shadow:inset 6px 0 0 #111}
+html[data-theme=editorial] .pill{background:transparent;border:1.5px solid #111;color:#111;backdrop-filter:none}
+html[data-theme=editorial] .roomcode{background:#fff;border:2px solid #111;color:#111;letter-spacing:.3em}
+html[data-theme=editorial] .timerbar{height:6px;background:#dcdcd6}
+html[data-theme=editorial] .timerbar>div{background:#111}
+html[data-theme=editorial] .timerbar.low>div{background:var(--c2)}
+html[data-theme=editorial] .btn{background:#111;color:#fff;border:2px solid #111}
+html[data-theme=editorial] .btn.ghost{background:transparent;color:#111}
+html[data-theme=editorial] .hostbar .btn.ghost{background:#fff}
+html[data-theme=editorial] .boardrow{background:transparent;color:#111;border-bottom:1.5px solid #111;animation-name:none}
+html[data-theme=editorial] .board{border-top:3px solid #111;gap:0}
+html[data-theme=editorial] .boardrow .rank{color:var(--c2)}
+html[data-theme=editorial] .bdelta{background:transparent;color:#111;border:1px solid #111}
+html[data-theme=editorial] .chip{border:1.5px solid #111;animation-name:none}
+html[data-theme=editorial] .ansbig{background:transparent;color:#111;border:0;border-top:3px solid #111;border-bottom:3px solid #111;box-shadow:none;padding:10px 6px}
+html[data-theme=editorial] .ansbig .ic{color:var(--c2)}
+html[data-theme=editorial] .anschip{background:transparent;color:#111;border:2px solid #111;box-shadow:none}
+html[data-theme=editorial] .bigmark{background:transparent;border:2px solid #111;color:#111}
+html[data-theme=editorial] .bigmark.good{background:var(--c2);border-color:var(--c2);color:#fff}
+html[data-theme=editorial] .demo{background:#fff;border:1.5px solid #111}
+html[data-theme=editorial] .demo-pill{background:transparent;border:1px solid #111}
+html[data-theme=editorial] .steps li{background:transparent;border:1.5px solid #111}
+html[data-theme=editorial] .vcfill{border-radius:0}
+html[data-theme=editorial] .pcol .pbar{background:#111;color:#fff}
+html[data-theme=editorial] .pcol.p1 .pbar{background:var(--c2)}
+html[data-theme=editorial] .pcol.p3 .pbar{background:#6b6b66}
+html[data-theme=editorial] .crown{color:var(--c2)}
+html[data-theme=editorial] .x2badge{background:var(--c2);color:#fff;box-shadow:none}
+html[data-theme=editorial] .x2on::after{box-shadow:inset 0 0 0 6px var(--c2)}
+
+/* Doodle — a page from a squared exercise book: blue grid, a red margin,
+   ballpoint ink, wobbly hand-drawn outlines, a highlighter for the answer */
+html[data-theme=doodle]{--r-s:6px;--r-m:12px;--r-l:16px;--r-pill:14px;--ledge:none;--elev-2:3px 4px 0 rgba(31,42,68,.18);--shadow:var(--elev-2);--card-ink:#1f2a44}
+html[data-theme=doodle] body{background:linear-gradient(#d6e2f3 1px,transparent 1px) 0 0/26px 26px,linear-gradient(90deg,#d6e2f3 1px,transparent 1px) 0 0/26px 26px,color-mix(in srgb,var(--c1) 92%,#e9e4d6);background-attachment:fixed}
+html[data-theme=doodle] body::before{content:"";position:fixed;top:0;bottom:0;left:clamp(14px,5vw,64px);width:2px;background:#ee9a9a;pointer-events:none;z-index:0}
+/* the wobble lives on a pseudo-element, so text inside stays crisp */
+html[data-theme=doodle] :is(.answer,.pill,.btn,.boardrow,.chip:not(.rname),.roomcode,.ansbig,.anschip,.card,.demo,.qrcard,.bigmark){position:relative;border:0;box-shadow:none}
+html[data-theme=doodle] .rname{border:0;box-shadow:none}
+html[data-theme=doodle] :is(.answer,.pill,.btn,.boardrow,.chip,.roomcode,.ansbig,.anschip,.card,.demo,.qrcard,.bigmark)::before{content:"";position:absolute;inset:0;border:2.5px solid #1f2a44;border-radius:inherit;filter:url(#qd-rough);pointer-events:none}
+html[data-theme=doodle] .card::before{border-width:2px;inset:2px}
+html[data-theme=doodle] .answer{background:color-mix(in srgb,var(--ac) 24%,#fffdf6);color:#1f2a44;font-weight:700}
+html[data-theme=doodle] .answer .shape{background:#1f2a44;border-radius:50%;padding:5px}
+html[data-theme=doodle] .answer:is(.a0,.a4,.a8){transform:rotate(-.6deg)}
+html[data-theme=doodle] .answer:is(.a1,.a5,.a9){transform:rotate(.5deg)}
+html[data-theme=doodle] .answer:is(.a2,.a6){transform:rotate(.4deg)}
+html[data-theme=doodle] .answer:is(.a3,.a7){transform:rotate(-.5deg)}
+/* the right answer gets a highlighter stroke and one wobble — nothing moves before the reveal */
+html[data-theme=doodle] .answer.win{outline:0;background:linear-gradient(transparent 18%,color-mix(in srgb,var(--c2) 75%,transparent) 18% 82%,transparent 82%) 56px 0/calc(100% - 70px) 100% no-repeat,color-mix(in srgb,var(--ac) 24%,#fffdf6);animation:scribble .6s .1s both}
+@keyframes scribble{0%,100%{transform:rotate(0)}25%{transform:rotate(-1.6deg) scale(1.03)}55%{transform:rotate(1.2deg) scale(1.03)}80%{transform:rotate(-.4deg)}}
+html[data-theme=doodle] .answer.dim{opacity:.55;filter:grayscale(.6)}
+html[data-theme=doodle] .pill{background:#fffdf6;color:#1f2a44;backdrop-filter:none}
+html[data-theme=doodle] .roomcode{background:#fff3a3;color:#1f2a44;transform:rotate(-1.5deg);box-shadow:4px 6px 0 rgba(31,42,68,.14)}
+html[data-theme=doodle] .roomcode::before{border-color:transparent}
+html[data-theme=doodle] .btn{background:var(--c2);color:var(--t0)}
+html[data-theme=doodle] .btn.ghost{background:#fffdf6;color:#1f2a44}
+html[data-theme=doodle] .timerbar{background:#fffdf6;border:2px solid #1f2a44;height:14px}
+html[data-theme=doodle] .timernum{color:#1f2a44}
+html[data-theme=doodle] .boardrow{background:#fffdf6;color:#1f2a44}
+html[data-theme=doodle] .chip{background:#fffdf6;color:#1f2a44}
+html[data-theme=doodle] .ansbig{background:#fff3a3;color:#1f2a44;transform:rotate(-1deg)}
+html[data-theme=doodle] .ansbig.soft{background:#fffdf6}
+html[data-theme=doodle] .anschip{background:#fff3a3;color:#1f2a44}
+html[data-theme=doodle] .bigmark{background:#fffdf6;color:#1f2a44}
+html[data-theme=doodle] .bigmark.good{background:#fff3a3}
+html[data-theme=doodle] .demo{background:#fffdf6}
+html[data-theme=doodle] .steps li{background:#fffdf6;border:2px dashed #1f2a44}
+html[data-theme=doodle] .steps li span{background:#1f2a44;color:#fffdf6}
+html[data-theme=doodle] .qtext{font-weight:700}
+/* handwriting is for words: its 1s read as slashes, so figures and the room code stay in print */
+html[data-theme=doodle] :is(.count-badge,.timernum,.points-pop,.bscore,.rank,.roomcode,.pscore,.pbar,.bigmark){font-family:var(--font-body)}
+html[data-theme=doodle] .pcol .pbar{border:2.5px solid #1f2a44;border-bottom:0}
+html[data-theme=doodle] .x2badge{background:#fff3a3;color:#1f2a44;box-shadow:none;border:2px solid #1f2a44}
+
+/* Poster — Swiss/brutalist print: paper, a raw column grid, thick black
+   rules, square everything, huge caps, hard offset shadows, motion that
+   snaps rather than eases */
+html[data-theme=brutalist]{--r-s:0px;--r-m:0px;--r-l:0px;--r-pill:0px;--ledge:none;--elev-1:5px 5px 0 #000;--elev-1h:7px 7px 0 #000;--elev-2:8px 8px 0 #000;--shadow:var(--elev-2);--card-ink:#000}
+html[data-theme=brutalist] body{background:linear-gradient(90deg,rgba(0,0,0,.09) 1px,transparent 1px) 0 0/calc(100% / 12) 100%,color-mix(in srgb,var(--c1) 94%,#000);background-attachment:fixed}
+html[data-theme=brutalist] body::before{content:"";position:fixed;left:0;right:0;top:0;height:10px;background:#000;z-index:0;pointer-events:none}
+html[data-theme=brutalist] :is(.qtext,.hero,h1.display,h2.display,.ansbig-t,.pname,.drum,.btn,.pill,.answer){text-transform:uppercase}
+html[data-theme=brutalist] #s-hquestion .qtext{font-size:clamp(1.8rem,5vw,3.6rem);line-height:.98;letter-spacing:-.025em;text-align:left;align-self:stretch;max-width:1000px;width:100%;margin:0 auto}
+html[data-theme=brutalist] .card{border:3px solid #000}
+html[data-theme=brutalist] .answer{background:#fff;color:#000;border:4px solid #000;box-shadow:8px 8px 0 #000;font-weight:800;padding-left:76px}
+html[data-theme=brutalist] .answer .shape{left:0;top:0;bottom:0;height:auto;width:56px;background:var(--ac);padding:14px;border-right:4px solid #000}
+html[data-theme=brutalist] .answer .shape svg{filter:none}
+html[data-theme=brutalist] .answers.many .answer{padding-left:56px;box-shadow:5px 5px 0 #000;border-width:3px}
+html[data-theme=brutalist] .answers.many .answer .shape{left:0;width:40px;height:auto;padding:9px;border-right-width:3px}
+html[data-theme=brutalist] .demo .answer{padding-left:44px;border-width:3px;box-shadow:4px 4px 0 #000}
+html[data-theme=brutalist] .demo .answer .shape{left:0;width:32px;height:auto;padding:7px;border-right-width:3px}
+html[data-theme=brutalist] .answers .answer,html[data-theme=brutalist] .screen.active,html[data-theme=brutalist] .qtext{animation-timing-function:steps(3,end)}
+html[data-theme=brutalist] .answer.win{outline:0;background:var(--c2);color:var(--t0);transform:translate(-4px,-4px);box-shadow:12px 12px 0 #000}
+html[data-theme=brutalist] .answer.dim{opacity:.4;filter:grayscale(1)}
+html[data-theme=brutalist] button.answer:active{transform:translate(6px,6px);box-shadow:2px 2px 0 #000}
+html[data-theme=brutalist] .pill{background:#fff;color:#000;border:3px solid #000;backdrop-filter:none;font-weight:800}
+html[data-theme=brutalist] .roomcode{background:#fff;color:#000;border:5px solid #000;box-shadow:12px 12px 0 #000}
+html[data-theme=brutalist] .btn{background:var(--c2);color:var(--t0);border:3px solid #000;box-shadow:6px 6px 0 #000;transition:none}
+html[data-theme=brutalist] .btn:active{transform:translate(4px,4px);box-shadow:2px 2px 0 #000}
+html[data-theme=brutalist] .btn.ghost{background:#fff;color:#000}
+html[data-theme=brutalist] .timernum{background:#000;color:#fff;padding:0 14px;min-width:2.4ch}
+html[data-theme=brutalist] .timerbar{border:4px solid #000;background:#fff;height:20px}
+html[data-theme=brutalist] .timerbar>div{background:#000}
+html[data-theme=brutalist] .boardrow{border:4px solid #000;box-shadow:6px 6px 0 #000;animation-timing-function:steps(3,end)}
+html[data-theme=brutalist] .chip{border:3px solid #000;box-shadow:none}
+html[data-theme=brutalist] .ansbig{background:#000;color:#fff;box-shadow:12px 12px 0 var(--c2)}
+html[data-theme=brutalist] .anschip{background:#000;color:#fff;box-shadow:6px 6px 0 var(--c2)}
+html[data-theme=brutalist] .bigmark{background:#fff;color:#000;border:4px solid #000}
+html[data-theme=brutalist] .bigmark.good{background:var(--c2);color:var(--t0)}
+html[data-theme=brutalist] .demo{background:#fff;border:4px solid #000;color:#000;box-shadow:10px 10px 0 #000}
+html[data-theme=brutalist] .steps li{background:#fff;border:3px solid #000;color:#000}
+html[data-theme=brutalist] .steps li span{background:#000;color:#fff}
+html[data-theme=brutalist] .pcol .pbar{border:4px solid #000;border-bottom:0;color:#000}
+html[data-theme=brutalist] .x2badge{background:#000;color:#fff;box-shadow:6px 6px 0 var(--c2)}
+
+/* Blueprint — a drafting sheet: blue paper with a fine and a major grid,
+   white linework whose lines run past the corners, mono labels, and
+   strokes that draw themselves on */
+html[data-theme=blueprint]{--r-s:0px;--r-m:2px;--r-l:3px;--r-pill:2px;--ledge:none;--elev-1:none;--elev-1h:none;--line-w:1.5px}
+html[data-theme=blueprint] body{background:linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px) 0 0/20px 20px,linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px) 0 0/20px 20px,linear-gradient(rgba(255,255,255,.13) 1px,transparent 1px) 0 0/100px 100px,linear-gradient(90deg,rgba(255,255,255,.13) 1px,transparent 1px) 0 0/100px 100px,color-mix(in srgb,var(--c1) 90%,#000);background-attachment:fixed}
+html[data-theme=blueprint] :is(.qtext,.hero,h1.display,h2.display,.ansbig-t,.pname,.btn,.pill){text-transform:uppercase;letter-spacing:.04em}
+html[data-theme=blueprint] .answers{counter-reset:fig}
+/* drafted boxes: four lines that overshoot the corners, drawn on */
+html[data-theme=blueprint] :is(.answer,.roomcode,.ansbig,.boardrow){position:relative;border:0;box-shadow:none;background-color:rgba(255,255,255,.05)}
+html[data-theme=blueprint] :is(.answer,.roomcode,.ansbig,.boardrow)::before{content:"";position:absolute;inset:-7px;pointer-events:none;
+  background:linear-gradient(#eaf3ff,#eaf3ff) 0 7px/100% var(--line-w) no-repeat,linear-gradient(#eaf3ff,#eaf3ff) 0 calc(100% - 7px)/100% var(--line-w) no-repeat,
+             linear-gradient(#eaf3ff,#eaf3ff) 7px 0/var(--line-w) 100% no-repeat,linear-gradient(#eaf3ff,#eaf3ff) calc(100% - 7px) 0/var(--line-w) 100% no-repeat;
+  animation:drawon .9s cubic-bezier(.5,0,.2,1) both}
+@keyframes drawon{from{background-size:0 var(--line-w),0 var(--line-w),var(--line-w) 0,var(--line-w) 0}}
+html[data-theme=blueprint] .answers .answer:nth-child(2)::before{animation-delay:.08s}
+html[data-theme=blueprint] .answers .answer:nth-child(3)::before{animation-delay:.16s}
+html[data-theme=blueprint] .answers .answer:nth-child(4)::before{animation-delay:.24s}
+html[data-theme=blueprint] .answer{counter-increment:fig;color:#eaf3ff;font-weight:600}
+html[data-theme=blueprint] .answer::after{content:"FIG. " counter(fig);position:absolute;top:4px;left:62px;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.62rem;letter-spacing:.14em;opacity:.7}
+html[data-theme=blueprint] .answer .shape{background:var(--ac);border-radius:0;padding:5px}
+html[data-theme=blueprint] :is(.answers.many,.demo) .answer::after{display:none}
+html[data-theme=blueprint] .answer .shape svg{filter:none}
+html[data-theme=blueprint] .answer.win{outline:0;background-color:rgba(255,255,255,.16);--line-w:3px}
+html[data-theme=blueprint] .answer.dim{opacity:.45;filter:none}
+html[data-theme=blueprint] button.answer.picked{outline:0;background-color:rgba(255,255,255,.18);--line-w:3px}
+html[data-theme=blueprint] .pill{background:transparent;border:1.5px dashed rgba(234,243,255,.75);color:#eaf3ff;font-size:.8rem;backdrop-filter:none}
+html[data-theme=blueprint] .roomcode{color:#eaf3ff;letter-spacing:.3em}
+html[data-theme=blueprint] .timernum{color:#eaf3ff}
+html[data-theme=blueprint] .timerbar{border:1.5px solid #eaf3ff;background:transparent;height:10px}
+html[data-theme=blueprint] .timerbar>div{background:#eaf3ff}
+html[data-theme=blueprint] .btn{border:2px solid #eaf3ff;box-shadow:none}
+html[data-theme=blueprint] .btn.ghost{background:transparent;color:#eaf3ff}
+html[data-theme=blueprint] .boardrow{color:#eaf3ff}
+html[data-theme=blueprint] .boardrow .rank,html[data-theme=blueprint] .boardrow .bscore{color:#eaf3ff}
+html[data-theme=blueprint] .chip{background:transparent;color:#eaf3ff;border:1.5px dashed rgba(234,243,255,.7);box-shadow:none}
+html[data-theme=blueprint] .ansbig{background-color:rgba(255,255,255,.08);color:#eaf3ff}
+html[data-theme=blueprint] .anschip{background:transparent;color:#eaf3ff;border:1.5px solid #eaf3ff;box-shadow:none}
+html[data-theme=blueprint] .bigmark{background:transparent;border:1.5px solid #eaf3ff}
+html[data-theme=blueprint] .bigmark.good{background:#eaf3ff;color:color-mix(in srgb,var(--c1) 90%,#000)}
+html[data-theme=blueprint] .demo{background:rgba(255,255,255,.04);border:1.5px solid rgba(234,243,255,.6);box-shadow:none}
+html[data-theme=blueprint] .steps li{background:transparent;border:1.5px dashed rgba(234,243,255,.6)}
+html[data-theme=blueprint] .pcol .pbar{background:transparent;border:1.5px solid #eaf3ff;border-bottom:0;color:#eaf3ff}
+html[data-theme=blueprint] .x2badge{background:transparent;color:#eaf3ff;border:1.5px solid #eaf3ff;box-shadow:none}
+
 
 /* Arcade — dark stage, glowing outlines, scanlines */
 html[data-theme=arcade] body{background:radial-gradient(900px 500px at 50% -10%,color-mix(in srgb,var(--b0) 14%,transparent),transparent 60%),radial-gradient(700px 500px at 90% 110%,color-mix(in srgb,var(--b1) 12%,transparent),transparent 60%),color-mix(in srgb,var(--c1) 22%,#050514)}
@@ -756,59 +961,6 @@ html[data-theme=arcade] .btn{border-radius:6px;text-transform:uppercase}
 html[data-theme=arcade] .boardrow{background:#0d0d26;color:#e8faff;border:1.5px solid var(--tfg,var(--c2))}
 html[data-theme=arcade] .boardrow .rank{color:var(--tfg,var(--c2))}
 html[data-theme=arcade] .chip{background:#0d0d26;color:var(--tfg,var(--c2));border:1.5px solid var(--tfg,var(--c2))}
-
-/* Doodle — paper, wobbly ink borders, pastel fills */
-html[data-theme=doodle] body{background:color-mix(in srgb,var(--c1) 5%,#fbf5e9);background-image:radial-gradient(color-mix(in srgb,var(--c1) 20%,#e7dcc4) 1.3px,transparent 1.3px);background-size:26px 26px}
-html[data-theme=doodle] .answer{border:3.5px solid #2f2a22;color:#2f2a22;border-radius:255px 15px 225px 15px/15px 225px 15px 255px;box-shadow:4px 5px 0 rgba(47,42,34,.2)}
-html[data-theme=doodle] .answer{background:color-mix(in srgb,var(--ac) 30%,#fff)}
-html[data-theme=doodle] .answer:is(.a0,.a4,.a8){transform:rotate(-.8deg)}
-html[data-theme=doodle] .answer:is(.a1,.a5,.a9){border-radius:15px 255px 15px 225px/225px 15px 255px 15px;transform:rotate(.7deg)}
-html[data-theme=doodle] .answer:is(.a2,.a6){border-radius:225px 15px 255px 15px/15px 255px 15px 225px;transform:rotate(.5deg)}
-html[data-theme=doodle] .answer:is(.a3,.a7){border-radius:15px 225px 15px 255px/255px 15px 225px 15px;transform:rotate(-.7deg)}
-html[data-theme=doodle] .answer .shape{background:#2f2a22;border-radius:50%;padding:5px}
-html[data-theme=doodle] .pill{background:#fff;color:#2f2a22;border:3px solid #2f2a22;border-radius:225px 15px 255px 15px/15px 255px 15px 225px}
-html[data-theme=doodle] .roomcode{background:#fff;color:#2f2a22;border:3.5px solid #2f2a22;border-radius:255px 25px 225px 25px/25px 225px 25px 255px;box-shadow:5px 6px 0 rgba(47,42,34,.18)}
-html[data-theme=doodle] .btn{border:3px solid #2f2a22;border-radius:225px 15px 255px 15px/15px 255px 15px 225px;box-shadow:4px 5px 0 rgba(47,42,34,.25)}
-html[data-theme=doodle] .timerbar{border:3px solid #2f2a22;background:#fff}
-html[data-theme=doodle] .timernum{color:#2f2a22;font-style:italic}
-html[data-theme=doodle] .qtext{font-style:italic}
-html[data-theme=doodle] .boardrow{border:3px solid #2f2a22;box-shadow:4px 5px 0 rgba(47,42,34,.15)}
-html[data-theme=doodle] .chip{border:3px solid #2f2a22}
-html[data-theme=doodle] .answer.win{outline-color:#2f2a22}
-
-/* Editorial — near-white, huge type, numbered rules */
-html[data-theme=editorial] body{background:color-mix(in srgb,var(--c1) 3%,#fafaf6)}
-html[data-theme=editorial] .answers{counter-reset:opt;gap:0;grid-template-columns:1fr}
-html[data-theme=editorial] .answer{counter-increment:opt;background:transparent;color:#141414;border:none;border-bottom:1.5px solid #d5d5cd;border-radius:0;box-shadow:none;min-height:64px}
-html[data-theme=editorial] .answer:first-child{border-top:1.5px solid #141414}
-html[data-theme=editorial] .answer::before{content:"0" counter(opt);position:absolute;left:16px;font-size:.85rem;font-weight:700;font-variant-numeric:tabular-nums}
-html[data-theme=editorial] .answer::before{color:color-mix(in srgb,var(--ac) 60%,#141414)}
-html[data-theme=editorial] .answer .shape{display:none}
-html[data-theme=editorial] .answer.win{outline:none;background:color-mix(in srgb,var(--c2) 20%,#fff);transform:none}
-html[data-theme=editorial] .answer.dim{opacity:.55}
-html[data-theme=editorial] .pill{background:transparent;border:1px solid #888;color:#141414;border-radius:0}
-html[data-theme=editorial] .qtext{letter-spacing:-.02em;font-weight:800}
-html[data-theme=editorial] .timernum{color:color-mix(in srgb,var(--c2) 55%,#141414)}
-html[data-theme=editorial] .timerbar{background:#e6e6df}
-html[data-theme=editorial] .roomcode{background:#fff;border:1.5px solid #141414;color:#141414;border-radius:0}
-html[data-theme=editorial] .btn{border-radius:0;box-shadow:none;border:2px solid #141414}
-html[data-theme=editorial] .boardrow{background:transparent;box-shadow:none;border-bottom:1px solid #d5d5cd;border-radius:0;color:#141414}
-html[data-theme=editorial] .chip{border:1px solid #141414;box-shadow:none}
-
-/* Poster — accent-color field, hard borders, harder shadows */
-html[data-theme=brutalist] body{background:var(--c2)}
-html[data-theme=brutalist] .answer{background:#fff;color:#000;border:4px solid #000;border-radius:0;box-shadow:8px 8px 0 #000;text-transform:uppercase;font-weight:800}
-html[data-theme=brutalist] .answer .shape{background:#000;padding:5px}
-html[data-theme=brutalist] .pill{background:#fff;color:#000;border:3px solid #000;border-radius:0;text-transform:uppercase}
-html[data-theme=brutalist] .roomcode{background:#fff;color:#000;border:4px solid #000;border-radius:0;box-shadow:10px 10px 0 #000}
-html[data-theme=brutalist] .btn{border-radius:0;border:3px solid #000;background:#fff;color:#000;box-shadow:6px 6px 0 #000;text-transform:uppercase}
-html[data-theme=brutalist] .timernum{background:var(--c3);color:var(--t1);padding:0 14px;border:4px solid #000;box-shadow:6px 6px 0 #000}
-html[data-theme=brutalist] .timerbar{border:4px solid #000;background:#fff;border-radius:0}
-html[data-theme=brutalist] .timerbar>div{background:#000;border-radius:0}
-html[data-theme=brutalist] .qtext{text-transform:uppercase;font-weight:800;letter-spacing:-.02em}
-html[data-theme=brutalist] .boardrow{border:4px solid #000;border-radius:0;box-shadow:6px 6px 0 #000}
-html[data-theme=brutalist] .chip{border:3px solid #000;border-radius:0}
-html[data-theme=brutalist] .answer.win{outline:6px solid #000}
 
 /* Terminal — phosphor on black, everything outlined in the accent */
 html[data-theme=terminal] body{background:color-mix(in srgb,var(--c1) 8%,#020a04)}
@@ -865,24 +1017,6 @@ html[data-theme=spooky] .boardrow .rank{color:var(--tfg,var(--c2))}
 html[data-theme=spooky] .chip{background:#161022;color:#f2e9d8;border:1.5px solid color-mix(in srgb,var(--tfg,var(--c2)) 55%,transparent)}
 html[data-theme=spooky] .answer.win{outline-color:#f2e9d8}
 
-/* Blueprint — graph paper, dashed technical linework, FIG. labels */
-html[data-theme=blueprint] body{background:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(rgba(255,255,255,.1) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.1) 1px,transparent 1px),color-mix(in srgb,var(--c1) 25%,#0e3a66);background-size:24px 24px,24px 24px,120px 120px,120px 120px,auto}
-html[data-theme=blueprint] .answers{counter-reset:fig}
-html[data-theme=blueprint] .answer{counter-increment:fig;background:rgba(255,255,255,.04);border:2px dashed rgba(234,243,255,.8);border-radius:3px;color:#eaf3ff;text-transform:uppercase;letter-spacing:.03em;font-weight:600}
-html[data-theme=blueprint] .answer::after{content:"FIG. " counter(fig);position:absolute;top:6px;right:12px;font-size:.62rem;letter-spacing:.16em;opacity:.7}
-html[data-theme=blueprint] .answer .shape{background:rgba(234,243,255,.15);border-radius:4px;padding:4px}
-html[data-theme=blueprint] .qtext{text-transform:uppercase;letter-spacing:.03em}
-html[data-theme=blueprint] .pill{background:transparent;border:1.5px dashed #eaf3ff;color:#eaf3ff;border-radius:4px;text-transform:uppercase;font-size:.8rem;letter-spacing:.08em}
-html[data-theme=blueprint] .roomcode{background:rgba(255,255,255,.04);border:2px dashed #eaf3ff;color:#eaf3ff;border-radius:8px}
-html[data-theme=blueprint] .timernum{color:#eaf3ff}
-html[data-theme=blueprint] .timerbar{border:1.5px dashed #eaf3ff;background:transparent}
-html[data-theme=blueprint] .timerbar>div{background:#eaf3ff}
-html[data-theme=blueprint] .btn{border-radius:4px;border:2px solid #eaf3ff;text-transform:uppercase;letter-spacing:.05em}
-html[data-theme=blueprint] .boardrow{background:rgba(255,255,255,.05);color:#eaf3ff;border:1.5px dashed rgba(234,243,255,.7);border-radius:4px}
-html[data-theme=blueprint] .boardrow .rank,html[data-theme=blueprint] .boardrow .bscore{color:#eaf3ff}
-html[data-theme=blueprint] .chip{background:rgba(255,255,255,.06);color:#eaf3ff;border:1.5px dashed rgba(234,243,255,.7);border-radius:4px}
-html[data-theme=blueprint] .answer.win{outline-color:#fff;border-style:solid}
-
 /* Film Noir — hard white light on black, colour only as a slab of ink */
 html[data-theme=noir] body{background:radial-gradient(760px 480px at 20% -12%,rgba(255,255,255,.16),transparent 58%),#101010}
 html[data-theme=noir] body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;background:repeating-linear-gradient(38deg,rgba(255,255,255,.035) 0 1px,transparent 1px 4px),repeating-linear-gradient(-52deg,rgba(0,0,0,.09) 0 1px,transparent 1px 3px)}
@@ -898,6 +1032,7 @@ html[data-theme=noir] .btn{border-radius:0;text-transform:uppercase;letter-spaci
 html[data-theme=noir] .boardrow{background:#f4f4f4;color:#101010;border-radius:0;box-shadow:6px 6px 0 rgba(0,0,0,.5)}
 html[data-theme=noir] .chip{background:#f4f4f4;color:#101010;border-radius:0;font-weight:800}
 html[data-theme=noir] .answer.win{outline-color:#f4f4f4}
+
 /* ── Misc ───────────────────────────────────────────────────────────────── */
 .badge-online{display:inline-flex;align-items:center;gap:6px;font-size:.85rem;line-height:18px;font-weight:600;background:rgba(0,0,0,.25);border-radius:var(--r-pill);padding:6px 14px}
 .dot{width:9px;height:9px;border-radius:50%;background:#3DDC84}
@@ -910,6 +1045,7 @@ html[data-theme=noir] .answer.win{outline-color:#f4f4f4}
 </head>
 <body>
 <canvas id="confetti"></canvas>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><filter id="qd-rough" x="-10%" y="-30%" width="120%" height="160%"><feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="7"/><feDisplacementMap in="SourceGraphic" scale="4"/></filter></svg>
 <button id="btn-mute" class="mutebtn" aria-label="Toggle sound"><i data-ic="sound"></i></button>
 <button id="btn-snap" class="mutebtn snapbtn" aria-label="Save a screenshot of this screen"><i data-ic="camera"></i></button>
 <div id="snap-hint" class="snaphint" role="status" hidden></div>
@@ -1078,10 +1214,10 @@ html[data-theme=noir] .answer.win{outline-color:#f4f4f4}
         <div class="lookgroup">
           <span class="lookgroup-h">Colours</span>
           <div class="colors">
-            <div class="color-slot"><input type="color" id="col-0" value="#4F2CBD" aria-label="Background colour"><div><span class="role">Background</span><input type="text" id="hex-0" value="#4F2CBD" maxlength="7" aria-label="Color 1 hex"></div></div>
-            <div class="color-slot"><input type="color" id="col-1" value="#FFB800" aria-label="Accent colour"><div><span class="role">Accent &amp; buttons</span><input type="text" id="hex-1" value="#FFB800" maxlength="7" aria-label="Color 2 hex"></div></div>
-            <div class="color-slot"><input type="color" id="col-2" value="#FF4E6A" aria-label="Answer colour 3"><div><span class="role">Answers <i>optional</i></span><input type="text" id="hex-2" value="#FF4E6A" maxlength="7" aria-label="Color 3 hex"></div></div>
-            <div class="color-slot"><input type="color" id="col-3" value="#19C6B2" aria-label="Answer colour 4"><div><span class="role">Answers <i>optional</i></span><input type="text" id="hex-3" value="#19C6B2" maxlength="7" aria-label="Color 4 hex"></div></div>
+            <div class="color-slot"><input type="color" id="col-0" value="#1A2B6D" aria-label="Background colour"><div><span class="role">Background</span><input type="text" id="hex-0" value="#1A2B6D" maxlength="7" aria-label="Color 1 hex"></div></div>
+            <div class="color-slot"><input type="color" id="col-1" value="#FFC53D" aria-label="Accent colour"><div><span class="role">Accent &amp; buttons</span><input type="text" id="hex-1" value="#FFC53D" maxlength="7" aria-label="Color 2 hex"></div></div>
+            <div class="color-slot"><input type="color" id="col-2" value="#F0434F" aria-label="Answer colour 3"><div><span class="role">Answers <i>optional</i></span><input type="text" id="hex-2" value="#F0434F" maxlength="7" aria-label="Color 3 hex"></div></div>
+            <div class="color-slot"><input type="color" id="col-3" value="#1FB5A8" aria-label="Answer colour 4"><div><span class="role">Answers <i>optional</i></span><input type="text" id="hex-3" value="#1FB5A8" maxlength="7" aria-label="Color 4 hex"></div></div>
           </div>
           <div class="qrow">
             <button type="button" class="qmini" id="btn-derive" title="Only have 2 colours? Make the answer colours from the accent">Fill answers from my 2 colours</button>
@@ -1650,7 +1786,9 @@ else { Sync = LocalSync; Sync.init(); }
 function hexToRgb(h){ h = h.replace('#',''); if (h.length === 3) h = h.split('').map(c=>c+c).join(''); const n = parseInt(h,16); return [n>>16&255, n>>8&255, n&255]; }
 function rgbToHex(r,g,b){ return '#' + [r,g,b].map(v => Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0')).join(''); }
 function luminance(hex){ const [r,g,b] = hexToRgb(hex).map(v => { v/=255; return v <= .03928 ? v/12.92 : Math.pow((v+.055)/1.055, 2.4); }); return .2126*r + .7152*g + .0722*b; }
-function textOn(hex){ return luminance(hex) > 0.4 ? '#181026' : '#ffffff'; }
+// whichever of dark or white text has more contrast (they tie near 0.18, not 0.4:
+// white on orange or teal reads at about 3:1, dark text at 6:1)
+function textOn(hex){ return luminance(hex) > 0.18 ? '#181026' : '#ffffff'; }
 function shade(hex, f){ const [r,g,b] = hexToRgb(hex); return f < 0 ? rgbToHex(r*(1+f), g*(1+f), b*(1+f)) : rgbToHex(r+(255-r)*f, g+(255-g)*f, b+(255-b)*f); }
 function toHsl(hex){
   const [r,g,b] = hexToRgb(hex).map(v=>v/255);
@@ -1703,7 +1841,21 @@ function expandPalette(base, want){
   }
   return out;
 }
-const DEFAULT_COLORS = ['#4F2CBD','#FFB800','#FF4E6A','#19C6B2'];
+/* Each theme's starting palette: stage, accent, and two answer colours.
+   Picking a theme loads it into the colour pickers (still changeable). */
+const THEME_COLORS = {
+  classic:   ['#1A2B6D','#FFC53D','#F0434F','#1FB5A8'],
+  editorial: ['#F5F6F4','#D62718','#1D4ED8','#0F7B5F'],
+  doodle:    ['#FBFAF4','#FFD43B','#FF6B6B','#4DABF7'],
+  brutalist: ['#F0EEE9','#FF4D00','#0047FF','#FFD400'],
+  blueprint: ['#0F4C81','#F2C14E','#FF7A59','#7FDBFF'],
+  noir:      ['#4F2CBD','#FFB800','#FF4E6A','#19C6B2'],
+  arcade:    ['#4F2CBD','#FFB800','#FF4E6A','#19C6B2'],
+  terminal:  ['#4F2CBD','#FFB800','#FF4E6A','#19C6B2'],
+  candy:     ['#4F2CBD','#FFB800','#FF4E6A','#19C6B2'],
+  spooky:    ['#4F2CBD','#FFB800','#FF4E6A','#19C6B2']
+};
+const DEFAULT_COLORS = THEME_COLORS.classic;
 
 /* Structural skins (see the THEMES CSS block). Colors and fonts from the
    pickers keep applying inside every theme. Whitelist-validated because
@@ -1732,9 +1884,9 @@ function applyLook(colors, theme){
   r.setProperty('--tfg', tfg);
   const ink = {
     arcade: '#f2f6ff', terminal: tfg,
-    doodle: '#2f2a22', editorial: '#141414', candy: '#4a3b63',
+    doodle: '#1f2a44', editorial: '#111111', candy: '#4a3b63',
     spooky: '#f2e9d8', blueprint: '#eaf3ff', noir: '#f5f5f5',
-    brutalist: textOn(c[1])
+    brutalist: '#000000'
   }[theme];
   if (ink) r.setProperty('--ink', ink);
   // A backdrop for text that floats over the game (the pinned Skip button):
@@ -1752,11 +1904,7 @@ const RIVAL = { lead: 'You’re in the lead', passed: 'You passed {n}', chase: '
 function setFavicon(colors, theme){
   try {
     const c = (colors && colors.length >= 2 ? colors : DEFAULT_COLORS);
-    // Tile color echoes each skin's page background; classic uses the brand color.
-    const bg = {
-      arcade:'#0a0a20', terminal:'#04140b', editorial:'#fafaf6', doodle:'#fbf5e9',
-      candy:'#fbe3ee', brutalist:c[1], spooky:'#120a1c', blueprint:'#0e3a66', noir:'#101010'
-    }[theme] || c[0];
+    const bg = c[0];   // the tile is the theme's stage colour
     const cv = document.createElement('canvas');
     cv.width = cv.height = 64;
     const x = cv.getContext('2d');
@@ -1765,7 +1913,7 @@ function setFavicon(colors, theme){
     else x.fillRect(0, 0, 64, 64);
     // the logo's bolt, in the accent (or the ink, where the accent is the tile)
     x.translate(8, 8); x.scale(2, 2);
-    x.fillStyle = theme === 'brutalist' ? textOn(c[1]) : (luminance(bg) > .4 ? '#141414' : c[1]);
+    x.fillStyle = luminance(bg) > .4 ? '#141414' : c[1];
     x.fill(new Path2D('M13.5 2.5 5 13.5h6.5l-1 8 8.5-11h-6.5z'));
     document.getElementById('favicon').href = cv.toDataURL('image/png');
   } catch(e){}
@@ -1783,7 +1931,7 @@ function applyTheme(colors){
   r.setProperty('--c1-soft', shade(c[0], 0.22));
   // The first four are the host's own picks and never move; the rest are
   // spread across the unused parts of the color wheel for long polls.
-  const btns = expandPalette([c[1], c[2], c[3], shade(c[0], 0.35)], ANSWER_COLORS);
+  const btns = expandPalette([c[1], c[2], c[3], luminance(c[0]) > .5 ? shade(c[0], -0.62) : shade(c[0], 0.5)], ANSWER_COLORS);
   btns.forEach((col,i) => {
     r.setProperty('--b'+i, col); r.setProperty('--t'+i, textOn(col));
     // Neon skins draw the answer TEXT in the button color on a near-black
@@ -2468,7 +2616,11 @@ const DISPLAY_FONTS = [
   ['VT323',         'VT323'],
   ['Creepster',     'Creepster'],
   ['Graduate',      'Graduate'],
-  ['Rye',           'Rye']
+  ['Rye',           'Rye'],
+  ['Barlow Condensed', 'Barlow+Condensed:wght@500;700;800'],
+  ['Libre Franklin', 'Libre+Franklin:wght@400;600;800'],
+  ['Kalam',         'Kalam:wght@400;700'],
+  ['IBM Plex Sans Condensed', 'IBM+Plex+Sans+Condensed:wght@400;600;700']
 ];
 const BODY_FONTS = [
   ['Inter',      'Inter:wght@400;500;600;700'],
@@ -2477,7 +2629,10 @@ const BODY_FONTS = [
   ['Quicksand',  'Quicksand:wght@400;500;600;700'],
   ['Space Grotesk', 'Space+Grotesk:wght@400;500;600;700'],
   ['Atkinson Hyperlegible', 'Atkinson+Hyperlegible:wght@400;700'],
-  ['IBM Plex Mono', 'IBM+Plex+Mono:wght@400;500;600;700']
+  ['IBM Plex Mono', 'IBM+Plex+Mono:wght@400;500;600;700'],
+  ['Barlow',     'Barlow:wght@400;500;600;700'],
+  ['Libre Franklin', 'Libre+Franklin:wght@400;500;600;700'],
+  ['Archivo',    'Archivo:wght@400;500;600;700']
 ];
 // Each theme's signature pairing (display, body), drawn from the lists
 // above: the theme peek shows it, and picking a theme in Look & feel sets
@@ -2486,11 +2641,11 @@ const BODY_FONTS = [
 // The novelty faces (Creepster, Rye, Bungee, Patrick Hand) stay in the
 // pickers for quizzes that use them, but no theme starts on one.
 const THEME_FONTS = {
-  classic:   ['Bricolage Grotesque', 'Inter'],
-  editorial: ['Playfair Display', 'Inter'],
-  doodle:    ['Baloo 2', 'Nunito'],
-  brutalist: ['Archivo Black', 'Space Grotesk'],
-  blueprint: ['Space Grotesk', 'IBM Plex Mono'],
+  classic:   ['Barlow Condensed', 'Barlow'],
+  editorial: ['Libre Franklin', 'Libre Franklin'],
+  doodle:    ['Kalam', 'Nunito'],
+  brutalist: ['Archivo Black', 'Archivo'],
+  blueprint: ['IBM Plex Sans Condensed', 'IBM Plex Mono'],
   noir:      ['Playfair Display', 'Inter'],
   arcade:    ['Righteous', 'Space Grotesk'],
   terminal:  ['VT323', 'IBM Plex Mono'],
@@ -5195,6 +5350,8 @@ function boot(){
   const fillSel = (sel, fonts) => sel.innerHTML = fonts.map(f => `<option value="${f[0]}">${f[0]}</option>`).join('');
   fillSel($('font-display'), DISPLAY_FONTS);
   fillSel($('font-body'), BODY_FONTS);
+  // start on the default theme's own pairing (the first in each list is just alphabetical history)
+  [$('font-display').value, $('font-body').value] = themeFonts($('theme-sel').value);
   const onFontChange = () => loadFonts([$('font-display').value, $('font-body').value]);
   $('font-display').onchange = onFontChange;
   $('font-body').onchange = onFontChange;
@@ -5327,9 +5484,10 @@ function boot(){
   const refreshLook = () => applyLook(readColorInputs(), $('theme-sel').value);
   $('theme-sel').onchange = () => {
     // a theme comes with its fonts; the pickers can still change them after
-    const [fd, fb] = themeFonts($('theme-sel').value);
+    const t = $('theme-sel').value, [fd, fb] = themeFonts(t);
     $('font-display').value = fd; $('font-body').value = fb;
     loadFonts([fd, fb]);
+    THEME_COLORS[t].forEach((c, i) => { $('hex-' + i).value = c; $('col-' + i).value = c; });
     refreshLook(); SFX.play('blip');
   };
   for (let i = 0; i < 4; i++){
@@ -5348,7 +5506,7 @@ function boot(){
     refreshLook();
   };
   $('btn-resetcols').onclick = () => {
-    DEFAULT_COLORS.forEach((c,i) => { $('hex-' + i).value = c; $('col-' + i).value = c; });
+    THEME_COLORS[$('theme-sel').value].forEach((c,i) => { $('hex-' + i).value = c; $('col-' + i).value = c; });
     refreshLook();
   };
 
@@ -5476,7 +5634,7 @@ const ThemePeek = {
     const list = this.order(), t = list[this.i % list.length];
     this.i++;
     this.on = true;
-    applyLook(DEFAULT_COLORS, t);
+    applyLook(THEME_COLORS[t], t);
     loadFonts(themeFonts(t));
     prefetchFonts(themeFonts(list[this.i % list.length]));   // the next one
     // …and its music. startMusic won't replace a running loop, so stop first.
