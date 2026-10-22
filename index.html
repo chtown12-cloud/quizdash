@@ -3297,7 +3297,7 @@ const Shots = {
   resolve(ref){ return ref && this.items.has(ref) ? this.items.get(ref) : ref; },
   has(ref){ return /^shot-\d+$/.test(ref || '') ? this.items.has(ref) : true; },
 
-  async shrink(file){
+  async shrink(file, widths = [this.MAX_W, 1100, 900, 700], budget = this.BUDGET){
     const bmp = await createImageBitmap(file);
     const probe = document.createElement('canvas');
     probe.width = probe.height = 8;
@@ -3310,7 +3310,7 @@ const Shots = {
     // Quality alone can't always reach the budget — a noisy or photographic
     // screenshot needs fewer pixels too. Give up resolution only after
     // quality, since legibility is the whole point of a screenshot.
-    for (const maxW of [this.MAX_W, 1100, 900, 700]){
+    for (const maxW of widths){
       const scale = Math.min(1, maxW / bmp.width);
       const w = Math.max(1, Math.round(bmp.width * scale)), h = Math.max(1, Math.round(bmp.height * scale));
       cv.width = w; cv.height = h;
@@ -3318,12 +3318,33 @@ const Shots = {
       for (const q of [.85, .72, .6, .48, .38]){
         const url = cv.toDataURL(type, q);
         best = { url, w, h };
-        if (this.bytes(url) <= this.BUDGET){ if (bmp.close) bmp.close(); return best; }
+        if (this.bytes(url) <= budget){ if (bmp.close) bmp.close(); return best; }
       }
     }
     if (bmp.close) bmp.close();
     best.over = true;   // pathological image — attach it, but say so
     return best;
+  },
+
+  // Phones show a picture small, so they get a lighter copy than the big
+  // screen does. A pasted picture travels through the database to every
+  // phone, and that download is what Firebase bills; a link still travels
+  // as a link (each phone fetches it itself). Copies are made once per
+  // picture and kept, so a reveal never waits on one.
+  PHONE_W: [800, 640, 520],
+  PHONE_BUDGET: 40 * 1024,
+  phoneCopies: new Map(),   // data URI -> Promise of its lighter copy
+  forPhones(ref){
+    const url = this.resolve(ref);
+    if (!url || !/^data:image\//i.test(url)) return Promise.resolve(url || null);
+    if (!this.phoneCopies.has(url)) this.phoneCopies.set(url, (async () => {
+      const im = new Image();
+      im.src = url;
+      await im.decode();
+      const small = await this.shrink(im, this.PHONE_W, this.PHONE_BUDGET);
+      return small.url.length < url.length ? small.url : url;
+    })().catch(() => url));
+    return this.phoneCopies.get(url);
   },
 
   async attach(file, ta){
@@ -3799,6 +3820,8 @@ const Host = {
 
   async _createRoom(parsed){
     this.quiz = parsed;
+    // make the phones' copies of pasted pictures while the lobby fills
+    parsed.questions.forEach(q => { Shots.forPhones(q.image); Shots.forPhones(q.ansImage); });
     this.bots = []; this.stopBotAnswers();
     this._prevRanks = null;
     this.colors = readColorInputs();
@@ -4032,9 +4055,9 @@ const Host = {
     const qPayload = freeText
       ? { text: q.text, duration: q.duration, type: q.type, x2: !!q.x2 }
       : { text: q.text, options: q.options, duration: q.duration, type: q.type || 'quiz', x2: !!q.x2 };
-    // Only the link travels — every phone fetches the picture itself, so
-    // the database never carries more than a URL.
-    if (q.image) qPayload.img = Shots.resolve(q.image);
+    // A link travels as a link and every phone fetches it; a pasted
+    // picture travels itself, so phones get the lighter copy
+    if (q.image) qPayload.img = await Shots.forPhones(q.image);
 
     const pv = Number.isInteger(q.preview) ? q.preview : PREVIEW_SECS;
     this.skipPreview = false;
@@ -4253,7 +4276,7 @@ const Host = {
       SFX.play('reveal');
 
       // …then, once it's showing, tell the phones whether they got it right.
-      await Sync.update(this.path('state'), { ...REVEAL_RESET, ansImg: q.ansImage ? Shots.resolve(q.ansImage) : null, phase: 'reveal', correct: q.correct, dist, poll: isPoll, multi: isMulti, corrects: isMulti ? corrects : null });
+      await Sync.update(this.path('state'), { ...REVEAL_RESET, ansImg: await Shots.forPhones(q.ansImage), phase: 'reveal', correct: q.correct, dist, poll: isPoll, multi: isMulti, corrects: isMulti ? corrects : null });
     }
 
     // The answer's own picture, if it has one, takes the picture slot now
@@ -4320,7 +4343,7 @@ const Host = {
     $('hq-timer').innerHTML = ic(isCloud ? 'bubble' : 'check');
     SFX.play('reveal');
 
-    await Sync.update(this.path('state'), { ...REVEAL_RESET, ansImg: q.ansImage ? Shots.resolve(q.ansImage) : null, phase: 'reveal', typed: !isCloud, cloud: isCloud, answerText: isCloud ? null : String(q.options[0]) });
+    await Sync.update(this.path('state'), { ...REVEAL_RESET, ansImg: await Shots.forPhones(q.ansImage), phase: 'reveal', typed: !isCloud, cloud: isCloud, answerText: isCloud ? null : String(q.options[0]) });
   },
 
   // Tap-the-spot: score is a hit or a miss against the author's tolerance,
@@ -4364,7 +4387,7 @@ const Host = {
     this.showAnswer('target', votes ? `${hits.length} of ${votes} found it` : 'Nobody tapped', '');
     $('hq-timer').innerHTML = ic('target');
     SFX.play('reveal');
-    await Sync.update(this.path('state'), { ...REVEAL_RESET, ansImg: q.ansImage ? Shots.resolve(q.ansImage) : null, phase: 'reveal', spot: true, target: q.spot });
+    await Sync.update(this.path('state'), { ...REVEAL_RESET, ansImg: await Shots.forPhones(q.ansImage), phase: 'reveal', spot: true, target: q.spot });
   },
 
   // Closest-guess reveal: rank everyone by distance to the target. Equal
@@ -4418,7 +4441,7 @@ const Host = {
     $('hq-timer').innerHTML = ic('target');
     SFX.play('reveal');
 
-    await Sync.update(this.path('state'), { ...REVEAL_RESET, ansImg: q.ansImage ? Shots.resolve(q.ansImage) : null, phase: 'reveal', closest: true, target: q.target, targetHi: Number.isFinite(q.targetHi) ? q.targetHi : null });
+    await Sync.update(this.path('state'), { ...REVEAL_RESET, ansImg: await Shots.forPhones(q.ansImage), phase: 'reveal', closest: true, target: q.target, targetHi: Number.isFinite(q.targetHi) ? q.targetHi : null });
   },
 
   standings(){
