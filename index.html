@@ -1131,6 +1131,12 @@ html[data-theme=terminal] .answer.dim{filter:brightness(.5)}
 /* …and on the paper ones it washes out, still opaque */
 html:is([data-theme=candy],[data-theme=doodle],[data-theme=brutalist]) .answer.dim{opacity:1;filter:grayscale(.8) contrast(.55) brightness(1.2)}
 
+/* Outline buttons that sit on a white surface (the build card, the create
+   bar floating over it, the save and aim dialogs) take that surface's ink.
+   The dark-stage themes draw outlines in a light stage colour, which
+   vanishes there; the paper themes' outlines already work on white. */
+html:is([data-theme=classic],[data-theme=blueprint],[data-theme=noir],[data-theme=arcade],[data-theme=terminal],[data-theme=spooky]) :is(.card,.createbar,.aimbox) .btn.ghost{background:var(--card);color:var(--card-ink);border:1.5px solid var(--card-ink);text-shadow:none}
+
 /* ── Pictures wear each theme's frame (question pictures, the answer's
    picture at the reveal, and tap-the-spot pictures) ─────────────────── */
 html[data-theme=classic] .qimg{border-radius:var(--r-m);box-shadow:0 0 0 3px #070b1d,0 0 0 6px color-mix(in srgb,var(--c2) 60%,transparent),var(--ledge),var(--shadow)}
@@ -3345,6 +3351,16 @@ const Shots = {
     this.render();
     return out;
   },
+  // A picture taken off a question in Build goes from the strip too, once
+  // nothing else uses it: not the quiz text, and not another card (a
+  // duplicate, or one still too empty to be written into the text)
+  release(token){
+    if (!token || !this.items.has(token)) return;
+    const ta = $('quiz-input');
+    if (ta && ta.value.includes(`(${token})`)) return;
+    if (Builder.qs.some(q => q.image === token || q.ansImage === token)) return;
+    this.items.delete(token); this.del(token); this.render();
+  },
   // Forget attachments the quiz no longer uses (after New / Open)
   prune(text){
     [...this.items.keys()].forEach(t => { if (!text.includes(`(${t})`)){ this.items.delete(t); this.del(t); } });
@@ -3395,6 +3411,20 @@ function setQImage(el, url){
   el.onload = () => { el.hidden = false; };
   el.hidden = true;              // stays hidden until it actually loads
   el.src = url;
+}
+// A picture's height over its width (1 if it can't be read), remembered
+const aspects = new Map();
+function pictureAspect(url){
+  if (!url) return Promise.resolve(1);
+  if (aspects.has(url)) return aspects.get(url);
+  const p = new Promise(res => {
+    const im = new Image();
+    im.onload = () => res(im.naturalWidth ? im.naturalHeight / im.naturalWidth : 1);
+    im.onerror = () => res(1);
+    im.src = url;
+  });
+  aspects.set(url, p);
+  return p;
 }
 /* A picture with points marked on it, as percentages of the picture
    itself — used for tapping during the question and for the heat of
@@ -4009,15 +4039,25 @@ const Host = {
     // Count answers child-by-child (tiny payloads) instead of re-reading
     // the whole node per change; the blip throttles so a 1000-player wave
     // ticks rather than machine-guns.
-    let answeredN = 0, lastBlip = 0;
-    this.unsubAnswers = Sync.onChildAdded(this.path('answers/' + i), () => {
-      answeredN++;
-      $('hq-answered').textContent = answeredN;
+    // The count shows everyone with an answer in, finished or still being
+    // typed (it saves as they go); only finished ones can close it early,
+    // so nobody is cut off mid-word.
+    const done = new Set(), inn = new Set();
+    let lastBlip = 0;
+    const tick = pid => {
+      if (inn.has(pid)) return;
+      inn.add(pid);
+      $('hq-answered').textContent = inn.size;
       const now = Date.now();
       if (now - lastBlip > 150){ SFX.play('blip'); lastBlip = now; }
+    };
+    const offAnswers = Sync.onChildAdded(this.path('answers/' + i), pid => {
+      done.add(pid); tick(pid);
       // Auto-advance: everyone who was in when the question started has answered
-      if (this.playersAtQ > 0 && answeredN >= this.playersAtQ) this.endQuestion();
+      if (this.playersAtQ > 0 && done.size >= this.playersAtQ) this.endQuestion();
     });
+    const offDrafts = Sync.onChildAdded(this.path('drafts/' + i), tick);
+    this.unsubAnswers = () => { offAnswers(); offDrafts(); };
   },
 
   // The read-it-first countdown on the big screen. Abortable via Home.
@@ -4082,6 +4122,12 @@ const Host = {
     drum.style.display = 'none';
 
     const answers = (await Sync.get(this.path('answers/' + i))) || {};
+    // What players had typed, picked or tapped when answering closed counts
+    // too. Locking in is what claims the speed bonus, so an unlocked box or
+    // set of picks scores as if given at the buzzer; a tap keeps the time
+    // of the player's latest tap.
+    const drafts = (await Sync.get(this.path('drafts/' + i))) || {};
+    for (const [pid, d] of Object.entries(drafts)) if (d && !answers[pid]) answers[pid] = q.type === 'spot' ? d : { ...d, e: q.duration };
     if (q.type === 'spot'){
       await this.revealSpot(q, answers);
     } else if (q.type === 'closest'){
@@ -4240,11 +4286,16 @@ const Host = {
   // the whole room tapped, which is the point of the format.
   async revealSpot(q, answers){
     const dots = [], hits = [];
+    // Taps arrive as % across and % down, but the radius (and the ring the
+    // reveal draws) is a % of the width. On anything but a square picture
+    // those differ, so measure the distance in width units: otherwise a
+    // tap inside the ring, above or below the target, scored as a miss.
+    const tall = await pictureAspect(Shots.resolve(q.image));
     for (const [pid, p] of Object.entries(this.players)){
       const a = answers[pid];
       if (!a || !Number.isFinite(Number(a.x)) || !Number.isFinite(Number(a.y))) continue;
       const x = Number(a.x), y = Number(a.y);
-      const hit = Math.hypot(x - q.spot.x, y - q.spot.y) <= q.spot.r;
+      const hit = Math.hypot(x - q.spot.x, (y - q.spot.y) * tall) <= q.spot.r;
       dots.push({ x, y, hit, title: `${p.name}${hit ? ' ✓' : ''}` });
       if (hit) hits.push({ pid, e: Number(a.e) || q.duration });
     }
@@ -4813,7 +4864,9 @@ const Player = {
   },
 
   renderQuestion(s){
-    this.myAnswer = null;
+    this.myAnswer = null; this.unlocked = false;
+    this.draft = null; clearTimeout(this.draftTimer);
+    this.qOpen = true;
     this.receivedAt = Date.now();
     $('pq-progress').textContent = `Q${s.qIndex + 1} / ${s.total}`;
     $('pq-text').textContent = s.q.text;
@@ -4826,30 +4879,27 @@ const Player = {
     const grid = $('pq-answers');
     grid.style.display = '';
     if (s.q.type === 'spot'){
-      // Tap-the-spot: the picture itself is the answer sheet. Tapping only
-      // moves a marker — nothing is sent until it's locked in, so a stray
-      // touch while reading costs nothing.
+      // Tap-the-spot: the picture itself is the answer sheet. A tap is the
+      // answer, saved at once; another tap moves it until answering closes.
+      // (The picture only appears once answers open, so reading can't misfire.)
       grid.innerHTML = `<div class="guessbox">
         ${tapImageHTML(s.q.img, [], null, 'pick')}
-        <button class="btn big" id="pq-tap-btn" disabled>Tap the picture first</button>
-        <p class="small muted">Tap where you think it is, then lock it in.</p>
+        <p class="small muted" id="pq-tap-note">Tap where you think it is.</p>
       </div>`;
-      const wrap = grid.querySelector('.tapwrap'), btn = $('pq-tap-btn');
+      const wrap = grid.querySelector('.tapwrap');
       const mark = document.createElement('span');
       mark.className = 'tapmark'; mark.hidden = true;
       wrap.appendChild(mark);
-      let pick = null;
       wrap.onclick = e => {
-        if (this.myAnswer !== null) return;
+        if (!this.qOpen) return;
         const img = wrap.querySelector('img'), r = img.getBoundingClientRect();
         if (!r.width || !r.height) return;
-        pick = { x: Math.max(0, Math.min(100, (e.clientX - r.left) / r.width * 100)),
-                 y: Math.max(0, Math.min(100, (e.clientY - r.top) / r.height * 100)) };
+        const pick = { x: Math.max(0, Math.min(100, (e.clientX - r.left) / r.width * 100)),
+                       y: Math.max(0, Math.min(100, (e.clientY - r.top) / r.height * 100)) };
         mark.style.left = pick.x + '%'; mark.style.top = pick.y + '%'; mark.hidden = false;
-        btn.disabled = false; btn.textContent = 'Lock it in';
-        SFX.play('tap');
+        this.answerSpot(pick, s);
+        $('pq-tap-note').textContent = 'Saved. Tap again to move it.';
       };
-      btn.onclick = () => { if (pick) this.answerSpot(pick, s); };
     } else if (s.q.type === 'closest'){
       // Closest-guess: a number pad instead of option buttons
       grid.innerHTML = `<div class="guessbox">
@@ -4860,6 +4910,13 @@ const Player = {
       const input = $('pq-guess');
       $('pq-guess-btn').onclick = () => this.answerGuess(input.value, s);
       input.addEventListener('keydown', e => { if (e.key === 'Enter') this.answerGuess(input.value, s); });
+      // forget to lock it in and what's in the box still counts at the end
+      input.addEventListener('input', () => {
+        const v = String(input.value).trim(), g = Number(v.replace(',', '.'));
+        if (v === '' || !Number.isFinite(g)) return this.saveDraft(s, null, null);
+        const val = Math.round(g * 100) / 100;
+        this.saveDraft(s, { g: val, e: this.elapsed(s) }, val);
+      });
       input.focus();
     } else if (s.q.type === 'typed' || s.q.type === 'cloud'){
       // Free-text answer: one input, one lock button
@@ -4867,22 +4924,34 @@ const Player = {
       grid.innerHTML = `<div class="guessbox">
         <input type="text" maxlength="${cloud ? 30 : 40}" autocomplete="off" autocapitalize="off" id="pq-text-in" placeholder="${cloud ? 'One word or short phrase…' : 'Type your answer…'}" aria-label="Your answer">
         <button class="btn big" id="pq-text-btn">Lock it in</button>
-        <p class="small muted">${cloud ? "Everyone's words make a cloud on the big screen." : "Capitals and accents don't matter."}</p>
+        <p class="small muted">${cloud ? "Everyone's words make a cloud on the big screen." : "Lock it in for the speed bonus. Capitals and accents don't matter."}</p>
       </div>`;
       const input = $('pq-text-in');
       $('pq-text-btn').onclick = () => this.answerText(input.value, s);
       input.addEventListener('keydown', e => { if (e.key === 'Enter') this.answerText(input.value, s); });
+      // forget to lock it in and what's in the box still counts at the end
+      input.addEventListener('input', () => {
+        const t = String(input.value).trim().slice(0, cloud ? 30 : 40);
+        this.saveDraft(s, t ? { t, e: this.elapsed(s) } : null, t || null);
+      });
       input.focus();
     } else if (s.q.type === 'multi'){
-      // Pick-all-that-apply: options toggle, then one lock-in button
+      // Pick-all-that-apply: options toggle, then Lock it in claims the
+      // speed bonus; picks left unlocked still count at the end
       fillAnswers(grid, s.q.options, 'button',
         `<button class="btn big" id="pq-multi-lock" style="grid-column:1/-1">Lock it in</button>
-         <p class="small muted" style="grid-column:1/-1;text-align:center;margin:0">Pick every right answer, then lock in.</p>`);
+         <p class="small muted" style="grid-column:1/-1;text-align:center;margin:0">Pick every right answer, then lock it in for the speed bonus.</p>`);
+      const picked = () => [...grid.querySelectorAll('button.answer.picked')].map(b => Number(b.dataset.i));
       grid.querySelectorAll('button.answer').forEach(btn => {
-        btn.onclick = () => { if (this.myAnswer === null){ btn.classList.toggle('picked'); SFX.play('tap'); } };
+        btn.onclick = () => {
+          if (this.myAnswer !== null || !this.qOpen) return;
+          btn.classList.toggle('picked'); SFX.play('tap');
+          const picks = picked();
+          this.saveDraft(s, picks.length ? { m: picks, e: this.elapsed(s) } : null, picks.length ? picks : null, true);
+        };
       });
       $('pq-multi-lock').onclick = () => {
-        const picks = [...grid.querySelectorAll('button.answer.picked')].map(b => Number(b.dataset.i));
+        const picks = picked();
         if (!picks.length){ $('pq-multi-lock').textContent = 'Pick at least one'; setTimeout(() => { const b = $('pq-multi-lock'); if (b) b.textContent = 'Lock it in'; }, 1400); return; }
         this.answerMulti(picks, s);
       };
@@ -4895,6 +4964,30 @@ const Player = {
     if (this.stopTimer) this.stopTimer();
     this.stopTimer = startTimerUI($('pq-timer'), $('pq-timerbar'), s.q.duration, () => this.lockOut());
     show('s-pquestion');
+  },
+
+  elapsed(s){ return Math.round(Math.min(s.q.duration, (Date.now() - this.receivedAt) / 1000) * 100) / 100; },
+  // Answers that save as you go: a typed guess, a word, a set of picks, a
+  // tap. They sit under drafts/, apart from locked-in answers, so a half-
+  // typed word never ends the question early. When time runs out the host
+  // takes whatever each player had: unlocked boxes and picks without a
+  // speed bonus (locking in is what claims it), a tap at its latest time.
+  draft: null, draftTimer: null,
+  saveDraft(s, payload, value, now){
+    this.draft = { q: s.qIndex, payload, value };
+    clearTimeout(this.draftTimer);
+    if (now) this.writeDraft(); else this.draftTimer = setTimeout(() => this.writeDraft(), 350);
+  },
+  writeDraft(){
+    this.draftTimer = null;
+    if (this.draft) Sync.set(this.path(`drafts/${this.draft.q}/${this.id}`), this.draft.payload);
+  },
+  // Answering has closed: send what's in the box now, and show it as theirs
+  flushDraft(){
+    if (!this.draft) return;
+    if (this.draftTimer){ clearTimeout(this.draftTimer); this.writeDraft(); }
+    if (this.myAnswer === null && this.draft.value !== null){ this.myAnswer = this.draft.value; this.unlocked = true; }
+    this.draft = null;
   },
 
   answer(choice, s){
@@ -4916,6 +5009,7 @@ const Player = {
       return;
     }
     this.myAnswer = t;
+    this.draft = null; clearTimeout(this.draftTimer);
     SFX.play('tap');
     const elapsed = Math.min(s.q.duration, (Date.now() - this.receivedAt) / 1000);
     Sync.set(this.path(`answers/${s.qIndex}/${this.id}`), { t, e: Math.round(elapsed * 100) / 100 });
@@ -4926,23 +5020,23 @@ const Player = {
   answerMulti(picks, s){
     if (this.myAnswer !== null) return;
     this.myAnswer = picks;
+    this.draft = null; clearTimeout(this.draftTimer);
     SFX.play('tap');
     const elapsed = Math.min(s.q.duration, (Date.now() - this.receivedAt) / 1000);
     Sync.set(this.path(`answers/${s.qIndex}/${this.id}`), { m: picks, e: Math.round(elapsed * 100) / 100 });
     this.lockOut();
   },
 
+  // Tap-the-spot: every tap is saved straight away and replaces the last,
+  // speed included (tap at 0.2s, then at 5s, and it's the 5s tap that
+  // counts). Taps never close the question early, so they can still move.
+  answerSpot(pt, s){
+    if (!pt || !this.qOpen) return;
+    SFX.play('tap');
+    this.saveDraft(s, { x: Math.round(pt.x * 10) / 10, y: Math.round(pt.y * 10) / 10, e: this.elapsed(s) }, pt, true);
+  },
   // Closest-guess answer: myAnswer holds the guessed number, and the
   // payload carries g (guess) instead of c (choice index).
-  answerSpot(pt, s){
-    if (this.myAnswer !== null || !pt) return;
-    this.myAnswer = pt;
-    SFX.play('tap');
-    const elapsed = Math.min(s.q.duration, (Date.now() - this.receivedAt) / 1000);
-    Sync.set(this.path(`answers/${s.qIndex}/${this.id}`),
-      { x: Math.round(pt.x * 10) / 10, y: Math.round(pt.y * 10) / 10, e: Math.round(elapsed * 100) / 100 });
-    this.lockOut();
-  },
   answerGuess(val, s){
     if (this.myAnswer !== null) return;
     const g = Number(String(val).trim().replace(',', '.'));
@@ -4952,6 +5046,7 @@ const Player = {
       return;
     }
     this.myAnswer = Math.round(g * 100) / 100;
+    this.draft = null; clearTimeout(this.draftTimer);
     SFX.play('tap');
     const elapsed = Math.min(s.q.duration, (Date.now() - this.receivedAt) / 1000);
     Sync.set(this.path(`answers/${s.qIndex}/${this.id}`), { g: this.myAnswer, e: Math.round(elapsed * 100) / 100 });
@@ -4959,9 +5054,14 @@ const Player = {
   },
 
   lockOut(){
+    this.qOpen = false;
+    this.flushDraft();
+    const tap = !!this.myAnswer && Number.isFinite(this.myAnswer.x);
+    const locked = this.myAnswer !== null && !this.unlocked;
     $('pq-locked-mark').innerHTML = ic(this.myAnswer !== null ? 'check' : 'timer');
-    $('pq-locked-title').textContent = this.myAnswer !== null ? 'Answer locked in' : "Time's up";
-    $('pq-locked-sub').textContent = 'Watch the big screen.';
+    $('pq-locked-title').textContent = locked ? 'Answer locked in' : "Time's up";
+    $('pq-locked-sub').textContent = tap ? 'Your last tap counts. Watch the big screen.'
+      : this.unlocked ? 'Your answer still counts. Watch the big screen.' : 'Watch the big screen.';
     $('pq-answers').style.display = 'none';
     $('pq-locked').style.display = 'flex';
     if (this.stopTimer) this.stopTimer();
@@ -4969,6 +5069,8 @@ const Player = {
 
   // The host is drumrolling: mirror the drama on the phone.
   renderSuspense(s){
+    this.qOpen = false;
+    this.flushDraft();      // the host closed answering before this phone's clock did
     if (this.stopTimer) this.stopTimer();
     $('pq-locked-mark').innerHTML = ic(s.cloud ? 'bubble' : s.poll ? 'chart' : 'timer');
     $('pq-locked-title').textContent = s.cloud ? CLOUD_LINE : s.poll ? POLL_LINE : (SUSPENSE_LINES[Number(s.line)] || SUSPENSE_LINES[0]);
@@ -5029,7 +5131,7 @@ const Player = {
         <div class="anschip">${closestLabel(range)}</div>
         ${answered
           ? `<p style="font-weight:700">You guessed ${Number(this.myAnswer).toLocaleString()}: ${off === 0 ? (isRange ? 'in range' : 'spot on') : 'off by ' + off.toLocaleString()}</p><div class="points-pop">+${pts.toLocaleString()}</div>${x2Tag}`
-          : `<div class="points-pop">+0</div><p class="muted">No guess locked in this round.</p>`}`;
+          : `<div class="points-pop">+0</div><p class="muted">No guess this round.</p>`}`;
     } else if (s.cloud){
       // Word cloud: no scoring, just confirm their word made it up there
       SFX.play('board');
@@ -5578,6 +5680,8 @@ const Builder = {
         const gone = this.qs.splice(i, 1)[0];
         if (!this.qs.length) this.qs = [this.blank()];
         restructure();
+        // its pictures leave the strip once the chance to undo has passed
+        setTimeout(() => { Shots.release(gone.image); Shots.release(gone.ansImage); }, 7600);
         if (this.isBlank(gone)) return;       // nothing worth an undo
         showToast(`Deleted Q${i + 1}`, 7000, { label: 'Undo', run: () => {
           if (this.qs.length === 1 && this.isBlank(this.qs[0])) this.qs = [];
@@ -5586,8 +5690,8 @@ const Builder = {
           showToast(`Q${i + 1} is back`);
         } });
       });
-      on('[data-delimg]', 'click', () => { q.image = ''; q.spot = null; restructure(); });
-      on('[data-delans]', 'click', () => { q.ansImage = ''; restructure(); });
+      on('[data-delimg]', 'click', () => { const was = q.image; q.image = ''; q.spot = null; restructure(); Shots.release(was); });
+      on('[data-delans]', 'click', () => { const was = q.ansImage; q.ansImage = ''; restructure(); Shots.release(was); });
       on('[data-addans]', 'click', () => {
         const f = document.createElement('input');
         f.type = 'file'; f.accept = 'image/*';
@@ -5613,7 +5717,7 @@ const Builder = {
       // the same gesture the markdown box takes.
       const take = async file => {
         const token = await Shots.attach(file, null);
-        if (token){ q.image = token; this.sync(); this.render(); }
+        if (token){ const was = q.image; q.image = token; this.sync(); this.render(); Shots.release(was); }
       };
       card.addEventListener('dragover', e => {
         if ([...e.dataTransfer.types].includes('Files')){ e.preventDefault(); card.classList.add('dropping'); }
