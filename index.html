@@ -419,17 +419,47 @@ details.docs-more summary{cursor:pointer;font-weight:700;color:var(--ui-mute)}
 /* Optional picture for a question. Height-capped so the answers stay on
    screen, and it shrinks further when a long poll needs the room. */
 .qimg{display:block;width:auto;height:auto;max-width:min(100%,760px);max-height:clamp(150px,30vh,360px);margin:0 auto;border-radius:var(--r-l);object-fit:contain;background:rgba(127,127,127,.14);box-shadow:var(--shadow)}
+/* display:block outranks the browser's own [hidden] rule, and an empty
+   picture would still draw its theme's frame as a little box */
+.qimg[hidden]{display:none}
 #pq-img{max-height:clamp(110px,22vh,230px);border-radius:var(--r-m)}
+/* Phone question: the countdown keeps to the top through reading,
+   answering and waiting, and the question and whatever's under it centre
+   in the room below. With no picture the question is the big thing,
+   biggest while there's nothing to do but read it. */
+#s-pquestion .qtext{font-size:clamp(1.3rem,5.6vw,2rem);margin-top:auto;transition:font-size .45s cubic-bezier(.22,1,.36,1)}
+#s-pquestion.reading .qtext{font-size:clamp(1.7rem,8.4vw,2.8rem)}
+#s-pquestion.reading.qlong .qtext{font-size:clamp(1.4rem,6.6vw,2.2rem)}
+#s-pquestion:has(#pq-img:not([hidden])) .qtext{font-size:clamp(1.15rem,4.5vw,1.7rem)}
+#pq-answers,#pq-locked{margin-bottom:auto}
+#s-pquestion.reading #pq-locked{flex:none}
+#s-pquestion.reading :is(#pq-locked-mark,#pq-locked-title){display:none}
 .answers.many + .qimg,.qimg:has(+ .answers.many){max-height:clamp(110px,20vh,220px)}
-/* On a wide screen a picture question puts the picture beside the answer
-   tiles instead of between the question and them, so the picture (and at
-   the reveal, the answer's picture) can be big. Phones keep the stack. */
-@media (min-width:900px) and (min-aspect-ratio:4/3){
-  #s-hquestion:has(#hq-img:not([hidden])):has(#hq-answers > .answer) > .center.stack{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:clamp(18px,3vw,44px);align-content:center;align-items:center;width:min(100%,1060px);margin-inline:auto}
-  #s-hquestion:has(#hq-img:not([hidden])):has(#hq-answers > .answer) > .center.stack > *{grid-column:1/-1;justify-self:center}
-  #s-hquestion:has(#hq-img:not([hidden])):has(#hq-answers > .answer) #hq-img{grid-column:1;justify-self:end;max-width:100%;max-height:min(54vh,540px)}
-  #s-hquestion:has(#hq-img:not([hidden])):has(#hq-answers > .answer) #hq-answers{grid-column:2;justify-self:stretch}
-  #s-hquestion:has(#hq-img:not([hidden])):has(#hq-answers > .answer) #hq-answers:not(.many){grid-template-columns:1fr}
+/* On a wide screen, any question with a picture puts it on the left and
+   the answers (or, at the reveal, the answer and the results) on the
+   right, instead of stacking the picture between them, so the picture can
+   be big. The banner joins the right column at the reveal, and the picture
+   spans its full height. Phones, and narrow or tall windows, keep the stack. */
+@media (min-width:860px) and (min-aspect-ratio:6/5){
+  #s-hquestion:has(#hq-img:not([hidden])) > .center.stack{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);
+    grid-template-areas:"stats stats" "x2 x2" "q q" "pic reveal" "pic opts" "chart chart" "bar bar";
+    column-gap:clamp(18px,3vw,44px);align-content:center;align-items:center;width:min(100%,max(1120px,150vh));margin-inline:auto}
+  #s-hquestion:has(#hq-img:not([hidden])) > .center.stack > *{justify-self:center}
+  #s-hquestion:has(#hq-img:not([hidden])) .hoststats{grid-area:stats}
+  #s-hquestion:has(#hq-img:not([hidden])) .row:has(> #hq-x2){grid-area:x2}
+  #s-hquestion:has(#hq-img:not([hidden])) .qtext{grid-area:q}
+  #s-hquestion:has(#hq-img:not([hidden])) #hq-reveal{grid-area:reveal;justify-self:stretch;align-self:end}
+  #s-hquestion:has(#hq-img:not([hidden])) #hq-img{grid-area:pic;justify-self:end;align-self:center;max-width:100%;max-height:min(64vh,640px)}
+  #s-hquestion:has(#hq-img:not([hidden])) #hq-answers{grid-area:opts;justify-self:stretch;align-self:start}
+  #s-hquestion:has(#hq-img:not([hidden])) #hq-answers:not(.many){grid-template-columns:1fr}
+  #s-hquestion:has(#hq-img:not([hidden])) #hq-chart{grid-area:chart}
+  #s-hquestion:has(#hq-img:not([hidden])) .hostbar{grid-area:bar}
+  /* the banner is half as wide here, so its type scales with the column */
+  #s-hquestion:has(#hq-img:not([hidden])) .ansbig-t{font-size:clamp(1.9rem,3.6vw,3.4rem)}
+  #s-hquestion:has(#hq-img:not([hidden])) .ansbig.long .ansbig-t{font-size:clamp(1.5rem,2.6vw,2.5rem)}
+  #s-hquestion:has(#hq-img:not([hidden])) .ansbig.soft .ansbig-t{font-size:clamp(1.7rem,3vw,2.9rem)}
+  /* while answering there's no banner yet: the answers sit level with the picture */
+  #s-hquestion:has(#hq-img:not([hidden])):has(#hq-reveal[hidden]) #hq-answers{align-self:center;grid-row:4 / span 2}
 }
 .timerbar{width:100%;max-width:720px;height:12px;background:var(--veil);border-radius:var(--r-pill);overflow:hidden}
 .timerbar>div{height:100%;background:var(--c2);border-radius:var(--r-pill);width:100%}
@@ -480,6 +510,8 @@ button.answer:active{transform:translateY(4px) scale(.99);box-shadow:0 1px 0 rgb
 .answer.win{outline:5px solid #fff;transform:scale(1.03)}
 /* Multi (pick-all-that-apply): toggled options before locking in */
 button.answer.picked{outline:4px solid var(--ink);outline-offset:-4px;filter:brightness(1.12)}
+/* A one-pick question's chosen tile swaps its shape for a check */
+.answer .shape .ic{width:100%;height:100%;stroke:#fff;stroke-width:3.4;filter:drop-shadow(0 2px 2px rgba(0,0,0,.25))}
 
 /* ⚡ Double points: shimmering golden badge + pulsing edge glow on the
    question screens. Transform/background animations only, so the
@@ -632,6 +664,8 @@ button.answer.picked{outline:4px solid var(--ink);outline-offset:-4px;filter:bri
 .ansbig[hidden]{display:none}
 .qimg.ansimg{box-shadow:0 0 0 5px var(--c2),var(--shadow);animation:ansIn .5s .12s cubic-bezier(.2,1.2,.4,1) both}
 .pr-ansimg{max-height:30vh;margin-top:4px;box-shadow:0 0 0 4px var(--c2),var(--shadow)}
+/* tap-the-spot with an answer picture: two pictures share the phone */
+#pr-body:has(.tapwrap):has(.pr-ansimg:not([hidden])) :is(.pr-ansimg,.tapwrap.small img){max-height:19vh}
 .ansbig-t{font-family:var(--font-display);font-weight:800;font-size:clamp(2.4rem,6.5vw,5rem);line-height:1.05;text-wrap:balance}
 .ansbig-t .ic{width:.7em;height:.7em;margin-right:.2em;vertical-align:-.02em;stroke-width:2.8}
 .ansbig.long .ansbig-t{font-size:clamp(1.8rem,4.4vw,3.4rem)}
@@ -1655,8 +1689,9 @@ html.flare .sc-spooky .sc-face{fill:#fff2a8}
   <div class="center stack" style="gap:18px">
     <div class="hoststats" style="width:100%"><div class="timernum" id="pq-timer">20</div><div class="timerbar" style="flex:1"><div id="pq-timerbar"></div></div></div>
     <div class="row" style="justify-content:center"><div class="x2badge" id="pq-x2" style="display:none">2× Double points</div></div>
-    <div class="qtext" id="pq-text" style="font-size:clamp(1.15rem,4.5vw,1.7rem)"></div>
+    <div class="qtext" id="pq-text"></div>
     <img class="qimg" id="pq-img" alt="" hidden>
+    <p class="small muted" id="pq-pick-note" style="display:none;margin:0"></p>
     <div class="answers" id="pq-answers"></div>
     <div id="pq-locked" style="display:none" class="stack center">
       <div class="bigmark" id="pq-locked-mark"><i data-ic="timer"></i></div>
@@ -1796,12 +1831,22 @@ function fitHost(){
   // carries its votes), so the chart makes way before the picture shrinks
   const ansPic = imgs.some(i => i.classList.contains('ansimg') && i.getBoundingClientRect().height);
   if (!done() && revealed && ansPic && chart && chart.childElementCount){ chart.style.display = 'none'; x = over(); }
+  // Side by side, the picture only adds height where it's taller than what
+  // sits beside it (the banner and the results), so it never shrinks below
+  // that: making it smaller would gain nothing and just make it small
+  const side = getComputedStyle(stack).display === 'grid';
+  const beside = () => {
+    const a = $('hq-answers'), r = $('hq-reveal');
+    return a.getBoundingClientRect().height + (r.hidden ? 0 : r.getBoundingClientRect().height + (parseFloat(getComputedStyle(stack).rowGap) || 0));
+  };
   for (const img of imgs){
     if (done()) break;
     const h = img.getBoundingClientRect().height;
     if (!h) continue;                       // hidden or not loaded yet
     // the answer's picture is the point of the reveal, so it keeps more size
-    img.style.maxHeight = Math.max(revealed ? (img.classList.contains('ansimg') ? 170 : 100) : 150, Math.floor(h - x)) + 'px';
+    let floor = revealed ? (img.classList.contains('ansimg') ? 170 : 100) : 150;
+    if (side && img.id === 'hq-img') floor = Math.max(floor, Math.min(h, Math.floor(beside())));
+    img.style.maxHeight = Math.max(floor, Math.floor(h - x)) + 'px';
     x = over();
   }
   if (!done() && bars.length){
@@ -4278,9 +4323,6 @@ const Host = {
     await Sync.update(this.path('state'), { ...REVEAL_RESET, ansImg: q.ansImage ? Shots.resolve(q.ansImage) : null, phase: 'reveal', typed: !isCloud, cloud: isCloud, answerText: isCloud ? null : String(q.options[0]) });
   },
 
-  // Closest-guess reveal: rank everyone by distance to the target.
-  // Nearest band earns 1000, each band further earns proportionally less;
-  // equal guesses share the same band (and the same points).
   // Tap-the-spot: score is a hit or a miss against the author's tolerance,
   // then speed-scaled like a normal question. The big screen shows where
   // the whole room tapped, which is the point of the format.
@@ -4325,18 +4367,23 @@ const Host = {
     await Sync.update(this.path('state'), { ...REVEAL_RESET, ansImg: q.ansImage ? Shots.resolve(q.ansImage) : null, phase: 'reveal', spot: true, target: q.spot });
   },
 
+  // Closest-guess reveal: rank everyone by distance to the target. Equal
+  // guesses share a band; the nearest band earns full closeness, each band
+  // further proportionally less. Closeness is then speed-scaled like any
+  // answer, so a locked-in guess earns its speed bonus and one left in the
+  // box (timed at the buzzer) earns half.
   async revealClosest(q, answers){
     const entries = [];
     for (const pid of Object.keys(this.players)){
       const a = answers[pid];
-      if (a && Number.isFinite(Number(a.g))) entries.push({ pid, g: Number(a.g), d: closestDist(q, Number(a.g)) });
+      if (a && Number.isFinite(Number(a.g))) entries.push({ pid, g: Number(a.g), d: closestDist(q, Number(a.g)), e: Math.max(0, Number(a.e) || 0) });
     }
-    entries.sort((x, y) => x.d - y.d);
+    entries.sort((x, y) => x.d - y.d || x.e - y.e);
     let lastD = null, band = -1;
     entries.forEach(en => { if (en.d !== lastD){ band++; lastD = en.d; } en.band = band; });
     const bands = band + 1;
     const ptsBy = {};
-    entries.forEach(en => ptsBy[en.pid] = Math.round(1000 * (bands - en.band) / bands) * (q.x2 ? 2 : 1));
+    entries.forEach(en => ptsBy[en.pid] = Math.round(scoreFor(en.e, q.duration) * (bands - en.band) / bands) * (q.x2 ? 2 : 1));
 
     const updates = {};
     for (const [pid, p] of Object.entries(this.players)){
@@ -4844,9 +4891,14 @@ const Player = {
     $('pq-text').textContent = s.q.text;
     setQImage($('pq-img'), s.q.img);
     $('pq-x2').style.display = s.q.x2 ? '' : 'none';
-    document.getElementById('s-pquestion').classList.toggle('x2on', !!s.q.x2);
+    const scr = document.getElementById('s-pquestion');
+    scr.classList.toggle('x2on', !!s.q.x2);
+    // reading: the question takes the screen, with a quiet cue under it
+    scr.classList.add('reading');
+    scr.classList.toggle('qlong', String(s.q.text || '').length > 110);
     const grid = $('pq-answers');
     grid.style.display = 'none'; grid.innerHTML = '';
+    $('pq-pick-note').style.display = 'none';
     $('pq-locked-mark').innerHTML = ic('eye');
     $('pq-locked-title').textContent = 'Read the question';
     $('pq-locked-sub').textContent = 'Answers open in a moment.';
@@ -4874,8 +4926,10 @@ const Player = {
     setQImage($('pq-img'), s.q.type === 'spot' ? '' : s.q.img);
     $('pq-x2').style.display = s.q.x2 ? '' : 'none';
     document.getElementById('s-pquestion').classList.toggle('x2on', !!s.q.x2);
+    document.getElementById('s-pquestion').classList.remove('reading');
     if (s.q.x2) SFX.play('double'); // ⚡ the stakes just went up
     $('pq-locked').style.display = 'none';
+    $('pq-pick-note').style.display = 'none';
     const grid = $('pq-answers');
     grid.style.display = '';
     if (s.q.type === 'spot'){
@@ -4905,7 +4959,7 @@ const Player = {
       grid.innerHTML = `<div class="guessbox">
         <input type="number" step="any" inputmode="decimal" id="pq-guess" placeholder="123…" aria-label="Your guess">
         <button class="btn big" id="pq-guess-btn">Lock it in</button>
-        <p class="small muted">The closest guess scores most.</p>
+        <p class="small muted">The closest guess scores most. Lock it in for the speed bonus.</p>
       </div>`;
       const input = $('pq-guess');
       $('pq-guess-btn').onclick = () => this.answerGuess(input.value, s);
@@ -4956,7 +5010,15 @@ const Player = {
         this.answerMulti(picks, s);
       };
     } else {
+      // A tap is the answer, locked in with its time; tapping another
+      // switches it, at the later (slower) time, until answering closes.
+      // The note's room is kept from the start so the tiles never shift
+      // under a thumb when it appears.
       fillAnswers(grid, s.q.options, 'button');
+      const note = $('pq-pick-note');
+      note.textContent = s.q.type === 'poll' ? 'Vote in. Tap another to change it.'
+        : 'Locked in. You can still switch, but the clock keeps running.';
+      note.style.visibility = 'hidden'; note.style.display = '';
       grid.querySelectorAll('button.answer').forEach(btn => {
         btn.onclick = () => this.answer(Number(btn.dataset.i), s);
       });
@@ -4990,13 +5052,20 @@ const Player = {
     this.draft = null;
   },
 
+  // One-pick answer (quiz, poll): each pick replaces the last, speed
+  // included. Answering still closes once everyone has picked.
   answer(choice, s){
-    if (this.myAnswer !== null) return;
+    if (!this.qOpen || choice === this.myAnswer) return;
     this.myAnswer = choice;
     SFX.play('tap');
-    const elapsed = Math.min(s.q.duration, (Date.now() - this.receivedAt) / 1000);
-    Sync.set(this.path(`answers/${s.qIndex}/${this.id}`), { c: choice, e: Math.round(elapsed * 100) / 100 });
-    this.lockOut();
+    Sync.set(this.path(`answers/${s.qIndex}/${this.id}`), { c: choice, e: this.elapsed(s) });
+    $('pq-answers').querySelectorAll('button.answer').forEach(b => {
+      const i = Number(b.dataset.i), on = i === choice;
+      if (b.classList.contains('picked') === on) return;
+      b.classList.toggle('picked', on);
+      b.querySelector('.shape').innerHTML = on ? ic('check') : SHAPES[i % SHAPES.length];
+    });
+    $('pq-pick-note').style.visibility = '';
   },
 
   // Free-text answer (typed / cloud): payload carries t.
@@ -5063,6 +5132,7 @@ const Player = {
     $('pq-locked-sub').textContent = tap ? 'Your last tap counts. Watch the big screen.'
       : this.unlocked ? 'Your answer still counts. Watch the big screen.' : 'Watch the big screen.';
     $('pq-answers').style.display = 'none';
+    $('pq-pick-note').style.display = 'none';
     $('pq-locked').style.display = 'flex';
     if (this.stopTimer) this.stopTimer();
   },
@@ -5072,10 +5142,12 @@ const Player = {
     this.qOpen = false;
     this.flushDraft();      // the host closed answering before this phone's clock did
     if (this.stopTimer) this.stopTimer();
+    document.getElementById('s-pquestion').classList.remove('reading');
     $('pq-locked-mark').innerHTML = ic(s.cloud ? 'bubble' : s.poll ? 'chart' : 'timer');
     $('pq-locked-title').textContent = s.cloud ? CLOUD_LINE : s.poll ? POLL_LINE : (SUSPENSE_LINES[Number(s.line)] || SUSPENSE_LINES[0]);
     $('pq-locked-sub').textContent = 'Watch the big screen.';
     $('pq-answers').style.display = 'none';
+    $('pq-pick-note').style.display = 'none';
     $('pq-locked').style.display = 'flex';
     show('s-pquestion');
     SFX.play('drumroll');
@@ -5099,6 +5171,8 @@ const Player = {
     // double-points questions stamp scored reveals with a golden 2×
     const x2Tag = s.q && s.q.x2 && pts > 0
       ? '<div class="row" style="justify-content:center"><span class="x2badge" style="font-size:.9rem;padding:5px 16px">2× points</span></div>' : '';
+    // scored, but left in the box instead of locked in
+    const slow = this.unlocked && pts > 0 ? '<p class="small muted" style="margin:0">Not locked in, so no speed bonus.</p>' : '';
 
     if (s.poll){
       // Opinion poll: nobody scores; just confirm the vote landed
@@ -5130,7 +5204,7 @@ const Player = {
         <div class="bigmark${answered && off === 0 ? ' good' : ''}">${ic('target')}</div>
         <div class="anschip">${closestLabel(range)}</div>
         ${answered
-          ? `<p style="font-weight:700">You guessed ${Number(this.myAnswer).toLocaleString()}: ${off === 0 ? (isRange ? 'in range' : 'spot on') : 'off by ' + off.toLocaleString()}</p><div class="points-pop">+${pts.toLocaleString()}</div>${x2Tag}`
+          ? `<p style="font-weight:700">You guessed ${Number(this.myAnswer).toLocaleString()}: ${off === 0 ? (isRange ? 'in range' : 'spot on') : 'off by ' + off.toLocaleString()}</p><div class="points-pop">+${pts.toLocaleString()}</div>${slow}${x2Tag}`
           : `<div class="points-pop">+0</div><p class="muted">No guess this round.</p>`}`;
     } else if (s.cloud){
       // Word cloud: no scoring, just confirm their word made it up there
@@ -5148,7 +5222,7 @@ const Player = {
           <div class="bigmark good">${ic('check')}</div>
           <h1 class="display" style="font-size:2.2rem">Correct</h1>
           <p style="font-weight:700">“${esc(String(this.myAnswer))}”</p>
-          <div class="points-pop">+${pts.toLocaleString()}</div>${x2Tag}`
+          <div class="points-pop">+${pts.toLocaleString()}</div>${slow}${x2Tag}`
         : answered ? `
           <div class="bigmark">${ic('x')}</div>
           <h1 class="display" style="font-size:2.2rem">Not this time</h1>
@@ -5175,13 +5249,13 @@ const Player = {
           <div class="bigmark good">${ic('check')}</div>
           <h1 class="display" style="font-size:2.2rem">All ${corrects.length} right</h1>
           ${chip}
-          <div class="points-pop">+${pts.toLocaleString()}</div>${x2Tag}`
+          <div class="points-pop">+${pts.toLocaleString()}</div>${slow}${x2Tag}`
         : answered ? `
           <div class="bigmark">${ic(pts > 0 ? 'check' : 'x')}</div>
           <h1 class="display" style="font-size:2.2rem">${good} of ${corrects.length} right</h1>
           ${chip}
           ${bad ? `<p style="font-weight:700">${bad} wrong pick${bad === 1 ? '' : 's'} cost you points</p>` : ''}
-          <div class="points-pop">+${pts.toLocaleString()}</div>${x2Tag}`
+          <div class="points-pop">+${pts.toLocaleString()}</div>${slow}${x2Tag}`
         : `
           <div class="bigmark">${ic('timer')}</div>
           <h1 class="display" style="font-size:2.2rem">No answer</h1>
