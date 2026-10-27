@@ -439,27 +439,31 @@ details.docs-more summary{cursor:pointer;font-weight:700;color:var(--ui-mute)}
    the answers (or, at the reveal, the answer and the results) on the
    right, instead of stacking the picture between them, so the picture can
    be big. The banner joins the right column at the reveal, and the picture
-   spans its full height. Phones, and narrow or tall windows, keep the stack. */
+   spans its full height. Phones, and narrow or tall windows, keep the stack.
+   While a typed, word-cloud, closest or tap question is open there's only
+   a one-line hint for the right column, so the picture stays centred and
+   big with the hint under it, and moves aside at the reveal. */
+#s-hquestion:has(.bighint) #hq-img{max-width:min(100%,1100px);max-height:min(60vh,680px)}
 @media (min-width:860px) and (min-aspect-ratio:6/5){
-  #s-hquestion:has(#hq-img:not([hidden])) > .center.stack{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);
+  #s-hquestion:has(#hq-img:not([hidden])):not(:has(.bighint)) > .center.stack{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);
     grid-template-areas:"stats stats" "x2 x2" "q q" "pic reveal" "pic opts" "chart chart" "bar bar";
     column-gap:clamp(18px,3vw,44px);align-content:center;align-items:center;width:min(100%,max(1120px,150vh));margin-inline:auto}
-  #s-hquestion:has(#hq-img:not([hidden])) > .center.stack > *{justify-self:center}
-  #s-hquestion:has(#hq-img:not([hidden])) .hoststats{grid-area:stats}
-  #s-hquestion:has(#hq-img:not([hidden])) .row:has(> #hq-x2){grid-area:x2}
-  #s-hquestion:has(#hq-img:not([hidden])) .qtext{grid-area:q}
-  #s-hquestion:has(#hq-img:not([hidden])) #hq-reveal{grid-area:reveal;justify-self:stretch;align-self:end}
-  #s-hquestion:has(#hq-img:not([hidden])) #hq-img{grid-area:pic;justify-self:end;align-self:center;max-width:100%;max-height:min(64vh,640px)}
-  #s-hquestion:has(#hq-img:not([hidden])) #hq-answers{grid-area:opts;justify-self:stretch;align-self:start}
-  #s-hquestion:has(#hq-img:not([hidden])) #hq-answers:not(.many){grid-template-columns:1fr}
-  #s-hquestion:has(#hq-img:not([hidden])) #hq-chart{grid-area:chart}
-  #s-hquestion:has(#hq-img:not([hidden])) .hostbar{grid-area:bar}
+  #s-hquestion:has(#hq-img:not([hidden])):not(:has(.bighint)) > .center.stack > *{justify-self:center}
+  #s-hquestion:has(#hq-img:not([hidden])):not(:has(.bighint)) .hoststats{grid-area:stats}
+  #s-hquestion:has(#hq-img:not([hidden])):not(:has(.bighint)) .row:has(> #hq-x2){grid-area:x2}
+  #s-hquestion:has(#hq-img:not([hidden])):not(:has(.bighint)) .qtext{grid-area:q}
+  #s-hquestion:has(#hq-img:not([hidden])):not(:has(.bighint)) #hq-reveal{grid-area:reveal;justify-self:stretch;align-self:end}
+  #s-hquestion:has(#hq-img:not([hidden])):not(:has(.bighint)) #hq-img{grid-area:pic;justify-self:end;align-self:center;max-width:100%;max-height:min(64vh,640px)}
+  #s-hquestion:has(#hq-img:not([hidden])):not(:has(.bighint)) #hq-answers{grid-area:opts;justify-self:stretch;align-self:start}
+  #s-hquestion:has(#hq-img:not([hidden])):not(:has(.bighint)) #hq-answers:not(.many){grid-template-columns:1fr}
+  #s-hquestion:has(#hq-img:not([hidden])):not(:has(.bighint)) #hq-chart{grid-area:chart}
+  #s-hquestion:has(#hq-img:not([hidden])):not(:has(.bighint)) .hostbar{grid-area:bar}
   /* the banner is half as wide here, so its type scales with the column */
-  #s-hquestion:has(#hq-img:not([hidden])) .ansbig-t{font-size:clamp(1.9rem,3.6vw,3.4rem)}
-  #s-hquestion:has(#hq-img:not([hidden])) .ansbig.long .ansbig-t{font-size:clamp(1.5rem,2.6vw,2.5rem)}
-  #s-hquestion:has(#hq-img:not([hidden])) .ansbig.soft .ansbig-t{font-size:clamp(1.7rem,3vw,2.9rem)}
+  #s-hquestion:has(#hq-img:not([hidden])):not(:has(.bighint)) .ansbig-t{font-size:clamp(1.9rem,3.6vw,3.4rem)}
+  #s-hquestion:has(#hq-img:not([hidden])):not(:has(.bighint)) .ansbig.long .ansbig-t{font-size:clamp(1.5rem,2.6vw,2.5rem)}
+  #s-hquestion:has(#hq-img:not([hidden])):not(:has(.bighint)) .ansbig.soft .ansbig-t{font-size:clamp(1.7rem,3vw,2.9rem)}
   /* while answering there's no banner yet: the answers sit level with the picture */
-  #s-hquestion:has(#hq-img:not([hidden])):has(#hq-reveal[hidden]) #hq-answers{align-self:center;grid-row:4 / span 2}
+  #s-hquestion:has(#hq-img:not([hidden])):not(:has(.bighint)):has(#hq-reveal[hidden]) #hq-answers{align-self:center;grid-row:4 / span 2}
 }
 .timerbar{width:100%;max-width:720px;height:12px;background:var(--veil);border-radius:var(--r-pill);overflow:hidden}
 .timerbar>div{height:100%;background:var(--c2);border-radius:var(--r-pill);width:100%}
@@ -4083,7 +4087,7 @@ const Host = {
     }[q.type];
     if (bigHint){
       $('hq-answers').classList.remove('many');
-      $('hq-answers').innerHTML = `<p class="pulse" style="grid-column:1/-1;text-align:center;font-weight:700;font-size:1.25rem">${bigHint}</p>`;
+      $('hq-answers').innerHTML = `<p class="pulse bighint" style="grid-column:1/-1;text-align:center;font-weight:700;font-size:1.25rem">${bigHint}</p>`;
     } else {
       fillAnswers($('hq-answers'), q.options, 'div');
     }
