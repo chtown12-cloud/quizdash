@@ -68,7 +68,7 @@
   • Host device is the referee: keep the host tab open for the whole game.
 ═══════════════════════════════════════════════════════════════════════════════
 -->
-<html lang="en">
+<html lang="en" data-theme="classic">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -89,15 +89,17 @@
 <style>
 /* ── Theme tokens (rewritten live from the host's brand colors) ─────────── */
 :root{
-  --c1:#4F2CBD;            /* primary / stage background   */
-  --c2:#FFB800;            /* accent / CTA                 */
-  --c3:#FF4E6A;            /* answer color                 */
-  --c4:#19C6B2;            /* answer color                 */
-  --b0:#FFB800; --b1:#FF4E6A; --b2:#19C6B2; --b3:#7A5CFF; /* answer buttons */
-  --t0:#181026; --t1:#181026; --t2:#181026; --t3:#ffffff; /* text on answer buttons */
+  /* Classic's palette, so the first paint (before the script applies the
+     host's look) is already a real theme */
+  --c1:#1A2B6D;            /* primary / stage background   */
+  --c2:#FFC53D;            /* accent / CTA                 */
+  --c3:#F0434F;            /* answer color                 */
+  --c4:#1FB5A8;            /* answer color                 */
+  --b0:#FFC53D; --b1:#F0434F; --b2:#1FB5A8; --b3:#8D95B6; /* answer buttons */
+  --t0:#181026; --t1:#181026; --t2:#181026; --t3:#181026; /* text on answer buttons */
   --ink:#ffffff;           /* text on primary bg           */
-  --c1-deep:#3A1F8F;       /* darker shade of primary      */
-  --c1-soft:#6743D6;       /* lighter shade of primary     */
+  --c1-deep:#101B47;       /* darker shade of primary      */
+  --c1-soft:#2D3F8F;       /* lighter shade of primary     */
   --card:#ffffff;
   --card-ink:#1C1633;
   /* Shape and depth: three radii and two elevations. A theme restyles by
@@ -5869,6 +5871,11 @@ function updateScorePills(score){ ['pq-score','pr-score'].forEach(id => $(id).te
 /* ════════════════════════════════════════════════════════════════════════
    SETUP SCREEN WIRING + BOOT
    ═══════════════════════════════════════════════════════════════════════ */
+// The host's look (theme, colours, fonts), remembered on this device
+const LOOK_KEY = 'qd-look';
+function saveLook(){
+  try { localStorage.setItem(LOOK_KEY, JSON.stringify({ theme: $('theme-sel').value, colors: readColorInputs(), fonts: [$('font-display').value, $('font-body').value] })); } catch(e){}
+}
 function readColorInputs(){
   return [0,1,2,3].map(i => {
     const v = $('hex-' + i).value.trim();
@@ -6539,7 +6546,7 @@ function boot(){
   fillSel($('font-body'), BODY_FONTS);
   // start on the default theme's own pairing (the first in each list is just alphabetical history)
   [$('font-display').value, $('font-body').value] = themeFonts($('theme-sel').value);
-  const onFontChange = () => loadFonts([$('font-display').value, $('font-body').value]);
+  const onFontChange = () => { loadFonts([$('font-display').value, $('font-body').value]); saveLook(); };
   $('font-display').onchange = onFontChange;
   $('font-body').onchange = onFontChange;
 
@@ -6668,7 +6675,7 @@ function boot(){
   };
 
   // Setup: colors (picker <-> hex, live theme)
-  const refreshLook = () => applyLook(readColorInputs(), $('theme-sel').value);
+  const refreshLook = () => { applyLook(readColorInputs(), $('theme-sel').value); saveLook(); };
   $('theme-sel').onchange = () => {
     // a theme comes with its fonts; the pickers can still change them after
     const t = $('theme-sel').value, [fd, fb] = themeFonts(t);
@@ -6696,6 +6703,23 @@ function boot(){
     THEME_COLORS[$('theme-sel').value].forEach((c,i) => { $('hex-' + i).value = c; $('col-' + i).value = c; });
     refreshLook();
   };
+  // The front page and the editor wear the host's look from the start
+  // (Classic for a first visit), and the look they last chose comes back
+  // with them. Everything read back is whitelist-checked like the rest.
+  try {
+    const saved = JSON.parse(localStorage.getItem(LOOK_KEY) || 'null');
+    if (saved && typeof saved === 'object'){
+      if (THEMES.includes(saved.theme)) $('theme-sel').value = saved.theme;
+      (Array.isArray(saved.colors) ? saved.colors.slice(0, 4) : []).forEach((c, i) => {
+        if (/^#[0-9a-fA-F]{6}$/.test(c)){ $('hex-' + i).value = c.toUpperCase(); $('col-' + i).value = c; }
+      });
+      const [fd, fb] = Array.isArray(saved.fonts) ? saved.fonts : [];
+      if (DISPLAY_FONTS.some(f => f[0] === fd)) $('font-display').value = fd;
+      if (BODY_FONTS.some(f => f[0] === fb)) $('font-body').value = fb;
+    }
+  } catch(e){}
+  applyLook(readColorInputs(), $('theme-sel').value);
+  loadFonts([$('font-display').value, $('font-body').value]);
 
   $('btn-create').onclick = async () => {
     if ($('btn-create').dataset.empty){
