@@ -1212,16 +1212,65 @@ html[data-theme=deepsea] .bigmark{background:rgba(0,30,50,.4);color:#eafbff;box-
 html[data-theme=deepsea] .steps li{background:rgba(0,30,50,.55)}
 html[data-theme=deepsea] .pcol .pbar{border-radius:40px 40px 0 0}
 
+/* Outer Space — the view from a starship: console-panel tiles with cut
+   corners and coloured edges, a glowing HUD timer, mission-screen frames */
+html[data-theme=space]{--r-s:3px;--r-m:6px;--r-l:10px;--r-pill:999px;--ledge:none;--k:14px;
+  --cut:polygon(var(--k) 0,100% 0,100% calc(100% - var(--k)),calc(100% - var(--k)) 100%,0 100%,0 var(--k))}
+html[data-theme=space] body{background:radial-gradient(60% 50% at 12% 8%,color-mix(in srgb,var(--c3) 24%,transparent),transparent 70%),radial-gradient(55% 45% at 92% 34%,rgba(255,95,180,.12),transparent 70%),color-mix(in srgb,var(--c1) 90%,#000);background-attachment:fixed}
+html[data-theme=space] .answer{background:color-mix(in srgb,var(--c1) 70%,#000);color:#eef0ff;border:0;border-radius:0;clip-path:var(--cut);box-shadow:inset 0 0 0 2px var(--afg),inset 7px 0 0 var(--afg);font-weight:600}
+html[data-theme=space] .answer .shape{background:var(--ac);border-radius:3px;padding:5px}
+html[data-theme=space] .answer .shape svg{filter:none}
+html[data-theme=space] .answer.win{background:var(--ac);color:var(--at);box-shadow:inset 0 0 0 3px #fff}
+html[data-theme=space] .ansbig{clip-path:var(--cut);border-radius:0}
+html[data-theme=space] .btn{--k:10px;clip-path:var(--cut);border-radius:0}
+html[data-theme=space] .pill{background:rgba(5,6,22,.55);border:1px solid color-mix(in srgb,var(--c2) 50%,transparent);color:#eef0ff;backdrop-filter:none}
+html[data-theme=space] .roomcode{background:rgba(5,6,22,.6);border:2px solid var(--c2);color:var(--c2);border-radius:0;clip-path:var(--cut);text-shadow:0 0 20px color-mix(in srgb,var(--c2) 60%,transparent)}
+html[data-theme=space] .timernum{color:var(--c2);text-shadow:0 0 14px color-mix(in srgb,var(--c2) 55%,transparent)}
+html[data-theme=space] .timerbar{background:rgba(255,255,255,.08);height:8px;border-radius:0}
+html[data-theme=space] .timerbar>div{border-radius:0;box-shadow:0 0 12px var(--c2)}
+html[data-theme=space] .boardrow{background:color-mix(in srgb,var(--c1) 70%,#000);color:#eef0ff;border-radius:0;clip-path:var(--cut);box-shadow:inset 4px 0 0 var(--c2)}
+html[data-theme=space] .boardrow .rank{color:var(--c2)}
+html[data-theme=space] .chip{background:color-mix(in srgb,var(--c1) 70%,#000);color:#eef0ff;border:1px solid color-mix(in srgb,var(--c2) 45%,transparent)}
+html[data-theme=space] .demo{background:rgba(5,6,22,.5);border-color:color-mix(in srgb,var(--c2) 30%,transparent)}
+html[data-theme=space] .bigmark{background:rgba(5,6,22,.5);color:#eef0ff;box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--c2) 50%,transparent)}
+html[data-theme=space] .steps li{background:rgba(5,6,22,.6)}
+html[data-theme=space] .pcol .pbar{border-radius:0}
+
+/* Disco Night — a 70s dance floor: round tiles stacked on retro stripes,
+   a rainbow timer, gold frames, the mirror ball flaring at every reveal */
+html[data-theme=disco]{--r-s:12px;--r-m:26px;--r-l:30px;--r-pill:999px;--ledge:0 5px 0 rgba(0,0,0,.35)}
+html[data-theme=disco] body{background:radial-gradient(70% 50% at 50% -8%,color-mix(in srgb,var(--c3) 28%,transparent),transparent 70%),radial-gradient(90% 60% at 50% 120%,color-mix(in srgb,var(--c2) 16%,transparent),transparent 60%),color-mix(in srgb,var(--c1) 92%,#000);background-attachment:fixed}
+html[data-theme=disco] .answers{gap:20px 14px}
+html[data-theme=disco] .answer{border-radius:var(--r-m);box-shadow:0 5px 0 color-mix(in srgb,var(--ac) 62%,#000),0 10px 0 color-mix(in srgb,var(--ac) 30%,#12051f);font-weight:700}
+html[data-theme=disco] .answer .shape{background:rgba(255,255,255,.3);border-radius:50%;padding:5px}
+html[data-theme=disco] .answers .answer{animation-name:groove}
+@keyframes groove{from{opacity:0;transform:translateY(24px) rotate(-3deg) scale(.92)}60%{transform:rotate(1.5deg)}}
+html[data-theme=disco] .answer.win{outline:4px solid #fff4e6;outline-offset:4px;box-shadow:0 5px 0 color-mix(in srgb,var(--ac) 62%,#000),0 0 40px color-mix(in srgb,var(--ac) 70%,transparent)}
+html[data-theme=disco] .pill{background:rgba(18,5,31,.5);border:1.5px solid color-mix(in srgb,var(--c2) 60%,transparent);color:#fff4e6;backdrop-filter:none}
+html[data-theme=disco] .roomcode{background:rgba(18,5,31,.55);border:3px solid var(--c2);color:var(--c2);border-radius:999px;text-shadow:0 0 20px color-mix(in srgb,var(--c2) 60%,transparent);box-shadow:0 0 0 6px color-mix(in srgb,var(--c3) 45%,transparent)}
+html[data-theme=disco] .timernum{color:var(--c2)}
+html[data-theme=disco] .timerbar{background:rgba(18,5,31,.5);height:14px}
+html[data-theme=disco] .timerbar>div{background:linear-gradient(90deg,var(--c2),var(--c3),var(--c4))}
+html[data-theme=disco] .timerbar.low>div{background:#FF5A5F}
+html[data-theme=disco] .boardrow{background:color-mix(in srgb,var(--c1) 70%,#000);color:#fff4e6;border:1.5px solid color-mix(in srgb,var(--c2) 40%,transparent);border-radius:var(--r-pill)}
+html[data-theme=disco] .boardrow .rank{color:var(--c2)}
+html[data-theme=disco] .demo{background:rgba(18,5,31,.86);border-color:color-mix(in srgb,var(--c2) 35%,transparent)}
+html[data-theme=disco] .bigmark{background:rgba(18,5,31,.5);color:#fff4e6;box-shadow:0 0 0 3px color-mix(in srgb,var(--c2) 60%,transparent)}
+html[data-theme=disco] .steps li{background:rgba(18,5,31,.86)}
+html[data-theme=disco] .pcol .pbar{border-radius:var(--r-m) var(--r-m) 0 0}
+
 
 html:is([data-theme=classic],[data-theme=noir],[data-theme=arcade],[data-theme=terminal],[data-theme=spooky],[data-theme=blueprint],[data-theme=winter],[data-theme=deepsea]) .answer.dim{opacity:1;filter:brightness(.42) saturate(.45)}
 html[data-theme=terminal] .answer.dim{filter:brightness(.5)}
 /* …but where a tile is a bright colour with dark words, darkening the
    whole tile darkens the words with it. Those tiles take a dark tint of
    their own colour instead, with light words, so the losing answers (and
-   their vote counts) stay readable. Blueprint's line-drawn tiles just
-   soften their words. */
-html:is([data-theme=classic],[data-theme=arcade],[data-theme=winter],[data-theme=deepsea]) .answer.dim{filter:none;background:color-mix(in srgb,var(--ac) 30%,#0b1020);color:color-mix(in srgb,var(--ac) 25%,#fff)}
+   their vote counts) stay readable. Blueprint's line drawings and
+   Space's console panels soften their words (and Space its edges). */
+html:is([data-theme=classic],[data-theme=arcade],[data-theme=winter],[data-theme=deepsea],[data-theme=disco]) .answer.dim{filter:none;background:color-mix(in srgb,var(--ac) 30%,#0b1020);color:color-mix(in srgb,var(--ac) 25%,#fff)}
 html[data-theme=blueprint] .answer.dim{filter:none;color:color-mix(in srgb,#eaf3ff 78%,transparent)}
+html[data-theme=space] .answer.dim{opacity:1;filter:none;color:color-mix(in srgb,#eef0ff 64%,transparent);box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--afg) 32%,transparent),inset 7px 0 0 color-mix(in srgb,var(--afg) 32%,transparent)}
+html[data-theme=space] .answer.dim .shape{opacity:.4}
 /* …and on the paper ones it washes out, still opaque */
 html:is([data-theme=candy],[data-theme=doodle],[data-theme=brutalist]) .answer.dim{opacity:1;filter:grayscale(.8) contrast(.55) brightness(1.2)}
 
@@ -1229,7 +1278,7 @@ html:is([data-theme=candy],[data-theme=doodle],[data-theme=brutalist]) .answer.d
    bar floating over it, the save and aim dialogs) take that surface's ink.
    The dark-stage themes draw outlines in a light stage colour, which
    vanishes there; the paper themes' outlines already work on white. */
-html:is([data-theme=classic],[data-theme=blueprint],[data-theme=noir],[data-theme=arcade],[data-theme=terminal],[data-theme=spooky],[data-theme=winter],[data-theme=deepsea]) :is(.card,.createbar,.aimbox) .btn.ghost{background:var(--card);color:var(--card-ink);border:1.5px solid var(--card-ink);text-shadow:none}
+html:is([data-theme=classic],[data-theme=blueprint],[data-theme=noir],[data-theme=arcade],[data-theme=terminal],[data-theme=spooky],[data-theme=winter],[data-theme=deepsea],[data-theme=space],[data-theme=disco]) :is(.card,.createbar,.aimbox) .btn.ghost{background:var(--card);color:var(--card-ink);border:1.5px solid var(--card-ink);text-shadow:none}
 
 /* ── Pictures wear each theme's frame (question pictures, the answer's
    picture at the reveal, and tap-the-spot pictures) ─────────────────── */
@@ -1257,6 +1306,10 @@ html[data-theme=winter] .qimg{border:8px solid #f6f2ea;background:#f6f2ea;border
 html[data-theme=winter] .qimg:is(.ansimg,.pr-ansimg){border-color:var(--c2);background:var(--c2);box-shadow:0 0 50px color-mix(in srgb,var(--c2) 55%,transparent)}
 html[data-theme=deepsea] .qimg{border:7px solid #c9973f;border-radius:26px;box-shadow:0 0 0 3px #6e4a16,inset 0 0 0 2px rgba(255,255,255,.25),0 12px 30px rgba(0,0,0,.4)}
 html[data-theme=deepsea] .qimg:is(.ansimg,.pr-ansimg){border-color:#e9bd5a;box-shadow:0 0 0 3px #6e4a16,0 0 46px color-mix(in srgb,var(--c2) 55%,transparent)}
+html[data-theme=space] .qimg{--k:16px;clip-path:var(--cut);border-radius:0;padding:4px;background:color-mix(in srgb,var(--c2) 75%,#000);box-shadow:none}
+html[data-theme=space] .qimg:is(.ansimg,.pr-ansimg){padding:6px;background:var(--c2)}
+html[data-theme=disco] .qimg{border:6px solid var(--c2);border-radius:22px;box-shadow:0 0 0 4px color-mix(in srgb,var(--c3) 70%,#000),0 0 40px color-mix(in srgb,var(--c3) 40%,transparent)}
+html[data-theme=disco] .qimg:is(.ansimg,.pr-ansimg){box-shadow:0 0 0 4px var(--c3),0 0 60px color-mix(in srgb,var(--c2) 60%,transparent)}
 /* tap-the-spot pictures take a border only: padding would shift the dots */
 html[data-theme=classic] .tapwrap{box-shadow:0 0 0 3px #070b1d,0 0 0 6px color-mix(in srgb,var(--c2) 60%,transparent),var(--shadow)}
 html[data-theme=editorial] .tapwrap{border:1.5px solid #111;box-shadow:none}
@@ -1270,6 +1323,8 @@ html[data-theme=candy] .tapwrap{border:6px solid #fff;box-shadow:var(--clay)}
 html[data-theme=spooky] .tapwrap{border:3px solid color-mix(in srgb,var(--c2) 60%,#000);box-shadow:0 0 34px color-mix(in srgb,var(--c2) 28%,transparent)}
 html[data-theme=winter] .tapwrap{border:8px solid #f6f2ea;box-shadow:0 0 40px rgba(255,214,140,.22)}
 html[data-theme=deepsea] .tapwrap{border:7px solid #c9973f;border-radius:26px;box-shadow:0 0 0 3px #6e4a16,0 12px 30px rgba(0,0,0,.4)}
+html[data-theme=space] .tapwrap{--k:16px;clip-path:var(--cut);border:3px solid color-mix(in srgb,var(--c2) 75%,#000);border-radius:0;box-shadow:none}
+html[data-theme=disco] .tapwrap{border:6px solid var(--c2);border-radius:22px;box-shadow:0 0 0 4px color-mix(in srgb,var(--c3) 70%,#000)}
 
 /* ── SCENES ──────────────────────────────────────────────────────────────
    Each theme's world, drawn into one fixed layer behind every screen
@@ -1481,6 +1536,49 @@ html.flare .sc-deepsea .sc-burst i{animation:burst 1.7s cubic-bezier(.2,.6,.4,1)
 @keyframes whale{from{transform:translateX(110vw)}to{transform:translateX(-40vw)}}
 @media (max-width:600px){.sc-deepsea .sc-kelp{height:180px}.sc-deepsea .sc-jelly2,.sc-deepsea .sc-whale{display:none}.sc-deepsea .sc-ray{width:30vw}}
 
+/* Outer Space: the view from a starship */
+.sc-space .sc-stars{inset:0;background-repeat:repeat;animation:drift var(--dur) linear infinite}
+.sc-space .sc-st1{--dur:260s;opacity:.5}
+.sc-space .sc-st2{--dur:150s;opacity:.75}
+.sc-space .sc-st3{--dur:90s;animation:drift var(--dur) linear infinite,glimmer 3.4s ease-in-out infinite alternate}
+@keyframes drift{to{background-position:-400px 0}}
+@keyframes glimmer{to{opacity:.5}}
+.sc-space .sc-neb{inset:0;background:radial-gradient(38% 30% at 16% 18%,color-mix(in srgb,var(--c3) 20%,transparent),transparent 70%),radial-gradient(30% 26% at 84% 72%,rgba(255,95,180,.12),transparent 70%);animation:breathe 18s ease-in-out infinite alternate}
+@keyframes breathe{to{opacity:.5}}
+.sc-space .sc-planet{right:-7vw;bottom:-16vh;width:clamp(260px,50vh,500px);overflow:visible}
+.sc-space .sc-moon{left:5vw;top:13vh;width:clamp(34px,6vh,62px)}
+.sc-space .sc-sat{left:0;top:18vh;width:clamp(44px,5vw,72px);animation:sat 75s linear infinite;animation-delay:-22s}
+@keyframes sat{from{transform:translateX(-12vw) rotate(0)}to{transform:translateX(112vw) rotate(50deg)}}
+.sc-space .sc-shoot{left:16vw;top:9vh;width:170px;height:2px;border-radius:2px;background:linear-gradient(90deg,transparent,#fff);rotate:16deg;opacity:0;animation:shoot 11s ease-in infinite;animation-delay:-3s}
+.sc-space .sc-shoot2{left:58vw;top:5vh;animation-duration:17s;animation-delay:-11s}
+@keyframes shoot{0%,90%{opacity:0;transform:translateX(0)}92%{opacity:1}100%{opacity:0;transform:translateX(34vw)}}
+.sc-space .sc-rocket{left:0;top:76vh;width:clamp(70px,7vw,110px);opacity:0}
+html.flare .sc-space .sc-rocket{animation:rocket 1.8s cubic-bezier(.4,0,.7,1) both}
+@keyframes rocket{0%{opacity:1;transform:translate(-14vw,0) rotate(-24deg)}100%{opacity:1;transform:translate(116vw,-92vh) rotate(-24deg)}}
+.sc-space .sc-rocks{left:2vw;bottom:4vh;width:clamp(120px,15vw,210px);fill:color-mix(in srgb,var(--c1) 45%,#8a86a8)}
+@media (max-width:600px){.sc-space .sc-planet{width:230px;right:-60px;bottom:-70px}.sc-space :is(.sc-sat,.sc-rocks,.sc-moon){display:none}}
+
+/* Disco Night: the dance floor */
+.sc-disco .sc-sun70{left:-24vh;top:-24vh;width:76vh;height:76vh;border-radius:50%;opacity:.13;
+  background:repeating-conic-gradient(var(--c2) 0 6deg,transparent 6deg 18deg);
+  -webkit-mask-image:radial-gradient(closest-side,#000 35%,transparent);mask-image:radial-gradient(closest-side,#000 35%,transparent);animation:spin 90s linear infinite}
+@keyframes spin{to{rotate:360deg}}
+.sc-disco .sc-spots{left:calc(88vw - 120vmax);top:calc(12vh - 120vmax);width:240vmax;height:240vmax;background-repeat:repeat;mix-blend-mode:screen;opacity:.15;animation:spin 46s linear infinite;transition:opacity .3s}
+html.flare .sc-disco .sc-spots{opacity:.55}
+.sc-disco .sc-ball{right:calc(12vw - clamp(40px,6.5vh,64px));top:0;width:clamp(80px,13vh,128px);overflow:visible}
+.sc-disco .sc-facets{animation:facets 1.4s steps(5,end) infinite}
+@keyframes facets{to{transform:translateX(10px)}}
+.sc-disco .sc-glint{transform-box:fill-box;transform-origin:center;animation:glint var(--d) ease-in-out infinite alternate}
+@keyframes glint{from{opacity:.15;scale:.6}to{opacity:1;scale:1.15}}
+.sc-disco .sc-ballglow{opacity:.35;transition:opacity .3s}
+html.flare .sc-disco .sc-ballglow{opacity:1}
+html.flare .sc-disco .sc-glint{animation:none;opacity:1;scale:1.6}
+.sc-disco .sc-ground{height:clamp(70px,17vh,170px)}
+.sc-disco .sc-tile{animation:floor 1.84s steps(1,end) infinite;stroke:#12051f;stroke-width:3}
+@keyframes floor{0%{opacity:.78}50%{opacity:.2}}
+html.flare .sc-disco .sc-tile{animation:none;opacity:1;filter:brightness(1.3)}
+@media (max-width:600px){.sc-disco .sc-spots{opacity:.14}.sc-disco .sc-ground{height:90px}}
+
 /* ── Misc ───────────────────────────────────────────────────────────────── */
 .badge-online{display:inline-flex;align-items:center;gap:6px;font-size:.85rem;line-height:18px;font-weight:600;background:rgba(0,0,0,.25);border-radius:var(--r-pill);padding:6px 14px}
 .dot{width:9px;height:9px;border-radius:50%;background:#3DDC84}
@@ -1559,6 +1657,8 @@ html.flare .sc-deepsea .sc-burst i{animation:burst 1.7s cubic-bezier(.2,.6,.4,1)
         <option value="spooky">Halloween</option>
         <option value="winter">Winter Holidays</option>
         <option value="deepsea">Under the Sea</option>
+        <option value="space">Outer Space</option>
+        <option value="disco">Disco Night</option>
           </select>
         </div>
         <div class="lookgroup">
@@ -2322,17 +2422,19 @@ const THEME_COLORS = {
   candy:     ['#E9F5F0','#FF8A5B','#7A8CFF','#FFC94D'],
   spooky:    ['#1B1030','#FF7A1A','#7E3FD6','#B8F35E'],
   winter:    ['#13284A','#F4C04E','#C42F3E','#2E9E6E'],
-  deepsea:   ['#06395A','#3FE0C5','#FF7A5C','#FFD45E']
+  deepsea:   ['#06395A','#3FE0C5','#FF7A5C','#FFD45E'],
+  space:     ['#0D1033','#FF8A3D','#8E7BFF','#3FD8C2'],
+  disco:     ['#24103F','#FFB627','#FF4D9D','#16D1C1']
 };
 const DEFAULT_COLORS = THEME_COLORS.classic;
 
 /* Structural skins (see the THEMES CSS block). Colors and fonts from the
    pickers keep applying inside every theme. Whitelist-validated because
    the name travels through the database to players. */
-const THEMES = ['classic','editorial','doodle','brutalist','blueprint','noir','arcade','terminal','candy','spooky','winter','deepsea'];
+const THEMES = ['classic','editorial','doodle','brutalist','blueprint','noir','arcade','terminal','candy','spooky','winter','deepsea','space','disco'];
 /* Retired themes: rooms, links and saved choices that still name one get
    the closest current theme instead of falling back to classic. */
-const THEME_ALIASES = { nintendo:'arcade', aurora:'noir', vapor:'arcade', disco:'candy', stadium:'classic', western:'editorial' };
+const THEME_ALIASES = { nintendo:'arcade', aurora:'noir', vapor:'arcade', stadium:'classic', western:'editorial' };
 const themeId = t => THEMES.includes(t) ? t : THEME_ALIASES[t] || 'classic';
 let currentTheme = 'classic';
 function applyLook(colors, theme){
@@ -2355,7 +2457,7 @@ function applyLook(colors, theme){
     arcade: '#f2f6ff', terminal: tfg,
     doodle: '#1f2a44', editorial: '#111111', candy: '#3d3354',
     spooky: '#f2e9d8', blueprint: '#eaf3ff', noir: '#f5f5f5',
-    winter: '#f6f2ea', deepsea: '#eafbff',
+    winter: '#f6f2ea', deepsea: '#eafbff', space: '#eef0ff', disco: '#fff4e6',
     brutalist: '#000000'
   }[theme];
   if (ink) r.setProperty('--ink', ink);
@@ -2655,8 +2757,71 @@ const SCENES = {
         <path d="M760 128l5 10 11 2-8 7 2 11-10-5-10 5 2-11-8-7 11-2z" fill="#ffb35c" opacity=".8"/>
         <path class="sc-sand" d="M0 122Q260 102 540 116T1080 114T1600 110V160H0Z"/></svg>
       <div class="sc-burst">${burst}</div>`;
-  }
+  },
 
+  // Outer Space: the view from a starship. Three layers of stars drift
+  // past, a ringed planet hangs low on the right, a satellite tumbles by,
+  // now and then a shooting star, and at every reveal a rocket blasts across
+  space(){
+    const r = sceneRand(41);
+    const stars = (n, s, cols) => { let b = ''; for (let i = 0; i < n; i++) b += `<circle cx='${(r() * 400).toFixed(0)}' cy='${(r() * 400).toFixed(0)}' r='${(s * (.5 + r() * .8)).toFixed(1)}' fill='${cols[i % cols.length]}' opacity='${(.5 + r() * .5).toFixed(2)}'/>`; return svgTile(400, 400, b); };
+    return `<div class="sc-neb"></div>
+      <div class="sc-stars sc-st1" style="background-image:${stars(70, .9, ['#fff', '#cfd6ff'])}"></div>
+      <div class="sc-stars sc-st2" style="background-image:${stars(30, 1.4, ['#fff', '#ffe2c4', '#c9d4ff'])}"></div>
+      <div class="sc-stars sc-st3" style="background-image:${stars(12, 2, ['#fff'])}"></div>
+      <div class="sc-shoot"></div><div class="sc-shoot sc-shoot2"></div>
+      <svg class="sc-moon" viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="#cfd2e6"/><g fill="#a7abc6"><circle cx="21" cy="22" r="6"/><circle cx="38" cy="37" r="8"/><circle cx="37" cy="17" r="3"/><circle cx="19" cy="40" r="3.5"/></g><path d="M30 4a26 26 0 0 1 0 52a18 26 0 0 0 0-52z" fill="#0d1033" opacity=".28"/></svg>
+      <svg class="sc-sat" viewBox="0 0 80 40"><path d="M28 20h4M48 20h4M40 12V5" stroke="#d9dbe8" stroke-width="2"/><rect x="2" y="14" width="26" height="12" fill="#3f6fd6" stroke="#9fb6ff"/><path d="M10.7 14v12M19.3 14v12M60.7 14v12M69.3 14v12" stroke="#9fb6ff"/><rect x="52" y="14" width="26" height="12" fill="#3f6fd6" stroke="#9fb6ff"/><rect x="32" y="12" width="16" height="16" rx="2" fill="#d9dbe8"/><circle cx="40" cy="4" r="2.4" fill="#ff8a3d"/></svg>
+      <svg class="sc-planet" viewBox="0 0 400 400"><defs><radialGradient id="sc-pl" cx=".34" cy=".3" r=".78"><stop offset="0" stop-color="#ffc08a"/><stop offset=".45" stop-color="#d0607a"/><stop offset="1" stop-color="#2a1250"/></radialGradient>
+        <radialGradient id="sc-plglow"><stop offset=".6" stop-color="#ff7ab0" stop-opacity=".25"/><stop offset="1" stop-color="#ff7ab0" stop-opacity="0"/></radialGradient><clipPath id="sc-plc"><circle cx="200" cy="200" r="120"/></clipPath></defs>
+        <circle cx="200" cy="200" r="175" fill="url(#sc-plglow)"/>
+        <path transform="rotate(-18 200 200)" d="M36 200a164 36 0 0 1 328 0" fill="none" stroke="#c9b6ff" stroke-opacity=".5" stroke-width="12"/>
+        <circle cx="200" cy="200" r="120" fill="url(#sc-pl)"/>
+        <g clip-path="url(#sc-plc)" fill="#fff" opacity=".09"><ellipse cx="200" cy="158" rx="170" ry="10" transform="rotate(-18 200 200)"/><ellipse cx="200" cy="214" rx="170" ry="16" transform="rotate(-18 200 200)"/><ellipse cx="200" cy="262" rx="170" ry="8" transform="rotate(-18 200 200)"/></g>
+        <path transform="rotate(-18 200 200)" d="M36 200a164 36 0 0 0 328 0" fill="none" stroke="#e6dcff" stroke-opacity=".85" stroke-width="12"/></svg>
+      <svg class="sc-rocks" viewBox="0 0 220 90"><path d="M20 62l14-14 18 4 8 16-12 14-22-2z"/><path d="M100 72l8-10 12 2 4 10-10 8z"/><path d="M150 42l20-12 22 6 6 18-16 14-24-4z"/><path d="M70 30l6-6 8 2 2 7-7 5z"/></svg>
+      <svg class="sc-rocket" viewBox="0 0 122 48"><path d="M0 24C14 12 26 16 36 24C26 32 14 36 0 24Z" fill="#ffb347"/><path d="M12 24C20 19 28 21 34 24C28 27 20 29 12 24Z" fill="#fff3b0"/>
+        <path d="M40 14L30 2H50L58 14ZM40 34L30 46H50L58 34Z" fill="#ff8a3d"/><path d="M34 14H86C102 14 114 20 120 24C114 28 102 34 86 34H34Z" fill="#eef0ff"/><circle cx="84" cy="24" r="5.5" fill="#5ee7ff" stroke="#8e7bff" stroke-width="2.5"/></svg>`;
+  },
+
+  // Disco Night: a 70s dance floor. A mirror ball turns on its string and
+  // throws spots of light that wheel round the room, a sunburst glows in
+  // the corner, the floor's tiles light up in turn, and at every reveal
+  // the ball blazes and the whole floor lights at once
+  disco(){
+    const r = sceneRand(53);
+    const greys = ['#f4f4fa', '#c9c9d6', '#9a9ab0', '#e2e2ee', '#6e6e88', '#ffffff', '#d8d8e6', '#b4b4c6'];
+    let facets = '';
+    for (let y = 62; y < 158; y += 9) for (let x = -10; x < 110; x += 10){
+      const tint = r() < .07 ? ['#ff9ad0', '#8ff3ea', '#ffe08a'][Math.floor(r() * 3)] : greys[Math.floor(r() * greys.length)];
+      facets += `<rect x="${x}" y="${y}" width="9" height="8" fill="${tint}"/>`;
+    }
+    const glint = (x, y, s, d) => `<path class="sc-glint" style="--d:${d}s" d="M${x} ${y - s}L${x + s * .22} ${y - s * .22}L${x + s} ${y}L${x + s * .22} ${y + s * .22}L${x} ${y + s}L${x - s * .22} ${y + s * .22}L${x - s} ${y}L${x - s * .22} ${y - s * .22}Z" fill="#fff"/>`;
+    let dots = '';
+    const spotCols = ['#ffd45e', '#ff6fb4', '#5ef2e3', '#b892ff', '#ffffff'];
+    for (let i = 0; i < 18; i++) dots += `<circle cx='${(r() * 180).toFixed(0)}' cy='${(r() * 180).toFixed(0)}' r='${(2.5 + r() * 3.5).toFixed(1)}' fill='${spotCols[i % spotCols.length]}'/>`;
+    // the floor in perspective: rows of tiles narrowing towards the back
+    const cols = ['var(--c2)', 'var(--c3)', 'var(--c4)', '#9b5cff'];
+    const vx = 800, vy = -320, xAt = (x0, y) => vx + (x0 - vx) * (y - vy) / (240 - vy);
+    let floor = '';
+    [[56, 90], [90, 132], [132, 182], [182, 240]].forEach(([y1, y2], j) => {
+      for (let i = -15; i < 15; i++){
+        const a = 800 + i * 124, b = a + 124;
+        const d = `M${xAt(a, y1).toFixed(0)} ${y1}L${xAt(b, y1).toFixed(0)} ${y1}L${xAt(b, y2).toFixed(0)} ${y2}L${xAt(a, y2).toFixed(0)} ${y2}Z`;
+        floor += `<path class="sc-tile" style="fill:${cols[(i + j + 40) % 4]};animation-delay:-${((((i * 5 + j * 3) % 8) + 8) % 8 * .23).toFixed(2)}s" d="${d}"/>`;
+      }
+    });
+    return `<div class="sc-sun70"></div>
+      <div class="sc-spots" style="background-image:${svgTile(180, 180, dots)}"></div>
+      <svg class="sc-ground" viewBox="0 0 1600 240" preserveAspectRatio="xMidYMax slice"><rect y="50" width="1600" height="190" fill="#12051f"/>${floor}</svg>
+      <svg class="sc-ball" viewBox="0 0 100 160"><defs><clipPath id="sc-ballclip"><circle cx="50" cy="110" r="46"/></clipPath>
+        <radialGradient id="sc-ballshade" cx=".36" cy=".3" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".25"/><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".55"/></radialGradient>
+        <radialGradient id="sc-ballhalo"><stop offset=".35" stop-color="#fff2c4" stop-opacity=".55"/><stop offset="1" stop-color="#ff6fb4" stop-opacity="0"/></radialGradient></defs>
+        <circle class="sc-ballglow" cx="50" cy="110" r="95" fill="url(#sc-ballhalo)"/>
+        <path d="M50 0V64" stroke="#d9d9e6" stroke-width="1.5"/><rect x="45" y="60" width="10" height="6" rx="1" fill="#8a8aa0"/>
+        <g clip-path="url(#sc-ballclip)"><rect x="0" y="60" width="100" height="100" fill="#3a3a52"/><g class="sc-facets">${facets}</g><circle cx="50" cy="110" r="46" fill="url(#sc-ballshade)"/></g>
+        ${glint(32, 90, 9, 1.3)}${glint(64, 122, 7, 1.9)}${glint(44, 134, 5, 1.1)}${glint(70, 92, 5, 2.4)}</svg>`;
+  }
 };
 let sceneTheme = '';
 function renderScene(theme){
@@ -3306,6 +3471,21 @@ SFX.MUSIC = {
               harm:[null,null,null,6,null,null,null,null, null,null,null,null,null,7,null,null], harmOct:2, harmVol:.026, harmWave:'sine', harmLen:.14,
               drums:'......h.', drumVol:.014,
               arps:[[293.7,370,440,554.4],[246.9,293.7,370,440],[196,246.9,293.7,370],[220,277.2,329.6,440]] },
+  // Floating, wide-open chords, a slow pulse, and high echoes answering
+  space:    { ms:300, wave:'sine', vol:.075, len:.6, bassWave:'triangle', bassVol:.07,
+              bass:[65.4,55,43.7,49],
+              riff:[0,1,2,3, 2,null,4,null, 3,2,1,null, 0,null,null,null, 1,2,3,4, 5,null,4,null, 3,null,2,1, 0,null,null,null],
+              harm:[null,0,null,null,null,2,null,null], harmOct:2, harmVol:.024, harmWave:'sine', harmLen:.9,
+              drums:'k.......', drumVol:.03,
+              arps:[[261.6,329.6,370,493.9],[220,246.9,329.6,392],[174.6,220,261.6,329.6],[196,246.9,293.7,329.6]] },
+  // Four on the floor, offbeat hats, a clap on two and four, octave-jumping bass
+  disco:    { ms:230, wave:'sawtooth', vol:.035, len:.16, bassWave:'sawtooth', bassVol:.055,
+              bass:[110,146.8,98,130.8],
+              bassPat:[1,null,2,null,1,null,2,1], bassLen:.18,
+              riff:[null,0,null,2, null,1,3,null, null,0,null,2, 4,null,3,null, null,2,null,4, null,3,5,null, 4,null,3,null, 2,null,1,null],
+              harm:[2,null,null,null,null,null,null,null], harmOct:.5, harmVol:.03, harmWave:'triangle', harmLen:1.6,
+              drums:'khkhkhkh', drumVol:.05, drums2:'..s...s.', drums2Vol:.04,
+              arps:[[220,261.6,329.6,392],[293.7,349.2,440,523.3],[196,246.9,293.7,349.2],[261.6,329.6,392,493.9]] },
   // Precise sonar pings on a drafting-table pulse
   blueprint:{ ms:230, wave:'square', vol:.03, len:.06, bassWave:'sine', bassVol:.07,
               bass:[98,110,130.8,87.3],
@@ -3352,6 +3532,10 @@ SFX.startMusic = function(theme){
       if (m.drums){
         const d = m.drums[step % m.drums.length];
         if (d && d !== '.') this.drum(d, at, m.drumVol || .05);
+      }
+      if (m.drums2){   // a second line on the same steps (claps over a kick)
+        const d = m.drums2[step % m.drums2.length];
+        if (d && d !== '.') this.drum(d, at, m.drums2Vol || .04);
       }
     }
     step++;
@@ -3418,7 +3602,8 @@ const DISPLAY_FONTS = [
   ['Bodoni Moda',   'Bodoni+Moda:wght@400;700;800'],
   ['Silkscreen',    'Silkscreen:wght@400;700'],
   ['Grenze',        'Grenze:wght@400;600;800'],
-  ['Fraunces',      'Fraunces:opsz,wght@9..144,400..900']
+  ['Fraunces',      'Fraunces:opsz,wght@9..144,400..900'],
+  ['Exo 2',         'Exo+2:wght@400;600;800']
 ];
 const BODY_FONTS = [
   ['Inter',      'Inter:wght@400;500;600;700'],
@@ -3451,7 +3636,9 @@ const THEME_FONTS = {
   candy:     ['Fredoka', 'Nunito'],
   spooky:    ['Grenze', 'Nunito'],
   winter:    ['Fraunces', 'Nunito'],
-  deepsea:   ['Baloo 2', 'Quicksand']
+  deepsea:   ['Baloo 2', 'Quicksand'],
+  space:     ['Exo 2', 'Space Grotesk'],
+  disco:     ['Righteous', 'Poppins']
 };
 const themeFonts = t => THEME_FONTS[themeId(t)];
 // Warm the browser up with a pairing before it's shown: the stylesheet plus
