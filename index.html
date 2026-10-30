@@ -1348,6 +1348,16 @@ html[data-theme=disco] .tapwrap{border:6px solid var(--c2);border-radius:22px;bo
    anything that moves moves slowly, and html.flare marks the reveal.
    ───────────────────────────────────────────────────────────────────── */
 #scene{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+/* Anything that travels (a satellite, a rocket, bubbles, clouds, a witch,
+   a whale) keeps to the edges, the top band or the floor, never through
+   the question. For what fills the whole stage (snow, rain, light), words
+   that sit straight on the stage carry a soft halo in the backing colour:
+   invisible on the plain stage, it only shows where scenery passes behind
+   a word, so nothing drifting by can cut into the letters. Zero
+   specificity, so a theme's own deliberate shadow still wins. */
+:where(.qtext,.drum,.hero,.lede,.bighint,h1.display,h2.display,.count-badge,.points-pop,.timernum,.pulse):not(:where(.card *)){
+  --halo:color-mix(in srgb,var(--ink-back,rgba(16,10,36,.7)) 72%,transparent);
+  text-shadow:0 0 2px var(--halo),0 0 10px var(--halo),0 0 22px var(--halo)}
 #scene>*{position:absolute}
 #scene .sc-ground{left:0;bottom:0;width:100%;height:clamp(90px,20vh,200px)}
 @media (max-width:600px){#scene .sc-wide{display:none}}
@@ -1535,7 +1545,7 @@ html.flare .sc-deepsea .sc-ray{opacity:.95;filter:brightness(1.5)}
 .sc-deepsea .sc-burst i{position:absolute;left:var(--x);bottom:0;width:var(--s);height:var(--s);border-radius:50%;border:2px solid rgba(220,250,255,.75);
   background:radial-gradient(circle at 32% 30%,rgba(255,255,255,.7) 0 18%,transparent 60%);opacity:0}
 html.flare .sc-deepsea .sc-burst i{animation:burst 1.7s cubic-bezier(.2,.6,.4,1) var(--delay) both}
-@keyframes burst{0%{opacity:0;transform:translateY(0)}10%{opacity:1}100%{opacity:0;transform:translateY(-70vh)}}
+@keyframes burst{0%{opacity:0;transform:translateY(0)}10%{opacity:1}100%{opacity:0;transform:translateY(-32vh)}}
 .sc-deepsea .sc-kelp{bottom:0;height:clamp(200px,60vh,560px);width:auto;overflow:visible}
 .sc-deepsea .sc-kelp-l{left:-10px}
 .sc-deepsea .sc-kelp-r{right:-10px;transform:scaleX(-1)}
@@ -1548,7 +1558,7 @@ html.flare .sc-deepsea .sc-burst i{animation:burst 1.7s cubic-bezier(.2,.6,.4,1)
 .sc-deepsea .sc-jelly{right:9vw;top:20vh;width:clamp(48px,6vw,86px);animation:jelly 9s ease-in-out infinite alternate}
 .sc-deepsea .sc-jelly2{right:18vw;top:44vh;width:clamp(32px,4vw,58px);animation-duration:12s;animation-delay:-4s}
 @keyframes jelly{from{transform:translateY(14px)}to{transform:translateY(-26px)}}
-.sc-deepsea .sc-whale{left:0;top:24vh;width:clamp(180px,22vw,320px);opacity:.16;fill:#02131f;animation:whale 95s linear infinite;animation-delay:-60s}
+.sc-deepsea .sc-whale{left:0;top:70vh;width:clamp(150px,18vw,260px);opacity:.16;fill:#02131f;animation:whale 95s linear infinite;animation-delay:-60s}
 @keyframes whale{from{transform:translateX(110vw)}to{transform:translateX(-40vw)}}
 @media (max-width:600px){.sc-deepsea .sc-kelp{height:180px}.sc-deepsea .sc-jelly2,.sc-deepsea .sc-whale{display:none}.sc-deepsea .sc-ray{width:30vw}}
 
@@ -1563,14 +1573,14 @@ html.flare .sc-deepsea .sc-burst i{animation:burst 1.7s cubic-bezier(.2,.6,.4,1)
 @keyframes breathe{to{opacity:.5}}
 .sc-space .sc-planet{right:-7vw;bottom:-16vh;width:clamp(260px,50vh,500px);overflow:visible}
 .sc-space .sc-moon{left:5vw;top:13vh;width:clamp(34px,6vh,62px)}
-.sc-space .sc-sat{left:0;top:18vh;width:clamp(44px,5vw,72px);animation:sat 75s linear infinite;animation-delay:-22s}
+.sc-space .sc-sat{left:0;top:clamp(2px,1vh,10px);width:clamp(44px,5vw,72px);animation:sat 75s linear infinite;animation-delay:-22s}
 @keyframes sat{from{transform:translateX(-12vw) rotate(0)}to{transform:translateX(112vw) rotate(50deg)}}
-.sc-space .sc-shoot{left:16vw;top:9vh;width:170px;height:2px;border-radius:2px;background:linear-gradient(90deg,transparent,#fff);rotate:16deg;opacity:0;animation:shoot 11s ease-in infinite;animation-delay:-3s}
-.sc-space .sc-shoot2{left:58vw;top:5vh;animation-duration:17s;animation-delay:-11s}
-@keyframes shoot{0%,90%{opacity:0;transform:translateX(0)}92%{opacity:1}100%{opacity:0;transform:translateX(34vw)}}
-.sc-space .sc-rocket{left:0;top:76vh;width:clamp(70px,7vw,110px);opacity:0}
+.sc-space .sc-shoot{left:1vw;top:9vh;width:120px;height:2px;border-radius:2px;background:linear-gradient(90deg,transparent,#fff);rotate:-18deg;opacity:0;animation:shoot 11s ease-in infinite;animation-delay:-3s}
+.sc-space .sc-shoot2{left:86vw;top:7vh;animation-duration:17s;animation-delay:-11s}
+@keyframes shoot{0%,90%{opacity:0;transform:translateX(0)}92%{opacity:1}100%{opacity:0;transform:translateX(9vw)}}
+.sc-space .sc-rocket{left:0;top:88vh;width:clamp(70px,7vw,110px);opacity:0}
 html.flare .sc-space .sc-rocket{animation:rocket 1.8s cubic-bezier(.4,0,.7,1) both}
-@keyframes rocket{0%{opacity:1;transform:translate(-14vw,0) rotate(-24deg)}100%{opacity:1;transform:translate(116vw,-92vh) rotate(-24deg)}}
+@keyframes rocket{0%{opacity:1;transform:translate(-14vw,0) rotate(-5deg)}100%{opacity:1;transform:translate(116vw,-12vh) rotate(-5deg)}}
 .sc-space .sc-rocks{left:2vw;bottom:4vh;width:clamp(120px,15vw,210px);fill:color-mix(in srgb,var(--c1) 45%,#8a86a8)}
 @media (max-width:600px){.sc-space .sc-planet{width:230px;right:-60px;bottom:-70px}.sc-space :is(.sc-sat,.sc-rocks,.sc-moon){display:none}}
 
@@ -2647,7 +2657,7 @@ const SCENES = {
     const cloud = '<svg viewBox="0 0 200 90"><path d="M30 80a28 28 0 0 1 4-55a34 34 0 0 1 62-12a30 30 0 0 1 52 10a26 26 0 0 1 22 57z" fill="#fff"/><path d="M30 80h140a26 26 0 0 0 6-12H24a28 28 0 0 0 6 12z" fill="#000" opacity=".06"/></svg>';
     const lolly = (x, y, s, c) => `<g class="sc-lolly" transform="translate(${x} ${y}) scale(${s})"><rect x="-4" y="-6" width="8" height="70" rx="4" fill="#fff"/><circle cy="-26" r="30" fill="${c}"/><path d="M0-26m-20 0a20 20 0 0 1 40 0a14 14 0 0 1-28 0a8 8 0 0 1 16 0" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" opacity=".8"/><circle cx="-10" cy="-38" r="6" fill="#fff" opacity=".55"/></g>`;
     return `<div class="sc-sun"></div>
-      <div class="sc-cloud" style="top:9vh;--dur:110s;--delay:-30s">${cloud}</div><div class="sc-cloud" style="top:22vh;--dur:150s;--delay:-95s;scale:.7">${cloud}</div><div class="sc-cloud" style="top:4vh;--dur:130s;--delay:-70s;scale:.55">${cloud}</div>
+      <div class="sc-cloud" style="top:1vh;--dur:110s;--delay:-30s;scale:.8">${cloud}</div><div class="sc-cloud" style="top:-2vh;--dur:150s;--delay:-95s;scale:.62">${cloud}</div><div class="sc-cloud" style="top:4vh;--dur:130s;--delay:-70s;scale:.5">${cloud}</div>
       <svg class="sc-ground" viewBox="0 0 1600 240" preserveAspectRatio="xMidYMax slice">
         <path d="M0 120Q180 40 380 96T780 92T1180 110T1600 70V240H0Z" fill="#d9ccff"/><path d="M0 120Q180 40 380 96T780 92T1180 110T1600 70" fill="none" stroke="#fff" stroke-width="5" opacity=".6"/>
         ${lolly(300, 120, .9, '#ff8fb1')}${lolly(1320, 112, .8, '#7ad8ff')}
