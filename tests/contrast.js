@@ -68,7 +68,7 @@ const ONLY = process.argv[2] ? process.argv[2].split(',') : null;
     }
   };
   await host.waitForTimeout(800);
-  await check(host, 'landing', ['.steps li', '.hero', 'p.lede', '.badge-online']);
+  await check(host, 'landing', ['.steps li', '.hero', 'p.lede', '.badge-online', '#s-landing .topbar .logo']);
   await host.click('#btn-go-host'); await host.click('#tab-write');
   await host.fill('#quiz-input', `# Contrast | 60s | read 0s\n\n## Which planet is known as the Red Planet?\n- Venus\n- Mars *\n- Jupiter\n- Saturn\n\n## Second?\n- A *\n- B\n`);
   await host.waitForTimeout(400);
