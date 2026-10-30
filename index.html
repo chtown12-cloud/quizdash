@@ -276,6 +276,14 @@ textarea.quizbox{min-height:230px;font-family:ui-monospace,SFMono-Regular,Menlo,
 .savebox .row{justify-content:flex-end;gap:8px}
 .savebox .btn{font-size:1rem;padding:11px 18px}
 .savebox .btn.ghost{color:var(--card-ink);border-color:var(--ui-line-strong)}
+/* Look & feel is easy to miss above the questions, so its card wears a
+   slowly turning rainbow edge (a still one where motion is reduced, or
+   where the browser can't animate the angle). It outranks each theme's
+   own card edge, Doodle's hand-drawn one included. */
+@property --spin{syntax:'<angle>';inherits:false;initial-value:0deg}
+#s-setup .card.lookcard{border:4px solid transparent;background:linear-gradient(var(--card),var(--card)) padding-box,conic-gradient(from var(--spin),#ff5a5f,#ffb84d,#ffe14d,#4dd97a,#4db8ff,#9b6bff,#ff4dd2,#ff5a5f) border-box;animation:rainbowspin 5s linear infinite}
+#s-setup .card.lookcard::before{display:none}
+@keyframes rainbowspin{to{--spin:360deg}}
 .lookbox>summary{cursor:pointer;font-size:1rem;color:var(--card-ink);padding:4px 0;list-style:none}
 .lookbox>summary::-webkit-details-marker{display:none}
 .lookbox>summary::before{content:"▸ ";opacity:.6}
@@ -1643,7 +1651,7 @@ html.flare .sc-disco .sc-tile{animation:none;opacity:1;filter:brightness(1.3)}
 <section class="screen" id="s-setup">
   <div class="topbar"><div class="logo"><i data-ic="bolt"></i>QuizDash</div><div class="spacer"></div><button class="btn ghost" style="padding:8px 16px" onclick="show('s-landing')">← Back</button></div>
   <div class="wrap-wide stack" style="gap:18px">
-    <div class="card stack">
+    <div class="card stack lookcard">
       <details class="lookbox"><summary><b>1 · Look &amp; feel</b> <span class="muted">Theme, colours and fonts</span></summary>
       <div class="lookbody">
         <div class="lookhead">
