@@ -1,8 +1,9 @@
-// Moving scenery never crosses the question. Every animation in the scene
-// is stepped through its whole cycle (reveal-only ones too), and anything
-// that travels (a satellite, shooting stars, a rocket, bubbles, a whale, a
-// witch) is checked against the question's lines of text, on the big
-// screen at three sizes and on a phone.
+// Moving scenery never crosses the question (passing behind the answers is
+// fine). Every animation in the scene is stepped through its whole cycle
+// (reveal-only ones too, wherever a reveal can happen), and anything that
+// travels (a satellite, shooting stars, a rocket, bubbles, a whale, a
+// witch, clouds) is checked against the question's lines of text, on the
+// big screen at several sizes and on phones.
 const { chromium } = require('playwright');
 const ok = (c, m) => console.log((c ? 'PASS ' : 'FAIL ') + m);
 const MOVERS = '.sc-sat, .sc-shoot, .sc-rocket, .sc-burst i, .sc-whale, .sc-witch, .sc-cloud';
@@ -28,11 +29,11 @@ const MOVERS = '.sc-sat, .sc-shoot, .sc-rocket, .sc-burst i, .sc-whale, .sc-witc
   // In the page: step every scene animation through 120 points of its
   // cycle, at rest and during a reveal, and report any travelling piece of
   // scenery whose box meets a line of the question
-  const sweep = (pg, textSel) => pg.evaluate(([textSel, MOVERS]) => {
+  const sweep = (pg, textSel, flares) => pg.evaluate(([textSel, MOVERS, flares]) => {
     const range = document.createRange(); range.selectNodeContents(document.querySelector(textSel));
     const lines = [...range.getClientRects()].filter(r => r.width > 4).map(r => ({ l: r.left - 6, r: r.right + 6, t: r.top - 6, b: r.bottom + 6 }));
     const hits = new Set();
-    for (const flare of [false, true]){
+    for (const flare of flares){
       document.documentElement.classList.toggle('flare', flare);
       const anims = document.getAnimations().filter(a => a.effect && a.effect.target && a.effect.target.closest && a.effect.target.closest('#scene'));
       anims.forEach(a => a.pause());
@@ -50,23 +51,24 @@ const MOVERS = '.sc-sat, .sc-shoot, .sc-rocket, .sc-burst i, .sc-whale, .sc-witc
     }
     document.documentElement.classList.remove('flare');
     return [...hits];
-  }, [textSel, MOVERS]);
-  const run = async (pg, sel, label, sizes) => {
+  }, [textSel, MOVERS, flares]);
+  const run = async (pg, sel, label, sizes, flares = [false, true]) => {
     await pg.bringToFront();
     for (const [w, h] of sizes){
       await pg.setViewportSize({ width: w, height: h }); await pg.waitForTimeout(250);
       if (pg === host) await host.evaluate(() => typeof fitHost === 'function' && fitHost());
       for (const t of THEMES){
         await pg.evaluate(t => applyLook(THEME_COLORS[t], t), t); await pg.waitForTimeout(100);
-        const hits = await sweep(pg, sel);
+        const hits = await sweep(pg, sel, flares);
         ok(!hits.length, `${label} ${w}x${h} ${t}: nothing moving crosses the question${hits.length ? ' — ' + hits.join(', ') : ''}`);
       }
     }
   };
-  // while everyone reads (the question big and centred)…
+  // while everyone reads (the question big and centred; no reveal comes
+  // before the answers are up)…
   await phone.waitForSelector('#s-pquestion.active.reading');
-  await run(host, '#hq-text', 'reading', [[1000, 600], [1280, 720]]);
-  await run(phone, '#pq-text', 'phone reading', [[390, 844]]);
+  await run(host, '#hq-text', 'reading', [[1000, 600], [1280, 720], [1920, 1080]], [false]);
+  await run(phone, '#pq-text', 'phone reading', [[390, 844]], [false]);
   await host.bringToFront(); await host.setViewportSize({ width: 1280, height: 720 });
   await host.click('#btn-hq-skip');
   // …while answering…
@@ -75,7 +77,10 @@ const MOVERS = '.sc-sat, .sc-shoot, .sc-rocket, .sc-burst i, .sc-whale, .sc-witc
   await run(phone, '#pq-text', 'phone answering', [[390, 844], [360, 640]]);
   await host.bringToFront(); await host.setViewportSize({ width: 1280, height: 720 });
   await host.click('#btn-hq-skip'); await host.waitForSelector('#btn-hq-next', { state: 'visible', timeout: 20000 });
-  await host.waitForTimeout(500); await host.click('#btn-hq-next'); await host.waitForTimeout(600);
+  // …at the reveal…
+  await host.waitForTimeout(500);
+  await run(host, '#hq-text', 'revealed', [[1000, 600], [1280, 720], [1920, 1080]]);
+  await host.setViewportSize({ width: 1280, height: 720 }); await host.click('#btn-hq-next'); await host.waitForTimeout(600);
   if (await host.$('#s-hboard.active')){ await host.waitForTimeout(700); await host.click('#btn-hb-next'); }
   // …and with a big picture, where the question sits near the top
   await host.waitForSelector('#hq-answers .bighint'); await host.waitForFunction(() => !document.getElementById('hq-img').hidden); await host.waitForTimeout(600);
