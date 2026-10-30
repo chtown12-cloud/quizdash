@@ -22,6 +22,20 @@ const ok = (c, m) => console.log((c ? 'PASS ' : 'FAIL ') + m);
   });
   ok(order.lookFirst && order.above && /^1 · Look & feel/.test(order.look) && order.qh.includes('2 · Your questions'), `Look & feel on top: "${order.look}", then ${JSON.stringify(order.qh)}`);
   await host.screenshot({ path: __dirname + '/out/setup-top.png' });
+  // …and it wears a turning rainbow edge in every theme, so it can't be missed
+  const rainbow = await host.evaluate(async () => {
+    const card = document.querySelector('.card.lookcard'), out = [];
+    for (const t of THEMES){
+      applyLook(THEME_COLORS[t], t);
+      const cs = getComputedStyle(card), a = cs.getPropertyValue('--spin');
+      await new Promise(r => setTimeout(r, 250));
+      const b = getComputedStyle(card).getPropertyValue('--spin');
+      if (!(cs.borderTopWidth === '4px' && /conic-gradient/.test(cs.backgroundImage) && a !== b)) out.push(`${t}: ${cs.borderTopWidth} ${cs.backgroundImage.slice(0, 30)} ${a}→${b}`);
+    }
+    applyLook(THEME_COLORS.classic, 'classic');
+    return out;
+  });
+  ok(!rainbow.length, 'Look & feel wears a turning rainbow edge in every theme' + (rainbow.length ? ': ' + rainbow.join('; ') : ''));
 
   // 1. add below / duplicate from the card itself
   const texts = () => host.$$eval('#qlist .qcard [data-text]', ins => ins.map(i => i.value));
