@@ -308,6 +308,11 @@ textarea.quizbox{min-height:230px;font-family:ui-monospace,SFMono-Regular,Menlo,
 .btn.ghost.cardghost{color:var(--card-ink);border-color:var(--ui-line-strong)}
 .qcard select.qtype{flex:0 1 auto;min-width:0;width:auto;padding:6px 8px;font-size:.85rem;border:1.5px solid var(--ui-line);border-radius:var(--r-m);background:var(--ui-field);color:var(--card-ink);font-family:inherit}
 .qcard-tools{margin-left:auto;display:flex;gap:2px;flex:none}
+/* under every card, so adding one never means scrolling to the bottom */
+.qcard-foot{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;padding-top:10px;border-top:1px dashed var(--ui-line-soft)}
+.qcard-foot .ic{width:1em;height:1em;vertical-align:-.15em}
+.qcard.fresh{animation:freshCard 1.4s ease-out}
+@keyframes freshCard{from{box-shadow:0 0 0 4px color-mix(in srgb,var(--c1) 45%,transparent),var(--elev-1)}}
 .qtime{flex:none;display:inline-flex;align-items:center;gap:4px;border:1.5px solid var(--ui-line);border-radius:var(--r-m);background:var(--ui-field);padding:0 9px;height:34px;font-size:.82rem;color:var(--ui-mute);cursor:text}
 .qtime-i{display:flex}.qtime-i .ic{width:15px;height:15px}
 /* one focus ring, on the chip — not a second box drawn around the number */
@@ -1423,7 +1428,52 @@ html.flare .sc-spooky .sc-face{fill:#fff2a8}
   <div class="topbar"><div class="logo"><i data-ic="bolt"></i>QuizDash</div><div class="spacer"></div><button class="btn ghost" style="padding:8px 16px" onclick="show('s-landing')">← Back</button></div>
   <div class="wrap-wide stack" style="gap:18px">
     <div class="card stack">
-      <div><h2>1 · Your questions</h2><p class="hint" style="margin-top:0">Build it question by question, or paste a whole quiz in Markdown. <b>Quizzes aren't stored online.</b> Download keeps a copy you can open again anywhere.</p></div>
+      <details class="lookbox"><summary><b>1 · Look &amp; feel</b> <span class="muted">Theme, colours and fonts</span></summary>
+      <div class="lookbody">
+        <div class="lookhead">
+          <p class="hint">The page restyles as you go, and players' phones get the same look.</p>
+          <button type="button" class="qmini lucky" id="btn-random" title="Random colour palette and font pairing">Surprise me</button>
+        </div>
+        <div class="lookgroup">
+          <label class="lookgroup-h" for="theme-sel">Theme</label>
+          <select class="fontsel" id="theme-sel">
+        <option value="classic">Classic</option>
+        <option value="editorial">Editorial</option>
+        <option value="doodle">Doodle</option>
+        <option value="brutalist">Poster</option>
+        <option value="blueprint">Blueprint</option>
+        <option value="noir">Film Noir</option>
+        <option value="arcade">Arcade</option>
+        <option value="terminal">Terminal</option>
+        <option value="candy">Candy</option>
+        <option value="spooky">Halloween</option>
+          </select>
+        </div>
+        <div class="lookgroup">
+          <span class="lookgroup-h">Fonts</span>
+          <div class="lookpair">
+            <div class="field"><label for="font-display">Headings</label><select class="fontsel" id="font-display"></select></div>
+            <div class="field"><label for="font-body">Body text</label><select class="fontsel" id="font-body"></select></div>
+          </div>
+        </div>
+        <div class="lookgroup">
+          <span class="lookgroup-h">Colours</span>
+          <div class="colors">
+            <div class="color-slot"><input type="color" id="col-0" value="#1A2B6D" aria-label="Background colour"><div><span class="role">Background</span><input type="text" id="hex-0" value="#1A2B6D" maxlength="7" aria-label="Color 1 hex"></div></div>
+            <div class="color-slot"><input type="color" id="col-1" value="#FFC53D" aria-label="Accent colour"><div><span class="role">Accent &amp; buttons</span><input type="text" id="hex-1" value="#FFC53D" maxlength="7" aria-label="Color 2 hex"></div></div>
+            <div class="color-slot"><input type="color" id="col-2" value="#F0434F" aria-label="Answer colour 3"><div><span class="role">Answers <i>optional</i></span><input type="text" id="hex-2" value="#F0434F" maxlength="7" aria-label="Color 3 hex"></div></div>
+            <div class="color-slot"><input type="color" id="col-3" value="#1FB5A8" aria-label="Answer colour 4"><div><span class="role">Answers <i>optional</i></span><input type="text" id="hex-3" value="#1FB5A8" maxlength="7" aria-label="Color 4 hex"></div></div>
+          </div>
+          <div class="qrow">
+            <button type="button" class="qmini" id="btn-derive" title="Only have 2 colours? Make the answer colours from the accent">Fill answers from my 2 colours</button>
+            <button type="button" class="qmini" id="btn-resetcols">Reset colours</button>
+          </div>
+        </div>
+      </div></details>
+    </div>
+
+    <div class="card stack">
+      <div><h2>2 · Your questions</h2><p class="hint" style="margin-top:0">Build it question by question, or paste a whole quiz in Markdown. <b>Quizzes aren't stored online.</b> Download keeps a copy you can open again anywhere.</p></div>
       <div class="modebar">
         <div class="modetabs" role="tablist">
           <button type="button" class="modetab on" id="tab-build" role="tab">Build</button>
@@ -1516,50 +1566,6 @@ html.flare .sc-spooky .sc-face{fill:#fff2a8}
       <div class="okbox" id="parse-ok"></div>
     </div>
 
-    <div class="card stack">
-      <details class="lookbox"><summary><b>2 · Look &amp; feel</b> <span class="muted">Theme, colours and fonts</span></summary>
-      <div class="lookbody">
-        <div class="lookhead">
-          <p class="hint">The page restyles as you go, and players' phones get the same look.</p>
-          <button type="button" class="qmini lucky" id="btn-random" title="Random colour palette and font pairing">Surprise me</button>
-        </div>
-        <div class="lookgroup">
-          <label class="lookgroup-h" for="theme-sel">Theme</label>
-          <select class="fontsel" id="theme-sel">
-        <option value="classic">Classic</option>
-        <option value="editorial">Editorial</option>
-        <option value="doodle">Doodle</option>
-        <option value="brutalist">Poster</option>
-        <option value="blueprint">Blueprint</option>
-        <option value="noir">Film Noir</option>
-        <option value="arcade">Arcade</option>
-        <option value="terminal">Terminal</option>
-        <option value="candy">Candy</option>
-        <option value="spooky">Halloween</option>
-          </select>
-        </div>
-        <div class="lookgroup">
-          <span class="lookgroup-h">Fonts</span>
-          <div class="lookpair">
-            <div class="field"><label for="font-display">Headings</label><select class="fontsel" id="font-display"></select></div>
-            <div class="field"><label for="font-body">Body text</label><select class="fontsel" id="font-body"></select></div>
-          </div>
-        </div>
-        <div class="lookgroup">
-          <span class="lookgroup-h">Colours</span>
-          <div class="colors">
-            <div class="color-slot"><input type="color" id="col-0" value="#1A2B6D" aria-label="Background colour"><div><span class="role">Background</span><input type="text" id="hex-0" value="#1A2B6D" maxlength="7" aria-label="Color 1 hex"></div></div>
-            <div class="color-slot"><input type="color" id="col-1" value="#FFC53D" aria-label="Accent colour"><div><span class="role">Accent &amp; buttons</span><input type="text" id="hex-1" value="#FFC53D" maxlength="7" aria-label="Color 2 hex"></div></div>
-            <div class="color-slot"><input type="color" id="col-2" value="#F0434F" aria-label="Answer colour 3"><div><span class="role">Answers <i>optional</i></span><input type="text" id="hex-2" value="#F0434F" maxlength="7" aria-label="Color 3 hex"></div></div>
-            <div class="color-slot"><input type="color" id="col-3" value="#1FB5A8" aria-label="Answer colour 4"><div><span class="role">Answers <i>optional</i></span><input type="text" id="hex-3" value="#1FB5A8" maxlength="7" aria-label="Color 4 hex"></div></div>
-          </div>
-          <div class="qrow">
-            <button type="button" class="qmini" id="btn-derive" title="Only have 2 colours? Make the answer colours from the accent">Fill answers from my 2 colours</button>
-            <button type="button" class="qmini" id="btn-resetcols">Reset colours</button>
-          </div>
-        </div>
-      </div></details>
-    </div>
 
     <div class="errbox" id="create-err"></div>
     <!-- pinned to the bottom so a long quiz never hides the way forward -->
@@ -3848,6 +3854,7 @@ const Host = {
     // Lobby UI
     $('hlobby-title').textContent = parsed.title;
     $('hlobby-code').textContent = this.room;
+    homeLabels(this.testRun);
     const base = location.href.split('?')[0].split('#')[0].replace(/index\.html?$/, '');
     const isFile = location.protocol === 'file:';
     const link = isFile ? '(open this same file in another tab)' : base + '?room=' + this.room;
@@ -5393,6 +5400,8 @@ const Player = {
 let homeArmedAt = 0;
 async function goHome(){
   SFX.stopMusic();
+  // a test run ends back at the questions, on the one it reached
+  const backToEdit = !!(Host.room && Host.testRun), reached = Host.qIndex;
   if (Host.room){
     const gameDone = document.getElementById('s-hpodium').classList.contains('active');
     // Only real phones warrant the confirmation — 🧪 test players are the host's own
@@ -5430,7 +5439,27 @@ async function goHome(){
     sessionStorage.removeItem('qd-pid-' + Player.room);
     Player.room = null; Player.lastKey = ''; Player.myAnswer = null;
   }
+  homeLabels(false);
+  if (backToEdit){
+    Host.testRun = false;
+    show('s-setup');
+    if (reached >= 0 && !$('build-pane').hidden){
+      // the game's questions skip blank cards, so count only filled ones
+      const filled = Builder.qs.map((q, j) => j).filter(j => !Builder.isBlank(Builder.qs[j]));
+      if (filled[reached] !== undefined) requestAnimationFrame(() => Builder.reveal(filled[reached]));
+    }
+    return;
+  }
   show('s-landing');
+}
+// During a test run every Home button reads as the way back to editing
+function homeLabels(test){
+  document.querySelectorAll('[onclick="goHome()"]').forEach(b => {
+    if (!b.dataset.home) b.dataset.home = b.textContent.trim();
+    const label = test ? 'Back to editing' : 'Home';
+    if (b.classList.contains('iconly')){ b.title = label; b.setAttribute('aria-label', label); }
+    else if (b.dataset.home === 'Home') b.textContent = label;
+  });
 }
 
 function ordinal(n){ const s = ['th','st','nd','rd'], v = n % 100; return n + (s[(v-20)%10] || s[v] || s[0]); }
@@ -5659,6 +5688,10 @@ const Builder = {
           : `<button type="button" class="qmini" data-addans>Add answer picture</button>
              <span class="qhint" style="margin:0">stays hidden until the answer is revealed</span>`}
       </div>
+      <div class="qcard-foot">
+        <button type="button" class="qmini" data-addbelow>+ Add question below</button>
+        <button type="button" class="qmini" data-dup>${ic('copy')} Duplicate</button>
+      </div>
     </div>`).join('');
     this.wire(list);
     this.grip(list);
@@ -5725,6 +5758,19 @@ const Builder = {
     }));
   },
 
+  // Bring a card into view with a brief glow (a new or copied card, or the
+  // one a test run ended on); type straight into it when it's new
+  reveal(i, type){
+    const card = document.querySelector(`#qlist .qcard[data-q="${i}"]`);
+    if (!card) return;
+    card.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    card.classList.remove('fresh'); void card.offsetWidth; card.classList.add('fresh');
+    const done = () => card.classList.remove('fresh');
+    card.addEventListener('animationend', done, { once: true });
+    card.addEventListener('animationcancel', done, { once: true });
+    if (type){ const t = card.querySelector('[data-text]'); if (t) t.focus({ preventScroll: true }); }
+  },
+
   wire(list){
     list.querySelectorAll('.qcard').forEach(card => {
       const i = Number(card.dataset.q), q = this.qs[i];
@@ -5780,7 +5826,8 @@ const Builder = {
       on('[data-x2]', 'click', () => { q.x2 = !q.x2; restructure(); });
       on('[data-up]', 'click', () => { if (i) { this.qs.splice(i - 1, 0, this.qs.splice(i, 1)[0]); restructure(); } });
       on('[data-down]', 'click', () => { if (i < this.qs.length - 1) { this.qs.splice(i + 1, 0, this.qs.splice(i, 1)[0]); restructure(); } });
-      on('[data-dup]', 'click', () => { this.qs.splice(i + 1, 0, JSON.parse(JSON.stringify(q))); restructure(); });
+      on('[data-dup]', 'click', () => { this.qs.splice(i + 1, 0, JSON.parse(JSON.stringify(q))); restructure(); this.reveal(i + 1); });
+      on('[data-addbelow]', 'click', () => { this.qs.splice(i + 1, 0, this.blank()); restructure(); this.reveal(i + 1, true); });
       on('[data-del]', 'click', () => {
         const gone = this.qs.splice(i, 1)[0];
         if (!this.qs.length) this.qs = [this.blank()];
