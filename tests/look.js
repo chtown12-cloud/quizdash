@@ -1,5 +1,6 @@
-// The front page wears a real theme from the first visit, and the host's
-// chosen look (theme, colours, fonts) comes back after a reload
+// The front page wears a real theme from the first visit, the host's
+// chosen look (theme, colours, fonts) comes back after a reload, and
+// whatever colours a theme is given, its words still read
 const { chromium } = require('playwright');
 const ok = (c, m) => console.log((c ? 'PASS ' : 'FAIL ') + m);
 (async () => {
@@ -35,6 +36,48 @@ const ok = (c, m) => console.log((c ? 'PASS ' : 'FAIL ') + m);
   await pg.reload(); await pg.waitForTimeout(600);
   s = await state();
   ok(s.theme === surprise.theme && s.font === surprise.font && s.hex1 === surprise.hex1, `a Surprise me look comes back whole (${s.theme}, ${s.font}, ${s.hex1})`);
+  // Surprise me pairs a dark palette with any theme; a pale theme keeps a
+  // pale page (tinted by the colour) and the front page's words still read
+  const words = () => pg.evaluate(() => {
+    const parse = c => {
+      let m = c.match(/^rgba?\(([^)]+)\)/);
+      if (m){ const p = m[1].split(/[ ,/]+/).filter(Boolean).map(Number); return [p[0], p[1], p[2], p.length > 3 ? p[3] : 1]; }
+      m = c.match(/^color\(srgb ([^)]+)\)/);
+      const p = m[1].split(/[ /]+/).filter(Boolean).map(Number); return [p[0] * 255, p[1] * 255, p[2] * 255, p.length > 3 ? p[3] : 1];
+    };
+    const over = (top, bot, a = top[3]) => [0, 1, 2].map(i => top[i] * a + bot[i] * (1 - a));
+    const lum = c => { const f = v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; }; return .2126 * f(c[0]) + .7152 * f(c[1]) + .0722 * f(c[2]); };
+    const ratio = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05); };
+    const stage = parse(getComputedStyle(document.body).backgroundColor);
+    // text colour and opacity, both laid over the stage
+    return Math.min(...['.hero', '#s-landing p.muted'].map(q => { const el = document.querySelector(q), cs = getComputedStyle(el); return ratio(over(over(parse(cs.color), stage), stage, Number(cs.opacity)), stage); }));
+  });
+  const seen = new Set(); let worst = 99, worstAt = '', notes = 0, notesRight = true;
+  await pg.click('#btn-go-host'); await openLook();
+  for (let i = 0; i < 30; i++){
+    await pg.click('#btn-random'); await pg.waitForTimeout(60);
+    const r = await pg.evaluate(() => ({ t: $('theme-sel').value, picked: readColorInputs()[0], stage: getComputedStyle(document.documentElement).getPropertyValue('--c1').trim(), note: !$('col-fit').hidden }));
+    seen.add(r.t);
+    await pg.evaluate(() => show('s-landing')); await pg.waitForTimeout(60);
+    const w = await words(); if (w < worst){ worst = w; worstAt = `${r.t} ${r.picked}`; }
+    const moved = r.stage.toUpperCase() !== r.picked.toUpperCase();
+    if (moved) notes++;
+    if (r.note !== moved) notesRight = false;
+    await pg.click('#btn-go-host');
+  }
+  ok(worst >= 4.5, `30 presses of Surprise me (${seen.size} themes): the front page's words always read (lowest ${worst.toFixed(2)}:1, ${worstAt})`);
+  ok(notesRight && notes > 0, `Look & feel says so exactly when a theme tints the background instead (${notes} of 30)`);
+  // …and every pairing Surprise me can make, not just the ones it happened to
+  let all = 99, allAt = '';
+  for (const [t, pal] of await pg.evaluate(() => THEMES.flatMap(t => PALETTES.map(p => [t, p])))){
+    await pg.evaluate(([t, pal]) => applyLook(pal, t), [t, pal]);
+    const w = await words(); if (w < all){ all = w; allAt = `${t} ${pal[0]}`; }
+  }
+  ok(all >= 4.5, `every curated palette in every theme: the front page's words read (lowest ${all.toFixed(2)}:1, ${allAt})`);
+  await pg.evaluate(() => localStorage.setItem('qd-look', JSON.stringify({ theme: 'doodle', colors: ['#03045E', '#FFD60A', '#F72585', '#00F5D4'], fonts: ['Kalam', 'Nunito'] })));
+  await pg.reload(); await pg.waitForTimeout(600);
+  const navy = await words();
+  ok(navy >= 4.5, `a saved navy Doodle reads on the front page (${navy.toFixed(2)}:1)`);
   // anything tampered with falls back to Classic
   await pg.evaluate(() => localStorage.setItem('qd-look', JSON.stringify({ theme: 'evil<script>', colors: ['javascript:alert(1)', 42], fonts: ['<b>x</b>', null] })));
   await pg.reload(); await pg.waitForTimeout(600);

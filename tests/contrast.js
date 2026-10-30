@@ -1,6 +1,9 @@
 // Text contrast in every theme: real text against the real background it
 // sits on, on the landing page, lobby, question, reveal, leaderboard and a
-// phone. 4.5:1 for body text, 3:1 for large headings (WCAG AA).
+// phone. 4.5:1 for body text, 3:1 for large headings (WCAG AA). Each theme
+// is checked in its own colours and again recoloured to the other end of
+// the scale (a navy Doodle, a pale Outer Space), as Surprise me or the
+// colour pickers can leave it.
 const { chromium } = require('playwright');
 const ok = (c, m) => console.log((c ? 'PASS ' : 'FAIL ') + m);
 const ONLY = process.argv[2] ? process.argv[2].split(',') : null;
@@ -56,11 +59,16 @@ const ONLY = process.argv[2] ? process.argv[2].split(',') : null;
     }
     return out;
   }, sels);
-  const look = async (pg, t) => { await pg.evaluate(t => applyLook(THEME_COLORS[t], t), t); await pg.waitForTimeout(150); };
+  // the other end of the scale: Surprise me's navy palette for a pale
+  // theme, Editorial's paper and inks for a dark one
+  const DARK = ['#03045E', '#FFD60A', '#F72585', '#00F5D4'], PALE = ['#F5F6F4', '#D62718', '#1D4ED8', '#0F7B5F'];
+  const LOOKS = await host.evaluate(([themes, DARK, PALE]) => themes.flatMap(t => [[t, THEME_COLORS[t], t], [t + ' (recoloured)', luminance(THEME_COLORS[t][0]) > .5 ? DARK : PALE, t]]), [THEMES, DARK, PALE]);
+  const look = async (pg, [, colors, t]) => { await pg.evaluate(([c, t]) => applyLook(c, t), [colors, t]); await pg.waitForTimeout(150); };
   const check = async (pg, screen, sels) => {
     await pg.bringToFront();
-    for (const t of THEMES){
-      await look(pg, t);
+    for (const lk of LOOKS){
+      const t = lk[0];
+      await look(pg, lk);
       const rs = await measure(pg, sels);
       const bad = rs.filter(x => x.r < x.need);
       const worst = rs.reduce((a, b) => (b.r / b.need < a.r / a.need ? b : a), rs[0] || { r: 0, need: 1, sel: 'nothing measured' });
@@ -68,7 +76,7 @@ const ONLY = process.argv[2] ? process.argv[2].split(',') : null;
     }
   };
   await host.waitForTimeout(800);
-  await check(host, 'landing', ['.steps li', '.hero', 'p.lede', '.badge-online', '#s-landing .topbar .logo']);
+  await check(host, 'landing', ['.steps li', '.hero', '#s-landing p.muted', '.badge-online', '#s-landing .topbar .logo']);
   await host.click('#btn-go-host'); await host.click('#tab-write');
   await host.fill('#quiz-input', `# Contrast | 60s | read 0s\n\n## Which planet is known as the Red Planet?\n- Venus\n- Mars *\n- Jupiter\n- Saturn\n\n## Second?\n- A *\n- B\n`);
   await host.waitForTimeout(400);

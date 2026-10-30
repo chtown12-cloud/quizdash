@@ -832,8 +832,8 @@ html[data-theme=classic] .pill{background:rgba(0,0,0,.28);border-color:rgba(255,
 html[data-theme=classic] .roomcode{background:#070b1d;border:3px solid var(--c2);color:var(--c2);box-shadow:0 0 0 8px rgba(0,0,0,.25),0 0 40px color-mix(in srgb,var(--c2) 25%,transparent)}
 html[data-theme=classic] .timerbar{height:14px;border-radius:var(--r-s);background:rgba(0,0,0,.35);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
 html[data-theme=classic] .timerbar>div{border-radius:var(--r-s)}
-html[data-theme=classic] .timernum{color:var(--c2)}
-html[data-theme=classic] .boardrow{background:color-mix(in srgb,var(--c1) 55%,#03061a);color:#fff;border:1px solid rgba(255,255,255,.12);box-shadow:var(--ledge)}
+html[data-theme=classic] .timernum{color:var(--tfg)}
+html[data-theme=classic] .boardrow{background:color-mix(in srgb,var(--c1) 42%,#03061a);color:#fff;border:1px solid rgba(255,255,255,.12);box-shadow:var(--ledge)}
 html[data-theme=classic] .boardrow .rank{color:var(--c2)}
 html[data-theme=classic] .chip{border-radius:var(--r-s)}
 html[data-theme=classic] .demo{background:rgba(0,0,0,.28);border-color:rgba(255,255,255,.12)}
@@ -859,7 +859,7 @@ html[data-theme=editorial] .demo-body{gap:0}
 html[data-theme=editorial] .answer .dist{font-variant-numeric:tabular-nums}
 html[data-theme=editorial] .answer .tick{background:#111;color:#fff;border-radius:0}
 html[data-theme=editorial] .answer.win{outline:0;transform:none;background:color-mix(in srgb,var(--c2) 9%,transparent);box-shadow:inset 6px 0 0 var(--c2)}
-html[data-theme=editorial] .answer.dim{opacity:.5;filter:none}
+html[data-theme=editorial] .answer.dim{opacity:.62;filter:none}
 html[data-theme=editorial] button.answer.picked{outline:0;background:color-mix(in srgb,#111 8%,transparent);box-shadow:inset 6px 0 0 #111}
 html[data-theme=editorial] .pill{background:transparent;border:1.5px solid #111;color:#111;backdrop-filter:none}
 html[data-theme=editorial] .roomcode{background:#fff;border:2px solid #111;color:#111;letter-spacing:.3em}
@@ -1178,8 +1178,8 @@ html[data-theme=spooky] .answer:is(.a3,.a7){--tilt:-.6deg}
 html[data-theme=spooky] .answer.win{outline:3px solid #f6ecdc;outline-offset:4px;background:var(--ac);color:var(--at)}
 html[data-theme=spooky] .answer.dim{opacity:.4}
 html[data-theme=spooky] .pill{background:rgba(0,0,0,.35);border:1.5px solid color-mix(in srgb,var(--c2) 60%,transparent);color:#f6ecdc;backdrop-filter:none}
-html[data-theme=spooky] .roomcode{background:rgba(0,0,0,.4);border:2px solid var(--c2);color:var(--c2);text-shadow:0 0 18px color-mix(in srgb,var(--c2) 55%,transparent)}
-html[data-theme=spooky] .timernum{color:var(--c2)}
+html[data-theme=spooky] .roomcode{background:rgba(0,0,0,.4);border:2px solid var(--c2);color:var(--tfg);text-shadow:0 0 18px color-mix(in srgb,var(--c2) 55%,transparent)}
+html[data-theme=spooky] .timernum{color:var(--tfg)}
 html[data-theme=spooky] .timerbar{background:rgba(0,0,0,.35);height:12px}
 html[data-theme=spooky] .boardrow{background:color-mix(in srgb,var(--c1) 70%,#000);color:#f6ecdc;border:1.5px solid color-mix(in srgb,var(--c2) 45%,transparent)}
 html[data-theme=spooky] .boardrow .rank{color:var(--c2)}
@@ -1197,7 +1197,7 @@ html[data-theme=winter] .answer .shape{background:rgba(255,255,255,.22);border-r
 html[data-theme=winter] .answer.win{outline:4px solid #fff6d8;outline-offset:3px;box-shadow:inset 0 5px 0 rgba(255,255,255,.5),0 0 34px color-mix(in srgb,var(--c2) 70%,transparent)}
 html[data-theme=winter] .pill{background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.28);color:#f6f2ea;backdrop-filter:none}
 html[data-theme=winter] .roomcode{background:rgba(6,14,32,.5);border:2px solid #f6f2ea;color:#fff;text-shadow:0 0 18px color-mix(in srgb,var(--c2) 60%,transparent)}
-html[data-theme=winter] .timernum{color:var(--c2)}
+html[data-theme=winter] .timernum{color:var(--tfg)}
 html[data-theme=winter] .timerbar{background:rgba(255,255,255,.14);height:13px}
 html[data-theme=winter] .timerbar>div{background:repeating-linear-gradient(-45deg,var(--c3) 0 10px,#fff6ec 10px 20px)}
 html[data-theme=winter] .timerbar.low>div{background:#FF5A5F}
@@ -1218,8 +1218,8 @@ html[data-theme=deepsea] .answers .answer{animation-name:bob}
 @keyframes bob{from{opacity:0;transform:translateY(40px) scale(.94)}70%{transform:translateY(-4px)}}
 html[data-theme=deepsea] .answer.win{outline:4px solid #eafbff;outline-offset:3px;box-shadow:0 0 36px color-mix(in srgb,var(--c2) 70%,transparent)}
 html[data-theme=deepsea] .pill{background:rgba(0,30,50,.35);border:1.5px solid color-mix(in srgb,var(--c2) 55%,transparent);color:#eafbff;backdrop-filter:none}
-html[data-theme=deepsea] .roomcode{background:rgba(0,30,50,.45);border:2px solid var(--c2);color:var(--c2);border-radius:999px;text-shadow:0 0 18px color-mix(in srgb,var(--c2) 50%,transparent)}
-html[data-theme=deepsea] .timernum{color:var(--c2)}
+html[data-theme=deepsea] .roomcode{background:rgba(0,30,50,.45);border:2px solid var(--c2);color:var(--tfg);border-radius:999px;text-shadow:0 0 18px color-mix(in srgb,var(--c2) 50%,transparent)}
+html[data-theme=deepsea] .timernum{color:var(--tfg)}
 html[data-theme=deepsea] .timerbar{background:rgba(0,30,50,.4);height:14px}
 html[data-theme=deepsea] .boardrow{background:color-mix(in srgb,var(--c1) 65%,#000);color:#eafbff;border:1.5px solid color-mix(in srgb,var(--c2) 35%,transparent);border-radius:var(--r-pill)}
 html[data-theme=deepsea] .boardrow .rank{color:var(--c2)}
@@ -1240,8 +1240,8 @@ html[data-theme=space] .answer.win{background:var(--ac);color:var(--at);box-shad
 html[data-theme=space] .ansbig{clip-path:var(--cut);border-radius:0}
 html[data-theme=space] .btn{--k:10px;clip-path:var(--cut);border-radius:0}
 html[data-theme=space] .pill{background:rgba(5,6,22,.55);border:1px solid color-mix(in srgb,var(--c2) 50%,transparent);color:#eef0ff;backdrop-filter:none}
-html[data-theme=space] .roomcode{background:rgba(5,6,22,.6);border:2px solid var(--c2);color:var(--c2);border-radius:0;clip-path:var(--cut);text-shadow:0 0 20px color-mix(in srgb,var(--c2) 60%,transparent)}
-html[data-theme=space] .timernum{color:var(--c2);text-shadow:0 0 14px color-mix(in srgb,var(--c2) 55%,transparent)}
+html[data-theme=space] .roomcode{background:rgba(5,6,22,.6);border:2px solid var(--c2);color:var(--tfg);border-radius:0;clip-path:var(--cut);text-shadow:0 0 20px color-mix(in srgb,var(--c2) 60%,transparent)}
+html[data-theme=space] .timernum{color:var(--tfg);text-shadow:0 0 14px color-mix(in srgb,var(--c2) 55%,transparent)}
 html[data-theme=space] .timerbar{background:rgba(255,255,255,.08);height:8px;border-radius:0}
 html[data-theme=space] .timerbar>div{border-radius:0;box-shadow:0 0 12px var(--c2)}
 html[data-theme=space] .boardrow{background:color-mix(in srgb,var(--c1) 70%,#000);color:#eef0ff;border-radius:0;clip-path:var(--cut);box-shadow:inset 4px 0 0 var(--c2)}
@@ -1263,8 +1263,8 @@ html[data-theme=disco] .answers .answer{animation-name:groove}
 @keyframes groove{from{opacity:0;transform:translateY(24px) rotate(-3deg) scale(.92)}60%{transform:rotate(1.5deg)}}
 html[data-theme=disco] .answer.win{outline:4px solid #fff4e6;outline-offset:4px;box-shadow:0 5px 0 color-mix(in srgb,var(--ac) 62%,#000),0 0 40px color-mix(in srgb,var(--ac) 70%,transparent)}
 html[data-theme=disco] .pill{background:rgba(18,5,31,.5);border:1.5px solid color-mix(in srgb,var(--c2) 60%,transparent);color:#fff4e6;backdrop-filter:none}
-html[data-theme=disco] .roomcode{background:rgba(18,5,31,.55);border:3px solid var(--c2);color:var(--c2);border-radius:999px;text-shadow:0 0 20px color-mix(in srgb,var(--c2) 60%,transparent);box-shadow:0 0 0 6px color-mix(in srgb,var(--c3) 45%,transparent)}
-html[data-theme=disco] .timernum{color:var(--c2)}
+html[data-theme=disco] .roomcode{background:rgba(18,5,31,.55);border:3px solid var(--c2);color:var(--tfg);border-radius:999px;text-shadow:0 0 20px color-mix(in srgb,var(--c2) 60%,transparent);box-shadow:0 0 0 6px color-mix(in srgb,var(--c3) 45%,transparent)}
+html[data-theme=disco] .timernum{color:var(--tfg)}
 html[data-theme=disco] .timerbar{background:rgba(18,5,31,.5);height:14px}
 html[data-theme=disco] .timerbar>div{background:linear-gradient(90deg,var(--c2),var(--c3),var(--c4))}
 html[data-theme=disco] .timerbar.low>div{background:#FF5A5F}
@@ -1706,6 +1706,7 @@ html.flare .sc-disco .sc-tile{animation:none;opacity:1;filter:brightness(1.3)}
             <button type="button" class="qmini" id="btn-derive" title="Only have 2 colours? Make the answer colours from the accent">Fill answers from my 2 colours</button>
             <button type="button" class="qmini" id="btn-resetcols">Reset colours</button>
           </div>
+          <p class="hint" id="col-fit" role="status" hidden></p>
         </div>
       </div></details>
     </div>
@@ -2382,6 +2383,20 @@ function luminance(hex){ const [r,g,b] = hexToRgb(hex).map(v => { v/=255; return
 // whichever of dark or white text has more contrast (they tie near 0.18, not 0.4:
 // white on orange or teal reads at about 3:1, dark text at 6:1)
 function textOn(hex){ return luminance(hex) > 0.18 ? '#181026' : '#ffffff'; }
+const contrastOf = (a, b) => { const x = luminance(a), y = luminance(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05); };
+// A colour as text on a background: itself when it already reads (4.5:1,
+// or 3:1 for big text), otherwise lightened on a dark background or
+// deepened on a light one just until it does. It moves in lightness only,
+// so a yellow deepens to amber rather than to a muddy olive.
+function readableOn(col, bg, need = 4.5){
+  if (contrastOf(col, bg) >= need) return col;
+  const { h, s, l } = toHsl(col), up = luminance(bg) < .18;
+  for (let k = 1; k <= 25; k++){
+    const t = fromHsl(h, s, up ? l + (1 - l) * k / 25 : l * (1 - k / 25));
+    if (contrastOf(t, bg) >= need) return t;
+  }
+  return up ? '#ffffff' : '#000000';
+}
 function shade(hex, f){ const [r,g,b] = hexToRgb(hex); return f < 0 ? rgbToHex(r*(1+f), g*(1+f), b*(1+f)) : rgbToHex(r+(255-r)*f, g+(255-g)*f, b+(255-b)*f); }
 function toHsl(hex){
   const [r,g,b] = hexToRgb(hex).map(v=>v/255);
@@ -2463,33 +2478,58 @@ const THEMES = ['classic','editorial','doodle','brutalist','blueprint','noir','a
 const THEME_ALIASES = { nintendo:'arcade', aurora:'noir', vapor:'arcade', stadium:'classic', western:'editorial' };
 const themeId = t => THEMES.includes(t) ? t : THEME_ALIASES[t] || 'classic';
 let currentTheme = 'classic';
+// Each theme's own text colour for words straight on the stage (Classic
+// takes whichever reads on the host's background; Terminal draws in its
+// accent, see applyLook)
+const THEME_INK = {
+  arcade: '#f2f6ff', doodle: '#1f2a44', editorial: '#111111', candy: '#3d3354',
+  spooky: '#f2e9d8', blueprint: '#eaf3ff', noir: '#f5f5f5',
+  winter: '#f6f2ea', deepsea: '#eafbff', space: '#eef0ff', disco: '#fff4e6',
+  brutalist: '#000000'
+};
+/* Every theme but Classic is drawn for a dark stage or a light one: its
+   ink, scenery, tiles and glows all assume it. A background from the
+   other end of the scale (Surprise me's navy on Doodle's paper, a white
+   sky for Outer Space) keeps its hue but is darkened or lightened until the theme's words read on it with room to spare (10:1,
+   or as much as the theme's own background gives, so softened captions,
+   faded answers and glass panels on top still read), so the theme stays
+   itself and still wears the colour. */
+function fitStage(colors, theme){
+  const own = THEME_COLORS[theme], c = colors.slice();
+  if (theme === 'classic' || !own || !/^#[0-9a-fA-F]{6}$/.test(c[0])) return c;
+  const ink = THEME_INK[theme] || '#ffffff', need = Math.min(10, contrastOf(ink, own[0]));
+  if (contrastOf(ink, c[0]) >= need) return c;
+  const from = toHsl(c[0]), to = luminance(own[0]) < .5 ? 0 : 1;
+  for (let k = 1; k <= 20; k++){
+    const t = fromHsl(from.h, from.s, from.l + (to - from.l) * k / 20);
+    if (contrastOf(ink, t) >= need || k === 20){ c[0] = t.toUpperCase(); break; }
+  }
+  return c;
+}
 function applyLook(colors, theme){
-  applyTheme(colors);
   theme = themeId(theme);
+  const c = fitStage(colors && colors.length >= 2 ? colors : DEFAULT_COLORS, theme);
+  applyTheme(c);
   currentTheme = theme;
   document.documentElement.dataset.theme = theme;
   // Themes with fixed-brightness backgrounds need their own ink color —
   // it must be set here because applyTheme wrote --ink as an inline style.
-  const c = (colors && colors.length >= 2 ? colors : DEFAULT_COLORS);
   const r = document.documentElement.style;
-  // Neon skins (arcade, terminal) draw most text in the accent color on a
-  // near-black background; a dark accent would be unreadable there, so
-  // lighten a copy (--tfg) until it has enough contrast. Buttons and other
-  // filled surfaces keep using the true accent (--c2).
-  let tfg = c[1];
-  for (let i = 0; i < 6 && luminance(tfg) < .2; i++) tfg = shade(tfg, .3);
+  // Text in the accent colour (timers, room codes, and most words in the
+  // neon skins) uses a copy (--tfg) lightened on a dark stage or deepened
+  // on a pale one until it reads as well as the theme's own accent does on
+  // its own background (4.5:1 at least, 7:1 at most, which leaves room for
+  // Terminal's dimmed answers). Buttons and other filled surfaces keep
+  // using the true accent (--c2).
+  const own = THEME_COLORS[theme];
+  const tfg = readableOn(c[1], c[0], Math.max(4.5, Math.min(7, contrastOf(own[1], own[0]))));
   r.setProperty('--tfg', tfg);
-  const ink = {
-    arcade: '#f2f6ff', terminal: tfg,
-    doodle: '#1f2a44', editorial: '#111111', candy: '#3d3354',
-    spooky: '#f2e9d8', blueprint: '#eaf3ff', noir: '#f5f5f5',
-    winter: '#f6f2ea', deepsea: '#eafbff', space: '#eef0ff', disco: '#fff4e6',
-    brutalist: '#000000'
-  }[theme];
+  const ink = theme === 'terminal' ? tfg : THEME_INK[theme];
   if (ink) r.setProperty('--ink', ink);
   // A backdrop for text that floats over the game (the pinned Skip button):
   // the opposite of the ink, so it reads over answer cards on any theme
-  r.setProperty('--ink-back', luminance(ink || textOn(c[0])) > .4 ? 'rgba(16,10,36,.7)' : 'rgba(255,255,255,.85)');
+  const inked = ink || textOn(c[0]);
+  r.setProperty('--ink-back', contrastOf(inked, '#100a24') >= contrastOf(inked, '#ffffff') ? 'rgba(16,10,36,.7)' : 'rgba(255,255,255,.85)');
   setFavicon(c, theme);
   renderScene(theme);
 }
@@ -2905,12 +2945,13 @@ function applyTheme(colors){
   const btns = expandPalette([c[1], c[2], c[3], fourth], ANSWER_COLORS);
   btns.forEach((col,i) => {
     r.setProperty('--b'+i, col); r.setProperty('--t'+i, textOn(col));
-    // Neon skins draw the answer TEXT in the button color on a near-black
-    // stage; a dark pick would be unreadable, so lighten a copy (--bfgN)
-    // until it has enough contrast. Filled buttons keep the true color.
+    // Some skins draw the answer TEXT in the button color straight on the
+    // stage (and word clouds draw every word that way); a copy (--bfgN)
+    // that reads there stands in, on a dark stage never darker than the
+    // neon skins have always drawn them. Filled buttons keep the true color.
     let f = col;
-    for (let k = 0; k < 6 && luminance(f) < .2; k++) f = shade(f, .3);
-    r.setProperty('--bfg'+i, f);
+    if (luminance(c[0]) < .18) for (let k = 0; k < 6 && luminance(f) < .2; k++) f = shade(f, .3);
+    r.setProperty('--bfg'+i, readableOn(f, c[0], 3));
   });
 }
 
@@ -5894,6 +5935,14 @@ const LOOK_KEY = 'qd-look';
 function saveLook(){
   try { localStorage.setItem(LOOK_KEY, JSON.stringify({ theme: $('theme-sel').value, colors: readColorInputs(), fonts: [$('font-display').value, $('font-body').value] })); } catch(e){}
 }
+// Says so when the theme moved the background colour (see fitStage)
+function fitNote(){
+  const sel = $('theme-sel'), t = sel.value, picked = readColorInputs()[0];
+  const moved = fitStage([picked], t)[0].toUpperCase() !== picked.toUpperCase();
+  const name = sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].textContent : t;
+  $('col-fit').hidden = !moved;
+  $('col-fit').textContent = moved ? `${name} is drawn on a ${luminance(THEME_COLORS[t][0]) < .5 ? 'dark' : 'light'} background, so your background colour tints it instead of replacing it.` : '';
+}
 function readColorInputs(){
   return [0,1,2,3].map(i => {
     const v = $('hex-' + i).value.trim();
@@ -6693,7 +6742,7 @@ function boot(){
   };
 
   // Setup: colors (picker <-> hex, live theme)
-  const refreshLook = () => { applyLook(readColorInputs(), $('theme-sel').value); saveLook(); };
+  const refreshLook = () => { applyLook(readColorInputs(), $('theme-sel').value); saveLook(); fitNote(); };
   $('theme-sel').onchange = () => {
     // a theme comes with its fonts; the pickers can still change them after
     const t = $('theme-sel').value, [fd, fb] = themeFonts(t);
@@ -6738,6 +6787,7 @@ function boot(){
   } catch(e){}
   applyLook(readColorInputs(), $('theme-sel').value);
   loadFonts([$('font-display').value, $('font-body').value]);
+  fitNote();
 
   $('btn-create').onclick = async () => {
     if ($('btn-create').dataset.empty){
