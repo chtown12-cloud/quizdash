@@ -1172,9 +1172,56 @@ html[data-theme=spooky] .demo{background:rgba(0,0,0,.35);border-color:color-mix(
 html[data-theme=spooky] .bigmark{background:rgba(0,0,0,.35);color:#f6ecdc}
 html[data-theme=spooky] .pcol .pbar{border-radius:40px 40px 0 0}
 
+/* Winter Holidays — a snowy night under strings of warm lights: tiles
+   capped with frost, a candy-cane timer, pictures in a white frame */
+html[data-theme=winter]{--r-s:8px;--r-m:16px;--r-l:22px;--r-pill:999px;--ledge:0 5px 0 rgba(4,10,24,.45)}
+html[data-theme=winter] body{background:radial-gradient(70% 55% at 50% -10%,color-mix(in srgb,var(--c1) 70%,#6f8fd6),transparent 70%),radial-gradient(90% 60% at 50% 118%,rgba(220,235,255,.14),transparent 60%),color-mix(in srgb,var(--c1) 92%,#000);background-attachment:fixed}
+html[data-theme=winter] .answer{border-radius:var(--r-m);box-shadow:inset 0 5px 0 rgba(255,255,255,.5),inset 0 -5px 0 rgba(0,0,0,.12),var(--ledge);font-weight:700}
+html[data-theme=winter] .answer .shape{background:rgba(255,255,255,.22);border-radius:50%;padding:5px}
+html[data-theme=winter] .answer.win{outline:4px solid #fff6d8;outline-offset:3px;box-shadow:inset 0 5px 0 rgba(255,255,255,.5),0 0 34px color-mix(in srgb,var(--c2) 70%,transparent)}
+html[data-theme=winter] .pill{background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.28);color:#f6f2ea;backdrop-filter:none}
+html[data-theme=winter] .roomcode{background:rgba(6,14,32,.5);border:2px solid #f6f2ea;color:#fff;text-shadow:0 0 18px color-mix(in srgb,var(--c2) 60%,transparent)}
+html[data-theme=winter] .timernum{color:var(--c2)}
+html[data-theme=winter] .timerbar{background:rgba(255,255,255,.14);height:13px}
+html[data-theme=winter] .timerbar>div{background:repeating-linear-gradient(-45deg,var(--c3) 0 10px,#fff6ec 10px 20px)}
+html[data-theme=winter] .timerbar.low>div{background:#FF5A5F}
+html[data-theme=winter] .boardrow{background:color-mix(in srgb,var(--c1) 70%,#000);color:#f6f2ea;border:1.5px solid rgba(255,255,255,.18);box-shadow:var(--ledge)}
+html[data-theme=winter] .boardrow .rank{color:var(--c2)}
+html[data-theme=winter] .demo{background:rgba(6,14,32,.35);border-color:rgba(255,255,255,.2)}
+html[data-theme=winter] .bigmark{background:rgba(255,255,255,.12);color:#f6f2ea}
+html[data-theme=winter] .steps li{background:rgba(6,14,32,.62)}
+html[data-theme=winter] .pcol .pbar{border-radius:var(--r-m) var(--r-m) 0 0;box-shadow:inset 0 7px 0 rgba(255,255,255,.75)}
 
-html:is([data-theme=classic],[data-theme=noir],[data-theme=arcade],[data-theme=terminal],[data-theme=spooky],[data-theme=blueprint]) .answer.dim{opacity:1;filter:brightness(.42) saturate(.45)}
+/* Under the Sea — deep water lit from above: round, glossy bubble tiles,
+   brass portholes for pictures, everything a little buoyant */
+html[data-theme=deepsea]{--r-s:10px;--r-m:20px;--r-l:28px;--r-pill:999px;--ledge:0 5px 0 rgba(0,20,40,.4)}
+html[data-theme=deepsea] body{background:linear-gradient(180deg,color-mix(in srgb,var(--c1) 72%,#3fb6d9) 0%,var(--c1) 48%,color-mix(in srgb,var(--c1) 55%,#000) 100%);background-attachment:fixed}
+html[data-theme=deepsea] .answer{border-radius:var(--r-m);box-shadow:inset 0 12px 16px -10px rgba(255,255,255,.6),inset 0 -6px 0 rgba(0,0,0,.12),var(--ledge);font-weight:700}
+html[data-theme=deepsea] .answer .shape{background:rgba(255,255,255,.3);border-radius:50%;padding:5px}
+html[data-theme=deepsea] .answers .answer{animation-name:bob}
+@keyframes bob{from{opacity:0;transform:translateY(40px) scale(.94)}70%{transform:translateY(-4px)}}
+html[data-theme=deepsea] .answer.win{outline:4px solid #eafbff;outline-offset:3px;box-shadow:0 0 36px color-mix(in srgb,var(--c2) 70%,transparent)}
+html[data-theme=deepsea] .pill{background:rgba(0,30,50,.35);border:1.5px solid color-mix(in srgb,var(--c2) 55%,transparent);color:#eafbff;backdrop-filter:none}
+html[data-theme=deepsea] .roomcode{background:rgba(0,30,50,.45);border:2px solid var(--c2);color:var(--c2);border-radius:999px;text-shadow:0 0 18px color-mix(in srgb,var(--c2) 50%,transparent)}
+html[data-theme=deepsea] .timernum{color:var(--c2)}
+html[data-theme=deepsea] .timerbar{background:rgba(0,30,50,.4);height:14px}
+html[data-theme=deepsea] .boardrow{background:color-mix(in srgb,var(--c1) 65%,#000);color:#eafbff;border:1.5px solid color-mix(in srgb,var(--c2) 35%,transparent);border-radius:var(--r-pill)}
+html[data-theme=deepsea] .boardrow .rank{color:var(--c2)}
+html[data-theme=deepsea] .demo{background:rgba(0,30,50,.35);border-color:color-mix(in srgb,var(--c2) 35%,transparent)}
+html[data-theme=deepsea] .bigmark{background:rgba(0,30,50,.4);color:#eafbff;box-shadow:inset 0 10px 14px -8px rgba(255,255,255,.5)}
+html[data-theme=deepsea] .steps li{background:rgba(0,30,50,.55)}
+html[data-theme=deepsea] .pcol .pbar{border-radius:40px 40px 0 0}
+
+
+html:is([data-theme=classic],[data-theme=noir],[data-theme=arcade],[data-theme=terminal],[data-theme=spooky],[data-theme=blueprint],[data-theme=winter],[data-theme=deepsea]) .answer.dim{opacity:1;filter:brightness(.42) saturate(.45)}
 html[data-theme=terminal] .answer.dim{filter:brightness(.5)}
+/* …but where a tile is a bright colour with dark words, darkening the
+   whole tile darkens the words with it. Those tiles take a dark tint of
+   their own colour instead, with light words, so the losing answers (and
+   their vote counts) stay readable. Blueprint's line-drawn tiles just
+   soften their words. */
+html:is([data-theme=classic],[data-theme=arcade],[data-theme=winter],[data-theme=deepsea]) .answer.dim{filter:none;background:color-mix(in srgb,var(--ac) 30%,#0b1020);color:color-mix(in srgb,var(--ac) 25%,#fff)}
+html[data-theme=blueprint] .answer.dim{filter:none;color:color-mix(in srgb,#eaf3ff 78%,transparent)}
 /* …and on the paper ones it washes out, still opaque */
 html:is([data-theme=candy],[data-theme=doodle],[data-theme=brutalist]) .answer.dim{opacity:1;filter:grayscale(.8) contrast(.55) brightness(1.2)}
 
@@ -1182,7 +1229,7 @@ html:is([data-theme=candy],[data-theme=doodle],[data-theme=brutalist]) .answer.d
    bar floating over it, the save and aim dialogs) take that surface's ink.
    The dark-stage themes draw outlines in a light stage colour, which
    vanishes there; the paper themes' outlines already work on white. */
-html:is([data-theme=classic],[data-theme=blueprint],[data-theme=noir],[data-theme=arcade],[data-theme=terminal],[data-theme=spooky]) :is(.card,.createbar,.aimbox) .btn.ghost{background:var(--card);color:var(--card-ink);border:1.5px solid var(--card-ink);text-shadow:none}
+html:is([data-theme=classic],[data-theme=blueprint],[data-theme=noir],[data-theme=arcade],[data-theme=terminal],[data-theme=spooky],[data-theme=winter],[data-theme=deepsea]) :is(.card,.createbar,.aimbox) .btn.ghost{background:var(--card);color:var(--card-ink);border:1.5px solid var(--card-ink);text-shadow:none}
 
 /* ── Pictures wear each theme's frame (question pictures, the answer's
    picture at the reveal, and tap-the-spot pictures) ─────────────────── */
@@ -1206,6 +1253,10 @@ html[data-theme=candy] .qimg{border:6px solid #fff;background:#fff;box-shadow:va
 html[data-theme=candy] .qimg:is(.ansimg,.pr-ansimg){border-color:var(--c2)}
 html[data-theme=spooky] .qimg{border:3px solid color-mix(in srgb,var(--c2) 60%,#000);box-shadow:0 0 34px color-mix(in srgb,var(--c2) 28%,transparent),var(--ledge)}
 html[data-theme=spooky] .qimg:is(.ansimg,.pr-ansimg){border-color:var(--c2);box-shadow:0 0 54px color-mix(in srgb,var(--c2) 55%,transparent)}
+html[data-theme=winter] .qimg{border:8px solid #f6f2ea;background:#f6f2ea;border-radius:var(--r-s);box-shadow:0 0 0 2px rgba(0,0,0,.2),0 0 40px rgba(255,214,140,.22),var(--ledge)}
+html[data-theme=winter] .qimg:is(.ansimg,.pr-ansimg){border-color:var(--c2);background:var(--c2);box-shadow:0 0 50px color-mix(in srgb,var(--c2) 55%,transparent)}
+html[data-theme=deepsea] .qimg{border:7px solid #c9973f;border-radius:26px;box-shadow:0 0 0 3px #6e4a16,inset 0 0 0 2px rgba(255,255,255,.25),0 12px 30px rgba(0,0,0,.4)}
+html[data-theme=deepsea] .qimg:is(.ansimg,.pr-ansimg){border-color:#e9bd5a;box-shadow:0 0 0 3px #6e4a16,0 0 46px color-mix(in srgb,var(--c2) 55%,transparent)}
 /* tap-the-spot pictures take a border only: padding would shift the dots */
 html[data-theme=classic] .tapwrap{box-shadow:0 0 0 3px #070b1d,0 0 0 6px color-mix(in srgb,var(--c2) 60%,transparent),var(--shadow)}
 html[data-theme=editorial] .tapwrap{border:1.5px solid #111;box-shadow:none}
@@ -1217,6 +1268,8 @@ html[data-theme=arcade] .tapwrap{border:4px solid #000;box-shadow:none}
 html[data-theme=terminal] .tapwrap{border:1.5px solid var(--tfg);box-shadow:0 0 22px color-mix(in srgb,var(--tfg) 22%,transparent)}
 html[data-theme=candy] .tapwrap{border:6px solid #fff;box-shadow:var(--clay)}
 html[data-theme=spooky] .tapwrap{border:3px solid color-mix(in srgb,var(--c2) 60%,#000);box-shadow:0 0 34px color-mix(in srgb,var(--c2) 28%,transparent)}
+html[data-theme=winter] .tapwrap{border:8px solid #f6f2ea;box-shadow:0 0 40px rgba(255,214,140,.22)}
+html[data-theme=deepsea] .tapwrap{border:7px solid #c9973f;border-radius:26px;box-shadow:0 0 0 3px #6e4a16,0 12px 30px rgba(0,0,0,.4)}
 
 /* ── SCENES ──────────────────────────────────────────────────────────────
    Each theme's world, drawn into one fixed layer behind every screen
@@ -1371,6 +1424,63 @@ html.flare .sc-spooky .sc-halo{transform:scale(1.7);opacity:1}
 html.flare .sc-spooky .sc-face{fill:#fff2a8}
 @media (max-width:600px){.sc-spooky{--hillH:clamp(130px,22vh,190px)}.sc-spooky .sc-ground{height:84px}}
 
+/* Winter Holidays: a snowy night */
+.sc-winter{--snowy:#eef4ff;--pine:color-mix(in srgb,var(--c1) 30%,#163d2c);--hush:color-mix(in srgb,var(--c1) 55%,#000)}
+.sc-winter .sc-snow{left:0;right:0;top:-300px;height:calc(100% + 300px);background-repeat:repeat;animation:snowfall var(--fall) linear infinite,sway 7s ease-in-out infinite alternate}
+.sc-winter .sc-snow-far{--fall:26s;opacity:.55}
+.sc-winter .sc-snow-near{--fall:15s;opacity:.85;animation-delay:0s,-3s}
+@keyframes snowfall{to{transform:translateY(300px)}}
+@keyframes sway{to{translate:22px 0}}
+.sc-winter .sc-lights{left:0;top:0;width:100%;height:clamp(34px,6vh,56px);overflow:visible}
+.sc-winter .sc-bulb{animation:twinkle var(--d) ease-in-out infinite alternate}
+.sc-winter .sc-bulbglow{opacity:.35;transition:opacity .25s}
+@keyframes twinkle{from{opacity:1}to{opacity:.55}}
+html.flare .sc-winter .sc-bulb{animation:none;opacity:1}
+html.flare .sc-winter .sc-bulbglow{opacity:1}
+.sc-winter .sc-ground{height:clamp(110px,25vh,240px);overflow:visible}
+.sc-winter .sc-far{fill:color-mix(in srgb,var(--c1) 62%,#9fb3d6)}
+.sc-winter .sc-pine{fill:var(--pine)}
+.sc-winter .sc-hush{fill:var(--hush)}
+.sc-winter .sc-drift{fill:var(--snowy)}
+.sc-winter .sc-drift2{fill:color-mix(in srgb,var(--snowy) 82%,var(--c1))}
+.sc-winter .sc-window{fill:#ffcf6e;transition:fill .3s}
+.sc-winter .sc-windowglow{opacity:.55;transition:opacity .3s}
+html.flare .sc-winter .sc-window{fill:#fff1bf}
+html.flare .sc-winter .sc-windowglow{opacity:1}
+.sc-winter .sc-smoke circle{fill:rgba(230,238,255,.42);transform-box:fill-box;transform-origin:center;animation:smoke 6s ease-out infinite}
+@keyframes smoke{0%{transform:translate(0,0) scale(.6);opacity:0}15%{opacity:.85}100%{transform:translate(-26px,-80px) scale(2.6);opacity:0}}
+@media (max-width:600px){.sc-winter .sc-ground{height:110px}.sc-winter .sc-snow-far{display:none}}
+
+/* Under the Sea: lit from above */
+.sc-deepsea .sc-ray{top:-8vh;width:16vw;height:95vh;transform-origin:50% 0;mix-blend-mode:screen;opacity:.5;
+  background:linear-gradient(rgba(190,250,255,.22),rgba(190,250,255,.06) 60%,transparent);clip-path:polygon(38% 0,62% 0,100% 100%,0 100%);
+  animation:raysway 14s ease-in-out infinite alternate;transition:opacity .4s,filter .4s}
+@keyframes raysway{from{rotate:-6deg}to{rotate:6deg}}
+html.flare .sc-deepsea .sc-ray{opacity:.95;filter:brightness(1.5)}
+.sc-deepsea .sc-bub{bottom:-30px;border-radius:50%;border:1.5px solid rgba(220,250,255,.55);background:radial-gradient(circle at 32% 30%,rgba(255,255,255,.55) 0 18%,rgba(255,255,255,.06) 40%,transparent 70%);
+  animation:rise var(--dur) linear var(--delay) infinite}
+@keyframes rise{0%{transform:translate(0,0)}25%{transform:translate(8px,-28vh)}50%{transform:translate(-6px,-56vh)}75%{transform:translate(7px,-84vh)}100%{transform:translate(0,-112vh)}}
+.sc-deepsea .sc-burst{left:50%;bottom:0;width:0;height:0}
+.sc-deepsea .sc-burst i{position:absolute;left:var(--x);bottom:0;width:var(--s);height:var(--s);border-radius:50%;border:2px solid rgba(220,250,255,.75);
+  background:radial-gradient(circle at 32% 30%,rgba(255,255,255,.7) 0 18%,transparent 60%);opacity:0}
+html.flare .sc-deepsea .sc-burst i{animation:burst 1.7s cubic-bezier(.2,.6,.4,1) var(--delay) both}
+@keyframes burst{0%{opacity:0;transform:translateY(0)}10%{opacity:1}100%{opacity:0;transform:translateY(-70vh)}}
+.sc-deepsea .sc-kelp{bottom:0;height:clamp(200px,60vh,560px);width:auto;overflow:visible}
+.sc-deepsea .sc-kelp-l{left:-10px}
+.sc-deepsea .sc-kelp-r{right:-10px;transform:scaleX(-1)}
+.sc-deepsea .sc-frond{fill:color-mix(in srgb,var(--c1) 40%,#0f6a4e);transform-box:fill-box;transform-origin:50% 100%;animation:frond var(--d) ease-in-out infinite alternate}
+@keyframes frond{from{rotate:-4deg}to{rotate:4deg}}
+.sc-deepsea .sc-ground{height:clamp(80px,17vh,160px)}
+.sc-deepsea .sc-sand{fill:color-mix(in srgb,var(--c1) 55%,#d8b67a)}
+.sc-deepsea .sc-sand2{fill:color-mix(in srgb,var(--c1) 40%,#d8b67a)}
+.sc-deepsea .sc-rock{fill:color-mix(in srgb,var(--c1) 55%,#000)}
+.sc-deepsea .sc-jelly{right:9vw;top:20vh;width:clamp(48px,6vw,86px);animation:jelly 9s ease-in-out infinite alternate}
+.sc-deepsea .sc-jelly2{right:18vw;top:44vh;width:clamp(32px,4vw,58px);animation-duration:12s;animation-delay:-4s}
+@keyframes jelly{from{transform:translateY(14px)}to{transform:translateY(-26px)}}
+.sc-deepsea .sc-whale{left:0;top:24vh;width:clamp(180px,22vw,320px);opacity:.16;fill:#02131f;animation:whale 95s linear infinite;animation-delay:-60s}
+@keyframes whale{from{transform:translateX(110vw)}to{transform:translateX(-40vw)}}
+@media (max-width:600px){.sc-deepsea .sc-kelp{height:180px}.sc-deepsea .sc-jelly2,.sc-deepsea .sc-whale{display:none}.sc-deepsea .sc-ray{width:30vw}}
+
 /* ── Misc ───────────────────────────────────────────────────────────────── */
 .badge-online{display:inline-flex;align-items:center;gap:6px;font-size:.85rem;line-height:18px;font-weight:600;background:rgba(0,0,0,.25);border-radius:var(--r-pill);padding:6px 14px}
 .dot{width:9px;height:9px;border-radius:50%;background:#3DDC84}
@@ -1447,6 +1557,8 @@ html.flare .sc-spooky .sc-face{fill:#fff2a8}
         <option value="terminal">Terminal</option>
         <option value="candy">Candy</option>
         <option value="spooky">Halloween</option>
+        <option value="winter">Winter Holidays</option>
+        <option value="deepsea">Under the Sea</option>
           </select>
         </div>
         <div class="lookgroup">
@@ -2208,17 +2320,19 @@ const THEME_COLORS = {
   arcade:    ['#0B0B1E','#FFE14D','#FF3D7F','#29E3FF'],
   terminal:  ['#050A06','#39FF6A','#FFB000','#5CC8FF'],
   candy:     ['#E9F5F0','#FF8A5B','#7A8CFF','#FFC94D'],
-  spooky:    ['#1B1030','#FF7A1A','#7E3FD6','#B8F35E']
+  spooky:    ['#1B1030','#FF7A1A','#7E3FD6','#B8F35E'],
+  winter:    ['#13284A','#F4C04E','#C42F3E','#2E9E6E'],
+  deepsea:   ['#06395A','#3FE0C5','#FF7A5C','#FFD45E']
 };
 const DEFAULT_COLORS = THEME_COLORS.classic;
 
 /* Structural skins (see the THEMES CSS block). Colors and fonts from the
    pickers keep applying inside every theme. Whitelist-validated because
    the name travels through the database to players. */
-const THEMES = ['classic','editorial','doodle','brutalist','blueprint','noir','arcade','terminal','candy','spooky'];
-/* Seven themes were retired; rooms, links and saved choices that still
-   name one get the closest of the ten instead of falling back to classic. */
-const THEME_ALIASES = { nintendo:'arcade', aurora:'noir', vapor:'arcade', disco:'candy', stadium:'classic', western:'editorial', deepsea:'blueprint' };
+const THEMES = ['classic','editorial','doodle','brutalist','blueprint','noir','arcade','terminal','candy','spooky','winter','deepsea'];
+/* Retired themes: rooms, links and saved choices that still name one get
+   the closest current theme instead of falling back to classic. */
+const THEME_ALIASES = { nintendo:'arcade', aurora:'noir', vapor:'arcade', disco:'candy', stadium:'classic', western:'editorial' };
 const themeId = t => THEMES.includes(t) ? t : THEME_ALIASES[t] || 'classic';
 let currentTheme = 'classic';
 function applyLook(colors, theme){
@@ -2241,6 +2355,7 @@ function applyLook(colors, theme){
     arcade: '#f2f6ff', terminal: tfg,
     doodle: '#1f2a44', editorial: '#111111', candy: '#3d3354',
     spooky: '#f2e9d8', blueprint: '#eaf3ff', noir: '#f5f5f5',
+    winter: '#f6f2ea', deepsea: '#eafbff',
     brutalist: '#000000'
   }[theme];
   if (ink) r.setProperty('--ink', ink);
@@ -2465,7 +2580,83 @@ const SCENES = {
         ${stone(560, 40, -6)}${stone(640, 52, 4)}${stone(760, 34, -3)}${stone(900, 46, 7)}<path d="M700 150v-62h9v62zM686 106h37v9h-37z"/><path d="M970 150v-50h8v50zM958 114h32v8h-32z" transform="rotate(8 974 150)"/>
         ${fence}<rect x="1046" y="104" width="206" height="4"/><rect x="1046" y="132" width="206" height="4"/></g>
         ${lantern(90, .95, 2.1)}${lantern(250, .7, 2.7)}${lantern(410, 1.05, 1.8)}${lantern(1330, .8, 2.4)}</svg>`;
+  },
+
+  // Winter Holidays: a snowy night. String lights along the top twinkle
+  // and blaze at every reveal, snow drifts down, a lit pine stands on the
+  // left, and a cabin on the right glows with its chimney smoking
+  winter(){
+    const r = sceneRand(23);
+    const flakes = (n, size) => { let b = ''; for (let i = 0; i < n; i++) b += `<circle cx='${(r() * 300).toFixed(0)}' cy='${(r() * 300).toFixed(0)}' r='${(size * (.6 + r() * .8)).toFixed(1)}' fill='#fff' opacity='${(.45 + r() * .5).toFixed(2)}'/>`; return svgTile(300, 300, b); };
+    const cols = ['#ffd45e', '#ff5a5f', '#5be38a', '#6fc3ff'];
+    const glows = cols.map((c, i) => `<radialGradient id="sc-bg${i}"><stop offset="0" stop-color="${c}" stop-opacity=".75"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></radialGradient>`).join('');
+    const bulb = (x, y, k, s = 1) => `<g transform="translate(${x.toFixed(0)} ${y.toFixed(1)}) scale(${s})"><circle class="sc-bulbglow" cy="11" r="17" fill="url(#sc-bg${k % 4})"/><rect x="-3" y="-1" width="6" height="5" rx="1" fill="#2b3446"/><ellipse class="sc-bulb" style="--d:${(1.2 + r() * 2.4).toFixed(1)}s" cy="11" rx="5" ry="8" fill="${cols[k % 4]}"/></g>`;
+    // the wire sags in arcs; each arc's points are y = 6 + 80t(1 − t)
+    let wire = 'M-40 6', bulbs = '', k = 0;
+    for (let x = -40; x < 1640; x += 100){
+      wire += ` Q${x + 50} 46 ${x + 100} 6`;
+      for (const t of [.2, .5, .8]) bulbs += bulb(x + 100 * t, 6 + 80 * t * (1 - t), k++);
+    }
+    let treeLights = '';
+    [[132, 66], [168, 72], [116, 116], [152, 110], [188, 122], [96, 168], [134, 158], [172, 166], [212, 176]].forEach(([x, y], i) => { treeLights += bulb(x, y, i + 1, .7); });
+    let pines = '';
+    for (const [x, h] of [[300, 46], [345, 34], [1150, 40], [1196, 52], [1240, 30]]) pines += `<path d="M${x} ${182 - h}l${h * .42} ${h}h-${h * .84}z"/>`;
+    const puff = d => `<circle cx="1428" cy="92" r="7" style="animation-delay:${d}s"/>`;
+    return `<div class="sc-snow sc-snow-far" style="background-image:${flakes(36, 1.3)}"></div>
+      <svg class="sc-ground" viewBox="0 0 1600 240" preserveAspectRatio="xMidYMax slice"><defs>${glows}<radialGradient id="sc-warm"><stop offset="0" stop-color="#ffcf6e" stop-opacity=".6"/><stop offset="1" stop-color="#ffcf6e" stop-opacity="0"/></radialGradient></defs>
+        <path class="sc-far" d="M0 160L120 104L210 136L330 80L450 134L560 106L700 146L860 98L980 136L1120 90L1260 132L1380 104L1500 138L1600 116V240H0Z"/>
+        <g class="sc-hush">${pines}</g>
+        <path class="sc-drift2" d="M0 182Q200 158 420 176T860 172T1300 166T1600 176V240H0Z"/>
+        <g transform="translate(150 212) scale(1.25) translate(-150 -212)"><g class="sc-pine"><path d="M150 30L196 94H176L214 144H190L234 198H66L110 144H86L124 94H104Z"/></g><rect class="sc-hush" x="140" y="196" width="20" height="14"/>
+        <g class="sc-drift"><path d="M104 94Q128 86 150 92Q172 86 196 94L186 99Q150 92 114 99Z"/><path d="M86 144Q118 134 150 141Q184 134 214 144L202 149Q150 140 98 149Z"/><path d="M66 198Q108 186 150 194Q194 186 234 198L220 202Q150 192 80 202Z"/></g>
+        <path d="M150 12l4.4 9 9.9 1.4-7.2 7 1.7 9.8-8.8-4.6-8.8 4.6 1.7-9.8-7.2-7 9.9-1.4z" fill="#ffd45e"/>${treeLights}</g>
+        <g class="sc-smoke">${puff(0)}${puff(-2)}${puff(-4)}</g>
+        <rect class="sc-hush" x="1420" y="98" width="16" height="36"/><rect class="sc-drift" x="1417" y="94" width="22" height="6" rx="3"/>
+        <ellipse class="sc-windowglow" cx="1357" cy="172" rx="70" ry="46" fill="url(#sc-warm)"/>
+        <path class="sc-hush" d="M1310 206V144H1460V206Z"/><path class="sc-hush" d="M1294 148L1385 92L1476 148Z"/>
+        <path class="sc-drift" d="M1288 150L1385 86L1482 150L1470 154L1385 98L1300 154Z"/>
+        <rect class="sc-window" x="1340" y="160" width="34" height="26" rx="2"/><path d="M1357 160v26M1340 173h34" stroke="#3a2a22" stroke-width="3"/>
+        <rect x="1404" y="166" width="26" height="40" rx="2" fill="#2a1d18"/>
+        <path class="sc-drift" d="M0 206Q260 182 520 200T1040 198T1600 192V240H0Z"/></svg>
+      <svg class="sc-lights" viewBox="0 0 1600 60" preserveAspectRatio="xMidYMin slice"><defs>${glows}</defs><path d="${wire}" fill="none" stroke="#1d2433" stroke-width="2.5"/>${bulbs}</svg>
+      <div class="sc-snow sc-snow-near" style="background-image:${flakes(22, 2.2)}"></div>`;
+  },
+
+  // Under the Sea: light falling through deep water, bubbles rising, kelp
+  // swaying at both edges, two jellyfish and a whale far off. At every
+  // reveal a burst of bubbles rushes up and the light brightens
+  deepsea(){
+    const r = sceneRand(31);
+    let bubs = '';
+    for (let i = 0; i < 18; i++){
+      const s = 6 + r() * 14, x = r() < .5 ? r() * 22 : 78 + r() * 22;   // mostly near the edges
+      bubs += `<div class="sc-bub" style="left:${x.toFixed(1)}vw;width:${s.toFixed(0)}px;height:${s.toFixed(0)}px;--dur:${(11 + r() * 10).toFixed(1)}s;--delay:-${(r() * 20).toFixed(1)}s"></div>`;
+    }
+    let burst = '';
+    for (let i = 0; i < 16; i++) burst += `<i style="--x:${(-36 + r() * 72).toFixed(0)}vw;--s:${(8 + r() * 20).toFixed(0)}px;--delay:${(r() * .4).toFixed(2)}s"></i>`;
+    // a frond: a wavy leaf from the seabed, swaying from its base
+    const frond = (x, h, w, d) => `<path class="sc-frond" style="--d:${d}s" d="M${x} 600C${x - w} ${600 - h * .33} ${x + w} ${600 - h * .66} ${x + 4} ${600 - h}C${x + w + 14} ${600 - h * .66} ${x - w + 14} ${600 - h * .33} ${x + 16} 600Z"/>`;
+    const kelp = frond(20, 560, 40, 5.5) + frond(52, 420, 34, 4.2) + frond(84, 500, 46, 6.4) + frond(116, 300, 28, 3.8);
+    const ray = (x, d, w) => `<div class="sc-ray" style="left:${x}vw;width:${w}vw;animation-delay:${d}s"></div>`;
+    const jelly = (cls, n) => `<svg class="sc-jelly${cls}" viewBox="0 0 60 100" style="filter:drop-shadow(0 0 10px rgba(255,140,220,.45))"><defs><radialGradient id="sc-jg${n}" cx=".5" cy=".3" r=".65"><stop offset="0" stop-color="#ffe0f6" stop-opacity=".95"/><stop offset=".65" stop-color="#ff7ad9" stop-opacity=".6"/><stop offset="1" stop-color="#b04cff" stop-opacity=".25"/></radialGradient></defs>
+        <path d="M4 34Q4 4 30 4T56 34Q48 30 42 35Q36 30 30 35Q24 30 18 35Q12 30 4 34Z" fill="url(#sc-jg${n})"/>
+        <g fill="none" stroke="#ffb3ea" stroke-opacity=".6" stroke-width="2" stroke-linecap="round"><path d="M14 34q-4 14 2 26t-2 26"/><path d="M24 35q4 16-2 30t2 26"/><path d="M36 35q-4 16 2 30t-2 24"/><path d="M46 34q4 14-2 26t2 22"/></g></svg>`;
+    return `${ray(6, 0, 15)}${ray(30, -5, 12)}${ray(56, -9, 17)}${ray(80, -3, 13)}
+      <svg class="sc-whale" viewBox="0 0 300 120"><path d="M10 70C40 30 140 20 210 40C240 48 262 58 274 50L296 30L290 62L298 92L272 76C250 92 200 104 140 100C80 96 30 92 10 70ZM120 96l-22 22 36-14z"/></svg>
+      ${jelly('', 1)}${jelly(' sc-jelly2', 2)}
+      ${bubs}
+      <svg class="sc-kelp sc-kelp-l" viewBox="0 0 160 600" preserveAspectRatio="xMinYMax meet">${kelp}</svg>
+      <svg class="sc-kelp sc-kelp-r" viewBox="0 0 160 600" preserveAspectRatio="xMinYMax meet">${kelp}</svg>
+      <svg class="sc-ground" viewBox="0 0 1600 160" preserveAspectRatio="xMidYMax slice">
+        <path class="sc-sand2" d="M0 92Q200 62 420 86T860 82T1300 72T1600 88V160H0Z"/>
+        <g class="sc-rock"><path d="M90 130Q96 92 140 96Q176 100 182 130Z"/><path d="M220 132Q232 112 262 116Q284 120 286 134Z"/><path d="M1340 130Q1352 88 1404 94Q1446 100 1452 132Z"/><path d="M1480 134Q1490 116 1516 118Q1536 122 1538 136Z"/></g>
+        <g fill="none" stroke="#ff8a96" stroke-width="9" stroke-linecap="round" opacity=".7"><path d="M340 132V98M340 114L322 94M340 106L360 82M322 94L314 76M360 82L370 66M340 98L346 78"/></g>
+        <g fill="none" stroke="#ffc15c" stroke-width="3" opacity=".6"><path d="M1220 132L1188 96M1220 132L1204 88M1220 132L1222 84M1220 132L1240 88M1220 132L1256 96"/><path d="M1182 100Q1220 64 1260 100" stroke-width="5"/></g>
+        <path d="M760 128l5 10 11 2-8 7 2 11-10-5-10 5 2-11-8-7 11-2z" fill="#ffb35c" opacity=".8"/>
+        <path class="sc-sand" d="M0 122Q260 102 540 116T1080 114T1600 110V160H0Z"/></svg>
+      <div class="sc-burst">${burst}</div>`;
   }
+
 };
 let sceneTheme = '';
 function renderScene(theme){
@@ -3101,6 +3292,20 @@ SFX.MUSIC = {
               harm:[null,null,null,null,null,null,0,null], harmOct:.5, harmVol:.03, harmWave:'triangle', harmLen:1.1,
               drums:'..k.....', drumVol:.035,
               arps:[[220,261.6,311.1,329.6],[207.7,246.9,311.1,415.3],[174.6,207.7,246.9,293.7],[164.8,196,233.1,311.1]] },
+  // Sleigh-bell hats under a bright music-box tune, a glockenspiel shimmer on top
+  winter:   { ms:220, wave:'triangle', vol:.075, len:.32, bassWave:'sine', bassVol:.1, fifth:true,
+              bass:[98,82.4,65.4,73.4],
+              riff:[0,2,4,2, 3,null,1,null, 0,2,4,5, 4,null,null,null, 2,4,5,4, 3,null,2,null, 1,2,3,1, 0,null,null,null],
+              harm:[0,null,null,null,null,null,2,null], harmOct:2, harmVol:.028, harmWave:'sine', harmLen:1.2,
+              drums:'h.h.h.hh', drumVol:.02,
+              arps:[[392,493.9,587.3,784],[329.6,392,493.9,659.3],[261.6,329.6,392,523.3],[293.7,370,440,587.3]] },
+  // Slow and dreamy, sines drifting over deep bass, with bubbles popping high
+  deepsea:  { ms:360, wave:'sine', vol:.08, len:.9, bassWave:'sine', bassVol:.09,
+              bass:[73.4,61.7,49,55],
+              riff:[0,null,2,null, null,3,null,null, 1,null,null,4, null,null,2,null, 0,null,3,null, null,5,null,4, 2,null,null,1, null,null,null,null],
+              harm:[null,null,null,6,null,null,null,null, null,null,null,null,null,7,null,null], harmOct:2, harmVol:.026, harmWave:'sine', harmLen:.14,
+              drums:'......h.', drumVol:.014,
+              arps:[[293.7,370,440,554.4],[246.9,293.7,370,440],[196,246.9,293.7,370],[220,277.2,329.6,440]] },
   // Precise sonar pings on a drafting-table pulse
   blueprint:{ ms:230, wave:'square', vol:.03, len:.06, bassWave:'sine', bassVol:.07,
               bass:[98,110,130.8,87.3],
@@ -3212,7 +3417,8 @@ const DISPLAY_FONTS = [
   ['IBM Plex Sans Condensed', 'IBM+Plex+Sans+Condensed:wght@400;600;700'],
   ['Bodoni Moda',   'Bodoni+Moda:wght@400;700;800'],
   ['Silkscreen',    'Silkscreen:wght@400;700'],
-  ['Grenze',        'Grenze:wght@400;600;800']
+  ['Grenze',        'Grenze:wght@400;600;800'],
+  ['Fraunces',      'Fraunces:opsz,wght@9..144,400..900']
 ];
 const BODY_FONTS = [
   ['Inter',      'Inter:wght@400;500;600;700'],
@@ -3243,7 +3449,9 @@ const THEME_FONTS = {
   arcade:    ['Silkscreen', 'Chakra Petch'],
   terminal:  ['VT323', 'IBM Plex Mono'],
   candy:     ['Fredoka', 'Nunito'],
-  spooky:    ['Grenze', 'Nunito']
+  spooky:    ['Grenze', 'Nunito'],
+  winter:    ['Fraunces', 'Nunito'],
+  deepsea:   ['Baloo 2', 'Quicksand']
 };
 const themeFonts = t => THEME_FONTS[themeId(t)];
 // Warm the browser up with a pairing before it's shown: the stylesheet plus
