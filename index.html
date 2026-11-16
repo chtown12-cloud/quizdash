@@ -1532,35 +1532,8 @@ html.flare .sc-winter .sc-windowglow{opacity:1}
 @keyframes smoke{0%{transform:translate(0,0) scale(.6);opacity:0}15%{opacity:.85}100%{transform:translate(-26px,-80px) scale(2.6);opacity:0}}
 @media (max-width:600px){.sc-winter .sc-ground{height:110px}.sc-winter .sc-snow-far{display:none}}
 
-/* Under the Sea: lit from above */
-.sc-deepsea .sc-ray{top:-8vh;width:16vw;height:95vh;transform-origin:50% 0;mix-blend-mode:screen;opacity:.5;
-  background:linear-gradient(rgba(190,250,255,.22),rgba(190,250,255,.06) 60%,transparent);clip-path:polygon(38% 0,62% 0,100% 100%,0 100%);
-  animation:raysway 14s ease-in-out infinite alternate;transition:opacity .4s,filter .4s}
-@keyframes raysway{from{rotate:-6deg}to{rotate:6deg}}
-html.flare .sc-deepsea .sc-ray{opacity:.95;filter:brightness(1.5)}
-.sc-deepsea .sc-bub{bottom:-30px;border-radius:50%;border:1.5px solid rgba(220,250,255,.55);background:radial-gradient(circle at 32% 30%,rgba(255,255,255,.55) 0 18%,rgba(255,255,255,.06) 40%,transparent 70%);
-  animation:rise var(--dur) linear var(--delay) infinite}
-@keyframes rise{0%{transform:translate(0,0)}25%{transform:translate(8px,-28vh)}50%{transform:translate(-6px,-56vh)}75%{transform:translate(7px,-84vh)}100%{transform:translate(0,-112vh)}}
-.sc-deepsea .sc-burst{left:50%;bottom:0;width:0;height:0}
-.sc-deepsea .sc-burst i{position:absolute;left:var(--x);bottom:0;width:var(--s);height:var(--s);border-radius:50%;border:2px solid rgba(220,250,255,.75);
-  background:radial-gradient(circle at 32% 30%,rgba(255,255,255,.7) 0 18%,transparent 60%);opacity:0}
-html.flare .sc-deepsea .sc-burst i{animation:burst 1.7s cubic-bezier(.2,.6,.4,1) var(--delay) both}
-@keyframes burst{0%{opacity:0;transform:translateY(0)}10%{opacity:1}100%{opacity:0;transform:translateY(-44vh)}}
-.sc-deepsea .sc-kelp{bottom:0;height:clamp(200px,60vh,560px);width:auto;overflow:visible}
-.sc-deepsea .sc-kelp-l{left:-10px}
-.sc-deepsea .sc-kelp-r{right:-10px;transform:scaleX(-1)}
-.sc-deepsea .sc-frond{fill:color-mix(in srgb,var(--c1) 40%,#0f6a4e);transform-box:fill-box;transform-origin:50% 100%;animation:frond var(--d) ease-in-out infinite alternate}
-@keyframes frond{from{rotate:-4deg}to{rotate:4deg}}
-.sc-deepsea .sc-ground{height:clamp(80px,17vh,160px)}
-.sc-deepsea .sc-sand{fill:color-mix(in srgb,var(--c1) 55%,#d8b67a)}
-.sc-deepsea .sc-sand2{fill:color-mix(in srgb,var(--c1) 40%,#d8b67a)}
-.sc-deepsea .sc-rock{fill:color-mix(in srgb,var(--c1) 55%,#000)}
-.sc-deepsea .sc-jelly{right:9vw;top:20vh;width:clamp(48px,6vw,86px);animation:jelly 9s ease-in-out infinite alternate}
-.sc-deepsea .sc-jelly2{right:18vw;top:44vh;width:clamp(32px,4vw,58px);animation-duration:12s;animation-delay:-4s}
-@keyframes jelly{from{transform:translateY(14px)}to{transform:translateY(-26px)}}
-.sc-deepsea .sc-whale{left:0;top:63vh;width:clamp(180px,22vw,320px);opacity:.16;fill:#02131f;animation:whale 95s linear infinite;animation-delay:-60s}
-@keyframes whale{from{transform:translateX(110vw)}to{transform:translateX(-40vw)}}
-@media (max-width:600px){.sc-deepsea .sc-kelp{height:180px}.sc-deepsea .sc-jelly2,.sc-deepsea .sc-whale{display:none}.sc-deepsea .sc-ray{width:30vw}}
+/* Under the Sea: painted on a canvas (see LIVE.deepsea) */
+#scene .sc-live{inset:0;width:100%;height:100%}
 
 /* Outer Space: the view from a starship */
 .sc-space .sc-stars{inset:0;background-repeat:repeat;animation:drift var(--dur) linear infinite}
@@ -2193,6 +2166,9 @@ async function snapScreen(){
     const H = Math.min(4000, Math.max(document.documentElement.clientHeight, document.documentElement.scrollHeight));
     const clone = document.documentElement.cloneNode(true);
     clone.querySelectorAll('script,noscript,link,#btn-snap,#btn-mute,#snap-hint,#confetti,.floatemo').forEach(n => n.remove());
+    // a cloned canvas comes out blank: the living scene goes in as a picture
+    const liveCv = document.querySelector('#scene canvas'), cloneCv = clone.querySelector('#scene canvas');
+    if (liveCv && cloneCv){ const im = document.createElement('img'); im.src = liveCv.toDataURL('image/png'); im.className = cloneCv.className; cloneCv.replaceWith(im); }
     // Freeze motion so nothing is caught mid-animation, and carry over
     // live form state (cloneNode copies attributes, not current values).
     // backdrop-filter and glow text-shadows smear badly in Chrome's SVG
@@ -2790,37 +2766,8 @@ const SCENES = {
   // Under the Sea: light falling through deep water, bubbles rising, kelp
   // swaying at both edges, two jellyfish and a whale far off. At every
   // reveal a burst of bubbles rushes up and the light brightens
-  deepsea(){
-    const r = sceneRand(31);
-    let bubs = '';
-    for (let i = 0; i < 18; i++){
-      const s = 6 + r() * 14, x = r() < .5 ? r() * 22 : 78 + r() * 22;   // mostly near the edges
-      bubs += `<div class="sc-bub" style="left:${x.toFixed(1)}vw;width:${s.toFixed(0)}px;height:${s.toFixed(0)}px;--dur:${(11 + r() * 10).toFixed(1)}s;--delay:-${(r() * 20).toFixed(1)}s"></div>`;
-    }
-    let burst = '';
-    for (let i = 0; i < 16; i++) burst += `<i style="--x:${(-36 + r() * 72).toFixed(0)}vw;--s:${(8 + r() * 20).toFixed(0)}px;--delay:${(r() * .4).toFixed(2)}s"></i>`;
-    // a frond: a wavy leaf from the seabed, swaying from its base
-    const frond = (x, h, w, d) => `<path class="sc-frond" style="--d:${d}s" d="M${x} 600C${x - w} ${600 - h * .33} ${x + w} ${600 - h * .66} ${x + 4} ${600 - h}C${x + w + 14} ${600 - h * .66} ${x - w + 14} ${600 - h * .33} ${x + 16} 600Z"/>`;
-    const kelp = frond(20, 560, 40, 5.5) + frond(52, 420, 34, 4.2) + frond(84, 500, 46, 6.4) + frond(116, 300, 28, 3.8);
-    const ray = (x, d, w) => `<div class="sc-ray" style="left:${x}vw;width:${w}vw;animation-delay:${d}s"></div>`;
-    const jelly = (cls, n) => `<svg class="sc-jelly${cls}" viewBox="0 0 60 100" style="filter:drop-shadow(0 0 10px rgba(255,140,220,.45))"><defs><radialGradient id="sc-jg${n}" cx=".5" cy=".3" r=".65"><stop offset="0" stop-color="#ffe0f6" stop-opacity=".95"/><stop offset=".65" stop-color="#ff7ad9" stop-opacity=".6"/><stop offset="1" stop-color="#b04cff" stop-opacity=".25"/></radialGradient></defs>
-        <path d="M4 34Q4 4 30 4T56 34Q48 30 42 35Q36 30 30 35Q24 30 18 35Q12 30 4 34Z" fill="url(#sc-jg${n})"/>
-        <g fill="none" stroke="#ffb3ea" stroke-opacity=".6" stroke-width="2" stroke-linecap="round"><path d="M14 34q-4 14 2 26t-2 26"/><path d="M24 35q4 16-2 30t2 26"/><path d="M36 35q-4 16 2 30t-2 24"/><path d="M46 34q4 14-2 26t2 22"/></g></svg>`;
-    return `${ray(6, 0, 15)}${ray(30, -5, 12)}${ray(56, -9, 17)}${ray(80, -3, 13)}
-      <svg class="sc-whale" viewBox="0 0 300 120"><path d="M10 70C40 30 140 20 210 40C240 48 262 58 274 50L296 30L290 62L298 92L272 76C250 92 200 104 140 100C80 96 30 92 10 70ZM120 96l-22 22 36-14z"/></svg>
-      ${jelly('', 1)}${jelly(' sc-jelly2', 2)}
-      ${bubs}
-      <svg class="sc-kelp sc-kelp-l" viewBox="0 0 160 600" preserveAspectRatio="xMinYMax meet">${kelp}</svg>
-      <svg class="sc-kelp sc-kelp-r" viewBox="0 0 160 600" preserveAspectRatio="xMinYMax meet">${kelp}</svg>
-      <svg class="sc-ground" viewBox="0 0 1600 160" preserveAspectRatio="xMidYMax slice">
-        <path class="sc-sand2" d="M0 92Q200 62 420 86T860 82T1300 72T1600 88V160H0Z"/>
-        <g class="sc-rock"><path d="M90 130Q96 92 140 96Q176 100 182 130Z"/><path d="M220 132Q232 112 262 116Q284 120 286 134Z"/><path d="M1340 130Q1352 88 1404 94Q1446 100 1452 132Z"/><path d="M1480 134Q1490 116 1516 118Q1536 122 1538 136Z"/></g>
-        <g fill="none" stroke="#ff8a96" stroke-width="9" stroke-linecap="round" opacity=".7"><path d="M340 132V98M340 114L322 94M340 106L360 82M322 94L314 76M360 82L370 66M340 98L346 78"/></g>
-        <g fill="none" stroke="#ffc15c" stroke-width="3" opacity=".6"><path d="M1220 132L1188 96M1220 132L1204 88M1220 132L1222 84M1220 132L1240 88M1220 132L1256 96"/><path d="M1182 100Q1220 64 1260 100" stroke-width="5"/></g>
-        <path d="M760 128l5 10 11 2-8 7 2 11-10-5-10 5 2-11-8-7 11-2z" fill="#ffb35c" opacity=".8"/>
-        <path class="sc-sand" d="M0 122Q260 102 540 116T1080 114T1600 110V160H0Z"/></svg>
-      <div class="sc-burst">${burst}</div>`;
-  },
+  // painted live on a canvas: see LIVE.deepsea
+  deepsea(){ return '<canvas class="sc-live"></canvas>'; },
 
   // Outer Space: the view from a starship. Three layers of stars drift
   // past, a ringed planet hangs low on the right, a satellite tumbles by,
@@ -2886,13 +2833,915 @@ const SCENES = {
         ${glint(32, 90, 9, 1.3)}${glint(64, 122, 7, 1.9)}${glint(44, 134, 5, 1.1)}${glint(70, 92, 5, 2.4)}</svg>`;
   }
 };
+/* ════════════════ LIVING SCENES ═══════════════════════════════════════════
+   A theme can paint its world on a canvas instead of in SVG and CSS, so it
+   moves like the real thing: a whale whose body bends along its spine,
+   kelp that sways segment by segment, light that plays over the sand.
+   The canvas takes the place of the SVG scenery in #scene. It only runs
+   while the page is visible, settles for one still frame when the viewer
+   prefers less motion, and keeps every travelling creature away from the
+   words on the stage (see zones): a whale picks a depth below or above
+   the question, bubbles burst before they reach a line of text, and
+   anything a layout change leaves behind a word fades away first.
+   ═══════════════════════════════════════════════════════════════════════ */
+const LIVE = {};
+// colour helpers for the canvas painters: [r,g,b] arrays in, CSS strings out
+const lerp = (a, b, t) => a + (b - a) * t;
+const mixRgb = (a, b, t) => [lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t)];
+const rgba = (c, a = 1) => `rgba(${c[0] | 0},${c[1] | 0},${c[2] | 0},${a})`;
+// closed smooth curve through a flat [x,y,x,y…] list
+function smoothPath(c, p){
+  const n = p.length / 2;
+  c.moveTo((p[n * 2 - 2] + p[0]) / 2, (p[n * 2 - 1] + p[1]) / 2);
+  for (let i = 0; i < n; i++){
+    const j = (i + 1) % n;
+    c.quadraticCurveTo(p[i * 2], p[i * 2 + 1], (p[i * 2] + p[j * 2]) / 2, (p[i * 2 + 1] + p[j * 2 + 1]) / 2);
+  }
+  c.closePath();
+}
+// Words that sit straight on the stage: what travelling scenery stays clear of
+const STAGE_WORDS = '.screen.active :is(.qtext,.hero,h1.display,h2.display,.drum,.bighint,.timernum,.count-badge,.points-pop,.pulse,.demo-text), #s-landing.active .center > p';
+const Living = {
+  w: null,
+  start(canvas, theme){
+    this.stop();
+    const mod = LIVE[theme];
+    if (!mod || !canvas || !canvas.getContext) return;
+    const w = this.w = { cv: canvas, ctx: canvas.getContext('2d'), mod, t: 0, last: 0, raf: 0, frame: 0,
+      calm: matchMedia('(prefers-reduced-motion: reduce)').matches, clear: [], zonesAt: -1, flaring: false, seen: 0, lite: false };
+    this.size(); this.colors();
+    mod.init(w);
+    mod.layout(w);
+    this.zones();
+    w.onresize = () => { clearTimeout(w.rz); w.rz = setTimeout(() => { if (this.w !== w) return; this.size(); mod.layout(w); this.zones(); this.still(); }, 120); };
+    w.onvis = () => document.hidden ? this.pause() : this.play();
+    addEventListener('resize', w.onresize);
+    document.addEventListener('visibilitychange', w.onvis);
+    if (w.calm) this.still(); else this.play();
+  },
+  stop(){
+    const w = this.w; if (!w) return;
+    cancelAnimationFrame(w.raf);
+    removeEventListener('resize', w.onresize);
+    document.removeEventListener('visibilitychange', w.onvis);
+    this.w = null;
+  },
+  // the host changed colours: repaint whatever was painted once
+  recolor(){
+    const w = this.w; if (!w) return;
+    this.colors(); w.mod.layout(w); this.still();
+  },
+  size(){
+    const w = this.w;
+    w.W = Math.max(200, innerWidth); w.H = Math.max(200, innerHeight);
+    w.small = w.W <= 600;
+    w.dpr = Math.min(w.lite ? 1 : 1.5, devicePixelRatio || 1);
+    w.cv.width = Math.round(w.W * w.dpr); w.cv.height = Math.round(w.H * w.dpr);
+  },
+  colors(){
+    const st = getComputedStyle(document.documentElement), w = this.w;
+    const hex = (v, d) => { v = st.getPropertyValue(v).trim(); return hexToRgb(/^#[0-9a-f]{6}$/i.test(v) ? v : d); };
+    const own = THEME_COLORS[currentTheme] || DEFAULT_COLORS;
+    w.c = [hex('--c1', own[0]), hex('--c2', own[1]), hex('--c3', own[2]), hex('--c4', own[3])];
+  },
+  // The lines of text on the stage, padded: travelling creatures keep out
+  zones(){
+    const w = this.w, out = [];
+    for (const el of document.querySelectorAll(STAGE_WORDS)){
+      if (el.closest('.card') || !el.offsetParent) continue;
+      const range = document.createRange(); range.selectNodeContents(el);
+      for (const r of range.getClientRects()){
+        if (r.width < 3 || r.height < 3 || r.bottom < 0 || r.top > w.H) continue;
+        out.push({ l: r.left - 16, r: r.right + 16, t: r.top - 14, b: r.bottom + 14 });
+      }
+    }
+    w.clear = out; w.zonesAt = w.t;
+  },
+  // the largest stretch of rows between top and bottom no word crosses
+  // (for creatures that cross the whole width); null when none is tall enough
+  band(top, bottom, need){
+    const rows = this.w.clear.map(z => [z.t, z.b]).sort((a, b) => a[0] - b[0]);
+    let best = null, y = top;
+    const consider = (a, b) => { if (b - a >= need && (!best || b - a > best[1] - best[0] + 1)) best = [a, b]; };
+    for (const [t, b] of rows){ if (t > y) consider(y, Math.min(t, bottom)); y = Math.max(y, b); if (y >= bottom) break; }
+    if (y < bottom) consider(y, bottom);
+    return best;
+  },
+  hits(box){ return this.w.clear.some(z => box.l < z.r && box.r > z.l && box.t < z.b && box.b > z.t); },
+  play(){
+    const w = this.w; if (!w || w.calm || w.raf) return;
+    w.last = performance.now();
+    const tick = now => {
+      if (this.w !== w || !w.cv.isConnected){ if (this.w === w) this.stop(); return; }
+      w.raf = requestAnimationFrame(tick);
+      // phones, and machines that find it heavy, paint at half the frame rate
+      if ((w.small || w.lite) && (w.frame++ & 1)) return;
+      const dt = Math.min(.05, (now - w.last) / 1000); w.last = now;
+      if (dt <= 0) return;
+      const t0 = performance.now();
+      this.step(dt);
+      w.mod.draw(w);
+      // a slow machine gets a lighter picture rather than a stuttering game:
+      // fewer pixels and half the frames, decided once from the first second
+      w.cost = (w.cost || 0) * .9 + (performance.now() - t0) * .1;
+      if (!w.lite && ++w.seen > 45 && w.cost > 9){ w.lite = true; this.size(); w.mod.layout(w); }
+    };
+    w.raf = requestAnimationFrame(tick);
+  },
+  pause(){ const w = this.w; if (w){ cancelAnimationFrame(w.raf); w.raf = 0; } },
+  step(dt){
+    const w = this.w;
+    w.t += dt;
+    if (w.t - w.zonesAt > .25) this.zones();
+    const flare = document.documentElement.classList.contains('flare');
+    if (flare && !w.flaring) w.mod.flare(w);
+    w.flaring = flare;
+    w.mod.update(w, dt);
+  },
+  // one finished frame, for reduced motion, a resize or new colours
+  still(){
+    const w = this.w; if (!w) return;
+    if (w.calm) w.mod.update(w, 0);
+    w.mod.draw(w);
+  },
+  // Tests: run the world forward and list every creature seen crossing
+  // one of the given boxes (after a few seconds for anything a layout
+  // change caught mid-crossing to fade away)
+  audit(boxes, seconds = 240, reveal = false){
+    const w = this.w; if (!w) return ['no living scene'];
+    const hit = new Set(), dt = 1 / 20;
+    this.pause(); w.auditing = true;
+    this.zones();
+    for (let k = 0; k < 80; k++){ w.t += dt; w.mod.update(w, dt); }
+    if (reveal) w.mod.flare(w);
+    for (let k = 0; k < seconds * 20; k++){
+      w.t += dt; w.mod.update(w, dt);
+      if (reveal && k % 160 === 159) w.mod.flare(w);
+      for (const b of w.mod.boxes(w)) if (b.a > .05 && boxes.some(z => b.l < z.r && b.r > z.l && b.t < z.b && b.b > z.t)) hit.add(b.name);
+    }
+    w.auditing = false;
+    this.still(); this.play();
+    return [...hit];
+  }
+};
+
+/* Under the Sea: open water seen from the side. Shafts of light from the
+   surface and drifting specks give it depth; a humpback and her calf pass
+   far off, their bodies bending as their flukes beat; jellyfish pulse at
+   the sides; kelp sways at both edges, blade by blade; and the reef sits
+   on a sandy floor with light rippling over it. The reveal sends up a
+   burst of bubbles and a school of silver fish darting past. */
+const TAU = Math.PI * 2;
+// a humpback's outline above and below its spine, nose (0) to tail (1), in body lengths
+const WHALE_TOP = [0, .01, .025, .034, .06, .054, .12, .074, .2, .09, .3, .1, .42, .103, .54, .096, .63, .086, .67, .096, .695, .114, .71, .09, .74, .07, .82, .05, .9, .036, .96, .026, 1, .02];
+const WHALE_BOT = [0, .004, .02, .026, .06, .052, .12, .084, .2, .108, .3, .12, .4, .118, .5, .104, .6, .086, .7, .066, .8, .048, .9, .033, .96, .024, 1, .018];
+const profile = (P, s) => {
+  for (let i = 2; i < P.length; i += 2) if (s <= P[i]){ const f = (s - P[i - 2]) / (P[i] - P[i - 2]); return lerp(P[i - 1], P[i + 1], (1 - Math.cos(f * Math.PI)) / 2); }
+  return P[P.length - 1];
+};
+// a canvas sized in CSS pixels at scale k, with its transform set
+function layer(cv, W, H, k){
+  cv = cv || document.createElement('canvas');
+  cv.width = Math.max(1, Math.round(W * k)); cv.height = Math.max(1, Math.round(H * k));
+  const g = cv.getContext('2d'); g.setTransform(k, 0, 0, k, 0, 0);
+  return [cv, g];
+}
+LIVE.deepsea = {
+  init(w){
+    const r = sceneRand(41);
+    w.whale = { x: NaN, y: 0, dir: -1, phase: 0, beat: 1, alpha: 0, wait: 0, scale: 1, P: new Float32Array(44), U: new Float32Array(44) };
+    w.calf = { x: NaN, y: 0, dir: -1, phase: 1.7, beat: 1.5, alpha: 0, scale: 1, P: new Float32Array(44), U: new Float32Array(44) };
+    w.jellies = [52, 34, 26].map((s, i) => ({ i, s, phase: r() * TAU, x: NaN, y: 0, vy: 0, alpha: 0, home: null, strands: [] }));
+    w.snow = Array.from({ length: 150 }, () => ({ x: r(), y: r(), z: r(), p: r() * TAU }));
+    w.bubbles = []; w.school = []; w.boost = 0;
+    w.vents = [{ x: .045, every: .75, t: 0 }, { x: .955, every: 1.15, t: .5 }, { x: .29, every: 2.6, t: 1.3 }, { x: .73, every: 3.1, t: 2.2 }];
+    w.reef = [0, 1, 2, 3, 4].map(i => ({ kind: ['tang', 'blue', 'clown', 'tang', 'clown'][i], home: [.16, .3, .7, .83, .22][i], x: NaN, y: 0, tx: 0, ty: 0, vx: 0, vy: 0, next: r() * 3, face: 1, p: r() * TAU, alpha: 0, len: 15 + r() * 9 }));
+    w.rays = [[.08, .16, .1], [.27, .1, .16], [.45, .18, -.04], [.63, .12, .12], [.8, .15, .06], [.95, .09, .14]].map(([x, wd, lean], i) => ({ x, wd, lean, p: i * 1.9, sp: .11 + i * .023 }));
+    w.rnd = sceneRand(977);
+  },
+  layout(w){
+    const { W, H, c } = w, r = sceneRand(73);
+    w.bedH = Math.round(Math.max(84, Math.min(190, H * .19)));
+    w.bedY = H - w.bedH;
+    // the water: the same gradient the stage paints in CSS, lit from above
+    w.top = mixRgb(c[0], [63, 182, 217], .28); w.mid = c[0]; w.deep = mixRgb(c[0], [0, 0, 0], .45);
+    w.light = [214, 250, 255];
+    w.fogAt = y => { const t = Math.min(1, Math.max(0, y / H)); return t < .48 ? mixRgb(w.top, w.mid, t / .48) : mixRgb(w.mid, w.deep, (t - .48) / .52); };
+    let g;
+    [w.bg, g] = layer(w.bg, W, H, .5);
+    let gr = g.createLinearGradient(0, 0, 0, H);
+    gr.addColorStop(0, rgba(w.top)); gr.addColorStop(.48, rgba(w.mid)); gr.addColorStop(1, rgba(w.deep));
+    g.fillStyle = gr; g.fillRect(0, 0, W, H);
+    // the bright window of the surface overhead
+    gr = g.createRadialGradient(W * .5, -H * .25, 0, W * .5, -H * .25, H * .95);
+    gr.addColorStop(0, rgba(w.light, .26)); gr.addColorStop(1, rgba(w.light, 0));
+    g.fillStyle = gr; g.fillRect(0, 0, W, H);
+    // a far reef wall, lost in the blue
+    g.fillStyle = rgba(mixRgb(w.mid, w.deep, .55), .55);
+    g.beginPath(); g.moveTo(0, H);
+    for (let x = 0; x <= W; x += 16) g.lineTo(x, w.bedY - H * .05 + Math.sin(x * .0042 + 1.3) * H * .035 + Math.sin(x * .013) * H * .012);
+    g.lineTo(W, H); g.fill();
+    // corners fall away into the deep
+    gr = g.createRadialGradient(W / 2, H * .42, Math.min(W, H) * .35, W / 2, H * .42, Math.max(W, H) * .8);
+    gr.addColorStop(0, rgba(w.deep, 0)); gr.addColorStop(1, rgba(w.deep, .5));
+    g.fillStyle = gr; g.fillRect(0, 0, W, H);
+    this.seabed(w, r);
+    // kelp at both edges: the back stalks paler with distance
+    w.kelp = [];
+    const per = w.small ? 3 : 4;
+    for (let side = 0; side < 2; side++) for (let i = 0; i < per; i++){
+      const x = W * (.012 + i * (w.small ? .05 : .028)) + (r() - .5) * 8;
+      w.kelp.push({ x: side ? W - x : x, h: H * (w.small ? .2 + r() * .1 : .38 + r() * .24), hh: 0, ph: r() * TAU, back: i % 2 === 1,
+        blades: Array.from({ length: 12 }, (_, k) => ({ side: k % 2 ? 1 : -1, len: .8 + r() * .45, ang: .5 + r() * .3 })) });
+    }
+    // caustics: a small texture, recomputed every other frame, stretched over the sand
+    const cw = w.small ? 84 : 150;
+    w.cz = { cw, ch: Math.max(14, Math.round(cw * w.bedH * 2.4 / W)) };
+    [w.cz.cv, w.cz.g] = layer(w.cz.cv, w.cz.cw, w.cz.ch, 1);
+    w.cz.g.setTransform(1, 0, 0, 1, 0, 0);
+    w.cz.img = w.cz.g.createImageData(w.cz.cw, w.cz.ch);
+    for (let i = 0; i < w.cz.img.data.length; i += 4){ w.cz.img.data[i] = 235; w.cz.img.data[i + 1] = 255; w.cz.img.data[i + 2] = 248; }
+    this.caustics(w, w.t * .35 + 3);
+    // the whale: off on phones, sized to the screen on anything bigger
+    w.L = w.small ? 0 : Math.max(240, Math.min(520, W * .3));
+    if (w.L && isNaN(w.whale.x)){ w.whale.x = W * .74; w.whale.y = H * .66; w.calf.x = w.whale.x + w.L * .3; w.calf.y = w.whale.y - w.L * .2; }
+    w.jellies.forEach(j => { j.home = null; });
+    w.reef.forEach(f => { f.x = NaN; });
+  },
+  seabed(w, r){
+    const { W, H } = w, top = w.bedY - H * .16;
+    let g;
+    [w.bed, g] = layer(w.bed, W, H - top, Math.min(1.5, w.dpr));
+    w.bedTop = top;
+    g.translate(0, -top);
+    const sandAt = x => w.bedY + w.bedH * .2 + Math.sin(x * .004 + 1) * w.bedH * .07 + Math.sin(x * .011 + 2) * w.bedH * .035;
+    const fogged = (col, f) => mixRgb(col, w.deep, f);
+    // a dune behind, then the floor
+    g.fillStyle = rgba(fogged([196, 172, 120], .55));
+    g.beginPath(); g.moveTo(0, H);
+    for (let x = 0; x <= W; x += 12) g.lineTo(x, w.bedY + Math.sin(x * .0031 + 2.2) * w.bedH * .08 + w.bedH * .04);
+    g.lineTo(W, H); g.fill();
+    const sand = new Path2D(); sand.moveTo(0, H);
+    for (let x = 0; x <= W; x += 10) sand.lineTo(x, sandAt(x));
+    sand.lineTo(W, H); sand.closePath();
+    w.sand = sand;
+    let gr = g.createLinearGradient(0, w.bedY, 0, H);
+    gr.addColorStop(0, rgba(fogged([226, 202, 146], .38))); gr.addColorStop(1, rgba(fogged([240, 219, 170], .2)));
+    g.fillStyle = gr; g.fill(sand);
+    // ripples and grains in the sand
+    g.save(); g.clip(sand);
+    g.lineCap = 'round';
+    for (let i = 0; i < W / 14; i++){
+      const x = r() * W, y = sandAt(x) + 6 + r() * (H - sandAt(x)), len = 14 + r() * 38;
+      g.strokeStyle = r() > .5 ? 'rgba(255,250,235,.16)' : rgba(w.deep, .12); g.lineWidth = 1.2 + r();
+      g.beginPath(); g.moveTo(x, y); g.quadraticCurveTo(x + len / 2, y - 3 - r() * 3, x + len, y); g.stroke();
+    }
+    for (let i = 0; i < W * w.bedH / 70; i++){
+      const x = r() * W, y = w.bedY + r() * w.bedH;
+      g.fillStyle = r() > .5 ? 'rgba(255,255,240,.18)' : rgba(w.deep, .16);
+      g.fillRect(x, y, 1.2, 1.2);
+    }
+    g.restore();
+    // rocks, lit from above
+    const rock = (x, y, rx, ry) => {
+      const p = [];
+      for (let k = 0; k < 10; k++){ const a = Math.PI + k / 9 * Math.PI; p.push(x + Math.cos(a) * rx * (.85 + r() * .25), y + Math.sin(a) * ry * (.8 + r() * .3)); }
+      p.push(x + rx * .9, y + ry * .15, x - rx * .9, y + ry * .15);
+      g.fillStyle = rgba(w.deep, .35);
+      g.beginPath(); g.ellipse(x, y + ry * .12, rx * 1.1, ry * .22, 0, 0, TAU); g.fill();
+      const rg = g.createRadialGradient(x - rx * .35, y - ry * .8, 2, x, y - ry * .3, rx * 1.2);
+      rg.addColorStop(0, rgba(fogged([150, 160, 158], .25))); rg.addColorStop(1, rgba(fogged([52, 64, 70], .2)));
+      g.fillStyle = rg; g.beginPath(); smoothPath(g, p); g.fill();
+      for (let k = 0; k < rx / 3; k++){
+        g.fillStyle = r() > .5 ? rgba(fogged([92, 150, 86], .3), .7) : rgba(fogged([200, 120, 160], .3), .55);
+        g.beginPath(); g.arc(x + (r() - .5) * rx * 1.4, y - r() * ry * .9, 1 + r() * 2.2, 0, TAU); g.fill();
+      }
+    };
+    // staghorn coral: branches that fork and thin, brighter at the tips
+    const coral = (x, y, col, size) => {
+      const branch = (x0, y0, a, len, wd, d) => {
+        const x1 = x0 + Math.sin(a) * len, y1 = y0 - Math.cos(a) * len;
+        g.strokeStyle = rgba(col); g.lineWidth = wd;
+        g.beginPath(); g.moveTo(x0, y0); g.quadraticCurveTo(x0 + Math.sin(a) * len * .4 + (r() - .5) * 6, y0 - Math.cos(a) * len * .6, x1, y1); g.stroke();
+        if (d > 0){ branch(x1, y1, a - .35 - r() * .3, len * .72, wd * .72, d - 1); branch(x1, y1, a + .35 + r() * .3, len * .72, wd * .72, d - 1); if (r() > .6) branch(x1, y1, a, len * .6, wd * .7, d - 1); }
+        else { g.fillStyle = rgba(mixRgb(col, [255, 245, 235], .45)); g.beginPath(); g.arc(x1, y1, wd * .62, 0, TAU); g.fill(); }
+      };
+      g.lineCap = 'round';
+      for (let k = -2; k <= 2; k++) branch(x + k * size * .16, y, k * .32 + (r() - .5) * .2, size * (.42 + r() * .14), size * .085, 2);
+    };
+    const fan = (x, y, rad, col) => {
+      g.strokeStyle = rgba(col, .7); g.lineWidth = 1.1;
+      for (let k = 0; k <= 26; k++){
+        const a = -1.05 + k / 26 * 2.1, len = rad * (.82 + r() * .18);
+        g.beginPath(); g.moveTo(x, y); g.quadraticCurveTo(x + Math.sin(a) * len * .5, y - Math.cos(a) * len * .55, x + Math.sin(a) * len, y - Math.cos(a) * len); g.stroke();
+      }
+      g.strokeStyle = rgba(col, .4);
+      for (let k = 1; k <= 4; k++){ g.beginPath(); g.arc(x, y, rad * k / 4.4, -Math.PI / 2 - 1.05, -Math.PI / 2 + 1.05); g.stroke(); }
+      g.strokeStyle = rgba(col); g.lineWidth = 3; g.beginPath(); g.moveTo(x, y + 4); g.lineTo(x, y - rad * .15); g.stroke();
+    };
+    const brain = (x, y, rx, col) => {
+      const ry = rx * .62, bg = g.createRadialGradient(x - rx * .3, y - ry * .9, 2, x, y - ry * .3, rx * 1.1);
+      bg.addColorStop(0, rgba(mixRgb(col, [255, 250, 230], .35))); bg.addColorStop(1, rgba(mixRgb(col, w.deep, .35)));
+      g.fillStyle = bg; g.beginPath(); g.ellipse(x, y, rx, ry, 0, Math.PI, TAU); g.fill();
+      g.save(); g.beginPath(); g.ellipse(x, y, rx, ry, 0, Math.PI, TAU); g.clip();
+      g.strokeStyle = rgba(mixRgb(col, w.deep, .5), .45); g.lineWidth = 1.4;
+      for (let k = 0; k < 7; k++){
+        const yy = y - ry * (k + .5) / 7;
+        g.beginPath(); g.moveTo(x - rx, yy);
+        for (let xx = -rx; xx <= rx; xx += 5) g.lineTo(x + xx, yy + Math.sin(xx * .25 + k * 1.7) * 2.2);
+        g.stroke();
+      }
+      g.restore();
+    };
+    const tubes = (x, y, h, col) => {
+      for (let k = 0; k < 3; k++){
+        const tx = x + (k - 1) * h * .26, th = h * (.6 + r() * .45), tw = h * .17;
+        const tg = g.createLinearGradient(tx - tw / 2, 0, tx + tw / 2, 0);
+        tg.addColorStop(0, rgba(mixRgb(col, w.deep, .35))); tg.addColorStop(.4, rgba(mixRgb(col, [255, 240, 220], .2))); tg.addColorStop(1, rgba(mixRgb(col, w.deep, .45)));
+        g.fillStyle = tg; g.beginPath(); g.roundRect(tx - tw / 2, y - th, tw, th, [tw / 2, tw / 2, 2, 2]); g.fill();
+        g.fillStyle = rgba(mixRgb(col, [20, 10, 20], .6)); g.beginPath(); g.ellipse(tx, y - th + tw * .28, tw * .36, tw * .16, 0, 0, TAU); g.fill();
+      }
+    };
+    const star = (x, y, rad, col, rot) => {
+      g.fillStyle = rgba(col); g.beginPath();
+      for (let k = 0; k < 10; k++){ const a = rot + k / 10 * TAU, rr = k % 2 ? rad * .42 : rad; g.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr * .55); }
+      g.closePath(); g.fill();
+      g.fillStyle = 'rgba(255,240,220,.5)'; for (let k = 0; k < 5; k++){ const a = rot + k / 5 * TAU; g.beginPath(); g.arc(x + Math.cos(a) * rad * .5, y + Math.sin(a) * rad * .28, 1, 0, TAU); g.fill(); }
+    };
+    const grass = (x, y, h, col) => {
+      g.strokeStyle = rgba(col, .8); g.lineWidth = 1.6; g.lineCap = 'round';
+      for (let k = 0; k < 9; k++){ const a = (k - 4) * .13 + (r() - .5) * .1, len = h * (.55 + r() * .5); g.beginPath(); g.moveTo(x + (k - 4) * 1.5, y); g.quadraticCurveTo(x + Math.sin(a) * len * .5, y - len * .6, x + Math.sin(a * 2.4) * len, y - len); g.stroke(); }
+    };
+    const s = Math.max(.75, Math.min(1.35, w.bedH / 140));
+    const coralA = mixRgb([255, 118, 98], w.c[2], .25), coralB = mixRgb([255, 168, 76], w.c[3], .2), fanCol = mixRgb([186, 92, 214], w.deep, .2);
+    const ground = x => sandAt(x) + 4;
+    // the reef keeps to both sides of the floor, so nothing stands up in the middle
+    fan(W * .11, ground(W * .11), 62 * s, fanCol);
+    rock(W * .2, ground(W * .2), 46 * s, 28 * s);
+    coral(W * .155, ground(W * .155), coralA, 58 * s);
+    brain(W * .265, ground(W * .265), 30 * s, mixRgb([214, 168, 96], w.deep, .15));
+    tubes(W * .325, ground(W * .325), 46 * s, mixRgb([240, 130, 70], w.c[3], .2));
+    grass(W * .37, ground(W * .37), 26 * s, mixRgb([110, 170, 90], w.deep, .3));
+    star(W * .43, ground(W * .43) + w.bedH * .3, 9 * s, [255, 128, 70], .3);
+    grass(W * .58, ground(W * .58), 22 * s, mixRgb([110, 170, 90], w.deep, .3));
+    rock(W * .66, ground(W * .66), 38 * s, 22 * s);
+    coral(W * .705, ground(W * .705), coralB, 50 * s);
+    tubes(W * .77, ground(W * .77), 40 * s, mixRgb([200, 90, 170], w.c[2], .2));
+    rock(W * .84, ground(W * .84), 54 * s, 32 * s);
+    coral(W * .875, ground(W * .875), coralA, 46 * s);
+    fan(W * .93, ground(W * .93), 54 * s, fanCol);
+    brain(W * .79, ground(W * .79) + 2, 22 * s, mixRgb([170, 196, 120], w.deep, .15));
+    star(W * .6, ground(W * .6) + w.bedH * .42, 8 * s, [236, 96, 120], 1.1);
+    // anemones, swaying on the rocks
+    w.anemones = [[W * .2, ground(W * .2) - 26 * s, 1], [W * .84, ground(W * .84) - 30 * s, 1.15]].map(([x, y, k]) => ({ x, y, k }));
+  },
+  // the light net on the sand: a small texture, recomputed as the surface moves
+  caustics(w, time){
+    const { cw, ch, img, g } = w.cz, d = img.data, sc = TAU * 2.3 / cw;
+    let q = 3;
+    for (let y = 0; y < ch; y++){
+      const py = y * sc - 250;
+      for (let x = 0; x < cw; x++){
+        const px = x * sc - 250;
+        let ix = px, iy = py, c = 1;
+        for (let n = 0; n < 3; n++){
+          const t = time * (1 - 3.5 / (n + 1));
+          const nx = px + Math.cos(t - ix) + Math.sin(t + iy), ny = py + Math.sin(t - iy) + Math.cos(t + ix);
+          ix = nx; iy = ny;
+          const a = px / (Math.sin(ix + t) / .005), b = py / (Math.cos(iy + t) / .005);
+          c += 1 / Math.sqrt(a * a + b * b);
+        }
+        c = 1.17 - Math.pow(c / 3, 1.4);
+        let v = c * c; v *= v; v *= v;
+        d[q] = Math.min(1, v) * 255; q += 4;
+      }
+    }
+    g.putImageData(img, 0, 0);
+  },
+  update(w, dt){
+    const { W, H } = w, rnd = w.rnd, t = w.t;
+    w.boost = Math.max(0, w.boost - dt * .45);
+    // marine snow drifts down and with the current
+    for (const s of w.snow){
+      s.y += (.004 + s.z * .01) * dt; s.x += (Math.sin(t * .3 + s.p) * .002 + .0016 * s.z) * dt;
+      if (s.y > 1.02) { s.y = -.02; s.x = rnd(); } if (s.x > 1.02) s.x = -.02;
+    }
+    if (w.L) this.swim(w, dt);
+    for (const j of w.jellies) this.jelly(w, j, dt);
+    for (const f of w.reef) this.fish(w, f, dt);
+    // bubbles from vents on the floor; any that would reach a word pop first
+    for (const v of w.vents){
+      v.t -= dt;
+      if (v.t <= 0 && dt){
+        v.t = v.every * (.5 + rnd());
+        const x = v.x * W;
+        w.bubbles.push({ x, x0: x, y: w.bedY + w.bedH * .25, r: 1.6 + rnd() * rnd() * 5, vy: 0, p: rnd() * TAU, a: 1 });
+      }
+    }
+    w.bubbles = w.bubbles.filter(b => {
+      b.vy = -(26 + b.r * 9) * (b.fast || 1);
+      b.y += b.vy * dt; b.p += dt * 2.6;
+      b.x = b.x0 + Math.sin(b.p) * b.r * 1.1;
+      if (b.y < b.stop) return false;
+      const m = b.r + 6;
+      return b.y > H * .01 && !Living.hits({ l: b.x - m, r: b.x + m, t: b.y - m - 8, b: b.y + m });
+    });
+    // the reveal's school of silver fish
+    if (w.school.length){
+      w.schoolT += dt;
+      const u = w.schoolT / 3.4, lead = w.schoolDir > 0 ? -W * .25 + u * W * 1.5 : W * 1.25 - u * W * 1.5;
+      for (const f of w.school){
+        f.x = lead + f.ox + Math.sin(t * 3 + f.p) * 6; f.y = w.schoolY + f.oy + Math.sin(t * 2.2 + f.p * 2) * 5;
+        f.a = Math.min(1, f.a + dt * 3);
+        if (Living.hits({ l: f.x - 12, r: f.x + 12, t: f.y - 6, b: f.y + 6 })) f.a = 0;
+      }
+      if (u > 1.05) w.school = [];
+    }
+    // caustics follow the surface (every third frame is plenty)
+    if (dt && !w.calm && !w.auditing && (w.cframe = (w.cframe || 0) + 1) % (w.lite ? 4 : 3) === 0) this.caustics(w, t * .35 + 3);
+  },
+  // The whale keeps to a depth no word crosses and fades away when a new
+  // screen puts one in her path; her calf keeps close above her flipper
+  swim(w, dt){
+    const { W, H, L } = w, wh = w.whale, cf = w.calf;
+    // mother and calf together stand about .3 L above her spine and .33 L below
+    const UP = .31, DOWN = .33, floor = w.bedY + w.bedH * .3;
+    const band = Living.band(H * .06, floor, L * (UP + DOWN) * .42);
+    const pace = 1 + w.boost * 1.6;
+    wh.phase += dt * (.62 + w.boost * 1.1); cf.phase += dt * (.95 + w.boost * 1.4);
+    const place = () => {
+      const sc = Math.min(1, (band[1] - band[0]) / (L * (UP + DOWN)));
+      return [sc, lerp(band[0] + L * UP * sc, Math.max(band[0] + L * UP * sc, band[1] - L * DOWN * sc), .5 + .4 * Math.sin(w.t * .07))];
+    };
+    if (wh.wait > 0){
+      wh.wait -= dt;
+      if (wh.wait <= 0 && band){
+        wh.dir = -wh.dir; wh.x = wh.dir < 0 ? W + L * .3 : -L * .3;
+        [wh.scale, wh.y] = place();
+        cf.x = wh.x - wh.dir * L * .3; cf.y = wh.y - L * .19 * wh.scale;
+      } else if (wh.wait <= 0) wh.wait = 2;
+      wh.alpha = cf.alpha = 0; wh.box = cf.box = null;
+      return;
+    }
+    wh.x += wh.dir * L * .055 * pace * dt;
+    if (band){
+      const [sc, ty] = place();
+      // out of sight she takes her new size and depth at once; in sight, gently
+      const k = wh.alpha < .02 ? 1 : Math.min(1, dt * .4);
+      wh.scale += (sc - wh.scale) * k; wh.y += (ty - wh.y) * k;
+    }
+    const tail = wh.x - wh.dir * L * 1.3;
+    if ((wh.dir < 0 && tail < -L * .1) || (wh.dir > 0 && tail > W + L * .1)){ wh.wait = 7 + w.rnd() * 12; return; }
+    // the calf rides above her flipper, a little behind her head
+    cf.dir = wh.dir; cf.scale = wh.scale;
+    const tx = wh.x - wh.dir * L * .3 * wh.scale + Math.sin(w.t * .21) * L * .03 * wh.scale, ty2 = wh.y - L * .19 * wh.scale + Math.sin(w.t * .17 + 1) * L * .015 * wh.scale;
+    const ck = wh.alpha < .02 ? 1 : Math.min(1, dt * .6);
+    cf.x += (tx - cf.x) * ck; cf.y += (ty2 - cf.y) * ck;
+    this.pose(wh, L * wh.scale); this.pose(cf, L * .42 * wh.scale);
+    const box = { l: Math.min(wh.box.l, cf.box.l), r: Math.max(wh.box.r, cf.box.r), t: Math.min(wh.box.t, cf.box.t), b: Math.max(wh.box.b, cf.box.b) };
+    const want = band && !Living.hits(box) ? 1 : 0;
+    wh.alpha = Math.max(0, Math.min(1, wh.alpha + (want ? dt * .5 : -dt * 4)));
+    cf.alpha = wh.alpha;
+  },
+  // the spine: nose at (x,y), tail behind; the flukes beat up and down
+  pose(o, L){
+    const N = 22, P = o.P, U = o.U;
+    for (let i = 0; i < N; i++){
+      const s = i / (N - 1);
+      P[i * 2] = o.x - o.dir * s * L;
+      P[i * 2 + 1] = o.y + L * (.005 + .052 * Math.pow(s, 2.6)) * Math.sin(o.phase - s * 3.1) - L * .012 * Math.sin(Math.PI * s);
+    }
+    for (let i = 0; i < N; i++){
+      const a = Math.max(0, i - 1), b = Math.min(N - 1, i + 1);
+      let tx = P[b * 2] - P[a * 2], ty = P[b * 2 + 1] - P[a * 2 + 1];
+      const d = Math.hypot(tx, ty) || 1; tx /= d; ty /= d;
+      let ux = ty, uy = -tx; if (uy > 0){ ux = -ux; uy = -uy; }
+      U[i * 2] = ux; U[i * 2 + 1] = uy;
+    }
+    o.L = L;
+    // outline: over the back from the nose, then back along the belly
+    const out = o.out || (o.out = []); out.length = 0;
+    const at = this.at;
+    let [x, y] = at(o, 0);
+    out.push(x + o.dir * L * .012, y + L * .003);
+    for (let k = 1; k <= 24; k++){ const s = k / 24, [px, py, ux, uy] = at(o, s), h = profile(WHALE_TOP, s) * L; out.push(px + ux * h, py + uy * h); }
+    for (let k = 24; k >= 1; k--){ const s = k / 24, [px, py, ux, uy] = at(o, s), h = profile(WHALE_BOT, s) * L; out.push(px - ux * h, py - uy * h); }
+    let l = 1e9, r = -1e9, t = 1e9, b = -1e9;
+    for (let i = 0; i < out.length; i += 2){ l = Math.min(l, out[i]); r = Math.max(r, out[i]); t = Math.min(t, out[i + 1]); b = Math.max(b, out[i + 1]); }
+    // room for the flukes behind and the flipper below
+    o.box = { l: l - L * .22, r: r + L * .22, t: t - L * .1, b: b + L * .2 };
+  },
+  at(o, s){
+    const f = s * 21, i = Math.min(20, Math.floor(f)), k = f - i, P = o.P, U = o.U;
+    return [lerp(P[i * 2], P[i * 2 + 2], k), lerp(P[i * 2 + 1], P[i * 2 + 3], k), lerp(U[i * 2], U[i * 2 + 2], k), lerp(U[i * 2 + 1], U[i * 2 + 3], k)];
+  },
+  // a pectoral flipper: long, pale, knobbly along its leading edge
+  flipper(g, o, near){
+    const L = o.L, [x, y, ux, uy] = this.at(o, .26), b = profile(WHALE_BOT, .26) * L;
+    const ax = x - ux * b * (near ? .42 : .2) + (near ? 0 : o.dir * L * .02), ay = y - uy * b * (near ? .42 : .2) - (near ? 0 : L * .02);
+    const ang = (near ? .82 : .62) + .14 * Math.sin(o.phase * .8 + (near ? 0 : 1.2));
+    const dx = -o.dir * Math.cos(ang), dy = Math.sin(ang);
+    let qx = -dy, qy = dx; if (qx * o.dir < 0){ qx = -qx; qy = -qy; }   // towards the head: the leading edge
+    const len = L * (near ? .31 : .25), lead = [], trail = [];
+    for (let j = 0; j <= 12; j++){
+      const u = j / 12, cx = ax + dx * len * u, cy = ay + dy * len * u + Math.sin(u * 2.4) * L * .02;
+      const hw = L * (.034 * Math.pow(1 - u, .7) + .005);
+      const knob = near ? L * .0045 * Math.max(0, Math.sin(u * Math.PI * 7)) * (1 - u * .3) : 0;
+      lead.push(cx + qx * (hw + knob), cy + qy * (hw + knob)); trail.push(cx - qx * hw * .8, cy - qy * hw * .8);
+    }
+    const pts = [...lead];
+    for (let j = trail.length - 2; j >= 0; j -= 2) pts.push(trail[j], trail[j + 1]);
+    g.beginPath(); smoothPath(g, pts);
+    if (near){
+      const fg = g.createLinearGradient(ax, ay, ax + dx * len, ay + dy * len);
+      fg.addColorStop(0, '#7f8d99'); fg.addColorStop(.35, '#d9e1e6'); fg.addColorStop(1, '#eef3f5');
+      g.fillStyle = fg; g.fill();
+      g.strokeStyle = 'rgba(28,38,48,.3)'; g.lineWidth = Math.max(.8, L * .003); g.stroke();
+    } else { g.fillStyle = '#46525e'; g.fill(); }
+  },
+  flukes(g, o){
+    const L = o.L, [tx, ty, ux, uy] = this.at(o, 1), [px, py] = this.at(o, .93);
+    let dx = tx - px, dy = ty - py; const d = Math.hypot(dx, dy) || 1; dx /= d; dy /= d;
+    const pitch = .5 * Math.cos(o.phase - 3.1) * -o.dir, c = Math.cos(pitch), s = Math.sin(pitch);
+    const Dx = dx * c - dy * s, Dy = dx * s + dy * c;
+    let Vx = Dy, Vy = -Dx; if (Vy > 0){ Vx = -Vx; Vy = -Vy; }
+    // seen a little from above: both lobes show, sweeping back from the notch
+    const lf = L * .2, sp = L * (.085 + .04 * Math.abs(Math.sin(o.phase - 3.1)));
+    const P = (a, b) => [tx + Dx * lf * a + Vx * sp * b, ty + Dy * lf * a + Vy * sp * b];
+    const r1 = [tx + ux * L * .02, ty + uy * L * .02], r2 = [tx - ux * L * .02, ty - uy * L * .02];
+    const pts = [...r1, ...P(.25, .55), ...P(.62, 1.02), ...P(1.02, 1.18)];
+    // the trailing edge, scalloped like a humpback's
+    for (let k = 1; k <= 5; k++){ const u = k / 6; pts.push(...P(1.02 - u * .38 + (k % 2 ? .035 : 0), 1.18 - u * 1.18)); }
+    pts.push(...P(.66, 0));
+    for (let k = 1; k <= 5; k++){ const u = k / 6; pts.push(...P(.66 + u * .32 + (k % 2 ? .035 : 0), -u * 1.08)); }
+    pts.push(...P(.98, -1.08), ...P(.58, -.94), ...P(.22, -.5), ...r2);
+    g.beginPath(); g.moveTo(pts[0], pts[1]);
+    for (let i = 2; i < pts.length - 2; i += 2) g.quadraticCurveTo(pts[i], pts[i + 1], (pts[i] + pts[i + 2]) / 2, (pts[i + 1] + pts[i + 3]) / 2);
+    g.lineTo(pts[pts.length - 2], pts[pts.length - 1]); g.closePath();
+    const fg = g.createLinearGradient(...P(0, 1.1), ...P(0, -1.1));
+    fg.addColorStop(0, '#2a3642'); fg.addColorStop(.55, '#3b4855'); fg.addColorStop(1, '#8996a1');
+    g.fillStyle = fg; g.fill();
+    g.strokeStyle = 'rgba(220,235,240,.22)'; g.lineWidth = Math.max(.7, L * .0025); g.stroke();
+  },
+  // Paints a whale into its own small canvas, then fogs it with the water
+  // between it and us
+  paintWhale(w, o, fog){
+    const L = o.L, bx = o.box, k = 1, W2 = bx.r - bx.l, H2 = bx.b - bx.t;
+    let g;
+    [o.cv, g] = layer(o.cv, W2, H2, k);
+    g.translate(-bx.l, -bx.t);
+    const out = o.out;
+    let top = 1e9, bot = -1e9;
+    for (let i = 1; i < out.length; i += 2){ top = Math.min(top, out[i]); bot = Math.max(bot, out[i]); }
+    this.flipper(g, o, false);
+    this.flukes(g, o);
+    g.beginPath(); smoothPath(g, out);
+    let gr = g.createLinearGradient(0, top, 0, bot);
+    gr.addColorStop(0, '#26323e'); gr.addColorStop(.45, '#36434f'); gr.addColorStop(.72, '#5d6a76'); gr.addColorStop(1, '#a9b4bc');
+    g.fillStyle = gr; g.fill();
+    g.save(); g.clip();
+    // the pale throat, with its pleats
+    const at = (s, f) => { const [x, y, ux, uy] = this.at(o, s), h = profile(WHALE_BOT, s) * L * f; return [x - ux * h, y - uy * h]; };
+    const belly = [];
+    for (let k2 = 0; k2 <= 12; k2++) belly.push(...at(.01 + k2 / 12 * .56, 1.2));
+    for (let k2 = 12; k2 >= 0; k2--) belly.push(...at(.01 + k2 / 12 * .56, .32 + .3 * (k2 / 12)));
+    g.fillStyle = 'rgba(214,224,230,.82)'; g.beginPath(); smoothPath(g, belly); g.fill();
+    g.strokeStyle = 'rgba(48,60,72,.32)'; g.lineWidth = Math.max(.6, L * .0028);
+    for (let p = 1; p <= 8; p++){
+      const f = .38 + p / 9 * .6;
+      g.beginPath();
+      for (let k2 = 0; k2 <= 10; k2++){ const [x, y] = at(.03 + k2 / 10 * (.36 + p * .022), f); k2 ? g.lineTo(x, y) : g.moveTo(x, y); }
+      g.stroke();
+    }
+    // scars and pale patches on the flank
+    const mr = sceneRand(o === w.whale ? 5 : 9);
+    g.strokeStyle = 'rgba(226,236,240,.1)'; g.lineCap = 'round';
+    for (let m = 0; m < 10; m++){
+      const s = .18 + mr() * .62, [x, y, ux, uy] = this.at(o, s), h = (mr() * .8 - .1) * profile(WHALE_TOP, s) * L, len = L * (.015 + mr() * .035);
+      g.lineWidth = Math.max(.6, L * (.002 + mr() * .004));
+      g.beginPath(); g.moveTo(x + ux * h, y + uy * h); g.lineTo(x + ux * h - o.dir * len, y + uy * h + (mr() - .5) * len * .4); g.stroke();
+    }
+    // a soft sheen along the upper flank: the body is round, not flat
+    g.strokeStyle = rgba(w.light, .07); g.lineWidth = L * .04;
+    g.beginPath(); for (let k2 = 0; k2 <= 12; k2++){ const s = .08 + k2 / 12 * .7, [x, y, ux, uy] = this.at(o, s), h = profile(WHALE_TOP, s) * L * .45; k2 ? g.lineTo(x + ux * h, y + uy * h) : g.moveTo(x + ux * h, y + uy * h); } g.stroke();
+    // light from above, shadow below, and the sea's light net on her back
+    gr = g.createLinearGradient(0, top, 0, bot);
+    gr.addColorStop(0, rgba(w.light, .2)); gr.addColorStop(.4, rgba(w.light, 0)); gr.addColorStop(.75, 'rgba(0,12,28,0)'); gr.addColorStop(1, 'rgba(0,12,28,.32)');
+    g.fillStyle = gr; g.fillRect(bx.l, top, W2, bot - top);
+    g.globalCompositeOperation = 'lighter'; g.globalAlpha = .2;
+    g.drawImage(w.cz.cv, bx.l - (w.t * 6) % 40, top - L * .05, W2 + 40, (bot - top) * .7);
+    g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1;
+    g.restore();
+    // a rim of light along the back
+    g.strokeStyle = rgba(w.light, .32); g.lineWidth = Math.max(1, L * .007); g.lineCap = 'round';
+    g.beginPath(); for (let i = 2; i < 46; i += 2) i === 2 ? g.moveTo(out[i], out[i + 1]) : g.lineTo(out[i], out[i + 1]); g.stroke();
+    // knobs on the head, the mouth line, the eye
+    g.fillStyle = 'rgba(18,26,34,.45)';
+    for (let s = .02; s < .13; s += .016){ const [x, y, ux, uy] = this.at(o, s), h = profile(WHALE_TOP, s) * L * .78; g.beginPath(); g.arc(x + ux * h, y + uy * h, Math.max(.7, L * .0042), 0, TAU); g.fill(); }
+    g.strokeStyle = 'rgba(16,22,30,.55)'; g.lineWidth = Math.max(.7, L * .0035);
+    g.beginPath(); for (let k2 = 0; k2 <= 8; k2++){ const s = k2 / 8 * .2, [x, y, ux, uy] = this.at(o, s), h = -L * (.004 + .05 * Math.sin(s / .2 * Math.PI * .5) * .7); k2 ? g.lineTo(x + ux * h, y + uy * h) : g.moveTo(x + ux * h, y + uy * h); } g.stroke();
+    const [ex, ey, eux, euy] = this.at(o, .2), eh = -L * .012;
+    g.fillStyle = '#0d141b'; g.beginPath(); g.ellipse(ex + eux * eh, ey + euy * eh, L * .0085, L * .006, 0, 0, TAU); g.fill();
+    g.fillStyle = 'rgba(255,255,255,.55)'; g.beginPath(); g.arc(ex + eux * eh - o.dir * L * .002, ey + euy * eh - L * .002, Math.max(.6, L * .0022), 0, TAU); g.fill();
+    this.flipper(g, o, true);
+    // the water between: far things take on its colour
+    g.globalCompositeOperation = 'source-atop';
+    g.fillStyle = rgba(w.fogAt(o.y), fog); g.fillRect(bx.l, bx.t, W2, H2);
+    g.globalCompositeOperation = 'source-over';
+  },
+  jelly(w, j, dt){
+    const { W, H } = w, rnd = w.rnd;
+    if (!j.home || isNaN(j.x)){
+      // a home at one side, clear of the words
+      for (let tries = 0; tries < 12; tries++){
+        const side = (j.i + tries) % 2, x = side ? W * (.86 + rnd() * .09) : W * (.05 + rnd() * .09), y = H * (.18 + rnd() * .42);
+        if (!Living.hits({ l: x - j.s * 1.4, r: x + j.s * 1.4, t: y - j.s * 1.2, b: y + j.s * 3 })){ j.home = { x, y }; break; }
+      }
+      if (!j.home) j.home = { x: j.i % 2 ? W * .92 : W * .08, y: H * .3 };
+      j.x = j.home.x; j.y = j.home.y; j.vy = 0; j.alpha = 0;
+      j.strands = Array.from({ length: 7 }, (_, k) => ({ a: (k / 6 - .5) * 1.5, pts: Array.from({ length: 11 }, (_, n) => [j.x, j.y + n * j.s * .2]) }));
+    }
+    j.phase += dt * (1.5 + j.i * .25);
+    const thrust = Math.max(0, Math.sin(j.phase)) ** 2;
+    j.vy += (-thrust * 70 * (j.s / 50) + 9 + (j.home.y - j.y) * .04) * dt;
+    j.vy *= Math.max(0, 1 - dt * 1.6);
+    j.y += j.vy * dt;
+    j.x += ((j.home.x - j.x) * .05 + Math.sin(w.t * .13 + j.i * 2) * 4) * dt;
+    const pulse = (1 - Math.cos(j.phase)) / 2;
+    j.bw = j.s * (1 - .16 * pulse); j.bh = j.s * .7 * (1 + .14 * pulse);
+    // trailing tentacles: each point follows the one above it, lagging
+    const seg = j.s * .2;
+    for (const st of j.strands){
+      const p = st.pts;
+      p[0][0] = j.x + Math.sin(st.a) * j.bw * .45; p[0][1] = j.y + j.bh * .08;
+      for (let n = 1; n < p.length; n++){
+        const sway = Math.sin(w.t * 1.4 + n * .55 + st.a * 3) * seg * .35;
+        const tx = p[n - 1][0] + sway * .3, ty = p[n - 1][1] + seg;
+        p[n][0] += (tx - p[n][0]) * Math.min(1, dt * 4); p[n][1] += (ty - p[n][1]) * Math.min(1, dt * 4);
+        const dx = p[n][0] - p[n - 1][0], dy = p[n][1] - p[n - 1][1], d = Math.hypot(dx, dy) || 1;
+        if (d > seg * 1.15){ p[n][0] = p[n - 1][0] + dx / d * seg * 1.15; p[n][1] = p[n - 1][1] + dy / d * seg * 1.15; }
+      }
+    }
+    let l = j.x - j.bw * .7, r = j.x + j.bw * .7, b = j.y;
+    for (const st of j.strands) for (const [x, y] of st.pts){ l = Math.min(l, x - 2); r = Math.max(r, x + 2); b = Math.max(b, y); }
+    j.box = { l, r, t: j.y - j.bh - 4, b: b + 2 };
+    if (Living.hits(j.box)){ j.alpha = Math.max(0, j.alpha - dt * 3); if (!j.alpha) j.home = null; }
+    else j.alpha = Math.min(1, j.alpha + dt * .6);
+  },
+  fish(w, f, dt){
+    const { W } = w, rnd = w.rnd;
+    if (isNaN(f.x)){ f.x = f.tx = W * f.home; f.y = f.ty = w.bedY + w.bedH * .1 - rnd() * w.H * .06; f.alpha = 0; }
+    f.next -= dt;
+    if (f.next <= 0){
+      f.next = 1.2 + rnd() * 3.2;
+      f.tx = W * f.home + (rnd() - .5) * 120; f.ty = w.bedY - rnd() * w.H * .09 + w.bedH * .12;
+    }
+    const ax = (f.tx - f.x) * 1.4 - f.vx * 1.8, ay = (f.ty - f.y) * 1.4 - f.vy * 1.8;
+    f.vx += ax * dt; f.vy += ay * dt; f.x += f.vx * dt; f.y += f.vy * dt;
+    if (Math.abs(f.vx) > 4) f.face = Math.sign(f.vx);
+    f.p += dt * (5 + Math.abs(f.vx) * .15);
+    f.box = { l: f.x - f.len * .7, r: f.x + f.len * .7, t: f.y - f.len * .4, b: f.y + f.len * .4 };
+    if (Living.hits(f.box)){ f.alpha = Math.max(0, f.alpha - dt * 4); f.ty = w.bedY + w.bedH * .2; }
+    else f.alpha = Math.min(1, f.alpha + dt);
+  },
+  flare(w){
+    const { W } = w, rnd = w.rnd;
+    w.boost = 1;
+    // a curtain of bubbles from the floor, stopping well short of the question
+    const stop = w.clear.length ? Math.max(...w.clear.filter(z => z.b < w.bedY).map(z => z.b), 0) + 10 : 0;
+    for (let i = 0; i < (w.small ? 22 : 46); i++){
+      const x = W * (.16 + rnd() * .68);
+      w.bubbles.push({ x, x0: x, y: w.bedY + w.bedH * (.15 + rnd() * .3), r: 2.5 + rnd() * 7, vy: 0, p: rnd() * TAU, a: 1, fast: 4 + rnd() * 3, stop });
+    }
+    // and a school of silver fish darting past, in the open water below the words
+    const band = Living.band(w.H * .1, w.bedY + w.bedH * .2, 70);
+    if (band){
+      w.school = []; w.schoolT = 0; w.schoolDir = rnd() > .5 ? 1 : -1;
+      w.schoolY = band[0] + (band[1] - band[0]) * .5;
+      const spread = Math.min(70, (band[1] - band[0]) * .35);
+      for (let i = 0; i < (w.small ? 14 : 30); i++) w.school.push({ ox: (rnd() - .5) * W * .26, oy: (rnd() - .5) * 2 * spread, p: rnd() * TAU, len: 10 + rnd() * 7, a: 0, x: 0, y: 0 });
+    }
+  },
+  boxes(w){
+    const out = [];
+    if (w.L && w.whale.box && !(w.whale.wait > 0)){ out.push({ name: 'whale', ...w.whale.box, a: w.whale.alpha }, { name: 'whale calf', ...w.calf.box, a: w.calf.alpha }); }
+    for (const j of w.jellies) if (j.box) out.push({ name: 'jellyfish', ...j.box, a: j.alpha });
+    for (const f of w.reef) if (f.box) out.push({ name: 'reef fish', ...f.box, a: f.alpha });
+    for (const b of w.bubbles) out.push({ name: b.fast ? 'reveal bubbles' : 'bubbles', l: b.x - b.r, r: b.x + b.r, t: b.y - b.r, b: b.y + b.r, a: 1 });
+    for (const f of w.school) out.push({ name: 'school of fish', l: f.x - f.len, r: f.x + f.len, t: f.y - f.len * .35, b: f.y + f.len * .35, a: f.a });
+    return out;
+  },
+  draw(w){
+    const { ctx: c, W, H, t } = w;
+    c.setTransform(w.dpr, 0, 0, w.dpr, 0, 0);
+    c.globalCompositeOperation = 'source-over'; c.globalAlpha = 1;
+    c.drawImage(w.bg, 0, 0, W, H);
+    this.drawSnow(w, false);
+    // the whales, far off
+    if (w.L && w.whale.alpha > .01 && w.whale.box){
+      for (const o of [w.whale, w.calf]){
+        this.paintWhale(w, o, o === w.calf ? .3 : .36);
+        c.globalAlpha = o.alpha * .92;
+        c.drawImage(o.cv, o.box.l, o.box.t, o.box.r - o.box.l, o.box.b - o.box.t);
+      }
+      c.globalAlpha = 1;
+    }
+    // shafts of light from the surface: soft, so painted small every few frames
+    if (!w.rayCv || (w.rayN = (w.rayN || 0) + 1) % 4 === 0 || w.calm){
+      let g;
+      [w.rayCv, g] = layer(w.rayCv, W, H, .25);
+      g.clearRect(0, 0, W, H);
+      for (const r of w.rays){
+        const a = (.05 + .035 * Math.sin(t * r.sp + r.p)) * (1 + w.boost * 1.6), x = r.x * W + Math.sin(t * r.sp * .7 + r.p) * W * .015, wd = r.wd * W;
+        const gr = g.createLinearGradient(0, 0, 0, H * .9);
+        gr.addColorStop(0, rgba(w.light, a * 1.6)); gr.addColorStop(.5, rgba(w.light, a * .55)); gr.addColorStop(1, rgba(w.light, 0));
+        g.fillStyle = gr;
+        g.beginPath(); g.moveTo(x - wd * .18, -2); g.lineTo(x + wd * .18, -2); g.lineTo(x + r.lean * H + wd * .5, H * .9); g.lineTo(x + r.lean * H - wd * .5, H * .9); g.fill();
+      }
+    }
+    c.globalCompositeOperation = 'lighter';
+    c.drawImage(w.rayCv, 0, 0, W, H);
+    // the surface overhead, shimmering
+    c.globalAlpha = .3; c.drawImage(w.cz.cv, -(t * 9) % 60, 0, W + 60, H * .07);
+    c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
+    // the reveal's school
+    for (const f of w.school){
+      if (f.a < .02) continue;
+      const flash = .55 + .45 * Math.sin(t * 7 + f.p);
+      c.globalAlpha = f.a;
+      this.smallFish(c, f.x, f.y, f.len, w.schoolDir, f.p + t * 14, rgba(mixRgb([150, 176, 196], [240, 250, 255], flash)), rgba(mixRgb([90, 110, 130], w.deep, .3)));
+    }
+    c.globalAlpha = 1;
+    for (const k of w.kelp) if (k.back) this.drawKelp(w, k);
+    for (const j of w.jellies) this.drawJelly(w, j);
+    // the reef, then light rippling over the sand
+    c.drawImage(w.bed, 0, w.bedTop, W, H - w.bedTop);
+    c.save(); c.clip(w.sand);
+    c.globalCompositeOperation = 'lighter'; c.globalAlpha = .5;
+    c.drawImage(w.cz.cv, 0, w.bedY, W, w.bedH);
+    c.restore();
+    this.drawAnemones(w);
+    for (const f of w.reef) this.drawReefFish(w, f);
+    for (const k of w.kelp) if (!k.back) this.drawKelp(w, k);
+    this.drawBubbles(w);
+    this.drawSnow(w, true);
+  },
+  drawSnow(w, near){
+    const c = w.ctx, { W, H } = w;
+    c.fillStyle = rgba(w.light, near ? .55 : .3);
+    for (const s of w.snow){
+      if ((s.z > .6) !== near) continue;
+      const sz = near ? 1.2 + s.z * 1.3 : .8 + s.z;
+      c.globalAlpha = .35 + .65 * Math.abs(Math.sin(w.t * .6 + s.p));
+      c.fillRect(s.x * W, s.y * H, sz, sz);
+    }
+    c.globalAlpha = 1;
+  },
+  drawKelp(w, k){
+    const c = w.ctx, t = w.t, H = w.H, base = w.bedY + w.bedH * .3;
+    // no taller than the words above it allow
+    let cap = k.h;
+    for (const z of w.clear) if (z.l < k.x + 70 && z.r > k.x - 70 && z.b < base) cap = Math.min(cap, base - z.b - 18);
+    k.hh += ((Math.max(k.h * .3, cap)) - k.hh) * Math.min(1, (w.calm ? 1 : .03) + (k.hh ? 0 : 1));
+    const h = k.hh, N = 14, xs = [], ys = [];
+    for (let n = 0; n < N; n++){
+      const s = n / (N - 1);
+      xs.push(k.x + Math.pow(s, 1.5) * (h * .05 * Math.sin(t * .55 + k.ph - s * 2) + h * .025 * Math.sin(t * .23 + k.ph * 2.1 - s * 3.1) + h * .04));
+      ys.push(base - s * h);
+    }
+    const col = k.back ? mixRgb(mixRgb([150, 128, 48], w.mid, .55), w.deep, .2) : mixRgb([166, 142, 52], w.mid, .2);
+    const dark = mixRgb(col, [20, 30, 10], .4);
+    c.strokeStyle = rgba(dark, .9); c.lineWidth = k.back ? 2 : 3; c.lineCap = 'round';
+    c.beginPath(); c.moveTo(xs[0], ys[0]);
+    for (let n = 1; n < N - 1; n++) c.quadraticCurveTo(xs[n], ys[n], (xs[n] + xs[n + 1]) / 2, (ys[n] + ys[n + 1]) / 2);
+    c.lineTo(xs[N - 1], ys[N - 1]); c.stroke();
+    // all the blades in one path, their midribs in another, the floats in a third
+    const blades = new Path2D(), ribs = new Path2D(), floats = new Path2D(), fr = k.back ? 1.6 : 2.3;
+    k.blades.forEach((b, i) => {
+      const n = i + 2; if (n >= N) return;
+      const s = n / (N - 1), len = h * .13 * b.len * (1 - .3 * s), a = b.side * (b.ang + .28 * Math.sin(t * .7 + k.ph + i)) + .25 * Math.sin(t * .55 + k.ph - s * 2);
+      const x = xs[n], y = ys[n], dx = Math.sin(a), dy = -Math.cos(a), px = -dy, py = dx, wd = len * .3;
+      blades.moveTo(x, y);
+      blades.quadraticCurveTo(x + dx * len * .4 + px * wd, y + dy * len * .4 + py * wd, x + dx * len, y + dy * len);
+      blades.quadraticCurveTo(x + dx * len * .55 - px * wd * .75, y + dy * len * .55 - py * wd * .75, x, y);
+      ribs.moveTo(x, y); ribs.lineTo(x + dx * len * .85, y + dy * len * .85);
+      floats.moveTo(x + dx * 2.5 + fr, y + dy * 2.5); floats.arc(x + dx * 2.5, y + dy * 2.5, fr, 0, TAU);
+    });
+    c.fillStyle = rgba(col, k.back ? .75 : .88); c.fill(blades);
+    c.strokeStyle = rgba(dark, .45); c.lineWidth = .8; c.stroke(ribs);
+    c.fillStyle = rgba(mixRgb(col, [230, 210, 120], .35), .9); c.fill(floats);
+  },
+  drawJelly(w, j){
+    if (!j.home || j.alpha < .02) return;
+    const c = w.ctx, { x, y, bw, bh } = j;
+    c.globalAlpha = j.alpha;
+    if (!w.glow){
+      const [cv, g] = layer(null, 64, 64, 1), gr = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+      gr.addColorStop(0, 'rgba(255,130,220,.2)'); gr.addColorStop(1, 'rgba(255,130,220,0)');
+      g.fillStyle = gr; g.fillRect(0, 0, 64, 64); w.glow = cv;
+    }
+    c.globalCompositeOperation = 'lighter';
+    c.drawImage(w.glow, x - j.s * 1.6, y - bh * .4 - j.s * 1.6, j.s * 3.2, j.s * 3.2);
+    c.globalCompositeOperation = 'source-over';
+    // tentacles, then the frilled oral arms
+    c.lineCap = 'round';
+    c.strokeStyle = 'rgba(255,196,238,.42)'; c.lineWidth = 1;
+    c.beginPath();
+    for (const st of j.strands) st.pts.forEach(([px, py], n) => n ? c.lineTo(px, py) : c.moveTo(px, py));
+    c.stroke();
+    c.strokeStyle = 'rgba(255,150,222,.5)'; c.lineWidth = Math.max(2, j.s * .07);
+    c.beginPath();
+    for (let a = 0; a < 4; a++){
+      const ox = (a - 1.5) * bw * .12;
+      c.moveTo(x + ox, y);
+      for (let n = 1; n <= 8; n++) c.lineTo(x + ox + Math.sin(w.t * 1.8 + n * .9 + a) * j.s * .07, y + n * j.s * .085);
+    }
+    c.stroke();
+    let gr;
+    // the bell
+    c.beginPath(); c.moveTo(x - bw / 2, y);
+    c.bezierCurveTo(x - bw / 2, y - bh * 1.15, x + bw / 2, y - bh * 1.15, x + bw / 2, y);
+    for (let s = 1; s <= 8; s++) c.quadraticCurveTo(x + bw / 2 - (s - .5) * bw / 8, y + bh * .1, x + bw / 2 - s * bw / 8, y);
+    c.closePath();
+    gr = c.createRadialGradient(x, y - bh * .75, 1, x, y - bh * .3, bw * .7);
+    gr.addColorStop(0, 'rgba(255,238,250,.62)'); gr.addColorStop(.6, 'rgba(255,128,214,.36)'); gr.addColorStop(1, 'rgba(176,92,255,.24)');
+    c.fillStyle = gr; c.fill();
+    c.strokeStyle = 'rgba(255,255,255,.38)'; c.lineWidth = 1.2; c.stroke();
+    c.fillStyle = 'rgba(255,118,200,.38)'; c.beginPath();
+    for (let a = 0; a < 4; a++){ const gx = x + (a - 1.5) * bw * .15; c.moveTo(gx + bw * .07, y - bh * .32); c.ellipse(gx, y - bh * .32, bw * .07, bh * .16, (a - 1.5) * .3, 0, TAU); }
+    c.fill();
+    c.globalAlpha = 1;
+  },
+  drawAnemones(w){
+    const c = w.ctx;
+    c.lineCap = 'round';
+    for (const a of w.anemones){
+      for (let k = 0; k < 17; k++){
+        const ang = (k / 16 - .5) * 2.3 + Math.sin(w.t * 1.1 + k * .5) * .16, len = 22 * a.k * (.7 + .3 * Math.sin(k * 2.3));
+        const tx = a.x + Math.sin(ang) * len, ty = a.y - Math.cos(ang) * len * .9;
+        c.strokeStyle = rgba(mixRgb([238, 104, 150], w.deep, .15)); c.lineWidth = 3.4 * a.k;
+        c.beginPath(); c.moveTo(a.x + (k - 8) * .8, a.y + 4); c.quadraticCurveTo(a.x + Math.sin(ang) * len * .4, a.y - len * .5, tx, ty); c.stroke();
+        c.fillStyle = 'rgba(255,214,232,.9)'; c.beginPath(); c.arc(tx, ty, 1.9 * a.k, 0, TAU); c.fill();
+      }
+    }
+  },
+  // a little fish side on: body, tail, a fin, an eye
+  smallFish(c, x, y, len, face, p, body, fin){
+    const tail = Math.sin(p) * len * .14;
+    c.fillStyle = fin;
+    c.beginPath(); c.moveTo(x - face * len * .38, y); c.lineTo(x - face * len * .62, y - len * .2 + tail); c.lineTo(x - face * len * .62, y + len * .2 + tail); c.closePath(); c.fill();
+    c.fillStyle = body;
+    c.beginPath(); c.ellipse(x, y, len * .45, len * .2, 0, 0, TAU); c.fill();
+    c.fillStyle = 'rgba(10,16,24,.8)'; c.beginPath(); c.arc(x + face * len * .27, y - len * .04, Math.max(.9, len * .045), 0, TAU); c.fill();
+  },
+  drawReefFish(w, f){
+    if (f.alpha < .02) return;
+    const c = w.ctx, L = f.len, x = f.x, y = f.y, d = f.face, tail = Math.sin(f.p) * L * .16;
+    c.globalAlpha = f.alpha;
+    const col = { tang: [255, 210, 63], blue: [52, 104, 255], clown: [255, 122, 36] }[f.kind];
+    // tail and fins
+    c.fillStyle = rgba(f.kind === 'blue' ? [255, 214, 70] : mixRgb(col, [0, 0, 0], .1));
+    c.beginPath(); c.moveTo(x - d * L * .38, y); c.quadraticCurveTo(x - d * L * .6, y - L * .3 + tail, x - d * L * .72, y - L * .26 + tail); c.lineTo(x - d * L * .66, y + tail * .5); c.lineTo(x - d * L * .72, y + L * .26 + tail); c.quadraticCurveTo(x - d * L * .6, y + L * .3 + tail, x - d * L * .38, y); c.fill();
+    c.beginPath(); c.moveTo(x - d * L * .2, y - L * .2); c.quadraticCurveTo(x, y - L * (f.kind === 'tang' ? .48 : .36), x + d * L * .12, y - L * .22); c.fill();
+    // body, lit from above
+    const gr = c.createLinearGradient(0, y - L * .3, 0, y + L * .3);
+    gr.addColorStop(0, rgba(mixRgb(col, [255, 255, 240], .25))); gr.addColorStop(1, rgba(mixRgb(col, [0, 0, 0], .25)));
+    c.fillStyle = gr;
+    c.beginPath(); c.ellipse(x, y, L * .44, L * (f.kind === 'tang' ? .3 : .22), 0, 0, TAU); c.fill();
+    if (f.kind === 'clown'){
+      c.save(); c.beginPath(); c.ellipse(x, y, L * .44, L * .22, 0, 0, TAU); c.clip();
+      c.fillStyle = 'rgba(255,255,255,.92)';
+      for (const o of [.2, -.08, -.32]) c.fillRect(x + d * L * o - L * .05, y - L * .3, L * .1, L * .6);
+      c.restore();
+    }
+    if (f.kind === 'blue'){ c.strokeStyle = 'rgba(10,20,60,.7)'; c.lineWidth = 1.4; c.beginPath(); c.moveTo(x + d * L * .25, y - L * .08); c.quadraticCurveTo(x - d * L * .05, y - L * .2, x - d * L * .3, y + L * .02); c.stroke(); }
+    c.fillStyle = '#0b1218'; c.beginPath(); c.arc(x + d * L * .25, y - L * .05, Math.max(1, L * .05), 0, TAU); c.fill();
+    c.fillStyle = 'rgba(255,255,255,.8)'; c.beginPath(); c.arc(x + d * L * .26, y - L * .065, Math.max(.5, L * .018), 0, TAU); c.fill();
+    c.globalAlpha = 1;
+  },
+  drawBubbles(w){
+    const c = w.ctx;
+    for (const b of w.bubbles){
+      c.strokeStyle = 'rgba(222,250,255,.62)'; c.lineWidth = b.r > 5 ? 1.3 : 1;
+      c.fillStyle = 'rgba(200,240,255,.1)';
+      c.beginPath(); c.arc(b.x, b.y, b.r, 0, TAU); c.fill(); c.stroke();
+      c.fillStyle = 'rgba(255,255,255,.75)';
+      c.beginPath(); c.arc(b.x - b.r * .35, b.y - b.r * .35, Math.max(.6, b.r * .28), 0, TAU); c.fill();
+    }
+  }
+};
+
 let sceneTheme = '';
 function renderScene(theme){
   const el = document.getElementById('scene');
-  if (!el || sceneTheme === theme) return;
+  if (!el) return;
+  // same theme, new colours: a living scene repaints what it painted once
+  if (sceneTheme === theme){ Living.recolor(); return; }
   sceneTheme = theme;
+  Living.stop();
   el.className = 'sc-' + theme;
   el.innerHTML = SCENES[theme] ? SCENES[theme]() : '';
+  if (LIVE[theme]) Living.start(el.querySelector('canvas'), theme);
 }
 // The reveal moment: lanterns flare, spotlights brighten, lightning flashes…
 function flareScene(){

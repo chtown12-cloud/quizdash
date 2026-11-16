@@ -3,7 +3,9 @@
 // (reveal-only ones too, wherever a reveal can happen), and anything that
 // travels (a satellite, shooting stars, a rocket, bubbles, a whale, a
 // witch, clouds) is checked against the question's lines of text, on the
-// big screen at several sizes and on phones.
+// big screen at several sizes and on phones. Scenes painted on a canvas
+// (see Living in index.html) have no elements to step, so their world is
+// run forward four minutes instead, and every creature in it checked.
 const { chromium } = require('playwright');
 const ok = (c, m) => console.log((c ? 'PASS ' : 'FAIL ') + m);
 const MOVERS = '.sc-sat, .sc-shoot, .sc-rocket, .sc-burst i, .sc-whale, .sc-witch, .sc-cloud';
@@ -50,6 +52,10 @@ const MOVERS = '.sc-sat, .sc-shoot, .sc-rocket, .sc-burst i, .sc-whale, .sc-witc
       anims.forEach(a => a.play());
     }
     document.documentElement.classList.remove('flare');
+    if (typeof Living !== 'undefined' && Living.w){
+      const boxes = lines.map(x => ({ l: x.l, r: x.r, t: x.t, b: x.b }));
+      for (const flare of flares) for (const name of Living.audit(boxes, 240, flare)) hits.add(name + (flare ? ' (reveal)' : ''));
+    }
     return [...hits];
   }, [textSel, MOVERS, flares]);
   const run = async (pg, sel, label, sizes, flares = [false, true]) => {
