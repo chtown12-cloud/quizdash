@@ -1505,79 +1505,12 @@ html.flare .sc-spooky .sc-halo{transform:scale(1.7);opacity:1}
 html.flare .sc-spooky .sc-face{fill:#fff2a8}
 @media (max-width:600px){.sc-spooky{--hillH:clamp(130px,22vh,190px)}.sc-spooky .sc-ground{height:84px}}
 
-/* Winter Holidays: a snowy night */
-.sc-winter{--snowy:#eef4ff;--pine:color-mix(in srgb,var(--c1) 30%,#163d2c);--hush:color-mix(in srgb,var(--c1) 55%,#000)}
-.sc-winter .sc-snow{left:0;right:0;top:-300px;height:calc(100% + 300px);background-repeat:repeat;animation:snowfall var(--fall) linear infinite,sway 7s ease-in-out infinite alternate}
-.sc-winter .sc-snow-far{--fall:26s;opacity:.55}
-.sc-winter .sc-snow-near{--fall:15s;opacity:.85;animation-delay:0s,-3s}
-@keyframes snowfall{to{transform:translateY(300px)}}
-@keyframes sway{to{translate:22px 0}}
-.sc-winter .sc-lights{left:0;top:0;width:100%;height:clamp(34px,6vh,56px);overflow:visible}
-.sc-winter .sc-bulb{animation:twinkle var(--d) ease-in-out infinite alternate}
-.sc-winter .sc-bulbglow{opacity:.35;transition:opacity .25s}
-@keyframes twinkle{from{opacity:1}to{opacity:.55}}
-html.flare .sc-winter .sc-bulb{animation:none;opacity:1}
-html.flare .sc-winter .sc-bulbglow{opacity:1}
-.sc-winter .sc-ground{height:clamp(110px,25vh,240px);overflow:visible}
-.sc-winter .sc-far{fill:color-mix(in srgb,var(--c1) 62%,#9fb3d6)}
-.sc-winter .sc-pine{fill:var(--pine)}
-.sc-winter .sc-hush{fill:var(--hush)}
-.sc-winter .sc-drift{fill:var(--snowy)}
-.sc-winter .sc-drift2{fill:color-mix(in srgb,var(--snowy) 82%,var(--c1))}
-.sc-winter .sc-window{fill:#ffcf6e;transition:fill .3s}
-.sc-winter .sc-windowglow{opacity:.55;transition:opacity .3s}
-html.flare .sc-winter .sc-window{fill:#fff1bf}
-html.flare .sc-winter .sc-windowglow{opacity:1}
-.sc-winter .sc-smoke circle{fill:rgba(230,238,255,.42);transform-box:fill-box;transform-origin:center;animation:smoke 6s ease-out infinite}
-@keyframes smoke{0%{transform:translate(0,0) scale(.6);opacity:0}15%{opacity:.85}100%{transform:translate(-26px,-80px) scale(2.6);opacity:0}}
-@media (max-width:600px){.sc-winter .sc-ground{height:110px}.sc-winter .sc-snow-far{display:none}}
-
+/* Winter Holidays: painted on a canvas (see LIVE.winter) */
 /* Under the Sea: painted on a canvas (see LIVE.deepsea) */
 #scene .sc-live{inset:0;width:100%;height:100%}
 
-/* Outer Space: the view from a starship */
-.sc-space .sc-stars{inset:0;background-repeat:repeat;animation:drift var(--dur) linear infinite}
-.sc-space .sc-st1{--dur:260s;opacity:.5}
-.sc-space .sc-st2{--dur:150s;opacity:.75}
-.sc-space .sc-st3{--dur:90s;animation:drift var(--dur) linear infinite,glimmer 3.4s ease-in-out infinite alternate}
-@keyframes drift{to{background-position:-400px 0}}
-@keyframes glimmer{to{opacity:.5}}
-.sc-space .sc-neb{inset:0;background:radial-gradient(38% 30% at 16% 18%,color-mix(in srgb,var(--c3) 20%,transparent),transparent 70%),radial-gradient(30% 26% at 84% 72%,rgba(255,95,180,.12),transparent 70%);animation:breathe 18s ease-in-out infinite alternate}
-@keyframes breathe{to{opacity:.5}}
-.sc-space .sc-planet{right:-7vw;bottom:-16vh;width:clamp(260px,50vh,500px);overflow:visible}
-.sc-space .sc-moon{left:5vw;top:13vh;width:clamp(34px,6vh,62px)}
-.sc-space .sc-sat{left:0;top:clamp(2px,1vh,10px);width:clamp(44px,5vw,72px);animation:sat 75s linear infinite;animation-delay:-22s}
-@keyframes sat{from{transform:translateX(-12vw) rotate(0)}to{transform:translateX(112vw) rotate(50deg)}}
-.sc-space .sc-shoot{left:1vw;top:9vh;width:120px;height:2px;border-radius:2px;background:linear-gradient(90deg,transparent,#fff);rotate:-18deg;opacity:0;animation:shoot 11s ease-in infinite;animation-delay:-3s}
-.sc-space .sc-shoot2{left:86vw;top:7vh;animation-duration:17s;animation-delay:-11s}
-@keyframes shoot{0%,90%{opacity:0;transform:translateX(0)}92%{opacity:1}100%{opacity:0;transform:translateX(9vw)}}
-.sc-space .sc-rocket{left:0;top:90vh;width:clamp(70px,7vw,110px);opacity:0}
-html.flare .sc-space .sc-rocket{animation:rocket 1.8s cubic-bezier(.4,0,.7,1) both}
-@keyframes rocket{0%{opacity:1;transform:translate(-14vw,0) rotate(-14deg)}100%{opacity:1;transform:translate(116vw,-32vh) rotate(-14deg)}}
-.sc-space .sc-rocks{left:2vw;bottom:4vh;width:clamp(120px,15vw,210px);fill:color-mix(in srgb,var(--c1) 45%,#8a86a8)}
-@media (max-width:600px){.sc-space .sc-planet{width:230px;right:-60px;bottom:-70px}.sc-space :is(.sc-sat,.sc-rocks,.sc-moon){display:none}}
-
-/* Disco Night: the dance floor */
-.sc-disco .sc-sun70{left:-24vh;top:-24vh;width:76vh;height:76vh;border-radius:50%;opacity:.13;
-  background:repeating-conic-gradient(var(--c2) 0 6deg,transparent 6deg 18deg);
-  -webkit-mask-image:radial-gradient(closest-side,#000 35%,transparent);mask-image:radial-gradient(closest-side,#000 35%,transparent);animation:spin 90s linear infinite}
-@keyframes spin{to{rotate:360deg}}
-.sc-disco .sc-spots{left:calc(88vw - 120vmax);top:calc(12vh - 120vmax);width:240vmax;height:240vmax;background-repeat:repeat;mix-blend-mode:screen;opacity:.15;animation:spin 46s linear infinite;transition:opacity .3s}
-html.flare .sc-disco .sc-spots{opacity:.55}
-.sc-disco .sc-ball{right:calc(12vw - clamp(40px,6.5vh,64px));top:0;width:clamp(80px,13vh,128px);overflow:visible}
-.sc-disco .sc-facets{animation:facets 1.4s steps(5,end) infinite}
-@keyframes facets{to{transform:translateX(10px)}}
-.sc-disco .sc-glint{transform-box:fill-box;transform-origin:center;animation:glint var(--d) ease-in-out infinite alternate}
-@keyframes glint{from{opacity:.15;scale:.6}to{opacity:1;scale:1.15}}
-.sc-disco .sc-ballglow{opacity:.35;transition:opacity .3s}
-html.flare .sc-disco .sc-ballglow{opacity:1}
-html.flare .sc-disco .sc-glint{animation:none;opacity:1;scale:1.6}
-.sc-disco .sc-ground{height:clamp(70px,17vh,170px)}
-.sc-disco .sc-tile{animation:floor 1.84s steps(1,end) infinite;stroke:#12051f;stroke-width:3}
-@keyframes floor{0%{opacity:.78}50%{opacity:.2}}
-html.flare .sc-disco .sc-tile{animation:none;opacity:1;filter:brightness(1.3)}
-@media (max-width:600px){.sc-disco .sc-spots{opacity:.14}.sc-disco .sc-ground{height:90px}}
-
+/* Outer Space: painted on a canvas (see LIVE.space) */
+/* Disco Night: painted on a canvas (see LIVE.disco) */
 /* ── Misc ───────────────────────────────────────────────────────────────── */
 .badge-online{display:inline-flex;align-items:center;gap:6px;font-size:.85rem;line-height:18px;font-weight:600;background:var(--ink-back,rgba(16,10,36,.7));-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-radius:var(--r-pill);padding:6px 14px}
 .dot{width:9px;height:9px;border-radius:50%;background:#3DDC84}
@@ -2723,45 +2656,8 @@ const SCENES = {
         ${lantern(90, .95, 2.1)}${lantern(250, .7, 2.7)}${lantern(410, 1.05, 1.8)}${lantern(1330, .8, 2.4)}</svg>`;
   },
 
-  // Winter Holidays: a snowy night. String lights along the top twinkle
-  // and blaze at every reveal, snow drifts down, a lit pine stands on the
-  // left, and a cabin on the right glows with its chimney smoking
-  winter(){
-    const r = sceneRand(23);
-    const flakes = (n, size) => { let b = ''; for (let i = 0; i < n; i++) b += `<circle cx='${(r() * 300).toFixed(0)}' cy='${(r() * 300).toFixed(0)}' r='${(size * (.6 + r() * .8)).toFixed(1)}' fill='#fff' opacity='${(.45 + r() * .5).toFixed(2)}'/>`; return svgTile(300, 300, b); };
-    const cols = ['#ffd45e', '#ff5a5f', '#5be38a', '#6fc3ff'];
-    const glows = cols.map((c, i) => `<radialGradient id="sc-bg${i}"><stop offset="0" stop-color="${c}" stop-opacity=".75"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></radialGradient>`).join('');
-    const bulb = (x, y, k, s = 1) => `<g transform="translate(${x.toFixed(0)} ${y.toFixed(1)}) scale(${s})"><circle class="sc-bulbglow" cy="11" r="17" fill="url(#sc-bg${k % 4})"/><rect x="-3" y="-1" width="6" height="5" rx="1" fill="#2b3446"/><ellipse class="sc-bulb" style="--d:${(1.2 + r() * 2.4).toFixed(1)}s" cy="11" rx="5" ry="8" fill="${cols[k % 4]}"/></g>`;
-    // the wire sags in arcs; each arc's points are y = 6 + 80t(1 − t)
-    let wire = 'M-40 6', bulbs = '', k = 0;
-    for (let x = -40; x < 1640; x += 100){
-      wire += ` Q${x + 50} 46 ${x + 100} 6`;
-      for (const t of [.2, .5, .8]) bulbs += bulb(x + 100 * t, 6 + 80 * t * (1 - t), k++);
-    }
-    let treeLights = '';
-    [[132, 66], [168, 72], [116, 116], [152, 110], [188, 122], [96, 168], [134, 158], [172, 166], [212, 176]].forEach(([x, y], i) => { treeLights += bulb(x, y, i + 1, .7); });
-    let pines = '';
-    for (const [x, h] of [[300, 46], [345, 34], [1150, 40], [1196, 52], [1240, 30]]) pines += `<path d="M${x} ${182 - h}l${h * .42} ${h}h-${h * .84}z"/>`;
-    const puff = d => `<circle cx="1428" cy="92" r="7" style="animation-delay:${d}s"/>`;
-    return `<div class="sc-snow sc-snow-far" style="background-image:${flakes(36, 1.3)}"></div>
-      <svg class="sc-ground" viewBox="0 0 1600 240" preserveAspectRatio="xMidYMax slice"><defs>${glows}<radialGradient id="sc-warm"><stop offset="0" stop-color="#ffcf6e" stop-opacity=".6"/><stop offset="1" stop-color="#ffcf6e" stop-opacity="0"/></radialGradient></defs>
-        <path class="sc-far" d="M0 160L120 104L210 136L330 80L450 134L560 106L700 146L860 98L980 136L1120 90L1260 132L1380 104L1500 138L1600 116V240H0Z"/>
-        <g class="sc-hush">${pines}</g>
-        <path class="sc-drift2" d="M0 182Q200 158 420 176T860 172T1300 166T1600 176V240H0Z"/>
-        <g transform="translate(150 212) scale(1.25) translate(-150 -212)"><g class="sc-pine"><path d="M150 30L196 94H176L214 144H190L234 198H66L110 144H86L124 94H104Z"/></g><rect class="sc-hush" x="140" y="196" width="20" height="14"/>
-        <g class="sc-drift"><path d="M104 94Q128 86 150 92Q172 86 196 94L186 99Q150 92 114 99Z"/><path d="M86 144Q118 134 150 141Q184 134 214 144L202 149Q150 140 98 149Z"/><path d="M66 198Q108 186 150 194Q194 186 234 198L220 202Q150 192 80 202Z"/></g>
-        <path d="M150 12l4.4 9 9.9 1.4-7.2 7 1.7 9.8-8.8-4.6-8.8 4.6 1.7-9.8-7.2-7 9.9-1.4z" fill="#ffd45e"/>${treeLights}</g>
-        <g class="sc-smoke">${puff(0)}${puff(-2)}${puff(-4)}</g>
-        <rect class="sc-hush" x="1420" y="98" width="16" height="36"/><rect class="sc-drift" x="1417" y="94" width="22" height="6" rx="3"/>
-        <ellipse class="sc-windowglow" cx="1357" cy="172" rx="70" ry="46" fill="url(#sc-warm)"/>
-        <path class="sc-hush" d="M1310 206V144H1460V206Z"/><path class="sc-hush" d="M1294 148L1385 92L1476 148Z"/>
-        <path class="sc-drift" d="M1288 150L1385 86L1482 150L1470 154L1385 98L1300 154Z"/>
-        <rect class="sc-window" x="1340" y="160" width="34" height="26" rx="2"/><path d="M1357 160v26M1340 173h34" stroke="#3a2a22" stroke-width="3"/>
-        <rect x="1404" y="166" width="26" height="40" rx="2" fill="#2a1d18"/>
-        <path class="sc-drift" d="M0 206Q260 182 520 200T1040 198T1600 192V240H0Z"/></svg>
-      <svg class="sc-lights" viewBox="0 0 1600 60" preserveAspectRatio="xMidYMin slice"><defs>${glows}</defs><path d="${wire}" fill="none" stroke="#1d2433" stroke-width="2.5"/>${bulbs}</svg>
-      <div class="sc-snow sc-snow-near" style="background-image:${flakes(22, 2.2)}"></div>`;
-  },
+  // painted live on a canvas: see LIVE.winter
+  winter(){ return '<canvas class="sc-live"></canvas>'; },
 
   // Under the Sea: light falling through deep water, bubbles rising, kelp
   // swaying at both edges, two jellyfish and a whale far off. At every
@@ -2769,69 +2665,11 @@ const SCENES = {
   // painted live on a canvas: see LIVE.deepsea
   deepsea(){ return '<canvas class="sc-live"></canvas>'; },
 
-  // Outer Space: the view from a starship. Three layers of stars drift
-  // past, a ringed planet hangs low on the right, a satellite tumbles by,
-  // now and then a shooting star, and at every reveal a rocket blasts across
-  space(){
-    const r = sceneRand(41);
-    const stars = (n, s, cols) => { let b = ''; for (let i = 0; i < n; i++) b += `<circle cx='${(r() * 400).toFixed(0)}' cy='${(r() * 400).toFixed(0)}' r='${(s * (.5 + r() * .8)).toFixed(1)}' fill='${cols[i % cols.length]}' opacity='${(.5 + r() * .5).toFixed(2)}'/>`; return svgTile(400, 400, b); };
-    return `<div class="sc-neb"></div>
-      <div class="sc-stars sc-st1" style="background-image:${stars(70, .9, ['#fff', '#cfd6ff'])}"></div>
-      <div class="sc-stars sc-st2" style="background-image:${stars(30, 1.4, ['#fff', '#ffe2c4', '#c9d4ff'])}"></div>
-      <div class="sc-stars sc-st3" style="background-image:${stars(12, 2, ['#fff'])}"></div>
-      <div class="sc-shoot"></div><div class="sc-shoot sc-shoot2"></div>
-      <svg class="sc-moon" viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="#cfd2e6"/><g fill="#a7abc6"><circle cx="21" cy="22" r="6"/><circle cx="38" cy="37" r="8"/><circle cx="37" cy="17" r="3"/><circle cx="19" cy="40" r="3.5"/></g><path d="M30 4a26 26 0 0 1 0 52a18 26 0 0 0 0-52z" fill="#0d1033" opacity=".28"/></svg>
-      <svg class="sc-sat" viewBox="0 0 80 40"><path d="M28 20h4M48 20h4M40 12V5" stroke="#d9dbe8" stroke-width="2"/><rect x="2" y="14" width="26" height="12" fill="#3f6fd6" stroke="#9fb6ff"/><path d="M10.7 14v12M19.3 14v12M60.7 14v12M69.3 14v12" stroke="#9fb6ff"/><rect x="52" y="14" width="26" height="12" fill="#3f6fd6" stroke="#9fb6ff"/><rect x="32" y="12" width="16" height="16" rx="2" fill="#d9dbe8"/><circle cx="40" cy="4" r="2.4" fill="#ff8a3d"/></svg>
-      <svg class="sc-planet" viewBox="0 0 400 400"><defs><radialGradient id="sc-pl" cx=".34" cy=".3" r=".78"><stop offset="0" stop-color="#ffc08a"/><stop offset=".45" stop-color="#d0607a"/><stop offset="1" stop-color="#2a1250"/></radialGradient>
-        <radialGradient id="sc-plglow"><stop offset=".6" stop-color="#ff7ab0" stop-opacity=".25"/><stop offset="1" stop-color="#ff7ab0" stop-opacity="0"/></radialGradient><clipPath id="sc-plc"><circle cx="200" cy="200" r="120"/></clipPath></defs>
-        <circle cx="200" cy="200" r="175" fill="url(#sc-plglow)"/>
-        <path transform="rotate(-18 200 200)" d="M36 200a164 36 0 0 1 328 0" fill="none" stroke="#c9b6ff" stroke-opacity=".5" stroke-width="12"/>
-        <circle cx="200" cy="200" r="120" fill="url(#sc-pl)"/>
-        <g clip-path="url(#sc-plc)" fill="#fff" opacity=".09"><ellipse cx="200" cy="158" rx="170" ry="10" transform="rotate(-18 200 200)"/><ellipse cx="200" cy="214" rx="170" ry="16" transform="rotate(-18 200 200)"/><ellipse cx="200" cy="262" rx="170" ry="8" transform="rotate(-18 200 200)"/></g>
-        <path transform="rotate(-18 200 200)" d="M36 200a164 36 0 0 0 328 0" fill="none" stroke="#e6dcff" stroke-opacity=".85" stroke-width="12"/></svg>
-      <svg class="sc-rocks" viewBox="0 0 220 90"><path d="M20 62l14-14 18 4 8 16-12 14-22-2z"/><path d="M100 72l8-10 12 2 4 10-10 8z"/><path d="M150 42l20-12 22 6 6 18-16 14-24-4z"/><path d="M70 30l6-6 8 2 2 7-7 5z"/></svg>
-      <svg class="sc-rocket" viewBox="0 0 122 48"><path d="M0 24C14 12 26 16 36 24C26 32 14 36 0 24Z" fill="#ffb347"/><path d="M12 24C20 19 28 21 34 24C28 27 20 29 12 24Z" fill="#fff3b0"/>
-        <path d="M40 14L30 2H50L58 14ZM40 34L30 46H50L58 34Z" fill="#ff8a3d"/><path d="M34 14H86C102 14 114 20 120 24C114 28 102 34 86 34H34Z" fill="#eef0ff"/><circle cx="84" cy="24" r="5.5" fill="#5ee7ff" stroke="#8e7bff" stroke-width="2.5"/></svg>`;
-  },
+  // painted live on a canvas: see LIVE.space
+  space(){ return '<canvas class="sc-live"></canvas>'; },
 
-  // Disco Night: a 70s dance floor. A mirror ball turns on its string and
-  // throws spots of light that wheel round the room, a sunburst glows in
-  // the corner, the floor's tiles light up in turn, and at every reveal
-  // the ball blazes and the whole floor lights at once
-  disco(){
-    const r = sceneRand(53);
-    const greys = ['#f4f4fa', '#c9c9d6', '#9a9ab0', '#e2e2ee', '#6e6e88', '#ffffff', '#d8d8e6', '#b4b4c6'];
-    let facets = '';
-    for (let y = 62; y < 158; y += 9) for (let x = -10; x < 110; x += 10){
-      const tint = r() < .07 ? ['#ff9ad0', '#8ff3ea', '#ffe08a'][Math.floor(r() * 3)] : greys[Math.floor(r() * greys.length)];
-      facets += `<rect x="${x}" y="${y}" width="9" height="8" fill="${tint}"/>`;
-    }
-    const glint = (x, y, s, d) => `<path class="sc-glint" style="--d:${d}s" d="M${x} ${y - s}L${x + s * .22} ${y - s * .22}L${x + s} ${y}L${x + s * .22} ${y + s * .22}L${x} ${y + s}L${x - s * .22} ${y + s * .22}L${x - s} ${y}L${x - s * .22} ${y - s * .22}Z" fill="#fff"/>`;
-    let dots = '';
-    const spotCols = ['#ffd45e', '#ff6fb4', '#5ef2e3', '#b892ff', '#ffffff'];
-    for (let i = 0; i < 18; i++) dots += `<circle cx='${(r() * 180).toFixed(0)}' cy='${(r() * 180).toFixed(0)}' r='${(2.5 + r() * 3.5).toFixed(1)}' fill='${spotCols[i % spotCols.length]}'/>`;
-    // the floor in perspective: rows of tiles narrowing towards the back
-    const cols = ['var(--c2)', 'var(--c3)', 'var(--c4)', '#9b5cff'];
-    const vx = 800, vy = -320, xAt = (x0, y) => vx + (x0 - vx) * (y - vy) / (240 - vy);
-    let floor = '';
-    [[56, 90], [90, 132], [132, 182], [182, 240]].forEach(([y1, y2], j) => {
-      for (let i = -15; i < 15; i++){
-        const a = 800 + i * 124, b = a + 124;
-        const d = `M${xAt(a, y1).toFixed(0)} ${y1}L${xAt(b, y1).toFixed(0)} ${y1}L${xAt(b, y2).toFixed(0)} ${y2}L${xAt(a, y2).toFixed(0)} ${y2}Z`;
-        floor += `<path class="sc-tile" style="fill:${cols[(i + j + 40) % 4]};animation-delay:-${((((i * 5 + j * 3) % 8) + 8) % 8 * .23).toFixed(2)}s" d="${d}"/>`;
-      }
-    });
-    return `<div class="sc-sun70"></div>
-      <div class="sc-spots" style="background-image:${svgTile(180, 180, dots)}"></div>
-      <svg class="sc-ground" viewBox="0 0 1600 240" preserveAspectRatio="xMidYMax slice"><rect y="50" width="1600" height="190" fill="#12051f"/>${floor}</svg>
-      <svg class="sc-ball" viewBox="0 0 100 160"><defs><clipPath id="sc-ballclip"><circle cx="50" cy="110" r="46"/></clipPath>
-        <radialGradient id="sc-ballshade" cx=".36" cy=".3" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".25"/><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".55"/></radialGradient>
-        <radialGradient id="sc-ballhalo"><stop offset=".35" stop-color="#fff2c4" stop-opacity=".55"/><stop offset="1" stop-color="#ff6fb4" stop-opacity="0"/></radialGradient></defs>
-        <circle class="sc-ballglow" cx="50" cy="110" r="95" fill="url(#sc-ballhalo)"/>
-        <path d="M50 0V64" stroke="#d9d9e6" stroke-width="1.5"/><rect x="45" y="60" width="10" height="6" rx="1" fill="#8a8aa0"/>
-        <g clip-path="url(#sc-ballclip)"><rect x="0" y="60" width="100" height="100" fill="#3a3a52"/><g class="sc-facets">${facets}</g><circle cx="50" cy="110" r="46" fill="url(#sc-ballshade)"/></g>
-        ${glint(32, 90, 9, 1.3)}${glint(64, 122, 7, 1.9)}${glint(44, 134, 5, 1.1)}${glint(70, 92, 5, 2.4)}</svg>`;
-  }
+  // painted live on a canvas: see LIVE.disco
+  disco(){ return '<canvas class="sc-live"></canvas>'; }
 };
 /* ════════════════ LIVING SCENES ═══════════════════════════════════════════
    A theme can paint its world on a canvas instead of in SVG and CSS, so it
@@ -2889,7 +2727,9 @@ const Living = {
   // the host changed colours: repaint whatever was painted once
   recolor(){
     const w = this.w; if (!w) return;
-    this.colors(); w.mod.layout(w); this.still();
+    // dragging a colour picker fires many times a second; repaint once it rests
+    clearTimeout(w.rc);
+    w.rc = setTimeout(() => { if (this.w !== w) return; this.colors(); w.mod.layout(w); this.still(); }, w.t ? 140 : 0);
   },
   size(){
     const w = this.w;
@@ -2918,11 +2758,12 @@ const Living = {
     w.clear = out; w.zonesAt = w.t;
   },
   // the largest stretch of rows between top and bottom no word crosses
-  // (for creatures that cross the whole width); null when none is tall enough
-  band(top, bottom, need){
+  // (for creatures that cross the whole width), or with low = true the
+  // lowest one that is tall enough; null when there is none
+  band(top, bottom, need, low){
     const rows = this.w.clear.map(z => [z.t, z.b]).sort((a, b) => a[0] - b[0]);
     let best = null, y = top;
-    const consider = (a, b) => { if (b - a >= need && (!best || b - a > best[1] - best[0] + 1)) best = [a, b]; };
+    const consider = (a, b) => { if (b - a >= need && (low || !best || b - a > best[1] - best[0] + 1)) best = [a, b]; };
     for (const [t, b] of rows){ if (t > y) consider(y, Math.min(t, bottom)); y = Math.max(y, b); if (y >= bottom) break; }
     if (y < bottom) consider(y, bottom);
     return best;
@@ -3034,7 +2875,7 @@ LIVE.deepsea = {
     g.fillStyle = gr; g.fillRect(0, 0, W, H);
     // the bright window of the surface overhead
     gr = g.createRadialGradient(W * .5, -H * .25, 0, W * .5, -H * .25, H * .95);
-    gr.addColorStop(0, rgba(w.light, .26)); gr.addColorStop(1, rgba(w.light, 0));
+    gr.addColorStop(0, rgba(w.light, .2)); gr.addColorStop(1, rgba(w.light, 0));
     g.fillStyle = gr; g.fillRect(0, 0, W, H);
     // a far reef wall, lost in the blue
     g.fillStyle = rgba(mixRgb(w.mid, w.deep, .55), .55);
@@ -3514,7 +3355,7 @@ LIVE.deepsea = {
       w.bubbles.push({ x, x0: x, y: w.bedY + w.bedH * (.15 + rnd() * .3), r: 2.5 + rnd() * 7, vy: 0, p: rnd() * TAU, a: 1, fast: 4 + rnd() * 3, stop });
     }
     // and a school of silver fish darting past, in the open water below the words
-    const band = Living.band(w.H * .1, w.bedY + w.bedH * .2, 70);
+    const band = Living.band(w.H * .1, w.bedY + w.bedH * .2, 70, true);
     if (band){
       w.school = []; w.schoolT = 0; w.schoolDir = rnd() > .5 ? 1 : -1;
       w.schoolY = band[0] + (band[1] - band[0]) * .5;
@@ -3552,7 +3393,7 @@ LIVE.deepsea = {
       [w.rayCv, g] = layer(w.rayCv, W, H, .25);
       g.clearRect(0, 0, W, H);
       for (const r of w.rays){
-        const a = (.05 + .035 * Math.sin(t * r.sp + r.p)) * (1 + w.boost * 1.6), x = r.x * W + Math.sin(t * r.sp * .7 + r.p) * W * .015, wd = r.wd * W;
+        const a = (.036 + .026 * Math.sin(t * r.sp + r.p)) * (1 + w.boost * .7), x = r.x * W + Math.sin(t * r.sp * .7 + r.p) * W * .015, wd = r.wd * W;
         const gr = g.createLinearGradient(0, 0, 0, H * .9);
         gr.addColorStop(0, rgba(w.light, a * 1.6)); gr.addColorStop(.5, rgba(w.light, a * .55)); gr.addColorStop(1, rgba(w.light, 0));
         g.fillStyle = gr;
@@ -3730,6 +3571,947 @@ LIVE.deepsea = {
     }
   }
 };
+
+/* ▼ LIVE.space */
+// Value noise, for nebulae, cloud bands and anything else that should look
+// grown rather than drawn. noiseFn(seed)(x, y, octaves) → 0…1
+function noiseFn(seed){
+  const r = sceneRand(seed), P = new Uint8Array(512), G = new Float32Array(256);
+  for (let i = 0; i < 256; i++){ P[i] = i; G[i] = r(); }
+  for (let i = 255; i > 0; i--){ const j = Math.floor(r() * (i + 1)), t = P[i]; P[i] = P[j]; P[j] = t; }
+  for (let i = 0; i < 256; i++) P[i + 256] = P[i];
+  const one = (x, y) => {
+    const xi = Math.floor(x), yi = Math.floor(y), X = xi & 255, Y = yi & 255;
+    let u = x - xi, v = y - yi; u = u * u * (3 - 2 * u); v = v * v * (3 - 2 * v);
+    const a = G[P[P[X] + Y]], b = G[P[P[X + 1] + Y]], c = G[P[P[X] + Y + 1]], d = G[P[P[X + 1] + Y + 1]];
+    return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v;
+  };
+  return (x, y, oct = 4) => { let s = 0, amp = .5, tot = 0; for (let o = 0; o < oct; o++){ s += one(x, y) * amp; tot += amp; x = x * 2.03 + 11.7; y = y * 2.03 + 5.3; amp *= .5; } return s / tot; };
+}
+// A soft round glow in one colour, made once and stamped wherever light is needed
+const GLOWS = {};
+function glowSprite(col){
+  const k = (col[0] | 0) + ',' + (col[1] | 0) + ',' + (col[2] | 0);
+  if (!GLOWS[k]){
+    const [cv, g] = layer(null, 64, 64, 1), gr = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+    gr.addColorStop(0, rgba(col, 1)); gr.addColorStop(.28, rgba(col, .38)); gr.addColorStop(1, rgba(col, 0));
+    g.fillStyle = gr; g.fillRect(0, 0, 64, 64); GLOWS[k] = cv;
+  }
+  return GLOWS[k];
+}
+const stamp = (c, col, x, y, r, a) => { c.globalAlpha = a; c.drawImage(glowSprite(col), x - r, y - r, r * 2, r * 2); };
+const sstep = (a, b, x) => { x = Math.min(1, Math.max(0, (x - a) / (b - a))); return x * x * (3 - 2 * x); };
+
+/* Outer Space: the view from a starship's window. A nebula drifts behind
+   thousands of stars; a ringed giant hangs low on the right, lit from one
+   side, its rings casting a shadow across its cloud bands and passing
+   into its own; a little moon circles it; a cratered moon sits upper
+   left; rocks tumble by; a satellite crosses along the top, its panels
+   catching the sun; shooting stars fall in the corners. At the reveal a
+   rocket blasts across below the words, trailing fire. */
+LIVE.space = {
+  init(w){
+    const r = sceneRand(61);
+    w.rnd = sceneRand(1213);
+    w.stars = Array.from({ length: 110 }, () => ({ x: r(), y: r(), z: .25 + r() * .75, p: r() * TAU, sp: .5 + r() * 2.4, tint: r() }));
+    w.sat = { u: .12, x: 0, y: 0, rot: 0, alpha: 0 };
+    w.shoots = []; w.shootT = 3;
+    w.rocket = null; w.sparks = []; w.boost = 0;
+    w.moonlet = { a: 2.2, alpha: 1 };
+  },
+  layout(w){
+    const { W, H, c } = w, r = sceneRand(97), nz = noiseFn(11);
+    const base = c[0], deep = mixRgb(base, [0, 0, 0], .5);
+    let g;
+    [w.bg, g] = layer(w.bg, W, H, w.dpr);
+    let gr = g.createLinearGradient(0, 0, W * .35, H);
+    gr.addColorStop(0, rgba(mixRgb(base, [60, 40, 120], .14))); gr.addColorStop(1, rgba(deep));
+    g.fillStyle = gr; g.fillRect(0, 0, W, H);
+    // the nebula: warped noise, coloured by where the warp pushed it,
+    // calmer in the middle where the words are
+    const q = 5, nw = Math.ceil(W / q), nh = Math.ceil(H / q);
+    let ng; [w.neb, ng] = layer(w.neb, nw, nh, 1);
+    const img = ng.createImageData(nw, nh), d = img.data, sc = 3.4 / Math.max(W, H) * q;
+    const A = mixRgb(c[2], base, .2), B = mixRgb([255, 95, 180], base, .25), C = mixRgb(c[3], base, .3);
+    for (let y = 0, i = 0; y < nh; y++) for (let x = 0; x < nw; x++, i += 4){
+      const u = x * sc, v = y * sc, qx = nz(u + 5.2, v + 1.3, 3), qy = nz(u + 9.1, v + 4.7, 3);
+      const n = nz(u + 2.4 * qx, v + 2.4 * qy, 5);
+      const den = sstep(.42, .72, n), edge = Math.min(1, Math.hypot((x / nw - .5) * 1.5, (y / nh - .5) * 1.9) * 1.7);
+      const col = qx < .5 ? mixRgb(A, B, Math.min(1, (.5 - qx) * 5)) : mixRgb(A, C, Math.min(1, (qx - .5) * 5));
+      const hot = Math.max(0, n - .64) * 2.2;
+      d[i] = col[0] + (255 - col[0]) * hot; d[i + 1] = col[1] + (255 - col[1]) * hot; d[i + 2] = col[2] + (255 - col[2]) * hot;
+      d[i + 3] = den * (.12 + .4 * edge * edge) * 255;
+    }
+    ng.putImageData(img, 0, 0);
+    g.imageSmoothingQuality = 'high';
+    g.drawImage(w.neb, 0, 0, W, H);
+    // the far stars: thousands, most of them faint, a few warm or blue
+    const count = Math.round(W * H / 1300);
+    for (let i = 0; i < count; i++){
+      const x = r() * W, y = r() * H, m = r() * r() * r(), tint = r(), s = .6 + m * 1.2;
+      g.fillStyle = rgba(tint < .6 ? [255, 255, 255] : tint < .8 ? [198, 212, 255] : tint < .93 ? [255, 232, 200] : [255, 188, 150], .22 + m * .78);
+      g.fillRect(x, y, s, s);
+    }
+    gr = g.createRadialGradient(W / 2, H / 2, Math.min(W, H) * .45, W / 2, H / 2, Math.max(W, H) * .75);
+    gr.addColorStop(0, 'rgba(0,0,8,0)'); gr.addColorStop(1, 'rgba(0,0,8,.5)');
+    g.fillStyle = gr; g.fillRect(0, 0, W, H);
+    this.planet(w, nz);
+    // a moon upper left, and rocks lower left, on anything wider than a phone
+    w.moon = null; w.rocks = [];
+    if (!w.small){
+      const mr = Math.max(17, Math.min(34, H * .036));
+      w.moon = { cv: this.moonSprite(mr, [207, 210, 230], 17, nz), r: mr, x: W * .05 + mr, y: H * .13 + mr };
+      const rs = Math.max(.75, Math.min(1.3, W / 1280)), x0 = W * .02, y0 = H * .96;
+      w.rocks = [[26, -34, 20], [108, -22, 12], [170, -52, 24], [76, -66, 9], [226, -20, 7]].map(([x, y, s], i) => ({ cv: this.rockSprite(300 + i * 17, Math.round(s * rs), w), x: x0 + x * rs, y: y0 + y * rs, s: s * rs, p: i * 1.7, va: .13 + i * .04 }));
+    }
+    w.satSize = w.small ? 0 : Math.max(52, Math.min(86, W * .058));
+    w.rocketSize = Math.max(70, Math.min(128, W * .085));
+    w.moonletCv = this.moonSprite(Math.max(4, w.pl.R * .075), [226, 214, 232], 5, nz);
+  },
+  // The ringed planet, shaded pixel by pixel: cloud bands along its tilted
+  // latitude, a storm, a soft terminator, the rings' shadow on the clouds
+  // and the planet's shadow across the rings
+  planet(w, nz){
+    const { W, H, c } = w, R = w.small ? 70 : Math.max(96, Math.min(172, H * .158));
+    const k = Math.min(1.5, w.dpr), Rp = Math.round(R * k), EXT = 2.3, S = Math.ceil(Rp * EXT) * 2;
+    const [cv, g] = layer(w.pl && w.pl.cv, S, S, 1), img = g.createImageData(S, S), d = img.data;
+    const inc = Math.asin(.24), ci = Math.cos(inc), si = Math.sin(inc);
+    const Ax = -.309 * ci, Ay = -.951 * ci, Az = si, Bx = .951, By = -.309, Cx = .309 * si, Cy = .951 * si, Cz = ci;
+    const det = Bx * Cy - Cx * By;
+    let Lx = -.62, Ly = -.5, Lz = .6; { const l = Math.hypot(Lx, Ly, Lz); Lx /= l; Ly /= l; Lz /= l; }
+    const LA = Lx * Ax + Ly * Ay + Lz * Az, RIN = 1.3, ROUT = 2.2;
+    const ring = rq => {
+      if (rq < RIN || rq > ROUT) return 0;
+      const t = (rq - RIN) / (ROUT - RIN);
+      let o = Math.min(1, Math.max(0, (nz(rq * 15, 3.3, 3) - .22) * 2.1)) * (.4 + .6 * Math.sqrt(Math.sin(Math.PI * t)));
+      if (Math.abs(rq - 1.88) < .03) o *= .08;          // the dark gap
+      return o * Math.min(1, t * 14) * Math.min(1, (1 - t) * 14);
+    };
+    const peach = mixRgb([255, 192, 138], c[1], .25), rose = [208, 96, 122], cream = [248, 226, 196], plum = [112, 54, 112], tan = [232, 150, 110];
+    const bands = [rose, peach, cream, peach, tan, rose, plum, rose, peach, cream, tan, rose, peach, plum, rose];
+    const NB = bands.length - 1;
+    for (let py = 0, i = 0; py < S; py++){
+      const Y = (py - S / 2 + .5) / Rp;
+      for (let px = 0; px < S; px++, i += 4){
+        const X = (px - S / 2 + .5) / Rp, rr = X * X + Y * Y;
+        let cr = 0, cg = 0, cb = 0, ca = 0, Z = -9;
+        if (rr < 1.02){
+          const rad = Math.sqrt(rr);
+          Z = Math.sqrt(Math.max(0, 1 - rr));
+          const lat = X * Ax + Y * Ay + Z * Az, lon = Math.atan2(X * Cx + Y * Cy + Z * Cz, X * Bx + Y * By);
+          const lat2 = lat + .07 * (nz(lon * 1.5 + 7, lat * 9 + 3, 4) - .5) + .01 * Math.sin(lon * 7 + lat * 44);
+          const f = Math.min(NB - .001, Math.max(0, (lat2 * .5 + .5) * NB)), bi = Math.floor(f), bt = sstep(.25, .75, f - bi);
+          let col = mixRgb(bands[bi], bands[bi + 1], bt);
+          const e = ((lon - .95) / .34) ** 2 + ((lat + .26) / .075) ** 2;
+          if (e < 1) col = mixRgb(col, cream, (1 - e) * .85);
+          const ndl = X * Lx + Y * Ly + Z * Lz, lit = sstep(-.14, .55, ndl);
+          let shade = (.045 + .955 * lit) * (.6 + .4 * Z);
+          // the rings' shadow across the clouds
+          const t = -lat / LA;
+          if (t > 0) shade *= 1 - .62 * ring(Math.hypot(X + t * Lx, Y + t * Ly, Z + t * Lz));
+          const rim = Math.pow(1 - Z, 2.6) * lit * .6;
+          cr = col[0] * shade + 255 * rim; cg = col[1] * shade + 170 * rim; cb = col[2] * shade + 205 * rim + 10 * (1 - lit);
+          ca = Math.min(1, Math.max(0, (1 - rad) * Rp + .5));
+        }
+        // the rings, in front of the planet below its middle and behind above
+        const a = (X * Cy - Y * Cx) / det, b = (Bx * Y - By * X) / det, rq = Math.hypot(a, b);
+        if (rq > RIN && rq < ROUT && b * Cz > Z){
+          let o = ring(rq);
+          if (o > .004){
+            const qx = a * Bx + b * Cx, qy = a * By + b * Cy, qz = b * Cz, t0 = -(qx * Lx + qy * Ly + qz * Lz);
+            let lum = .92;
+            if (t0 > 0){ const dd = Math.sqrt(Math.max(0, rq * rq - t0 * t0)); lum *= .16 + .84 * sstep(.94, 1.04, dd); }   // the planet's shadow
+            const tone = nz(rq * 15, 3.3, 3), rc = mixRgb([188, 168, 236], [244, 234, 255], tone);
+            o *= .9;
+            cr = cr * ca * (1 - o) + rc[0] * lum * o; cg = cg * ca * (1 - o) + rc[1] * lum * o; cb = cb * ca * (1 - o) + rc[2] * lum * o;
+            const na = ca * (1 - o) + o; cr /= na || 1; cg /= na || 1; cb /= na || 1; ca = na;
+          }
+        }
+        d[i] = cr; d[i + 1] = cg; d[i + 2] = cb; d[i + 3] = ca * 255;
+      }
+    }
+    g.putImageData(img, 0, 0);
+    w.pl = { cv, R, size: S / k, x: w.small ? W - 52 : W - R * .92, y: w.small ? H - 40 : H - R * .62, B: [Bx, By], C: [Cx, Cy, Cz] };
+  },
+  // a small cratered world, lit from the same side as everything else
+  moonSprite(R, tone, craters, nz){
+    const k = 2, Rp = Math.round(R * k), S = Rp * 2 + 4, [cv, g] = layer(null, S, S, 1), img = g.createImageData(S, S), d = img.data;
+    const r = sceneRand(craters * 31 + 7), list = [];
+    for (let i = 0; i < craters; i++){ const a = r() * TAU, m = Math.sqrt(r()) * .82; list.push([Math.cos(a) * m, Math.sin(a) * m, .06 + r() * r() * .2]); }
+    for (let py = 0, i = 0; py < S; py++) for (let px = 0; px < S; px++, i += 4){
+      const X = (px - S / 2 + .5) / Rp, Y = (py - S / 2 + .5) / Rp, rr = X * X + Y * Y;
+      if (rr >= 1.03) continue;
+      const Z = Math.sqrt(Math.max(0, 1 - rr));
+      let alb = .8 + .2 * nz(X * 3.1 + 20, Y * 3.1 + 4, 4);
+      if (nz(X * 1.3 + 40, Y * 1.3 + 9, 3) > .56) alb *= .8;       // the dark seas
+      for (const [cx, cy, cr] of list){
+        const dx = (X - cx) / cr, dy = (Y - cy) / cr, dd = Math.hypot(dx, dy);
+        if (dd < 1) alb = alb * .9 + (dx * .62 + dy * .5) * dd * .3;      // a bowl: its far wall catches the light
+        else if (dd < 1.3) alb -= (dx * .62 + dy * .5) / dd * (1.3 - dd) * .5;   // and a raised rim
+      }
+      const lit = sstep(-.1, .5, -X * .62 - Y * .5 + Z * .6), sh = (.07 + .93 * lit) * (.72 + .28 * Z) * alb;
+      d[i] = tone[0] * sh; d[i + 1] = tone[1] * sh; d[i + 2] = tone[2] * sh + 8 * (1 - lit);
+      d[i + 3] = Math.min(1, Math.max(0, (1 - Math.sqrt(rr)) * Rp + .5)) * 255;
+    }
+    g.putImageData(img, 0, 0);
+    return cv;
+  },
+  // a tumbling rock: an uneven outline, planes meeting at a peak, lit from upper left
+  rockSprite(seed, size, w){
+    const r = sceneRand(seed), n = 9, pts = [];
+    for (let i = 0; i < n; i++){ const a = i / n * TAU, rr = size * (.62 + r() * .38); pts.push(size + Math.cos(a) * rr, size + Math.sin(a) * rr * .84); }
+    const [cv, g] = layer(null, size * 2, size * 2, 2), poly = new Path2D();
+    poly.moveTo(pts[0], pts[1]); for (let i = 2; i < pts.length; i += 2) poly.lineTo(pts[i], pts[i + 1]); poly.closePath();
+    const base = mixRgb(w.c[0], [152, 148, 178], .6), gr = g.createLinearGradient(size * .3, size * .2, size * 1.7, size * 1.8);
+    gr.addColorStop(0, rgba(mixRgb(base, [255, 255, 255], .3))); gr.addColorStop(.5, rgba(base)); gr.addColorStop(1, rgba(mixRgb(base, [0, 0, 0], .72)));
+    g.fillStyle = gr; g.fill(poly);
+    g.save(); g.clip(poly);
+    const px = size * (.82 + r() * .3), py = size * (.78 + r() * .3);
+    for (let i = 0; i < n; i++){
+      const j = (i + 1) % n, lit = (-((pts[i * 2] + pts[j * 2]) / 2 - size) * .62 - ((pts[i * 2 + 1] + pts[j * 2 + 1]) / 2 - size) * .5) / size;
+      g.fillStyle = lit > 0 ? `rgba(255,255,255,${(lit * .2).toFixed(3)})` : `rgba(0,0,12,${(-lit * .4).toFixed(3)})`;
+      g.beginPath(); g.moveTo(px, py); g.lineTo(pts[i * 2], pts[i * 2 + 1]); g.lineTo(pts[j * 2], pts[j * 2 + 1]); g.fill();
+    }
+    for (let i = 0; i < 4; i++){
+      const x = size * (.55 + r() * .9), y = size * (.55 + r() * .9), cr = size * (.05 + r() * .08);
+      g.fillStyle = 'rgba(0,0,14,.32)'; g.beginPath(); g.ellipse(x, y, cr, cr * .7, 0, 0, TAU); g.fill();
+      g.strokeStyle = 'rgba(255,255,255,.2)'; g.lineWidth = .7; g.beginPath(); g.ellipse(x, y, cr, cr * .7, 0, .4, 2.3); g.stroke();
+    }
+    g.restore();
+    g.strokeStyle = 'rgba(214,218,255,.28)'; g.lineWidth = .9; g.stroke(poly);
+    return cv;
+  },
+  update(w, dt){
+    const { W, H } = w, rnd = w.rnd;
+    w.boost = Math.max(0, w.boost - dt * .5);
+    for (const s of w.stars){ s.x -= s.z * (.0016 + w.boost * .05) * dt; if (s.x < -.01) s.x += 1.02; }
+    const ml = w.moonlet, pl = w.pl, orb = pl.R * 2.75;
+    ml.a += dt * .11;
+    const ca = Math.cos(ml.a) * orb, sa = Math.sin(ml.a) * orb;
+    ml.x = pl.x + ca * pl.B[0] + sa * pl.C[0] * 1.6; ml.y = pl.y + ca * pl.B[1] + sa * pl.C[1] * 1.6; ml.front = sa > 0; ml.r = Math.max(4, pl.R * .075);
+    ml.box = { l: ml.x - ml.r, r: ml.x + ml.r, t: ml.y - ml.r, b: ml.y + ml.r };
+    ml.alpha = Living.hits(ml.box) ? 0 : 1;
+    // the satellite keeps to the top, above the timer
+    if (w.satSize){
+      const s = w.sat;
+      s.u += dt / 80; if (s.u > 1.16) s.u = -.14;
+      s.x = s.u * W; s.y = Math.max(16, Math.min(26, H * .028)) + Math.sin(w.t * .3) * 2; s.rot = -.1 + Math.sin(w.t * .21) * .07;
+      s.box = { l: s.x - w.satSize * .56, r: s.x + w.satSize * .56, t: s.y - w.satSize * .3, b: s.y + w.satSize * .34 };
+      s.alpha = Math.max(0, Math.min(1, s.alpha + (Living.hits(s.box) ? -dt * 4 : dt)));
+    }
+    // a shooting star now and then, only where its whole path is clear of words
+    w.shootT -= dt;
+    if (w.shootT <= 0 && dt){
+      w.shootT = 4 + rnd() * 7;
+      for (let tries = 0; tries < 8; tries++){
+        const dir = rnd() > .5 ? 1 : -1, ang = .3 + rnd() * .3, len = W * (.1 + rnd() * .12);
+        const x = rnd() * W, y = H * (.02 + rnd() * .3), ex = x + dir * Math.cos(ang) * len, ey = y + Math.sin(ang) * len;
+        if (ex < 0 || ex > W || Living.hits({ l: Math.min(x, ex) - 60, r: Math.max(x, ex) + 60, t: y - 8, b: ey + 8 })) continue;
+        w.shoots.push({ x, y, vx: dir * Math.cos(ang), vy: Math.sin(ang), len, d: 0, tail: Math.min(110, len * .55) });
+        break;
+      }
+    }
+    w.shoots = w.shoots.filter(s => {
+      s.d += W * .55 * dt;
+      s.box = { l: s.x + s.vx * s.d - s.tail, r: s.x + s.vx * s.d + s.tail, t: s.y + s.vy * s.d - s.tail * .6, b: s.y + s.vy * s.d + 4 };
+      return s.d < s.len + s.tail && !Living.hits({ l: s.box.l + s.tail * .5, r: s.box.r - s.tail * .5, t: s.box.t, b: s.box.b });
+    });
+    // the reveal's rocket and its fire
+    const k = w.rocket;
+    if (k){
+      k.u += dt / 2.1;
+      const e = k.u * k.u * (1.6 - .6 * k.u);     // gathering speed
+      k.x = lerp(k.x0, k.x1, e); k.y = lerp(k.y0, k.y1, e);
+      const L = w.rocketSize;
+      k.box = { l: k.x - L * .75, r: k.x + L * .45, t: k.y - L * .2, b: k.y + L * .2 };
+      for (let i = 0; i < (dt ? 5 : 0); i++){
+        const back = L * (.55 + rnd() * .1), sp = 40 + rnd() * 90;
+        w.sparks.push({ x: k.x - Math.cos(k.ang) * back, y: k.y - Math.sin(k.ang) * back + (rnd() - .5) * 5, vx: -Math.cos(k.ang) * sp, vy: -Math.sin(k.ang) * sp + (rnd() - .5) * 26, life: 0, max: .5 + rnd() * .9, s: 3 + rnd() * 5 });
+      }
+      if (k.u >= 1 || Living.hits(k.box)) w.rocket = null;
+    }
+    w.sparks = w.sparks.filter(p => {
+      p.life += dt; p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= 1 - dt * 1.5; p.vy *= 1 - dt * 1.5;
+      return p.life < p.max && !Living.hits({ l: p.x - p.s, r: p.x + p.s, t: p.y - p.s, b: p.y + p.s });
+    });
+  },
+  flare(w){
+    w.boost = 1;
+    // a clear lane low on the screen, below the words
+    const { W, H } = w, band = Living.band(H * .5, H * .97, w.rocketSize * .6 + 30, true);
+    if (!band) return;
+    const pad = w.rocketSize * .3 + 12, y0 = band[1] - pad, y1 = Math.max(band[0] + pad, y0 - H * .22);
+    w.rocket = { u: 0, x0: -W * .12, y0, x1: W * 1.14, y1, ang: Math.atan2(y1 - y0, W * 1.26) };
+    w.rocket.x = w.rocket.x0; w.rocket.y = y0;
+  },
+  boxes(w){
+    const out = [];
+    if (w.satSize && w.sat.box) out.push({ name: 'satellite', ...w.sat.box, a: w.sat.alpha });
+    for (const s of w.shoots) if (s.box) out.push({ name: 'shooting star', l: s.box.l + s.tail * .5, r: s.box.r - s.tail * .5, t: s.box.t, b: s.box.b, a: 1 });
+    if (w.rocket && w.rocket.box) out.push({ name: 'rocket', ...w.rocket.box, a: 1 });
+    for (const p of w.sparks) out.push({ name: 'rocket fire', l: p.x - p.s, r: p.x + p.s, t: p.y - p.s, b: p.y + p.s, a: 1 });
+    if (w.moonlet.box) out.push({ name: 'little moon', ...w.moonlet.box, a: w.moonlet.alpha });
+    return out;
+  },
+  draw(w){
+    const { ctx: c, W, H, t } = w, pl = w.pl;
+    c.setTransform(w.dpr, 0, 0, w.dpr, 0, 0);
+    c.globalCompositeOperation = 'source-over'; c.globalAlpha = 1;
+    c.drawImage(w.bg, 0, 0, W, H);
+    // the nebula breathes, and flushes at the reveal
+    c.globalCompositeOperation = 'lighter';
+    c.globalAlpha = .1 + .07 * Math.sin(t * .23) + w.boost * .3;
+    c.drawImage(w.neb, 0, 0, W, H);
+    // nearer stars: they twinkle, drift, and streak when the ship jumps
+    for (const s of w.stars){
+      const x = s.x * W, y = s.y * H, tw = .5 + .5 * Math.sin(t * s.sp + s.p), sz = .9 + s.z * 1.5;
+      const col = s.tint < .55 ? [255, 255, 255] : s.tint < .8 ? [200, 214, 255] : [255, 226, 196];
+      c.globalAlpha = .3 + .7 * tw * s.z;
+      c.fillStyle = rgba(col);
+      if (w.boost > .05) c.fillRect(x, y, sz + w.boost * w.boost * s.z * 26, sz);
+      else c.fillRect(x, y, sz, sz);
+      if (s.z > .78){
+        stamp(c, col, x + sz / 2, y + sz / 2, 7 + tw * 5, .32 * tw);
+        c.globalAlpha = .5 * tw; const sp = 5 + tw * 6;
+        c.fillRect(x + sz / 2 - sp, y + sz / 2 - .3, sp * 2, .6); c.fillRect(x + sz / 2 - .3, y + sz / 2 - sp, .6, sp * 2);
+      }
+    }
+    // shooting stars
+    for (const s of w.shoots){
+      const hx = s.x + s.vx * s.d, hy = s.y + s.vy * s.d, fade = Math.min(1, s.d / 30) * Math.min(1, (s.len + s.tail - s.d) / s.tail);
+      const tx = hx - s.vx * s.tail, ty = hy - s.vy * s.tail, gr = c.createLinearGradient(tx, ty, hx, hy);
+      gr.addColorStop(0, 'rgba(160,190,255,0)'); gr.addColorStop(1, `rgba(255,255,255,${(.9 * fade).toFixed(3)})`);
+      c.globalAlpha = 1; c.fillStyle = gr;
+      c.beginPath(); c.moveTo(tx, ty); c.lineTo(hx - s.vy * 1.3, hy + s.vx * 1.3); c.lineTo(hx + s.vy * 1.3, hy - s.vx * 1.3); c.fill();
+      stamp(c, [220, 232, 255], hx, hy, 9, .8 * fade);
+    }
+    c.globalCompositeOperation = 'source-over'; c.globalAlpha = 1;
+    if (w.moon){
+      c.globalCompositeOperation = 'lighter'; stamp(c, [150, 160, 220], w.moon.x, w.moon.y, w.moon.r * 2.4, .22);
+      c.globalCompositeOperation = 'source-over'; c.globalAlpha = 1;
+      c.drawImage(w.moon.cv, w.moon.x - w.moon.r - 1, w.moon.y - w.moon.r - 1, w.moon.r * 2 + 2, w.moon.r * 2 + 2);
+    }
+    // the giant, with its little moon passing behind and then in front
+    const ml = w.moonlet, front = ml.front;
+    const moonlet = () => { if (ml.alpha && ml.box) c.drawImage(w.moonletCv, ml.x - ml.r - 1, ml.y - ml.r - 1, ml.r * 2 + 2, ml.r * 2 + 2); };
+    c.globalCompositeOperation = 'lighter'; stamp(c, [255, 122, 176], pl.x, pl.y, pl.R * 1.75, .26 + w.boost * .2);
+    c.globalCompositeOperation = 'source-over'; c.globalAlpha = 1;
+    if (!front) moonlet();
+    c.drawImage(pl.cv, pl.x - pl.size / 2, pl.y - pl.size / 2, pl.size, pl.size);
+    if (front) moonlet();
+    for (const k of w.rocks){
+      c.save(); c.translate(k.x, k.y + Math.sin(t * .4 + k.p) * 3); c.rotate(Math.sin(t * k.va + k.p) * .4);
+      c.drawImage(k.cv, -k.s, -k.s, k.s * 2, k.s * 2); c.restore();
+    }
+    this.drawSat(w);
+    this.drawRocket(w);
+  },
+  drawSat(w){
+    const s = w.sat; if (!w.satSize || s.alpha < .02) return;
+    const c = w.ctx, t = w.t;
+    c.save(); c.translate(s.x, s.y); c.rotate(s.rot); c.scale(w.satSize / 84, w.satSize / 84); c.globalAlpha = s.alpha;
+    c.strokeStyle = '#b4bace'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(-41, 0); c.lineTo(41, 0); c.stroke();
+    // two wings of three panels; the sun slides across them
+    for (const side of [-1, 1]) for (let p = 0; p < 3; p++){
+      const x0 = side > 0 ? 12.5 + p * 9.8 : -12.5 - p * 9.8 - 9, pg = c.createLinearGradient(x0, -8.5, x0 + 9, 8.5);
+      pg.addColorStop(0, '#3157c8'); pg.addColorStop(1, '#152568');
+      c.fillStyle = pg; c.fillRect(x0, -8.5, 9, 17);
+      c.fillStyle = `rgba(255,255,255,${(Math.max(0, Math.sin(t * .9 - x0 * .07)) ** 10 * .75).toFixed(3)})`; c.fillRect(x0, -8.5, 9, 17);
+      c.strokeStyle = 'rgba(160,190,255,.55)'; c.lineWidth = .5;
+      c.beginPath(); c.rect(x0, -8.5, 9, 17); c.moveTo(x0 + 4.5, -8.5); c.lineTo(x0 + 4.5, 8.5);
+      for (const y of [-4.2, 0, 4.2]){ c.moveTo(x0, y); c.lineTo(x0 + 9, y); }
+      c.stroke();
+    }
+    // the dish, the gold-foil body, an antenna with a beacon
+    c.strokeStyle = '#c8cde0'; c.lineWidth = 1.2; c.beginPath(); c.moveTo(0, 7); c.lineTo(0, 13); c.stroke();
+    c.fillStyle = '#e4e8f4'; c.beginPath(); c.ellipse(0, 14.5, 7.5, 2.8, 0, 0, Math.PI); c.fill();
+    c.fillStyle = '#8f96b0'; c.beginPath(); c.ellipse(0, 14.5, 7.5, 1.1, 0, 0, TAU); c.fill();
+    const bg = c.createLinearGradient(-8, -8, 8, 8); bg.addColorStop(0, '#ffe7a0'); bg.addColorStop(.5, '#e0aa3e'); bg.addColorStop(1, '#8d6420');
+    c.fillStyle = bg; c.beginPath(); c.roundRect(-8, -8, 16, 16, 2.5); c.fill();
+    c.strokeStyle = 'rgba(255,244,200,.55)'; c.lineWidth = .6; c.beginPath(); c.moveTo(-6, -3); c.lineTo(-1, -6); c.lineTo(3, -2); c.lineTo(6, -5); c.moveTo(-5, 4); c.lineTo(0, 1); c.lineTo(5, 5); c.stroke();
+    c.fillStyle = '#1b2440'; c.fillRect(-4, -1.5, 8, 4);
+    c.strokeStyle = '#d6dbea'; c.lineWidth = 1; c.beginPath(); c.moveTo(3, -8); c.lineTo(5, -15); c.stroke();
+    const on = Math.sin(t * 3.6) > .55;
+    c.fillStyle = on ? '#ff5a4a' : '#7a2b28'; c.beginPath(); c.arc(5, -15.5, 1.5, 0, TAU); c.fill();
+    if (on){ c.globalCompositeOperation = 'lighter'; stamp(c, [255, 90, 70], 5, -15.5, 7, .7 * s.alpha); }
+    c.restore(); c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
+  },
+  drawRocket(w){
+    const c = w.ctx, k = w.rocket, acc = w.c[1];
+    // the fire first: hot at the nozzle, cooling to smoke behind
+    c.globalCompositeOperation = 'lighter';
+    for (const p of w.sparks){
+      const f = p.life / p.max, col = f < .25 ? [255, 244, 214] : f < .55 ? mixRgb([255, 206, 110], acc, .3) : mixRgb([255, 120, 60], acc, .4);
+      stamp(c, col, p.x, p.y, p.s * (1 + f * 2.2), (1 - f) * .55);
+    }
+    c.globalCompositeOperation = 'source-over'; c.globalAlpha = 1;
+    if (!k) return;
+    const s = w.rocketSize / 122, fl = 34 * (.82 + .2 * Math.sin(w.t * 43) + .12 * Math.sin(w.t * 71));
+    c.save(); c.translate(k.x, k.y); c.rotate(k.ang); c.scale(s, s); c.translate(-78, 0);
+    c.globalCompositeOperation = 'lighter'; stamp(c, mixRgb([255, 150, 70], acc, .4), 22, 0, 34, .7);
+    c.globalCompositeOperation = 'source-over'; c.globalAlpha = 1;
+    let gr = c.createLinearGradient(36 - fl, 0, 36, 0); gr.addColorStop(0, 'rgba(255,120,40,0)'); gr.addColorStop(1, rgba(mixRgb([255, 176, 70], acc, .35)));
+    c.fillStyle = gr; c.beginPath(); c.moveTo(36, -7); c.quadraticCurveTo(36 - fl * .55, -10, 36 - fl, 0); c.quadraticCurveTo(36 - fl * .55, 10, 36, 7); c.fill();
+    c.fillStyle = '#fff6c8'; c.beginPath(); c.moveTo(36, -4); c.quadraticCurveTo(36 - fl * .35, -5, 36 - fl * .6, 0); c.quadraticCurveTo(36 - fl * .35, 5, 36, 4); c.fill();
+    // fins, the bell, the hull, its nose and its window
+    c.fillStyle = rgba(mixRgb(acc, [0, 0, 0], .12)); c.beginPath(); c.moveTo(40, -9); c.lineTo(29, -23); c.lineTo(49, -23); c.lineTo(59, -9); c.fill();
+    c.fillStyle = rgba(mixRgb(acc, [0, 0, 0], .38)); c.beginPath(); c.moveTo(40, 9); c.lineTo(29, 23); c.lineTo(49, 23); c.lineTo(59, 9); c.fill();
+    c.fillStyle = '#4a4e66'; c.beginPath(); c.moveTo(35, -6); c.lineTo(29, -8); c.lineTo(29, 8); c.lineTo(35, 6); c.fill();
+    gr = c.createLinearGradient(0, -10, 0, 10); gr.addColorStop(0, '#ffffff'); gr.addColorStop(.42, '#eceefb'); gr.addColorStop(1, '#8d92ba');
+    const hull = new Path2D('M34 -10H86C102 -10 114 -4 120 0C114 4 102 10 86 10H34Z');
+    c.fillStyle = gr; c.fill(hull);
+    c.save(); c.clip(hull);
+    c.fillStyle = rgba(acc); c.fillRect(100, -12, 24, 24); c.fillRect(42, -12, 5, 24);
+    c.fillStyle = 'rgba(20,16,60,.28)'; c.fillRect(30, 4, 96, 8);
+    c.fillStyle = 'rgba(255,255,255,.5)'; c.fillRect(30, -8.6, 96, 1.8);
+    c.restore();
+    gr = c.createRadialGradient(82.5, -1.5, .5, 84, 0, 5.5); gr.addColorStop(0, '#d9fbff'); gr.addColorStop(1, '#2aa8c8');
+    c.fillStyle = gr; c.beginPath(); c.arc(84, 0, 5.2, 0, TAU); c.fill();
+    c.strokeStyle = rgba(mixRgb(w.c[2], [40, 40, 90], .3)); c.lineWidth = 2.2; c.stroke();
+    c.restore();
+  }
+};
+/* ▲ LIVE.space */
+
+/* ▼ LIVE.winter */
+/* Winter Holidays: a snowy night in the mountains. An aurora ripples over
+   moonlit peaks; pines stand in two ranks, snow on every bough; on the
+   left a tall pine wears lights, baubles and a star; on the right a log
+   cabin glows, smoke curling from its chimney, a snowman at the door.
+   Fairy lights hang along the top and snow falls at three depths, swung
+   about by the wind. At the reveal every light blazes, a gust drives the
+   snow sideways and the star throws sparks. */
+// A pine with snow on its boughs. Tiers are drawn from the bottom up so
+// each overlaps the one below; light comes from the left.
+function drawPine(g, x, base, h, col, snow, r){
+  const tiers = Math.max(3, Math.round(h / 24)), step = h * .94 / ((tiers - 1) * .86 + 1.7), tip = base - h;
+  g.fillStyle = rgba(mixRgb(col, [40, 26, 20], .6)); g.fillRect(x - h * .026, base - h * .1, h * .052, h * .1);
+  for (let i = tiers - 1; i >= 0; i--){
+    const yt = tip + i * step * .86, th = step * 1.7, yb = yt + th, hw = h * .25 * (i + 1.25) / tiers + h * .03;
+    const sc = 4 + Math.round(hw / 14), path = new Path2D();
+    path.moveTo(x, yt);
+    path.quadraticCurveTo(x + hw * .3, yt + th * .62, x + hw, yb);
+    for (let k = 1; k <= sc; k++){        // a ragged skirt of branch tips
+      const x1 = x + hw - (k - .5) * 2 * hw / sc, x2 = x + hw - k * 2 * hw / sc;
+      path.quadraticCurveTo(x1, yb - th * (.16 + r() * .1), x2, yb - (k < sc ? r() * th * .06 : 0));
+    }
+    path.quadraticCurveTo(x - hw * .3, yt + th * .62, x, yt);
+    const gr = g.createLinearGradient(x - hw, 0, x + hw, 0);
+    gr.addColorStop(0, rgba(mixRgb(col, [190, 220, 255], .16))); gr.addColorStop(.5, rgba(col)); gr.addColorStop(1, rgba(mixRgb(col, [0, 4, 16], .45)));
+    g.fillStyle = gr; g.fill(path);
+    if (snow > 0){
+      // snow lies along the top of each bough, thicker towards its tip
+      const sp = new Path2D(), lip = th * (.16 + snow * .12);
+      sp.moveTo(x, yt - 1);
+      sp.quadraticCurveTo(x + hw * .32, yt + th * .58, x + hw * .93, yb - th * .06);
+      sp.quadraticCurveTo(x + hw * .74, yb - th * .02 + lip * .2, x + hw * .52, yb - th * .22);
+      sp.quadraticCurveTo(x + hw * .3, yt + th * .62 + lip, x, yt + lip * 1.5);
+      sp.quadraticCurveTo(x - hw * .3, yt + th * .62 + lip, x - hw * .52, yb - th * .22);
+      sp.quadraticCurveTo(x - hw * .74, yb - th * .02 + lip * .2, x - hw * .93, yb - th * .06);
+      sp.quadraticCurveTo(x - hw * .32, yt + th * .58, x, yt - 1);
+      const sg = g.createLinearGradient(x - hw, 0, x + hw, 0);
+      sg.addColorStop(0, `rgba(240,246,255,${.95 * snow})`); sg.addColorStop(.55, `rgba(206,220,246,${.92 * snow})`); sg.addColorStop(1, `rgba(140,164,214,${.9 * snow})`);
+      g.fillStyle = sg; g.fill(sp);
+    }
+  }
+}
+LIVE.winter = {
+  BULBS: [[255, 212, 94], [255, 90, 95], [91, 227, 138], [111, 195, 255]],
+  init(w){
+    const r = sceneRand(23);
+    w.rnd = sceneRand(881);
+    w.flakes = Array.from({ length: 300 }, () => ({ x: r(), y: r(), z: r(), p: r() * TAU, f: .6 + r() * 1.6 }));
+    w.stars = Array.from({ length: 46 }, () => ({ x: r(), y: r() * .5, p: r() * TAU, sp: .5 + r() * 2 }));
+    w.smoke = []; w.smokeT = 0; w.sparks = []; w.boost = 0; w.gust = 0;
+    w.nz = noiseFn(29);
+  },
+  layout(w){
+    const { W, H, c } = w, r = sceneRand(57), nz = w.nz;
+    const gH = w.small ? 120 : Math.max(120, Math.min(250, H * .26));
+    w.gH = gH; w.hor = H - gH * .7;
+    const sky = c[0], haze = mixRgb(sky, [111, 143, 214], .34), deep = mixRgb(sky, [0, 0, 0], .32);
+    let g;
+    [w.bg, g] = layer(w.bg, W, H, w.dpr);
+    let gr = g.createLinearGradient(0, 0, 0, w.hor);
+    gr.addColorStop(0, rgba(deep)); gr.addColorStop(.6, rgba(sky)); gr.addColorStop(1, rgba(haze));
+    g.fillStyle = gr; g.fillRect(0, 0, W, H);
+    for (let i = 0; i < W * H / 3600; i++){
+      const y = r() * r() * w.hor, m = r() * r();
+      g.fillStyle = `rgba(232,240,255,${(.18 + m * .6).toFixed(2)})`; g.fillRect(r() * W, y, .7 + m * 1.1, .7 + m * 1.1);
+    }
+    // three ranges of peaks, paler with distance. Snow lies on the upper
+    // half of each: bright where the face looks towards the moon, blue in
+    // shadow, with a ragged lower edge where rock shows through
+    for (const [tall, n, far, seed] of [[.62, 6, .7, 3], [.46, 8, .44, 11], [.3, 11, .2, 23]]){
+      const peaks = Array.from({ length: n }, (_, i) => [((i + .15 + r() * .7) / n * 1.16 - .08) * W, gH * tall * (.5 + r() * .5), .45 + r() * .5]);
+      const yAt = x => { let m = 0; for (const [px, ph, st] of peaks) m = Math.max(m, ph - Math.abs(x - px) * st); return w.hor + 6 - m - gH * .035 * nz(x * .03 + seed, seed, 3) - gH * tall * .14; };
+      const rock = mixRgb(mixRgb(sky, [30, 38, 62], .55), haze, far), lit = mixRgb([236, 243, 255], haze, far * .7), dim = mixRgb([116, 142, 202], haze, far * .65);
+      for (let x = 0; x < W; x += 2){
+        const y = yAt(x), up = yAt(x + 2) < yAt(x - 2), cap = (w.hor - y) * (.34 + .34 * nz(x * .035 + seed, 2.2, 2));
+        g.fillStyle = rgba(mixRgb(rock, [0, 0, 0], .1 * nz(x * .11, seed, 2))); g.fillRect(x, y, 2, H - y);
+        g.fillStyle = rgba(up ? lit : dim); g.fillRect(x, y, 2, cap * (up ? 1 : .86));
+      }
+      gr = g.createLinearGradient(0, w.hor - gH * .7, 0, w.hor + 6);
+      gr.addColorStop(0, rgba(haze, 0)); gr.addColorStop(1, rgba(haze, .16 + far * .3));
+      g.fillStyle = gr; g.fillRect(0, w.hor - gH * .7, W, gH * .7 + 6);
+    }
+    // the far rank of pines, half lost in haze
+    for (let x = -10; x < W + 10; x += 13 + r() * 16){
+      const h = gH * (.2 + r() * .16);
+      drawPine(g, x, w.hor + gH * .05 + r() * 4, h, mixRgb([22, 54, 60], haze, .5), .55, r);
+    }
+    // the snowfield, the near pines, the cabin and the tree
+    let f;
+    [w.fg, f] = layer(w.fg, W, gH * 2.4, Math.min(1.5, w.dpr));
+    w.fgTop = H - gH * 2.4;
+    f.translate(0, -w.fgTop);
+    const snowLit = mixRgb([236, 243, 255], sky, .06), snowDim = mixRgb([150, 174, 226], sky, .12);
+    const drift = (y0, amp, seed, c1, c2) => {
+      const p = new Path2D(); p.moveTo(0, H);
+      for (let x = 0; x <= W; x += 8) p.lineTo(x, y0 + amp * (nz(x * .0034 + seed, seed, 3) - .5) * 2);
+      p.lineTo(W, H); p.closePath();
+      const dg = f.createLinearGradient(0, y0 - amp, 0, H); dg.addColorStop(0, rgba(c1)); dg.addColorStop(1, rgba(c2));
+      f.fillStyle = dg; f.fill(p);
+      f.strokeStyle = 'rgba(255,255,255,.35)'; f.lineWidth = 1.2;
+      f.beginPath(); for (let x = 0; x <= W; x += 8){ const y = y0 + amp * (nz(x * .0034 + seed, seed, 3) - .5) * 2; x ? f.lineTo(x, y) : f.moveTo(x, y); } f.stroke();
+    };
+    drift(w.hor + gH * .1, gH * .07, 3, mixRgb(snowDim, haze, .35), snowDim);
+    for (let x = -20; x < W + 20; x += 34 + r() * 46){
+      if (!w.small && x > W * .3 && x < W * .7 && r() < .5) continue;      // thinner in the middle
+      drawPine(f, x, w.hor + gH * .2 + r() * gH * .07, gH * (.34 + r() * .24), [20, 58, 52], .9, r);
+    }
+    drift(w.hor + gH * .32, gH * .06, 9, mixRgb(snowLit, snowDim, .35), mixRgb(snowLit, snowDim, .15));
+    drift(w.hor + gH * .58, gH * .05, 17, snowLit, mixRgb(snowLit, snowDim, .3));
+    // blue hollows in the snow
+    for (let i = 0; i < W / 60; i++){
+      const x = r() * W, y = w.hor + gH * (.42 + r() * .5), rx = 30 + r() * 80;
+      const hg = f.createRadialGradient(x, y, 0, x, y, rx); hg.addColorStop(0, rgba(snowDim, .22)); hg.addColorStop(1, rgba(snowDim, 0));
+      f.fillStyle = hg; f.save(); f.translate(x, y); f.scale(1, .22); f.translate(-x, -y); f.fillRect(x - rx, y - rx, rx * 2, rx * 2); f.restore();
+    }
+    const s = w.small ? .5 : Math.max(.72, Math.min(1.25, H / 760));
+    w.s = s;
+    this.cabin(w, f, w.small ? W * .8 : W * .865, w.hor + gH * .52, s, r);
+    this.tree(w, f, w.small ? W * .13 : W * .094, w.hor + gH * .6, (w.small ? H * .15 : Math.max(150, Math.min(270, H * .3))), r);
+    // sparkles lying on the snow
+    w.glints = Array.from({ length: w.small ? 14 : 40 }, () => ({ x: r() * W, y: w.hor + gH * (.36 + r() * .6), p: r() * TAU, sp: 1 + r() * 2.5 }));
+    // fairy lights along the top: a wire sagging between hooks, three bulbs to a span
+    const span = Math.max(88, Math.min(132, W / 12)), sag = Math.max(22, Math.min(38, H * .045)), topH = sag + 30;
+    let t;
+    [w.top, t] = layer(w.top, W, topH, Math.min(1.5, w.dpr));
+    w.topH = topH; w.lights = [];
+    t.strokeStyle = '#141a28'; t.lineWidth = 2.2; t.beginPath(); t.moveTo(-span * .4, 5);
+    let k = 0;
+    for (let x = -span * .4; x < W + span; x += span){
+      t.quadraticCurveTo(x + span / 2, 5 + sag * 2, x + span, 5);
+      for (const u of [.2, .5, .8]){
+        const bx = x + span * u, by = 5 + sag * 4 * u * (1 - u) + 2;
+        w.lights.push({ x: bx, y: by + 9, col: this.BULBS[k % 4], p: r() * TAU, i: k++ });
+      }
+    }
+    t.stroke();
+    for (const b of w.lights){
+      t.fillStyle = '#28303f'; t.fillRect(b.x - 2.6, b.y - 10, 5.2, 5);
+      const bg = t.createRadialGradient(b.x - 1.5, b.y - 2.5, .5, b.x, b.y, 7); bg.addColorStop(0, '#fff'); bg.addColorStop(.35, rgba(b.col)); bg.addColorStop(1, rgba(mixRgb(b.col, [0, 0, 0], .35)));
+      t.fillStyle = bg; t.beginPath(); t.ellipse(b.x, b.y, 4.6, 6.4, 0, 0, TAU); t.fill();
+    }
+    // the aurora is painted small and stretched: it is all soft edges
+    w.au = w.au || {};
+    w.au.w = w.small ? 60 : 128; w.au.h = 40;
+    [w.au.cv, w.au.g] = layer(w.au.cv, w.au.w, w.au.h, 1);
+    w.au.img = w.au.g.createImageData(w.au.w, w.au.h);
+    this.aurora(w);
+  },
+  cabin(w, g, x, base, s, r){
+    const u = v => v * s, wall = [74, 48, 36], dark = [36, 24, 22];
+    w.cab = { x, base, s, chim: [x + u(43), base - u(146)], win: [x - u(28), base - u(33)] };
+    g.save(); g.translate(x, base);
+    // its shadow on the snow
+    let gr = g.createRadialGradient(u(20), u(4), 0, u(20), u(4), u(130)); gr.addColorStop(0, 'rgba(70,96,160,.4)'); gr.addColorStop(1, 'rgba(70,96,160,0)');
+    g.save(); g.scale(1, .16); g.fillStyle = gr; g.fillRect(u(-120), u(-100), u(280), u(240)); g.restore();
+    // log walls, each log rounded by its own light and shade
+    for (let i = 0; i < 6; i++){
+      const y = -u(62) + i * u(10.4);
+      gr = g.createLinearGradient(0, y, 0, y + u(10.4)); gr.addColorStop(0, rgba(mixRgb(wall, [150, 110, 80], .3))); gr.addColorStop(.45, rgba(wall)); gr.addColorStop(1, rgba(dark));
+      g.fillStyle = gr; g.fillRect(-u(75), y, u(150), u(10.4));
+      for (const ex of [-u(79), u(75)]){ g.fillStyle = rgba(mixRgb(wall, [170, 130, 96], .35)); g.beginPath(); g.ellipse(ex + u(2), y + u(5.2), u(4.6), u(5), 0, 0, TAU); g.fill(); g.strokeStyle = rgba(dark, .6); g.lineWidth = .8; g.beginPath(); g.arc(ex + u(2), y + u(5.2), u(2.2), 0, TAU); g.stroke(); }
+    }
+    // the gable, the roof under a slab of snow, icicles at the eaves
+    g.fillStyle = rgba(mixRgb(wall, dark, .5)); g.beginPath(); g.moveTo(-u(80), -u(62)); g.lineTo(0, -u(116)); g.lineTo(u(80), -u(62)); g.fill();
+    g.strokeStyle = rgba(dark, .7); g.lineWidth = 1; for (let i = 1; i < 5; i++){ g.beginPath(); g.moveTo(-u(80) + i * u(16) * 1.02, -u(62) - i * u(10.8) + u(10.8)); g.lineTo(u(80) - i * u(16) * 1.02, -u(62) - i * u(10.8) + u(10.8)); g.stroke(); }
+    // chimney first, so the snow laps round its foot
+    g.fillStyle = rgba([92, 58, 52]); g.fillRect(u(34), -u(142), u(18), u(52));
+    g.strokeStyle = 'rgba(20,12,12,.5)'; g.lineWidth = .8; for (let i = 0; i < 6; i++){ g.beginPath(); g.moveTo(u(34), -u(142) + i * u(8)); g.lineTo(u(52), -u(142) + i * u(8)); g.stroke(); }
+    g.fillStyle = 'rgba(0,0,10,.3)'; g.fillRect(u(46), -u(142), u(6), u(52));
+    const snow = new Path2D();
+    snow.moveTo(-u(96), -u(56));
+    snow.quadraticCurveTo(-u(50), -u(92), 0, -u(128));
+    snow.quadraticCurveTo(u(50), -u(92), u(96), -u(56));
+    snow.quadraticCurveTo(u(100), -u(48), u(90), -u(48));
+    for (let i = 0; i < 9; i++) snow.quadraticCurveTo(u(86) - i * u(9.6), -u(48) - (i + .2) * u(6.6) - u(3 + r() * 5) + u(9), u(80) - (i + 1) * u(8.9), -u(55) - (i + 1) * u(6.2) + u(4));
+    for (let i = 8; i >= 0; i--) snow.quadraticCurveTo(-u(86) + i * u(9.6), -u(48) - (i + .2) * u(6.6) - u(3 + r() * 5) + u(9), -u(80) + i * u(8.9) - (i ? 0 : u(10)), -u(55) - i * u(6.2) + u(4) + (i ? 0 : u(3)));
+    snow.closePath();
+    gr = g.createLinearGradient(-u(96), 0, u(96), 0); gr.addColorStop(0, '#f4f8ff'); gr.addColorStop(.5, '#dbe6fa'); gr.addColorStop(1, '#9fb4dc');
+    g.fillStyle = gr; g.fill(snow);
+    g.fillStyle = 'rgba(214,232,255,.85)';
+    for (let i = 0; i < 13; i++){ const ix = -u(88) + i * u(14.6) + r() * u(4), il = u(5 + r() * 12), side = ix < 0 ? -1 : 1, iy = -u(50) - Math.max(0, u(80) - Math.abs(ix)) * 0; if (Math.abs(ix) < u(66)) continue; g.beginPath(); g.moveTo(ix - u(1.6), -u(49)); g.lineTo(ix + u(1.6), -u(49)); g.lineTo(ix, -u(49) + il); g.fill(); }
+    gr = g.createLinearGradient(0, -u(150), 0, -u(140)); gr.addColorStop(0, '#f4f8ff'); gr.addColorStop(1, '#b9c9e8');
+    g.fillStyle = gr; g.beginPath(); g.roundRect(u(31), -u(149), u(24), u(8), u(4)); g.fill();
+    // the window: firelight behind four panes, frost in the corners
+    gr = g.createRadialGradient(-u(28), -u(30), u(2), -u(28), -u(33), u(26)); gr.addColorStop(0, '#fff3c4'); gr.addColorStop(.5, '#ffc45e'); gr.addColorStop(1, '#e8862e');
+    g.fillStyle = '#2a1a16'; g.fillRect(-u(48), -u(49), u(40), u(32));
+    g.fillStyle = gr; g.fillRect(-u(45), -u(46), u(34), u(26));
+    g.fillStyle = 'rgba(255,255,255,.4)'; for (const [cx, cy] of [[-45, -46], [-11, -46], [-45, -20], [-11, -20]]){ g.beginPath(); g.arc(u(cx), u(cy), u(5), 0, TAU); g.fill(); }
+    g.strokeStyle = '#2a1a16'; g.lineWidth = u(2.4); g.beginPath(); g.moveTo(-u(28), -u(46)); g.lineTo(-u(28), -u(20)); g.moveTo(-u(45), -u(33)); g.lineTo(-u(11), -u(33)); g.stroke();
+    g.fillStyle = '#eef4ff'; g.beginPath(); g.roundRect(-u(50), -u(18), u(44), u(4.5), u(2)); g.fill();
+    // the door, with a wreath
+    gr = g.createLinearGradient(u(18), 0, u(46), 0); gr.addColorStop(0, '#5a2f22'); gr.addColorStop(1, '#2c1712');
+    g.fillStyle = gr; g.beginPath(); g.roundRect(u(18), -u(44), u(28), u(44), [u(3), u(3), 0, 0]); g.fill();
+    g.strokeStyle = 'rgba(0,0,0,.3)'; g.lineWidth = .8; for (const dx of [25, 32, 39]){ g.beginPath(); g.moveTo(u(dx), -u(42)); g.lineTo(u(dx), 0); g.stroke(); }
+    g.strokeStyle = '#2f7a4a'; g.lineWidth = u(4); g.beginPath(); g.arc(u(32), -u(29), u(7), 0, TAU); g.stroke();
+    g.fillStyle = '#e8424e'; for (let i = 0; i < 5; i++){ const a = i / 5 * TAU + .4; g.beginPath(); g.arc(u(32) + Math.cos(a) * u(7), -u(29) + Math.sin(a) * u(7), u(1.5), 0, TAU); g.fill(); }
+    g.fillStyle = '#f0c060'; g.beginPath(); g.arc(u(42), -u(20), u(1.5), 0, TAU); g.fill();
+    // snow banked against the wall
+    g.fillStyle = '#eaf1ff'; g.beginPath(); g.moveTo(-u(96), u(4)); g.quadraticCurveTo(-u(70), -u(12), -u(40), -u(3)); g.quadraticCurveTo(u(10), -u(9), u(60), -u(2)); g.quadraticCurveTo(u(84), -u(10), u(100), u(4)); g.fill();
+    // a snowman at the door
+    const mx = -u(118), sb = (cy, rad) => { const sg = g.createRadialGradient(mx - rad * .4, cy - rad * .45, rad * .1, mx, cy, rad * 1.05); sg.addColorStop(0, '#ffffff'); sg.addColorStop(.6, '#dfe9fb'); sg.addColorStop(1, '#93a9d6'); g.fillStyle = sg; g.beginPath(); g.arc(mx, cy, rad, 0, TAU); g.fill(); };
+    g.fillStyle = 'rgba(70,96,160,.3)'; g.beginPath(); g.ellipse(mx + u(8), u(2), u(20), u(4), 0, 0, TAU); g.fill();
+    sb(-u(13), u(14)); sb(-u(33), u(10.5)); sb(-u(49), u(7.5));
+    g.strokeStyle = '#3a2a20'; g.lineWidth = u(1.3); g.lineCap = 'round'; g.beginPath(); g.moveTo(mx - u(9), -u(35)); g.lineTo(mx - u(22), -u(46)); g.moveTo(mx + u(9), -u(35)); g.lineTo(mx + u(22), -u(43)); g.moveTo(mx + u(17), -u(39)); g.lineTo(mx + u(22), -u(36)); g.stroke();
+    g.fillStyle = rgba(w.c[2]); g.beginPath(); g.roundRect(mx - u(8), -u(43.5), u(16), u(4), u(2)); g.fill(); g.fillRect(mx + u(3), -u(42), u(4), u(11));
+    g.fillStyle = '#16181f'; for (const [ex, ey] of [[-2.6, -51], [2.6, -51], [0, -36], [0, -30], [0, -15]]){ g.beginPath(); g.arc(mx + u(ex), u(ey), u(1.1), 0, TAU); g.fill(); }
+    g.fillStyle = '#ff8a3d'; g.beginPath(); g.moveTo(mx, -u(49.5)); g.lineTo(mx + u(7), -u(48)); g.lineTo(mx, -u(47)); g.fill();
+    g.fillStyle = '#1b1e28'; g.fillRect(mx - u(8), -u(57.5), u(16), u(2.4)); g.fillRect(mx - u(5.5), -u(67), u(11), u(10)); g.fillStyle = rgba(w.c[2]); g.fillRect(mx - u(5.5), -u(60.5), u(11), u(2.6));
+    g.restore();
+  },
+  tree(w, g, x, base, h, r){
+    g.fillStyle = 'rgba(70,96,160,.34)'; g.beginPath(); g.ellipse(x + h * .1, base + 2, h * .36, h * .045, 0, 0, TAU); g.fill();
+    drawPine(g, x, base, h, [18, 70, 54], 1, r);
+    // baubles, and lights strung from bough to bough
+    const tiers = Math.max(3, Math.round(h / 24)), step = h * .94 / ((tiers - 1) * .86 + 1.7), tip = base - h, cols = [w.c[1], w.c[2], [111, 195, 255], w.c[3]];
+    w.treeLights = []; w.star = { x, y: tip - h * .035, r: h * .055 };
+    let k = 0;
+    for (let i = 1; i < tiers; i++){
+      const yt = tip + i * step * .86 + step * 1.1, hw = (h * .25 * (i + 1.25) / tiers + h * .03) * .82, n = 2 + Math.round(i * .8);
+      for (let j = 0; j < n; j++){
+        const u = (j + .5) / n * 2 - 1, lx = x + u * hw, ly = yt + (1 - u * u) * step * .34 + (r() - .5) * 3;
+        if ((i + j) % 2){ w.treeLights.push({ x: lx, y: ly, col: this.BULBS[k % 4], p: r() * TAU, i: k++ }); g.fillStyle = rgba(this.BULBS[(k - 1) % 4]); g.beginPath(); g.arc(lx, ly, Math.max(1.6, h * .011), 0, TAU); g.fill(); }
+        else {
+          const col = cols[(i + j) % 4], rad = Math.max(2.4, h * .019), bg = g.createRadialGradient(lx - rad * .4, ly - rad * .4, rad * .1, lx, ly, rad);
+          bg.addColorStop(0, '#ffffff'); bg.addColorStop(.3, rgba(col)); bg.addColorStop(1, rgba(mixRgb(col, [0, 0, 0], .5)));
+          g.fillStyle = bg; g.beginPath(); g.arc(lx, ly, rad, 0, TAU); g.fill();
+        }
+      }
+    }
+    // the star
+    const sr = w.star.r, sg = g.createRadialGradient(x, w.star.y, 0, x, w.star.y, sr); sg.addColorStop(0, '#fffbe0'); sg.addColorStop(1, '#f3bd3c');
+    g.fillStyle = sg; g.beginPath();
+    for (let i = 0; i < 10; i++){ const a = -Math.PI / 2 + i / 10 * TAU, rr = i % 2 ? sr * .44 : sr; g.lineTo(x + Math.cos(a) * rr, w.star.y + Math.sin(a) * rr); }
+    g.closePath(); g.fill();
+  },
+  // curtains of light: a bright lower hem, rays fading upward, drifting sideways
+  aurora(w){
+    const { w: aw, h: ah, img, g } = w.au, d = img.data, nz = w.nz, t = w.t;
+    for (let x = 0; x < aw; x++){
+      const u = x / aw * 6, hem = ah * (.5 + .22 * Math.sin(u * 1.3 + t * .11) + .2 * (nz(u * .7 + t * .04, 3, 2) - .5));
+      const power = Math.max(0, nz(u * .9 - t * .05, 8, 3) - .3) * 1.9, ray = .55 + .45 * nz(u * 9 + t * .2, 1, 2);
+      for (let y = 0; y < ah; y++){
+        const dy = y - hem, v = (dy > 0 ? Math.exp(-dy / 1.6) : Math.exp(dy / (ah * .34))) * power * ray, up = Math.min(1, Math.max(0, -dy / (ah * .5)));
+        const i = (y * aw + x) * 4;
+        d[i] = 90 + 110 * up; d[i + 1] = 255 - 110 * up; d[i + 2] = 170 + 70 * up; d[i + 3] = Math.min(1, v) * 120;
+      }
+    }
+    g.putImageData(img, 0, 0);
+  },
+  update(w, dt){
+    const { W, H } = w, rnd = w.rnd, t = w.t;
+    w.boost = Math.max(0, w.boost - dt * .4); w.gust = Math.max(0, w.gust - dt * .55);
+    const wind = 16 * Math.sin(t * .13) + 10 * Math.sin(t * .31 + 1) + w.gust * 420;
+    for (const f of w.flakes){
+      const sp = 16 + f.z * 62;
+      f.y += sp * dt / H; f.x += (wind * (.25 + f.z * .9) + Math.sin(t * f.f + f.p) * 14 * f.z) * dt / W;
+      if (f.y > 1.02){ f.y = -.02; f.x = rnd(); }
+      if (f.x > 1.03) f.x -= 1.06; else if (f.x < -.03) f.x += 1.06;
+    }
+    // smoke from the chimney: puffs that rise, swell, lean with the wind and thin out
+    w.smokeT -= dt;
+    if (w.smokeT <= 0 && dt){ w.smokeT = .5; w.smoke.push({ x: w.cab.chim[0] + (rnd() - .5) * 4 * w.s, y: w.cab.chim[1], r: 5 * w.s, life: 0, max: 4.2 + rnd() * 1.4, p: rnd() * TAU }); }
+    w.smoke = w.smoke.filter(p => {
+      p.life += dt; p.y -= (20 - p.life * 2.6) * w.s * dt; p.x += (wind * .16 + Math.sin(t + p.p) * 3) * dt; p.r += 4.4 * w.s * dt;
+      return p.life < p.max && !Living.hits({ l: p.x - p.r, r: p.x + p.r, t: p.y - p.r, b: p.y + p.r });
+    });
+    w.sparks = w.sparks.filter(p => {
+      p.life += dt; p.vy += 90 * dt; p.x += p.vx * dt; p.y += p.vy * dt;
+      return p.life < p.max && !Living.hits({ l: p.x - 3, r: p.x + 3, t: p.y - 3, b: p.y + 3 });
+    });
+    if (dt && !w.calm && !w.auditing && (w.af = (w.af || 0) + 1) % 3 === 0) this.aurora(w);
+  },
+  flare(w){
+    w.boost = 1; w.gust = 1;
+    const rnd = w.rnd, s = w.star;
+    for (let i = 0; i < 26; i++){ const a = rnd() * TAU, v = 40 + rnd() * 110; w.sparks.push({ x: s.x, y: s.y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 50, life: 0, max: .7 + rnd() * .8 }); }
+  },
+  boxes(w){
+    const out = [];
+    for (const p of w.smoke) out.push({ name: 'chimney smoke', l: p.x - p.r, r: p.x + p.r, t: p.y - p.r, b: p.y + p.r, a: 1 });
+    for (const p of w.sparks) out.push({ name: 'star sparks', l: p.x - 3, r: p.x + 3, t: p.y - 3, b: p.y + 3, a: 1 });
+    return out;
+  },
+  draw(w){
+    const { ctx: c, W, H, t } = w, on = w.boost;
+    c.setTransform(w.dpr, 0, 0, w.dpr, 0, 0);
+    c.globalCompositeOperation = 'source-over'; c.globalAlpha = 1;
+    c.drawImage(w.bg, 0, 0, W, H);
+    c.globalCompositeOperation = 'lighter';
+    c.globalAlpha = .42 + on * .2; c.drawImage(w.au.cv, 0, 0, W, w.hor * .7);
+    c.fillStyle = '#eef4ff';
+    for (const s of w.stars){ c.globalAlpha = .2 + .7 * (.5 + .5 * Math.sin(t * s.sp + s.p)); c.fillRect(s.x * W, s.y * w.hor, 1.5, 1.5); }
+    c.globalCompositeOperation = 'source-over';
+    this.snow(w, 0, .34);
+    c.globalAlpha = 1;
+    c.drawImage(w.fg, 0, w.fgTop, W, w.gH * 2.4);
+    // smoke
+    for (const p of w.smoke){ const f = p.life / p.max; stamp(c, [206, 216, 240], p.x, p.y, p.r * 1.7, Math.sin(Math.min(1, f * 4) * Math.PI / 2) * (1 - f) * .34); }
+    c.globalAlpha = 1;
+    // light: the window on the snow, the tree's lights and star, the string overhead
+    c.globalCompositeOperation = 'lighter';
+    const cab = w.cab, fl = .82 + .1 * Math.sin(t * 7.3) + .08 * Math.sin(t * 12.1 + 1);
+    stamp(c, [255, 190, 96], cab.win[0], cab.win[1], 64 * cab.s, (.5 + on * .4) * fl);
+    c.save(); c.translate(cab.win[0] - 6 * cab.s, cab.base + 12 * cab.s); c.scale(1.5, .3); stamp(c, [255, 184, 90], 0, 0, 70 * cab.s, (.42 + on * .3) * fl); c.restore();
+    for (const b of w.treeLights){ const tw = Math.min(1, .45 + .4 * Math.sin(t * 1.7 + b.p) + .25 * Math.sin(t * .6 + b.i) + on); stamp(c, b.col, b.x, b.y, 9 + 5 * tw, .75 * tw); }
+    stamp(c, [255, 226, 130], w.star.x, w.star.y, w.star.r * (3.4 + Math.sin(t * 2.3) * .5 + on * 3), .6 + on * .4);
+    for (const p of w.sparks) stamp(c, [255, 232, 150], p.x, p.y, 5, 1 - p.life / p.max);
+    for (const g of w.glints){ const v = Math.max(0, Math.sin(t * g.sp + g.p)) ** 6; if (v > .03){ c.globalAlpha = v; c.fillStyle = '#ffffff'; c.fillRect(g.x - 2.5, g.y - .4, 5, .8); c.fillRect(g.x - .4, g.y - 2.5, .8, 5); } }
+    c.globalCompositeOperation = 'source-over';
+    this.snow(w, .34, .78);
+    c.globalAlpha = 1;
+    c.drawImage(w.top, 0, 0, W, w.topH);
+    c.globalCompositeOperation = 'lighter';
+    for (const b of w.lights){
+      // a slow chase along the wire, each bulb with a flicker of its own
+      const tw = Math.min(1, .5 + .32 * Math.sin(t * 1.3 - b.i * .9) + .16 * Math.sin(t * 3.1 + b.p) + on);
+      stamp(c, b.col, b.x, b.y, 12 + 10 * tw + on * 10, .2 + .6 * tw);
+    }
+    c.globalCompositeOperation = 'source-over';
+    this.snow(w, .78, 1.01);
+    c.globalAlpha = 1;
+  },
+  // flakes between two depths: far ones are specks, near ones soft and large
+  snow(w, z0, z1){
+    const c = w.ctx, { W, H } = w, near = z0 > .7, streak = w.gust * 26;
+    if (near){
+      for (const f of w.flakes) if (f.z >= z0 && f.z < z1 && (!w.small || f.p > 2)) stamp(c, [240, 246, 255], f.x * W, f.y * H, 3 + (f.z - .78) * 26, .5);
+      return;
+    }
+    c.fillStyle = '#f2f6ff'; c.globalAlpha = z0 ? .85 : .55;
+    c.beginPath();
+    for (const f of w.flakes){
+      if (f.z < z0 || f.z >= z1) continue;
+      const s = .9 + f.z * 2.6, x = f.x * W, y = f.y * H;
+      if (streak > 1){ c.moveTo(x, y); c.lineTo(x + s, y + s * .4); c.lineTo(x - streak * f.z, y - streak * .12 * f.z); }
+      else { c.moveTo(x + s / 2, y); c.arc(x, y, s / 2, 0, TAU); }
+    }
+    c.fill();
+  }
+};
+/* ▲ LIVE.winter */
+
+/* ▼ LIVE.disco */
+/* Disco Night: a seventies dance floor. A mirror ball turns on its cord,
+   every facet a little mirror that flashes as it swings past a lamp, and
+   throws spots of light that wheel round the room. Coloured beams sweep
+   down through the haze onto a floor of glass tiles, lit from below and
+   pulsing with the beat; speaker stacks thump at either side. At the
+   reveal the ball blazes and the whole floor lights at once. */
+LIVE.disco = {
+  // lamps the ball catches: direction towards each (already halved with the view), and its colour
+  LAMPS: [[-.29, -.35, .89, 0], [.33, -.16, .93, 2], [-.11, .27, .96, 3]],
+  init(w){
+    const r = sceneRand(53);
+    w.rnd = sceneRand(661);
+    w.spots = Array.from({ length: 56 }, (_, i) => ({ lat: r(), lon: r() * TAU, s: .6 + r(), tint: i % 5 }));
+    w.haze = Array.from({ length: 7 }, (_, i) => ({ x: r(), y: r(), s: .7 + r() * .8, v: (r() - .5) * .014, c: i % 3 }));
+    // the ball's facets: rows of mirrors, each with a tarnish of its own
+    const N = 12; w.facets = [];
+    for (let k = 0; k < N; k++){
+      const lat = (k + .5) / N * Math.PI - Math.PI / 2, M = Math.max(5, Math.round(Math.cos(lat) * N * 2));
+      w.facets.push({ lat, cl: Math.cos(lat), sl: Math.sin(lat), M, sh: Array.from({ length: M }, () => .45 + r() * .55), off: r() * TAU });
+    }
+    w.boost = 0;
+  },
+  layout(w){
+    const { W, H, c } = w;
+    const fh = w.small ? 96 : Math.max(84, Math.min(180, H * .18));
+    w.fh = fh; w.hor = H - fh; w.vy = w.hor - fh * 1.5;
+    w.cw = Math.max(84, Math.min(150, W / 12));
+    w.rows = [0, .13, .3, .56, 1].map(f => w.hor + fh * f);
+    w.pal = [c[1], c[2], c[3], [155, 92, 255]];
+    w.palCss = w.pal.map(p => rgba(p));
+    w.white = [255, 244, 222];
+    const room = mixRgb(c[0], [0, 0, 0], .1);
+    let g;
+    [w.bg, g] = layer(w.bg, W, H, .5);
+    g.fillStyle = rgba(room); g.fillRect(0, 0, W, H);
+    let gr = g.createRadialGradient(W / 2, -H * .08, 0, W / 2, -H * .08, H * .75);
+    gr.addColorStop(0, rgba(c[2], .26)); gr.addColorStop(1, rgba(c[2], 0));
+    g.fillStyle = gr; g.fillRect(0, 0, W, H);
+    // the back wall: tall panels, just visible
+    for (let x = 0; x < W; x += W / 14){ gr = g.createLinearGradient(x, 0, x + W / 14, 0); gr.addColorStop(0, 'rgba(255,255,255,.035)'); gr.addColorStop(.5, 'rgba(255,255,255,0)'); gr.addColorStop(1, 'rgba(0,0,0,.1)'); g.fillStyle = gr; g.fillRect(x, 0, W / 14, w.hor); }
+    gr = g.createRadialGradient(W / 2, H * .45, Math.min(W, H) * .3, W / 2, H * .45, Math.max(W, H) * .75);
+    gr.addColorStop(0, 'rgba(8,2,16,0)'); gr.addColorStop(1, 'rgba(8,2,16,.6)');
+    g.fillStyle = gr; g.fillRect(0, 0, W, H);
+    g.fillStyle = rgba(mixRgb(c[0], [0, 0, 0], .55)); g.fillRect(0, w.hor, W, fh);
+    // a sunburst in the corner, the decade's signature
+    const S = Math.round(H * .8);
+    [w.sun, g] = layer(w.sun, S, S, .5);
+    for (let i = 0; i < 9; i++){
+      const a0 = i / 9 * Math.PI / 2, a1 = a0 + Math.PI / 36, col = i % 2 ? c[1] : c[2];
+      gr = g.createRadialGradient(0, 0, S * .1, 0, 0, S); gr.addColorStop(0, rgba(col, .9)); gr.addColorStop(1, rgba(col, 0));
+      g.fillStyle = gr; g.beginPath(); g.moveTo(0, 0); g.arc(0, 0, S, a0, a1); g.fill();
+    }
+    gr = g.createRadialGradient(0, 0, 0, 0, 0, S * .3); gr.addColorStop(0, rgba(c[1], 1)); gr.addColorStop(.6, rgba(c[1], .7)); gr.addColorStop(1, rgba(c[1], 0));
+    g.fillStyle = gr; g.beginPath(); g.moveTo(0, 0); g.arc(0, 0, S * .3, 0, Math.PI / 2); g.fill();
+    w.sunS = S;
+    const R = w.small ? 30 : Math.max(40, Math.min(66, H * .068));
+    w.ball = { R, x: w.small ? W - 46 : W * .88, y: w.small ? 152 : Math.max(96, H * .143), alpha: 1 };
+    // speaker stacks at both sides, on anything wider than a phone
+    w.spk = null;
+    if (!w.small){
+      const sh = fh * 1.38, sw = sh * .46;
+      [w.spkCv, g] = layer(w.spkCv, sw, sh, Math.min(1.5, w.dpr));
+      gr = g.createLinearGradient(0, 0, sw, 0); gr.addColorStop(0, '#2a2433'); gr.addColorStop(.5, '#17131f'); gr.addColorStop(1, '#0b0910');
+      g.fillStyle = gr; g.beginPath(); g.roundRect(0, 0, sw, sh, 5); g.fill();
+      g.strokeStyle = 'rgba(255,255,255,.12)'; g.lineWidth = 1; g.beginPath(); g.roundRect(1.5, 1.5, sw - 3, sh - 3, 4); g.stroke();
+      g.fillStyle = 'rgba(255,255,255,.2)'; for (const [x, y] of [[5, 5], [sw - 5, 5], [5, sh - 5], [sw - 5, sh - 5]]){ g.beginPath(); g.arc(x, y, 1.3, 0, TAU); g.fill(); }
+      w.spk = { sw, sh, xs: [W * .022, W * .978 - sw], y: H - sh - fh * .12, cones: [[.5, .2, .19], [.5, .5, .33], [.5, .82, .33]] };
+    }
+  },
+  update(w, dt){
+    w.boost = Math.max(0, w.boost - dt * .42);
+    for (const h of w.haze){ h.x += h.v * dt; if (h.x > 1.2) h.x = -.2; if (h.x < -.2) h.x = 1.2; }
+    const b = w.ball;
+    b.box = { l: b.x - b.R, r: b.x + b.R, t: b.y - b.R, b: b.y + b.R };
+    b.alpha = Math.max(0, Math.min(1, b.alpha + (Living.hits(b.box) ? -dt * 4 : dt * 2)));
+  },
+  flare(w){ w.boost = 1; },
+  boxes(w){ return w.ball.box ? [{ name: 'mirror ball', ...w.ball.box, a: w.ball.alpha }] : []; },
+  draw(w){
+    const { ctx: c, W, H, t } = w, on = w.boost, beat = t * 1.97, pulse = Math.exp(-(beat % 1) * 4.5);
+    c.setTransform(w.dpr, 0, 0, w.dpr, 0, 0);
+    c.globalCompositeOperation = 'source-over'; c.globalAlpha = 1;
+    c.drawImage(w.bg, 0, 0, W, H);
+    c.save(); c.rotate(Math.sin(t * .11) * .1); c.globalAlpha = .13 + on * .12 + pulse * .02; c.drawImage(w.sun, 0, 0, w.sunS, w.sunS); c.restore();
+    c.globalAlpha = 1;
+    this.floor(w, beat, pulse);
+    c.globalCompositeOperation = 'lighter';
+    // beams sweeping down through the haze, each ending in a pool on the floor
+    for (let k = 0; k < 3; k++){
+      const sx = W * [.06, .5, .94][k], tx = W * (.5 + .4 * Math.sin(t * (.31 + k * .07) + k * 2.1)), ty = w.hor + w.fh * .5, bw = W * .05;
+      const col = on > .5 ? w.white : w.pal[[0, 2, 1][k]], gr = c.createLinearGradient(sx, 0, tx, ty);
+      gr.addColorStop(0, rgba(col, .17 + on * .1)); gr.addColorStop(1, rgba(col, .025));
+      c.globalAlpha = 1; c.fillStyle = gr;
+      c.beginPath(); c.moveTo(sx - 6, -4); c.lineTo(sx + 6, -4); c.lineTo(tx + bw, ty); c.lineTo(tx - bw, ty); c.fill();
+      c.save(); c.translate(tx, ty); c.scale(1, .26); stamp(c, col, 0, 0, bw * 2.4, .34 + on * .3); c.restore();
+    }
+    for (const h of w.haze) stamp(c, w.pal[h.c], h.x * W, w.hor - w.fh * (.2 + h.y * .9), w.fh * 1.5 * h.s, .05 + pulse * .012);
+    // the ball's spots, wheeling round the walls
+    const n = w.small ? 26 : w.spots.length;
+    for (let i = 0; i < n; i++){
+      const s = w.spots[i], th = (s.lon + t * .21) % TAU, cs = Math.cos(th);
+      if (cs < -.15) continue;
+      const x = W / 2 + Math.sin(th) * W * .62, y = H * (.05 + s.lat * .8) + (1 - cs) * H * .1 * (s.lat - .5) * 2;
+      stamp(c, s.tint === 4 ? w.white : w.pal[s.tint], x, y, (6 + 8 * s.s) * (1 + (1 - cs) * 1.1), (.14 + on * .26) * Math.min(1, (cs + .15) * 3));
+    }
+    c.globalCompositeOperation = 'source-over'; c.globalAlpha = 1;
+    if (w.spk) for (const sx of w.spk.xs){
+      const k = w.spk;
+      c.drawImage(w.spkCv, sx, k.y, k.sw, k.sh);
+      for (const [cx, cy, cr] of k.cones){
+        const x = sx + k.sw * cx, y = k.y + k.sh * cy, rad = k.sw * cr * (1 + pulse * .05 * (cr > .2 ? 1 : .3) + on * .04);
+        const gr = c.createRadialGradient(x - rad * .2, y - rad * .2, rad * .1, x, y, rad); gr.addColorStop(0, '#4a4458'); gr.addColorStop(.55, '#1c1826'); gr.addColorStop(1, '#3a3446');
+        c.fillStyle = gr; c.beginPath(); c.arc(x, y, rad, 0, TAU); c.fill();
+        c.fillStyle = '#0d0b12'; c.beginPath(); c.arc(x, y, rad * (.3 + pulse * .04), 0, TAU); c.fill();
+        c.strokeStyle = rgba(w.pal[1], .25 + pulse * .5 + on * .3); c.lineWidth = 1.4; c.beginPath(); c.arc(x, y, rad * 1.04, 0, TAU); c.stroke();
+      }
+    }
+    this.ballDraw(w);
+  },
+  // glass tiles in perspective, lit from below in a pattern that runs with the beat
+  floor(w, beat, pulse){
+    const c = w.ctx, { W, H } = w, rows = w.rows, vx = W / 2, vy = w.vy, on = w.boost;
+    const xAt = (xb, y) => vx + (xb - vx) * (y - vy) / (H - vy);
+    const n = Math.ceil(W / 2 / w.cw / ((rows[0] - vy) / (H - vy))) + 1, wave = Math.floor(beat / 8) % 3;
+    for (let j = 0; j < 4; j++){
+      const y0 = rows[j] + 1, y1 = rows[j + 1] - 1, ins = (y1 - y0) * .2;
+      for (let i = -n; i < n; i++){
+        const xa = vx + i * w.cw, xb = xa + w.cw, x00 = xAt(xa, y0) + 1, x10 = xAt(xb, y0) - 1;
+        if (x10 < 0 || x00 > W) continue;
+        const x01 = xAt(xa, y1) + 1.5, x11 = xAt(xb, y1) - 1.5;
+        // three patterns take turns: a diagonal chase, rings from the middle, a checkerboard
+        const ph = wave === 0 ? (((i * 5 + j * 3) % 8) + 8) % 8 / 8 : wave === 1 ? (Math.abs(i + .5) * .17 + j * .12) % 1 : ((i + j) & 1) * .5;
+        const v = Math.min(1, .14 + .86 * Math.max(0, Math.sin((beat * .5 - ph) * TAU)) ** 3 + on);
+        c.globalAlpha = .2 + .8 * v; c.fillStyle = w.palCss[(((i + j) % 4) + 4) % 4];
+        c.beginPath(); c.moveTo(x00, y0); c.lineTo(x10, y0); c.lineTo(x11, y1); c.lineTo(x01, y1); c.fill();
+        if (v > .4){
+          const u = (x10 - x00) * .2, u1 = (x11 - x01) * .2;
+          c.globalAlpha = (v - .4) * .6; c.fillStyle = '#ffffff';
+          c.beginPath(); c.moveTo(x00 + u, y0 + ins); c.lineTo(x10 - u, y0 + ins); c.lineTo(x11 - u1, y1 - ins); c.lineTo(x01 + u1, y1 - ins); c.fill();
+        }
+      }
+    }
+    c.globalAlpha = 1;
+    // the gloss on the glass, and the floor's glow on the room above it
+    let gr = c.createLinearGradient(0, w.hor, 0, w.hor + w.fh * .6); gr.addColorStop(0, 'rgba(255,255,255,.16)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
+    c.fillStyle = gr; c.fillRect(0, w.hor, W, w.fh * .6);
+    c.globalCompositeOperation = 'lighter';
+    gr = c.createLinearGradient(0, w.hor - w.fh * .9, 0, w.hor); gr.addColorStop(0, rgba(w.pal[1], 0)); gr.addColorStop(1, rgba(w.pal[1], .1 + pulse * .06 + on * .2));
+    c.fillStyle = gr; c.fillRect(0, w.hor - w.fh * .9, W, w.fh * .9);
+    c.globalCompositeOperation = 'source-over';
+  },
+  ballDraw(w){
+    const b = w.ball; if (b.alpha < .02) return;
+    const c = w.ctx, R = b.R, t = w.t, on = w.boost, rot = t * .5, dl = Math.PI / w.facets.length, glints = [];
+    c.globalAlpha = b.alpha;
+    c.strokeStyle = 'rgba(214,214,236,.55)'; c.lineWidth = 1.4; c.beginPath(); c.moveTo(b.x, 0); c.lineTo(b.x, b.y - R); c.stroke();
+    c.fillStyle = '#8f8fa8'; c.fillRect(b.x - 4, b.y - R - 4, 8, 6);
+    c.globalCompositeOperation = 'lighter'; stamp(c, w.white, b.x, b.y, R * (2.3 + on * 1.6), (.3 + on * .5) * b.alpha);
+    c.globalCompositeOperation = 'source-over'; c.globalAlpha = b.alpha;
+    c.save(); c.translate(b.x, b.y); c.beginPath(); c.arc(0, 0, R, 0, TAU); c.clip();
+    c.fillStyle = '#15121f'; c.fillRect(-R, -R, R * 2, R * 2);
+    for (const row of w.facets){
+      const y0 = Math.sin(row.lat - dl / 2) * R + .5, y1 = Math.sin(row.lat + dl / 2) * R - .5, r0 = Math.cos(row.lat - dl / 2) * R, r1 = Math.cos(row.lat + dl / 2) * R, dm = TAU / row.M;
+      for (let m = 0; m < row.M; m++){
+        let lon = (m * dm + rot + row.off) % TAU; if (lon > Math.PI) lon -= TAU;
+        const a0 = Math.max(-Math.PI / 2, lon - dm * .45), a1 = Math.min(Math.PI / 2, lon + dm * .45);
+        if (a1 <= a0) continue;
+        // a mirror: dim until it swings past a lamp, then it flashes that lamp's colour
+        const nx = row.cl * Math.sin(lon), ny = row.sl, nzz = row.cl * Math.cos(lon);
+        let v = row.sh[m] * (.3 + .5 * nzz) + Math.max(0, -ny) * .22, cr = 0, cg = 0, cb = 0, best = 0;
+        for (const [lx, ly, lz, ci] of this.LAMPS){
+          const sp = Math.max(0, nx * lx + ny * ly + nzz * lz) ** 70;
+          if (sp > .02){ const col = ci ? w.pal[ci - 1] : w.white; cr += col[0] * sp; cg += col[1] * sp; cb += col[2] * sp; if (sp > best) best = sp; }
+        }
+        v = Math.min(1, v + on * .5);
+        c.fillStyle = `rgb(${Math.min(255, 228 * v + cr) | 0},${Math.min(255, 228 * v + cg) | 0},${Math.min(255, 240 * v + cb) | 0})`;
+        const s0 = Math.sin(a0), s1 = Math.sin(a1);
+        c.beginPath(); c.moveTo(s0 * r0, y0); c.lineTo(s1 * r0, y0); c.lineTo(s1 * r1, y1); c.lineTo(s0 * r1, y1); c.fill();
+        if (best > .55 || (on > .3 && row.sh[m] > .93)) glints.push(nx * R, ny * R, Math.max(best, on * .8));
+      }
+    }
+    // the ball is round: brighter towards the lamp, dark at its rim
+    const gr = c.createRadialGradient(-R * .35, -R * .4, R * .05, 0, 0, R);
+    gr.addColorStop(0, 'rgba(255,255,255,.26)'); gr.addColorStop(.5, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(6,2,14,.62)');
+    c.fillStyle = gr; c.fillRect(-R, -R, R * 2, R * 2);
+    c.restore();
+    c.globalCompositeOperation = 'lighter'; c.fillStyle = '#ffffff';
+    for (let i = 0; i < glints.length; i += 3){
+      const x = b.x + glints[i], y = b.y + glints[i + 1], s = R * .34 * glints[i + 2];
+      stamp(c, w.white, x, y, s * 1.2, .8 * b.alpha);
+      c.globalAlpha = .9 * b.alpha; c.fillRect(x - s, y - .6, s * 2, 1.2); c.fillRect(x - .6, y - s, 1.2, s * 2);
+    }
+    c.globalCompositeOperation = 'source-over'; c.globalAlpha = 1;
+  }
+};
+/* ▲ LIVE.disco */
 
 let sceneTheme = '';
 function renderScene(theme){
