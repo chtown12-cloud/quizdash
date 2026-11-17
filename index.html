@@ -1362,26 +1362,7 @@ html[data-theme=disco] .tapwrap{border:6px solid var(--c2);border-radius:22px;bo
 #scene .sc-ground{left:0;bottom:0;width:100%;height:clamp(90px,20vh,200px)}
 @media (max-width:600px){#scene .sc-wide{display:none}}
 
-/* Classic: the studio */
-.sc-classic .sc-curtain{top:0;height:100%;width:clamp(26px,6.5vw,120px)}
-.sc-classic .sc-left{left:0}
-.sc-classic .sc-right{right:0;transform:scaleX(-1)}
-.sc-classic .sc-valance{left:0;right:0;top:0;height:clamp(26px,5.5vh,50px);
-  background:radial-gradient(circle,#fff3c4 0 2.5px,color-mix(in srgb,var(--c2) 60%,transparent) 3.5px,transparent 6px) 0 calc(100% - 12px)/24px 12px repeat-x,
-    radial-gradient(14px 12px at 50% 0,#7e0f1f 96%,transparent 100%) 0 100%/28px 12px repeat-x,
-    linear-gradient(#5a0915,#8b1222) 0 0/100% calc(100% - 11px) no-repeat;
-  filter:drop-shadow(0 6px 8px rgba(0,0,0,.4))}
-.sc-classic .sc-beam{top:-6vh;width:30vw;height:125vh;transform-origin:50% 0;mix-blend-mode:screen;opacity:.75;
-  background:linear-gradient(rgba(255,244,214,.26),rgba(255,244,214,.08) 55%,transparent 88%);clip-path:polygon(46% 0,54% 0,100% 100%,0 100%);
-  animation:beam 12s ease-in-out infinite alternate;transition:opacity .4s}
-.sc-classic .sc-beam-l{left:-4vw;transform:rotate(-24deg)}
-.sc-classic .sc-beam-r{right:-4vw;transform:rotate(24deg);animation-delay:-6s}
-@keyframes beam{from{rotate:-7deg}to{rotate:7deg}}
-html.flare .sc-classic .sc-beam{opacity:1;filter:brightness(1.6)}
-.sc-classic .sc-ground{height:clamp(56px,13vh,120px)}
-.sc-classic .sc-crowd-b{fill:color-mix(in srgb,var(--c1) 45%,#000);color:color-mix(in srgb,var(--c1) 45%,#000)}
-.sc-classic .sc-crowd-f{fill:color-mix(in srgb,var(--c1) 22%,#000);color:color-mix(in srgb,var(--c1) 22%,#000)}
-
+/* Classic: painted on a canvas (see LIVE.classic) */
 /* Editorial: a printer's proof */
 .sc-editorial{color:#111}
 .sc-editorial .sc-grain{inset:0;opacity:.07;mix-blend-mode:multiply;
@@ -1443,18 +1424,7 @@ html.flare .sc-blueprint .sc-gear{transform:rotate(22.5deg)}
 .sc-blueprint .sc-titleblock .big{font:700 22px var(--font-display);letter-spacing:.12em}
 @media (max-width:760px){.sc-blueprint .sc-titleblock{display:none}}
 
-/* Film noir: a rainy city */
-.sc-noir .sc-blinds{left:-12vw;top:-14vh;width:84vw;height:118vh;transform:skewY(-14deg);
-  background:repeating-linear-gradient(180deg,rgba(255,255,255,.085) 0 24px,transparent 24px 42px);
-  -webkit-mask-image:radial-gradient(70% 60% at 32% 36%,#000,transparent 75%);mask-image:radial-gradient(70% 60% at 32% 36%,#000,transparent 75%)}
-.sc-noir .sc-rain{left:0;right:0;top:-200px;bottom:0;opacity:.45;animation:rain .7s linear infinite;
-  -webkit-mask-image:linear-gradient(90deg,#000,#000 45%,transparent 80%);mask-image:linear-gradient(90deg,#000,#000 45%,transparent 80%)}
-@keyframes rain{to{transform:translateY(200px)}}
-.sc-noir .sc-ground{height:clamp(90px,24vh,230px)}
-.sc-noir .sc-flash{inset:0;background:#fff;opacity:0}
-html.flare .sc-noir .sc-flash{animation:lightning 1s}
-@keyframes lightning{0%,100%{opacity:0}6%{opacity:.4}12%{opacity:0}20%{opacity:.25}34%{opacity:0}}
-
+/* Film noir: painted on a canvas (see LIVE.noir) */
 /* Arcade: the cabinet */
 .sc-arcade .sc-stars{inset:0;background-repeat:repeat}
 .sc-arcade .sc-far{opacity:.6;animation:starfall 40s steps(100,end) infinite}
@@ -1477,34 +1447,8 @@ html.flare .sc-terminal .sc-log{animation:logscroll 80s linear infinite,crt .5s 
 @keyframes crt{50%{opacity:.35}}
 @media (max-width:760px){.sc-terminal .sc-log{display:none}}
 
-/* Candy: the clay landscape */
-.sc-candy .sc-sun{left:6vw;top:8vh;width:clamp(70px,11vh,120px);aspect-ratio:1;border-radius:50%;
-  background:radial-gradient(circle at 35% 30%,#fff7d1,#ffd166 58%,#f2ae3a);box-shadow:inset 0 -8px 0 rgba(0,0,0,.06),0 14px 30px -8px rgba(240,150,40,.45)}
-.sc-candy .sc-cloud{left:0;width:clamp(120px,16vw,220px);filter:drop-shadow(0 10px 12px rgba(90,60,120,.14));animation:cloud var(--dur) linear var(--delay) infinite}
-@keyframes cloud{from{transform:translateX(-30vw)}to{transform:translateX(120vw)}}
-.sc-candy .sc-ground{height:clamp(110px,26vh,240px)}
-.sc-candy .sc-lolly{transform-box:fill-box;transform-origin:50% 100%}
-html.flare .sc-candy .sc-lolly{animation:lollysquash .7s cubic-bezier(.3,1.5,.5,1)}
-@keyframes lollysquash{30%{scale:1.12 .82}65%{scale:.94 1.08}}
-
-/* Halloween: the graveyard hill */
-.sc-spooky{--sil:color-mix(in srgb,var(--c1) 45%,#000);--hillH:clamp(170px,46vh,430px)}
-.sc-spooky .sc-ink{fill:var(--sil);color:var(--sil)}
-.sc-spooky .sc-stars{left:0;top:0;width:100%;height:62vh}
-.sc-spooky .sc-hill{right:0;bottom:0;height:var(--hillH);width:calc(var(--hillH) * 1.4);overflow:visible}
-.sc-spooky .sc-ground{height:clamp(80px,16vh,150px)}
-.sc-spooky .sc-witch{left:0;transform:translate(-30vw,0);bottom:calc(var(--hillH) * .5);width:clamp(76px,9vw,140px);animation:witch 46s linear infinite;animation-delay:-36s}
-@keyframes witch{0%{transform:translate(-20vw,0)}24%{transform:translate(106vw,-7vh)}24.01%,100%{transform:translate(120vw,-7vh)}}
-.sc-spooky .sc-fog{left:-10vw;right:-10vw;bottom:0;height:24vh;opacity:.9;animation:fog 34s ease-in-out infinite alternate;
-  background:radial-gradient(40% 55% at 22% 80%,rgba(214,204,255,.13),transparent 70%),radial-gradient(35% 50% at 62% 90%,rgba(214,204,255,.11),transparent 70%),radial-gradient(30% 45% at 92% 85%,rgba(214,204,255,.09),transparent 70%)}
-@keyframes fog{to{transform:translateX(6vw)}}
-.sc-spooky .sc-face{animation:flicker var(--d) steps(1,end) infinite}
-.sc-spooky .sc-halo{animation:flicker var(--d) steps(1,end) infinite;transition:transform .3s;transform-box:fill-box;transform-origin:center}
-@keyframes flicker{0%,100%{opacity:1}23%{opacity:.82}31%{opacity:.95}58%{opacity:.78}71%{opacity:1}86%{opacity:.88}}
-html.flare .sc-spooky .sc-halo{transform:scale(1.7);opacity:1}
-html.flare .sc-spooky .sc-face{fill:#fff2a8}
-@media (max-width:600px){.sc-spooky{--hillH:clamp(130px,22vh,190px)}.sc-spooky .sc-ground{height:84px}}
-
+/* Candy: painted on a canvas (see LIVE.candy) */
+/* Halloween: painted on a canvas (see LIVE.spooky) */
 /* Winter Holidays: painted on a canvas (see LIVE.winter) */
 /* Under the Sea: painted on a canvas (see LIVE.deepsea) */
 #scene .sc-live{inset:0;width:100%;height:100%}
@@ -2455,26 +2399,8 @@ const sceneRand = seed => () => (seed = seed * 16807 % 2147483647) / 2147483647;
 // An SVG tile as a CSS background (quotes escaped so it can sit in a style attribute)
 const svgTile = (w, h, body) => `url(&quot;data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${h}'>${body}</svg>`).replace(/'/g, '%27')}&quot;)`;
 const SCENES = {
-  // A TV studio: red curtains, a scalloped valance hung with bulbs, two
-  // follow-spots sweeping the stage, and the studio audience in silhouette
-  classic(){
-    const r = sceneRand(5);
-    let back = '', front = '';
-    for (let x = -20; x < 1640; x += 40 + r() * 12){
-      back += `<circle cx="${x.toFixed(0)}" cy="${(92 + r() * 6).toFixed(0)}" r="${(12 + r() * 3).toFixed(1)}"/><ellipse cx="${x.toFixed(0)}" cy="128" rx="25" ry="24"/>`;
-      if (r() < .1) back += `<path d="M${(x + 10).toFixed(0)} 104l${(8 + r() * 10).toFixed(0)}-46" stroke-width="8" stroke-linecap="round"/>`;
-    }
-    for (let x = 0; x < 1640; x += 46 + r() * 14){
-      front += `<circle cx="${x.toFixed(0)}" cy="${(116 + r() * 6).toFixed(0)}" r="${(14 + r() * 3).toFixed(1)}"/><ellipse cx="${x.toFixed(0)}" cy="156" rx="28" ry="26"/>`;
-      if (r() < .12) front += `<path d="M${(x - 12).toFixed(0)} 128l${(-6 - r() * 10).toFixed(0)}-50" stroke-width="9" stroke-linecap="round"/>`;
-    }
-    const curtain = `<path d="M0 0H120Q86 250 102 460Q112 505 92 540Q66 700 120 900H0Z" fill="url(#sc-fold)"/><path d="M100 452q16 30-6 92" fill="none" stroke="#e8b84a" stroke-width="5" stroke-linecap="round"/>`;
-    return `<div class="sc-beam sc-beam-l"></div><div class="sc-beam sc-beam-r"></div>
-      <svg class="sc-curtain sc-left" viewBox="0 0 120 900" preserveAspectRatio="none"><defs><linearGradient id="sc-fold" gradientUnits="userSpaceOnUse" x1="0" x2="28" spreadMethod="repeat"><stop offset="0" stop-color="#4a0711"/><stop offset=".55" stop-color="#9d1426"/><stop offset="1" stop-color="#4a0711"/></linearGradient></defs>${curtain}</svg>
-      <svg class="sc-curtain sc-right" viewBox="0 0 120 900" preserveAspectRatio="none">${curtain}</svg>
-      <div class="sc-valance"></div>
-      <svg class="sc-ground" viewBox="0 0 1600 180" preserveAspectRatio="xMidYMax slice"><g class="sc-crowd-b" stroke="currentColor">${back}</g><g class="sc-crowd-f" stroke="currentColor">${front}</g></svg>`;
-  },
+  // painted live on a canvas: see LIVE.classic
+  classic(){ return '<canvas class="sc-live"></canvas>'; },
 
   // A printer's proof: crop marks, registration targets, a colour bar and
   // a slug line, on paper with a little grain
@@ -2541,26 +2467,8 @@ const SCENES = {
         <text x="12" y="112">Sheet 1 of 1 · scale 1:1</text><text x="180" y="112">${today}</text><text x="264" y="112">Rev. A</text></svg>`;
   },
 
-  // A rainy city at night: light through venetian blinds, rain on the
-  // window, a skyline with a few lit windows and a street lamp
-  noir(){
-    const r = sceneRand(7);
-    let city = '', lit = '';
-    for (let x = -10; x < 1620;){
-      const w = 55 + r() * 110, h = 50 + r() * 140, y = 230 - h;
-      city += `<rect x="${x.toFixed(0)}" y="${y.toFixed(0)}" width="${(w + 1).toFixed(0)}" height="${h.toFixed(0)}"/>`;
-      if (r() < .3) city += `<rect x="${(x + w * .5).toFixed(0)}" y="${(y - 34).toFixed(0)}" width="3" height="34"/>`;
-      for (let wy = y + 12; wy < 214; wy += 15) for (let wx = x + 9; wx < x + w - 10; wx += 13) if (r() < .06) lit += `<rect x="${wx.toFixed(0)}" y="${wy.toFixed(0)}" width="6" height="8"/>`;
-      x += w;
-    }
-    const tower = '<path d="M1210 96h56l-6 30h-44zM1218 126l-8 40M1258 126l8 40M1212 92q26-22 52 0z"/>';
-    const lamp = '<path d="M248 60L150 230H346Z" fill="url(#sc-cone)"/><path d="M244 230V64h-26v-6h34v172z" fill="#060606"/><path d="M232 52h32l-6 10h-20z" fill="#f3d58a"/>';
-    let streaks = '';
-    for (let i = 0; i < 18; i++) streaks += `<path d='M${(r() * 160).toFixed(0)} ${(r() * 200).toFixed(0)}l-3 ${(10 + r() * 16).toFixed(0)}' stroke='white' stroke-opacity='${(.25 + r() * .4).toFixed(2)}'/>`;
-    return `<div class="sc-blinds"></div><div class="sc-rain" style="background-image:${svgTile(160, 200, streaks)}"></div>
-      <svg class="sc-ground" viewBox="0 0 1600 230" preserveAspectRatio="xMidYMax slice"><defs><linearGradient id="sc-cone" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff1c8" stop-opacity=".32"/><stop offset="1" stop-color="#fff1c8" stop-opacity="0"/></linearGradient></defs>
-        <g fill="#060606">${city}${tower}</g><g class="sc-windows" fill="#f3d58a">${lit}</g>${lamp}</svg><div class="sc-flash"></div>`;
-  },
+  // painted live on a canvas: see LIVE.noir
+  noir(){ return '<canvas class="sc-live"></canvas>'; },
 
   // An arcade cabinet: a rounded CRT bezel, a pixel starfield stepping
   // downwards, a pixel moon and an 8-bit city scrolling past
@@ -2597,64 +2505,11 @@ const SCENES = {
     return `<pre class="sc-log">${esc(log)}\n${esc(log)}</pre><div class="sc-glare"></div><div class="sc-tube"></div>`;
   },
 
-  // Modelling clay: a sunny pastel sky with drifting clouds, rolling hills
-  // and lollipop trees that squash when the answer lands
-  candy(){
-    const cloud = '<svg viewBox="0 0 200 90"><path d="M30 80a28 28 0 0 1 4-55a34 34 0 0 1 62-12a30 30 0 0 1 52 10a26 26 0 0 1 22 57z" fill="#fff"/><path d="M30 80h140a26 26 0 0 0 6-12H24a28 28 0 0 0 6 12z" fill="#000" opacity=".06"/></svg>';
-    const lolly = (x, y, s, c) => `<g class="sc-lolly" transform="translate(${x} ${y}) scale(${s})"><rect x="-4" y="-6" width="8" height="70" rx="4" fill="#fff"/><circle cy="-26" r="30" fill="${c}"/><path d="M0-26m-20 0a20 20 0 0 1 40 0a14 14 0 0 1-28 0a8 8 0 0 1 16 0" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" opacity=".8"/><circle cx="-10" cy="-38" r="6" fill="#fff" opacity=".55"/></g>`;
-    return `<div class="sc-sun"></div>
-      <div class="sc-cloud" style="top:2vh;--dur:110s;--delay:-30s">${cloud}</div><div class="sc-cloud" style="top:64vh;--dur:150s;--delay:-95s;scale:.75">${cloud}</div><div class="sc-cloud" style="top:3vh;--dur:130s;--delay:-70s;scale:.55">${cloud}</div>
-      <svg class="sc-ground" viewBox="0 0 1600 240" preserveAspectRatio="xMidYMax slice">
-        <path d="M0 120Q180 40 380 96T780 92T1180 110T1600 70V240H0Z" fill="#d9ccff"/><path d="M0 120Q180 40 380 96T780 92T1180 110T1600 70" fill="none" stroke="#fff" stroke-width="5" opacity=".6"/>
-        ${lolly(300, 120, .9, '#ff8fb1')}${lolly(1320, 112, .8, '#7ad8ff')}
-        <path d="M0 170Q260 110 520 150T1040 140T1600 150V240H0Z" fill="#ffd2bd"/><path d="M0 170Q260 110 520 150T1040 140T1600 150" fill="none" stroke="#fff" stroke-width="5" opacity=".6"/>
-        ${lolly(150, 170, 1.05, '#ffd36e')}${lolly(980, 160, 1, '#b48cff')}${lolly(1480, 168, .75, '#ff8fb1')}
-        <path d="M0 210Q320 170 700 200T1600 195V240H0Z" fill="#bfeedd"/><path d="M0 210Q320 170 700 200T1600 195" fill="none" stroke="#fff" stroke-width="5" opacity=".6"/>
-        <g fill="#ff8fb1"><path d="M620 212a22 22 0 0 1 44 0z"/></g><g fill="#7ad8ff"><path d="M676 214a16 16 0 0 1 32 0z"/></g><g fill="#ffd36e"><path d="M1180 210a20 20 0 0 1 40 0z"/></g></svg>`;
-  },
+  // painted live on a canvas: see LIVE.candy
+  candy(){ return '<canvas class="sc-live"></canvas>'; },
 
-  // Halloween: a full moon low over a graveyard hill, a werewolf howling
-  // on the crest, a witch who crosses the moon now and then, bats, low
-  // fog, and a row of jack-o'-lanterns that flare at every reveal
-  spooky(){
-    const r = sceneRand(11);
-    let stars = '';
-    for (let i = 0; i < 80; i++) stars += `<circle cx="${(r() * 1600).toFixed(0)}" cy="${(r() * 560).toFixed(0)}" r="${(.6 + r() * 1.3).toFixed(1)}" opacity="${(.3 + r() * .6).toFixed(2)}"/>`;
-    const lantern = (x, s, d) => `<g class="sc-lantern" style="--d:${d}s" transform="translate(${x} 150) scale(${s})">
-        <ellipse class="sc-halo" cx="0" cy="-30" rx="86" ry="58" fill="url(#sc-glow)"/>
-        <ellipse cx="-19" cy="-27" rx="21" ry="27" fill="#8f3a0f"/><ellipse cx="19" cy="-27" rx="21" ry="27" fill="#8f3a0f"/><ellipse cx="0" cy="-28" rx="22" ry="29" fill="#a9481a"/>
-        <path d="M-1-55q1-9 9-13" stroke="#24301a" stroke-width="6" stroke-linecap="round" fill="none"/>
-        <g class="sc-face" fill="#ffd25e"><path d="M-19-34l7-11 7 11z"/><path d="M5-34l7-11 7 11z"/><path d="M-22-19q22 15 44 0l-6 2-3-6-4 7-4-6-4 7-4-6-4 7-3-6z"/></g></g>`;
-    const stone = (x, h, a) => `<path transform="rotate(${a} ${x + 16} 150)" d="M${x} 150v-${h}a16 16 0 0 1 32 0v${h}z"/>`;
-    let fence = '';
-    for (let x = 1050; x < 1250; x += 22) fence += `<rect x="${x}" y="96" width="4" height="54"/><path d="M${x - 3} 97l5-10 5 10z"/>`;
-    const bat = (x, y, s) => `<path transform="translate(${x} ${y}) scale(${s})" d="M0 6c4-1 8-5 10-6 1 3 3 4 5 4s4-1 5-4c2 1 6 5 10 6-4 0-7 2-9 6-2-2-4-3-6-1-2-2-4-1-6 1-2-4-5-6-9-6z"/>`;
-    // standing, back arched, head thrown back in a howl, claws out, wolf's legs
-    const wolf = ['M58 60C40 70 38 100 46 122C52 140 66 150 84 150C104 150 112 132 110 108C108 80 96 58 80 52Z', 'M60 66L50 40L70 34L84 56Z',
-      'M48 44L38 20L44 22L36 6L40 3L56 26L58 12L64 28L70 14L72 34L78 46Z', 'M72 34L86 40L80 44L94 50L86 54L100 62L84 66Z',
-      'M60 66L72 78L62 110L66 116L56 114L52 140L50 152L44 146L44 156L38 148L36 156L32 146L30 152L30 140L38 134L46 108L52 80Z',
-      'M90 70L100 80L104 116L110 140L106 150L102 142L100 150L96 140L94 118L86 84Z',
-      'M66 138L52 176L68 204L50 220L84 220L84 204L72 176L92 146Z', 'M92 140L84 178L98 204L86 220L116 220L112 204L100 178L110 140Z',
-      'M106 128L122 146L114 147L126 162L110 156Z'].map(d => `<path d="${d}"/>`).join('');
-    return `<svg class="sc-stars" viewBox="0 0 1600 560" preserveAspectRatio="xMidYMin slice" fill="#fff">${stars}</svg>
-      <svg class="sc-hill" viewBox="0 0 700 500"><defs><radialGradient id="sc-moonglow"><stop offset=".55" stop-color="#ffe6a6" stop-opacity=".35"/><stop offset="1" stop-color="#ffe6a6" stop-opacity="0"/></radialGradient>
-        <radialGradient id="sc-glow"><stop offset="0" stop-color="#ffb347" stop-opacity=".55"/><stop offset="1" stop-color="#ff8a1f" stop-opacity="0"/></radialGradient></defs>
-        <circle cx="450" cy="230" r="250" fill="url(#sc-moonglow)"/>
-        <circle cx="450" cy="230" r="150" fill="#f6e8bf"/><g fill="#8a7a50" opacity=".16"><circle cx="400" cy="190" r="26"/><circle cx="490" cy="270" r="34"/><circle cx="500" cy="170" r="14"/><circle cx="420" cy="300" r="12"/></g>
-        <g class="sc-ink">${bat(330, 70, 1.6)}${bat(560, 40, 1.1)}${bat(610, 120, .8)}
-        <path d="M0 500V470Q160 455 300 420Q390 392 470 396Q560 400 640 380L700 372V500Z"/>
-        <g transform="translate(382 178)">${wolf}</g>
-        <g fill="none" stroke="currentColor" stroke-linecap="round"><path d="M646 386C640 330 656 292 632 240" stroke-width="15"/><path d="M634 262C606 236 592 212 560 204" stroke-width="8"/><path d="M640 300C664 272 684 262 712 254" stroke-width="7"/><path d="M632 242C622 212 632 192 614 168" stroke-width="7"/><path d="M562 204C550 194 540 196 526 186" stroke-width="4"/><path d="M614 170C606 156 610 146 600 134" stroke-width="4"/><path d="M580 210C584 230 576 240 580 256" stroke-width="3"/></g></g></svg>
-      <svg class="sc-witch" viewBox="-44 0 220 100"><g class="sc-ink"><path d="M10 66L176 52" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><path d="M14 66L-30 50L-38 62L-34 72L-38 84L-28 80Z"/>
-        <path d="M108 2L114 34H140Z"/><path d="M100 36Q124 28 150 32L150 36Q124 33 100 40Z"/><circle cx="128" cy="42" r="8"/><path d="M134 40L146 44L135 47Z"/>
-        <path d="M122 48Q104 52 92 64L60 60L86 74L128 66Q138 58 132 48Z"/><path d="M128 64L146 80L156 78L150 84L140 84L124 68Z"/><path d="M130 54L152 56" stroke="currentColor" stroke-width="4"/><path d="M60 60Q40 50 22 58Q40 62 56 70Z"/></g></svg>
-      <div class="sc-fog"></div>
-      <svg class="sc-ground" viewBox="0 0 1600 150" preserveAspectRatio="xMinYMax slice"><g class="sc-ink">
-        <path d="M0 150V112Q220 100 440 108T880 106T1320 112T1600 104V150Z"/>
-        ${stone(560, 40, -6)}${stone(640, 52, 4)}${stone(760, 34, -3)}${stone(900, 46, 7)}<path d="M700 150v-62h9v62zM686 106h37v9h-37z"/><path d="M970 150v-50h8v50zM958 114h32v8h-32z" transform="rotate(8 974 150)"/>
-        ${fence}<rect x="1046" y="104" width="206" height="4"/><rect x="1046" y="132" width="206" height="4"/></g>
-        ${lantern(90, .95, 2.1)}${lantern(250, .7, 2.7)}${lantern(410, 1.05, 1.8)}${lantern(1330, .8, 2.4)}</svg>`;
-  },
+  // painted live on a canvas: see LIVE.spooky
+  spooky(){ return '<canvas class="sc-live"></canvas>'; },
 
   // painted live on a canvas: see LIVE.winter
   winter(){ return '<canvas class="sc-live"></canvas>'; },
@@ -2769,6 +2624,12 @@ const Living = {
     return best;
   },
   hits(box){ return this.w.clear.some(z => box.l < z.r && box.r > z.l && box.t < z.b && box.b > z.t); },
+  // Fade a travelling piece out as it nears a word (lead px away) and back
+  // in once it is clear; if it is ever actually behind a word it is not drawn
+  ease(o, box, dt, lead = 30){
+    const near = this.hits({ l: box.l - lead, r: box.r + lead, t: box.t - lead, b: box.b + lead });
+    o.alpha = this.hits(box) ? 0 : Math.max(0, Math.min(1, (o.alpha || 0) + (near ? -dt * 5 : dt * 1.5)));
+  },
   play(){
     const w = this.w; if (!w || w.calm || w.raf) return;
     w.last = performance.now();
@@ -3296,7 +3157,7 @@ LIVE.deepsea = {
       // a home at one side, clear of the words
       for (let tries = 0; tries < 12; tries++){
         const side = (j.i + tries) % 2, x = side ? W * (.86 + rnd() * .09) : W * (.05 + rnd() * .09), y = H * (.18 + rnd() * .42);
-        if (!Living.hits({ l: x - j.s * 1.4, r: x + j.s * 1.4, t: y - j.s * 1.2, b: y + j.s * 3 })){ j.home = { x, y }; break; }
+        if (!Living.hits({ l: x - j.s * 1.4 - 40, r: x + j.s * 1.4 + 40, t: y - j.s * 2.4 - 40, b: y + j.s * 3.4 + 40 })){ j.home = { x, y }; break; }
       }
       if (!j.home) j.home = { x: j.i % 2 ? W * .92 : W * .08, y: H * .3 };
       j.x = j.home.x; j.y = j.home.y; j.vy = 0; j.alpha = 0;
@@ -3326,8 +3187,9 @@ LIVE.deepsea = {
     let l = j.x - j.bw * .7, r = j.x + j.bw * .7, b = j.y;
     for (const st of j.strands) for (const [x, y] of st.pts){ l = Math.min(l, x - 2); r = Math.max(r, x + 2); b = Math.max(b, y); }
     j.box = { l, r, t: j.y - j.bh - 4, b: b + 2 };
-    if (Living.hits(j.box)){ j.alpha = Math.max(0, j.alpha - dt * 3); if (!j.alpha) j.home = null; }
-    else j.alpha = Math.min(1, j.alpha + dt * .6);
+    Living.ease(j, j.box, dt, 28);
+    // faded out beside a word: find a new home rather than wait there unseen
+    if (!j.alpha && Living.hits({ l: j.box.l - 28, r: j.box.r + 28, t: j.box.t - 28, b: j.box.b + 28 })) j.home = null;
   },
   fish(w, f, dt){
     const { W } = w, rnd = w.rnd;
@@ -3342,8 +3204,8 @@ LIVE.deepsea = {
     if (Math.abs(f.vx) > 4) f.face = Math.sign(f.vx);
     f.p += dt * (5 + Math.abs(f.vx) * .15);
     f.box = { l: f.x - f.len * .7, r: f.x + f.len * .7, t: f.y - f.len * .4, b: f.y + f.len * .4 };
-    if (Living.hits(f.box)){ f.alpha = Math.max(0, f.alpha - dt * 4); f.ty = w.bedY + w.bedH * .2; }
-    else f.alpha = Math.min(1, f.alpha + dt);
+    Living.ease(f, f.box, dt, 22);
+    if (f.alpha < 1) f.ty = w.bedY + w.bedH * .2;
   },
   flare(w){
     const { W } = w, rnd = w.rnd;
@@ -3734,7 +3596,8 @@ LIVE.space = {
     w.pl = { cv, R, size: S / k, x: w.small ? W - 52 : W - R * .92, y: w.small ? H - 40 : H - R * .62, B: [Bx, By], C: [Cx, Cy, Cz] };
   },
   // a small cratered world, lit from the same side as everything else
-  moonSprite(R, tone, craters, nz){
+  // (or, with full, face on: a full moon)
+  moonSprite(R, tone, craters, nz, full){
     const k = 2, Rp = Math.round(R * k), S = Rp * 2 + 4, [cv, g] = layer(null, S, S, 1), img = g.createImageData(S, S), d = img.data;
     const r = sceneRand(craters * 31 + 7), list = [];
     for (let i = 0; i < craters; i++){ const a = r() * TAU, m = Math.sqrt(r()) * .82; list.push([Math.cos(a) * m, Math.sin(a) * m, .06 + r() * r() * .2]); }
@@ -3749,7 +3612,7 @@ LIVE.space = {
         if (dd < 1) alb = alb * .9 + (dx * .62 + dy * .5) * dd * .3;      // a bowl: its far wall catches the light
         else if (dd < 1.3) alb -= (dx * .62 + dy * .5) / dd * (1.3 - dd) * .5;   // and a raised rim
       }
-      const lit = sstep(-.1, .5, -X * .62 - Y * .5 + Z * .6), sh = (.07 + .93 * lit) * (.72 + .28 * Z) * alb;
+      const lit = full ? 1 : sstep(-.1, .5, -X * .62 - Y * .5 + Z * .6), sh = (.07 + .93 * lit) * (.72 + .28 * Z) * alb;
       d[i] = tone[0] * sh; d[i + 1] = tone[1] * sh; d[i + 2] = tone[2] * sh + 8 * (1 - lit);
       d[i + 3] = Math.min(1, Math.max(0, (1 - Math.sqrt(rr)) * Rp + .5)) * 255;
     }
@@ -3797,7 +3660,7 @@ LIVE.space = {
       s.u += dt / 80; if (s.u > 1.16) s.u = -.14;
       s.x = s.u * W; s.y = Math.max(16, Math.min(26, H * .028)) + Math.sin(w.t * .3) * 2; s.rot = -.1 + Math.sin(w.t * .21) * .07;
       s.box = { l: s.x - w.satSize * .56, r: s.x + w.satSize * .56, t: s.y - w.satSize * .3, b: s.y + w.satSize * .34 };
-      s.alpha = Math.max(0, Math.min(1, s.alpha + (Living.hits(s.box) ? -dt * 4 : dt)));
+      Living.ease(s, s.box, dt, 24);
     }
     // a shooting star now and then, only where its whole path is clear of words
     w.shootT -= dt;
@@ -4390,7 +4253,7 @@ LIVE.disco = {
     for (const h of w.haze){ h.x += h.v * dt; if (h.x > 1.2) h.x = -.2; if (h.x < -.2) h.x = 1.2; }
     const b = w.ball;
     b.box = { l: b.x - b.R, r: b.x + b.R, t: b.y - b.R, b: b.y + b.R };
-    b.alpha = Math.max(0, Math.min(1, b.alpha + (Living.hits(b.box) ? -dt * 4 : dt * 2)));
+    Living.ease(b, b.box, dt, 10);
   },
   flare(w){ w.boost = 1; },
   boxes(w){ return w.ball.box ? [{ name: 'mirror ball', ...w.ball.box, a: w.ball.alpha }] : []; },
@@ -4512,6 +4375,903 @@ LIVE.disco = {
   }
 };
 /* ▲ LIVE.disco */
+
+/* ▼ LIVE.spooky */
+/* Halloween: a graveyard hill under a full moon. A werewolf stands on
+   the crest against the moon and throws his head back to howl, his breath
+   steaming; bats flutter round the moon on wings that really flap; a
+   witch rides across now and then, cloak streaming; clouds drift over
+   the moon, fog creeps between the stones, an owl blinks in the dead
+   tree, and jack-o'-lanterns flicker with candlelight. At the reveal the
+   lanterns blaze and spit embers, the wolf howls and a flock of bats
+   pours out across the sky. */
+LIVE.spooky = {
+  init(w){
+    const r = sceneRand(13);
+    w.rnd = sceneRand(431);
+    w.stars = Array.from({ length: 70 }, () => ({ x: r(), y: r() * .8, p: r() * TAU, sp: .5 + r() * 2, s: .7 + r() * 1.1 }));
+    w.bats = Array.from({ length: 5 }, () => ({ a: r() * TAU, rx: .7 + r() * 1.1, ry: .5 + r() * .8, sp: .3 + r() * .3, p: r() * TAU, s: .75 + r() * .6, alpha: 0 }));
+    w.flock = []; w.embers = []; w.mist = [];
+    w.witch = { u: .55, alpha: 0 };
+    w.clouds = Array.from({ length: 3 }, (_, i) => ({ u: i / 3 + r() * .2, y: r(), s: .8 + r() * .7, v: .006 + r() * .006, alpha: 0 }));
+    w.howl = 0; w.howlT = 6; w.howlS = 0; w.boost = 0;
+    w.nz = noiseFn(43);
+  },
+  layout(w){
+    const { W, H, c } = w, r = sceneRand(71), nz = w.nz;
+    const gH = w.small ? 74 : Math.max(74, Math.min(132, H * .13));
+    w.gH = gH; w.sil = mixRgb(c[0], [0, 0, 0], .66);
+    const mr = w.small ? 44 : Math.max(54, Math.min(124, H * .14));
+    w.moon = { r: mr, x: w.small ? W - mr - 16 : W * .868, y: H - gH * 1.06 - mr * .86 };
+    const hx = w.small ? W * .8 : W * .86, hw = w.small ? W * .5 : W * .24;
+    const groundY = w.groundY = x => { const u = Math.abs(x - hx) / hw; return H - gH * .46 - (u < 1 ? gH * .62 * Math.cos(u * Math.PI / 2) ** 2 : 0) - gH * .06 * (nz(x * .006 + 3, 1, 3) - .5); };
+    let g;
+    [w.bg, g] = layer(w.bg, W, H, w.dpr);
+    let gr = g.createLinearGradient(0, 0, 0, H);
+    gr.addColorStop(0, rgba(mixRgb(c[0], [0, 0, 0], .34))); gr.addColorStop(.6, rgba(c[0])); gr.addColorStop(1, rgba(mixRgb(c[0], c[2], .32)));
+    g.fillStyle = gr; g.fillRect(0, 0, W, H);
+    for (let i = 0; i < W * H / 2600; i++){ const m = r() * r(); g.fillStyle = `rgba(240,232,255,${(.16 + m * .6).toFixed(2)})`; g.fillRect(r() * W, r() * H * .85, .7 + m, .7 + m); }
+    w.moonCv = LIVE.space.moonSprite(mr, [255, 241, 200], 13, nz, true);
+    // drifting cloud and creeping fog: noise, cut to soft shapes
+    const puff = (cw, ch, col, thr, seed, wrap) => {
+      const [cv, cg] = layer(null, cw, ch, 1), img = cg.createImageData(cw, ch), d = img.data;
+      for (let y = 0, i = 0; y < ch; y++) for (let x = 0; x < cw; x++, i += 4){
+        // fog wraps left to right, so it can scroll for ever; a cloud fades out at both ends
+        const a = x / cw * TAU, n = wrap ? nz(Math.cos(a) * 1.6 + seed, Math.sin(a) * 1.6 + y / ch * 2.2 + seed, 4) : nz(x / cw * 3.4 + seed, y / ch * 2 + seed, 4);
+        const edge = Math.sin(Math.PI * y / ch) ** 1.2 * (wrap ? 1 : Math.sin(Math.PI * x / cw) ** .9);
+        d[i] = col[0]; d[i + 1] = col[1]; d[i + 2] = col[2]; d[i + 3] = sstep(thr, thr + .28, n * (.4 + .6 * edge) + edge * .22) * 255;
+      }
+      cg.putImageData(img, 0, 0); return cv;
+    };
+    w.fogCv = puff(256, 48, mixRgb(c[0], [214, 204, 240], .62), .42, 7, true);
+    w.cloudCv = puff(192, 64, mixRgb(c[0], [16, 8, 30], .5), .46, 21, false);
+    // everything that stands against the sky, in one layer
+    const fh = Math.max(gH * 1.6, mr * 3.1);
+    let f;
+    [w.fg, f] = layer(w.fg, W, fh, Math.min(1.5, w.dpr));
+    w.fgTop = H - fh; f.translate(0, -w.fgTop);
+    const sil = rgba(w.sil);
+    // moonlight catches the edges that face it
+    const rim = f.createRadialGradient(w.moon.x, w.moon.y, mr, w.moon.x, w.moon.y, mr * 4.2);
+    rim.addColorStop(0, 'rgba(255,236,190,.75)'); rim.addColorStop(1, 'rgba(255,236,190,0)');
+    f.fillStyle = sil; f.strokeStyle = sil; f.lineCap = 'round'; f.lineJoin = 'round';
+    // the dead tree, leaning in over the moon, with a hollow for the owl
+    const tx = w.small ? W - 8 : W * .975, th = mr * 2.5;
+    const branch = (x, y, a, len, wd, d) => {
+      const x1 = x + Math.cos(a) * len, y1 = y + Math.sin(a) * len;
+      f.lineWidth = wd; f.beginPath(); f.moveTo(x, y); f.quadraticCurveTo(x + Math.cos(a + .3) * len * .5, y + Math.sin(a + .3) * len * .5, x1, y1); f.stroke();
+      if (d > 0){ branch(x1, y1, a - .3 - r() * .45, len * (.6 + r() * .16), wd * .6, d - 1); branch(x1, y1, a + .28 + r() * .5, len * (.52 + r() * .2), wd * .58, d - 1); }
+    };
+    branch(tx, groundY(tx) + 6, -Math.PI / 2 - .2, th * .4, th * .075, 5);
+    w.owl = { x: tx - th * .045, y: groundY(tx) - th * .3, s: Math.max(1.4, th * .012) };
+    f.fillStyle = 'rgba(0,0,0,.6)'; f.beginPath(); f.ellipse(w.owl.x, w.owl.y, w.owl.s * 4.2, w.owl.s * 3.2, 0, 0, TAU); f.fill();
+    // the ground and the hill
+    const top = new Path2D(); top.moveTo(0, H);
+    for (let x = 0; x <= W; x += 6) top.lineTo(x, groundY(x));
+    top.lineTo(W, H); top.closePath();
+    f.fillStyle = sil; f.fill(top);
+    // stones, crosses and a crypt, some of them leaning
+    const stone = (x, kind, s, tilt) => {
+      const y = groundY(x) + 3;
+      f.save(); f.translate(x, y); f.rotate(tilt); f.fillStyle = sil; f.strokeStyle = rim; f.lineWidth = 1.3;
+      const p = new Path2D();
+      if (kind === 0){ p.moveTo(-s * .5, 0); p.lineTo(-s * .5, -s * .9); p.arc(0, -s * .9, s * .5, Math.PI, 0); p.lineTo(s * .5, 0); }
+      else if (kind === 1){ p.rect(-s * .12, -s * 1.5, s * .24, s * 1.5); p.rect(-s * .42, -s * 1.18, s * .84, s * .22); }
+      else if (kind === 2){ p.moveTo(-s * .45, 0); p.lineTo(-s * .45, -s * 1.05); p.lineTo(0, -s * 1.4); p.lineTo(s * .45, -s * 1.05); p.lineTo(s * .45, 0); }
+      else { p.rect(-s, -s * 1.1, s * 2, s * 1.1); p.moveTo(-s * 1.15, -s * 1.1); p.lineTo(0, -s * 1.75); p.lineTo(s * 1.15, -s * 1.1); p.rect(-s * .09, -s * 2.2, s * .18, s * .5); p.rect(-s * .26, -s * 2.05, s * .52, s * .14); }
+      f.fill(p); f.stroke(p);
+      if (kind === 3){ f.fillStyle = 'rgba(0,0,0,.5)'; f.beginPath(); f.roundRect(-s * .3, -s * .78, s * .6, s * .78, [s * .3, s * .3, 0, 0]); f.fill(); }
+      f.restore();
+    };
+    const s0 = gH * .2;
+    const list = w.small ? [[.3, 0, 1, -.06], [.44, 1, 1, .05], [.58, 0, .8, .1]] : [[.385, 0, 1.1, -.05], [.43, 2, .9, .08], [.487, 3, 1.25, 0], [.545, 1, 1, -.04], [.59, 0, .95, .12], [.64, 0, .7, -.1], [.69, 1, .85, .06], [.735, 2, .8, -.06]];
+    for (const [x, kind, s, tilt] of list) stone(W * x, kind, s0 * s, tilt);
+    // an iron fence along the hill
+    f.strokeStyle = sil; f.lineWidth = 1.6; f.beginPath();
+    const fx0 = w.small ? W * .62 : W * .755, fx1 = w.small ? W * .98 : W * .955;
+    for (let x = fx0; x <= fx1; x += 9){ const y = groundY(x); f.moveTo(x, y + 2); f.lineTo(x, y - gH * .2); f.lineTo(x - 1.6, y - gH * .17); f.moveTo(x, y - gH * .2); f.lineTo(x + 1.6, y - gH * .17); }
+    for (const k of [.06, .15]) for (let x = fx0; x <= fx1; x += 9) x === fx0 ? f.moveTo(x, groundY(x) - gH * k) : f.lineTo(x, groundY(x) - gH * k);
+    f.stroke();
+    f.strokeStyle = rim; f.lineWidth = 1.6; f.beginPath(); for (let x = 0; x <= W; x += 6) x ? f.lineTo(x, groundY(x)) : f.moveTo(x, groundY(x)); f.stroke();
+    // jack-o'-lanterns: bodies here, their candlelight every frame
+    w.pumps = (w.small ? [[.2, 22], [.5, 16]] : [[.068, 30], [.19, 21], [.307, 34], [.985, 30]]).map(([x, rad]) => {
+      const k = Math.max(.72, Math.min(1.25, H / 720)), R = rad * k, px = W * x, py = H - gH * .08 - R * .02, cy = py - R * .8;
+      f.fillStyle = 'rgba(0,0,0,.45)'; f.beginPath(); f.ellipse(px, py, R * 1.25, R * .2, 0, 0, TAU); f.fill();
+      for (const [dx, rx] of [[-.64, .5], [.64, .5], [-.34, .56], [.34, .56], [0, .62]]){
+        const pg = f.createRadialGradient(px + dx * R - R * .16, cy - R * .42, R * .05, px + dx * R, cy, R * .9);
+        pg.addColorStop(0, '#ffb758'); pg.addColorStop(.45, '#ee7a1c'); pg.addColorStop(1, '#8f3a08');
+        f.fillStyle = pg; f.beginPath(); f.ellipse(px + dx * R, cy, rx * R, R * .82, 0, 0, TAU); f.fill();
+      }
+      f.strokeStyle = '#3d4a1e'; f.lineWidth = R * .16; f.beginPath(); f.moveTo(px, cy - R * .78); f.quadraticCurveTo(px + R * .04, cy - R * 1.05, px + R * .22, cy - R * 1.12); f.stroke();
+      // the carved face: slanted eyes, a nose, a jagged grin
+      const face = new Path2D(), P = (u, v) => [px + u * R * .98, cy + v * R * .8];
+      const poly = pts => { pts.forEach(([u, v], i) => { const [x1, y1] = P(u, v); i ? face.lineTo(x1, y1) : face.moveTo(x1, y1); }); face.closePath(); };
+      poly([[-.58, -.36], [-.14, -.12], [-.5, -.04]]); poly([[.58, -.36], [.14, -.12], [.5, -.04]]); poly([[-.08, .1], [.08, .1], [0, -.06]]);
+      poly([[-.62, .2], [-.44, .32], [-.3, .22], [-.15, .36], [0, .26], [.15, .36], [.3, .22], [.44, .32], [.62, .2], [.46, .5], [.3, .42], [.15, .6], [0, .5], [-.15, .6], [-.3, .42], [-.46, .5]]);
+      f.fillStyle = '#2a0e00'; f.fill(face);
+      return { x: px, y: cy, R, face, p: r() * TAU };
+    });
+    const wx = w.moon.x - mr * .12;
+    w.wolf = { x: wx, y: groundY(wx) + 2, h: mr * 1.02 };
+    w.witchW = w.small ? 64 : Math.max(80, Math.min(150, W * .095));
+  },
+  update(w, dt){
+    const { W, H } = w, rnd = w.rnd, t = w.t, m = w.moon;
+    w.boost = Math.max(0, w.boost - dt * .4);
+    // the wolf howls now and then: head back, hold, and down again
+    w.howlT -= dt;
+    if (w.howlT <= 0){ w.howlS = 3.6; w.howlT = 10 + rnd() * 9; }
+    if (w.howlS > 0){
+      w.howlS -= dt;
+      const e = 3.6 - w.howlS; w.howl = e < .6 ? e / .6 : e < 2.8 ? 1 : Math.max(0, 1 - (e - 2.8) / .8);
+      if (w.howl > .9 && dt && rnd() < dt * 9){ const k = w.wolf.h / 100; w.mist.push({ x: w.wolf.x + 20 * k, y: w.wolf.y - 104 * k, vx: 8 + rnd() * 8, vy: -16 - rnd() * 8, r: 3 * k + 2, life: 0, max: 1.4 + rnd() }); }
+    } else w.howl = 0;
+    w.mist = w.mist.filter(p => { p.life += dt; p.x += p.vx * dt; p.y += p.vy * dt; p.r += 7 * dt; return p.life < p.max && !Living.hits({ l: p.x - p.r, r: p.x + p.r, t: p.y - p.r, b: p.y + p.r }); });
+    // bats loop round the moon
+    for (const b of w.bats){
+      b.a += dt * b.sp;
+      b.x = m.x + Math.cos(b.a) * m.r * 1.5 * b.rx + Math.sin(t * .7 + b.p) * 10; b.y = m.y - m.r * .7 + Math.sin(b.a * 1.7 + b.p) * m.r * .9 * b.ry;
+      b.face = -Math.sin(b.a) > 0 ? 1 : -1;
+      b.box = { l: b.x - 15 * b.s, r: b.x + 15 * b.s, t: b.y - 10 * b.s, b: b.y + 8 * b.s };
+      Living.ease(b, b.box, dt, 46);
+    }
+    // the reveal's flock, in whatever sky is clear of words
+    w.flock = w.flock.filter(b => {
+      b.x += b.vx * dt; b.y += (b.vy + Math.sin(t * 3 + b.p) * 26) * dt;
+      b.box = { l: b.x - 13 * b.s, r: b.x + 13 * b.s, t: b.y - 9 * b.s, b: b.y + 7 * b.s };
+      b.alpha = Living.hits(b.box) ? 0 : Math.min(1, b.alpha + dt * 4);
+      return b.x > -40;
+    });
+    // the witch crosses in front of the moon when her lane is clear
+    const wi = w.witch, ww = w.witchW;
+    wi.u += dt / 46; if (wi.u > 1) wi.u = 0;
+    const lane = wi.u < .55 ? wi.u / .55 : -1;       // she is away for the rest of the time
+    if (lane >= 0){
+      wi.x = lerp(-ww, W + ww, lane); wi.y = m.y - m.r * .56 + Math.sin(lane * TAU * 1.5) * H * .012; wi.tilt = Math.cos(lane * TAU * 1.5) * .09;
+      wi.box = { l: wi.x - ww * .7, r: wi.x + ww * .5, t: wi.y - ww * .62, b: wi.y + ww * .22 };
+      Living.ease(wi, wi.box, dt, 34);
+    } else { wi.alpha = 0; wi.box = null; }
+    for (const k of w.clouds){
+      k.u -= k.v * dt; if (k.u < -.25) k.u = 1.1;
+      const cw = m.r * 4.2 * k.s, x = lerp(W * .46, W * 1.02, k.u), y = m.y - m.r * 1.5 + k.y * m.r * 1.5;
+      k.x = x; k.yy = y; k.w = cw; k.h = cw * .33;
+      k.box = { l: x, r: x + cw, t: y + k.h * .2, b: y + k.h * .8 };
+      Living.ease(k, k.box, dt, 24);
+    }
+    w.embers = w.embers.filter(p => { p.life += dt; p.x += (p.vx + Math.sin(t * 5 + p.p) * 10) * dt; p.y += p.vy * dt; return p.life < p.max && !Living.hits({ l: p.x - 3, r: p.x + 3, t: p.y - 3, b: p.y + 3 }); });
+  },
+  flare(w){
+    const { W, H } = w, rnd = w.rnd;
+    w.boost = 1;
+    if (w.howlS <= 0){ w.howlS = 3.6; w.howlT = 12; }
+    for (const p of w.pumps) for (let i = 0; i < 9; i++) w.embers.push({ x: p.x + (rnd() - .5) * p.R, y: p.y - p.R * .5, vx: (rnd() - .5) * 24, vy: -30 - rnd() * 50, p: rnd() * TAU, life: 0, max: .8 + rnd() * 1.1 });
+    const band = Living.band(H * .03, H - w.gH, 70);
+    if (band) for (let i = 0; i < (w.small ? 9 : 18); i++) w.flock.push({ x: W + 20 + rnd() * W * .3, y: lerp(band[0] + 22, band[1] - 22, rnd()), vx: -W * (.34 + rnd() * .22), vy: (rnd() - .5) * 16, p: rnd() * TAU, s: .6 + rnd() * .7, alpha: 0 });
+  },
+  boxes(w){
+    const out = [];
+    for (const b of w.bats) if (b.box) out.push({ name: 'bat', ...b.box, a: b.alpha });
+    for (const b of w.flock) if (b.box) out.push({ name: 'flock of bats', ...b.box, a: b.alpha });
+    if (w.witch.box) out.push({ name: 'witch', ...w.witch.box, a: w.witch.alpha });
+    for (const k of w.clouds) if (k.box) out.push({ name: 'cloud', ...k.box, a: k.alpha });
+    for (const p of w.mist) out.push({ name: 'breath', l: p.x - p.r, r: p.x + p.r, t: p.y - p.r, b: p.y + p.r, a: 1 });
+    for (const p of w.embers) out.push({ name: 'embers', l: p.x - 3, r: p.x + 3, t: p.y - 3, b: p.y + 3, a: 1 });
+    return out;
+  },
+  draw(w){
+    const { ctx: c, W, H, t } = w, m = w.moon, on = w.boost;
+    c.setTransform(w.dpr, 0, 0, w.dpr, 0, 0);
+    c.globalCompositeOperation = 'source-over'; c.globalAlpha = 1;
+    c.drawImage(w.bg, 0, 0, W, H);
+    c.fillStyle = '#f2ecff';
+    for (const s of w.stars){ c.globalAlpha = .15 + .75 * (.5 + .5 * Math.sin(t * s.sp + s.p)); c.fillRect(s.x * W, s.y * H, s.s, s.s); }
+    c.globalCompositeOperation = 'lighter';
+    stamp(c, [255, 226, 170], m.x, m.y, m.r * 3.3, .3); stamp(c, [255, 236, 190], m.x, m.y, m.r * 1.6, .34);
+    c.globalCompositeOperation = 'source-over'; c.globalAlpha = 1;
+    c.drawImage(w.moonCv, m.x - m.r - 1, m.y - m.r - 1, m.r * 2 + 2, m.r * 2 + 2);
+    for (const k of w.clouds){ if (k.alpha < .02) continue; c.globalAlpha = k.alpha * .8; c.drawImage(w.cloudCv, k.x, k.yy, k.w, k.h); }
+    c.globalAlpha = 1;
+    this.witch(w);
+    for (const b of w.bats) this.bat(c, b.x, b.y, b.s, t * 11 + b.p, b.alpha, w.sil);
+    for (const b of w.flock) this.bat(c, b.x, b.y, b.s, t * 14 + b.p, b.alpha, w.sil);
+    this.fog(w, .2, 9, 1.5, H - w.gH * 1.5);
+    c.drawImage(w.fg, 0, w.fgTop, W, H - w.fgTop);
+    this.wolf(w);
+    // the owl blinks
+    if (Math.sin(t * .7) < .96){ c.fillStyle = '#ffd24a'; for (const dx of [-1.6, 1.6]){ c.beginPath(); c.arc(w.owl.x + dx * w.owl.s, w.owl.y, w.owl.s * .9, 0, TAU); c.fill(); } c.fillStyle = '#1a0d00'; for (const dx of [-1.6, 1.6]){ c.beginPath(); c.arc(w.owl.x + dx * w.owl.s, w.owl.y, w.owl.s * .4, 0, TAU); c.fill(); } }
+    // candlelight: every lantern flickers to itself
+    for (const p of w.pumps){
+      const fl = Math.min(1, .62 + .2 * Math.sin(t * 9 + p.p) + .14 * Math.sin(t * 15.3 + p.p * 2) + on * .5);
+      const pg = c.createRadialGradient(p.x, p.y + p.R * .3, p.R * .05, p.x, p.y + p.R * .1, p.R * .9);
+      pg.addColorStop(0, '#fff6c0'); pg.addColorStop(.5, '#ffb934'); pg.addColorStop(1, '#e86a00');
+      c.globalAlpha = .55 + .45 * fl; c.fillStyle = pg; c.fill(p.face);
+      c.globalCompositeOperation = 'lighter';
+      stamp(c, [255, 150, 40], p.x, p.y, p.R * (2.2 + on * 1.4), .3 * fl + on * .25);
+      c.save(); c.translate(p.x, p.y + p.R * .86); c.scale(1, .22); stamp(c, [255, 160, 50], 0, 0, p.R * 2.6, .4 * fl); c.restore();
+      c.globalCompositeOperation = 'source-over';
+    }
+    c.globalCompositeOperation = 'lighter';
+    for (const p of w.embers) stamp(c, [255, 170, 60], p.x, p.y, 4, 1 - p.life / p.max);
+    c.globalCompositeOperation = 'source-over';
+    for (const p of w.mist) stamp(c, [226, 220, 244], p.x, p.y, p.r, .3 * (1 - p.life / p.max));
+    c.globalAlpha = 1;
+    this.fog(w, .17, -14, 2.1, H - w.gH * .95);
+  },
+  // a bank of fog: one wrapping tile, scrolled
+  fog(w, alpha, speed, scale, y){
+    const c = w.ctx, tw = 256 * scale * (w.gH / 48) * .9, th = w.gH * 1.25, off = ((w.t * speed) % tw + tw) % tw;
+    c.globalAlpha = alpha;
+    for (let x = -off; x < w.W; x += tw) c.drawImage(w.fogCv, x, y, tw + 1, th);
+    c.globalAlpha = 1;
+  },
+  bat(c, x, y, s, ph, alpha, sil){
+    if (alpha < .02) return;
+    const f = Math.sin(ph);
+    c.save(); c.translate(x, y); c.scale(s, s); c.globalAlpha = alpha; c.fillStyle = rgba(sil);
+    c.beginPath();
+    for (const d of [-1, 1]){
+      c.moveTo(0, -1.5); c.lineTo(d * 7, -5 - f * 5); c.lineTo(d * 14, -1 - f * 8);
+      c.quadraticCurveTo(d * 10.5, 1 - f * 3.5, d * 8.5, 3.5 - f * 4.5); c.quadraticCurveTo(d * 6, 1 - f * 2, d * 4.5, 4.5 - f * 2.5); c.quadraticCurveTo(d * 2.4, 1.6, 0, 3.4);
+    }
+    c.ellipse(0, .6, 2.1, 3.3, 0, 0, TAU);
+    c.moveTo(-1.9, -2); c.lineTo(-1.4, -5.4); c.lineTo(-.2, -2.4); c.moveTo(1.9, -2); c.lineTo(1.4, -5.4); c.lineTo(.2, -2.4);
+    c.fill(); c.restore();
+  },
+  wolf(w){
+    const c = w.ctx, k = w.wolf.h / 100, h = w.howl, t = w.t, br = Math.sin(t * 1.5) * .7 + h * 1.6, sway = Math.sin(t * .9) * 3;
+    c.save(); c.translate(w.wolf.x, w.wolf.y); c.scale(k, k);
+    c.fillStyle = c.strokeStyle = rgba(w.sil); c.lineCap = c.lineJoin = 'round';
+    const limb = (p, wd) => { c.lineWidth = wd; c.beginPath(); c.moveTo(p[0], p[1]); for (let i = 2; i < p.length; i += 2) c.lineTo(p[i], p[i + 1]); c.stroke(); };
+    // hind legs with a dog's backward hock, and the tail
+    limb([-7, -45, 3, -30, -8, -15, -2, -2, 7, -1.5], 8); limb([6, -45, 15, -31, 5, -15, 11, -2, 20, -1.5], 7.5);
+    c.beginPath(); c.moveTo(-9, -48); c.quadraticCurveTo(-27, -47 + sway, -33, -61 + sway); c.quadraticCurveTo(-23, -52 + sway, -8, -39); c.fill();
+    // a deep chest narrowing to the hips, hackles raised along the back
+    c.beginPath(); c.moveTo(-11, -43); c.quadraticCurveTo(-16, -64, -8, -80 - br); c.quadraticCurveTo(4, -89 - br, 15, -80 - br); c.quadraticCurveTo(20, -64, 12, -43); c.closePath(); c.fill();
+    c.beginPath(); for (let i = 0; i < 6; i++){ const y = -50 - i * 6; c.moveTo(-12, y); c.lineTo(-18 - (i % 2) * 2, y - 5 - br * .3); c.lineTo(-11, y - 6); } c.fill();
+    // arms hanging, claws spread; they lift a little with the howl
+    limb([-6, -78 - br, -18, -63 - h * 3, -15, -47 - h * 5], 6); limb([14, -77 - br, 24, -63 - h * 3, 21, -48 - h * 5], 6);
+    c.lineWidth = 1.5; c.beginPath(); for (const [x, y] of [[-15, -47 - h * 5], [21, -48 - h * 5]]) for (const a of [-.5, 0, .5]){ c.moveTo(x, y); c.lineTo(x + Math.sin(a) * 5, y + Math.cos(a) * 5.5); } c.stroke();
+    // the head: back it goes, jaws open
+    c.translate(4, -84 - br); c.rotate(-.2 - h * .85);
+    c.beginPath(); c.ellipse(3, -7, 8.5, 7.5, 0, 0, TAU);
+    c.moveTo(7, -13); c.lineTo(25, -10.5); c.lineTo(24.5, -7); c.lineTo(9, -3.5);                    // upper jaw
+    c.moveTo(8, -4); c.lineTo(22, -4 + h * 6.5); c.lineTo(20.5, -1.5 + h * 6.5); c.lineTo(6, 1.5);    // lower jaw
+    c.moveTo(-3, -12); c.lineTo(-8, -26); c.lineTo(3, -14); c.moveTo(2, -13); c.lineTo(1, -27); c.lineTo(8, -14);   // ears
+    c.moveTo(-4, -3); c.lineTo(-10, 1); c.lineTo(-3, 3);                                              // ruff at the throat
+    c.fill();
+    c.fillStyle = '#ffd24a'; c.beginPath(); c.arc(9.5, -9.5, 1.2, 0, TAU); c.fill();
+    c.restore();
+  },
+  witch(w){
+    const wi = w.witch; if (wi.alpha < .02 || !wi.box) return;
+    const c = w.ctx, k = w.witchW / 100, fl = Math.sin(w.t * 6) * 3, fl2 = Math.sin(w.t * 6 + 1.3) * 3;
+    c.save(); c.translate(wi.x, wi.y); c.rotate(wi.tilt); c.scale(k, k); c.globalAlpha = wi.alpha;
+    c.fillStyle = c.strokeStyle = rgba(w.sil); c.lineCap = c.lineJoin = 'round';
+    // the broom: a long handle, a bundle of twigs streaming behind
+    c.lineWidth = 2.6; c.beginPath(); c.moveTo(-46, 7); c.lineTo(42, -3); c.stroke();
+    c.beginPath(); c.moveTo(-44, 4); c.lineTo(-72, -5 + fl * .5); c.lineTo(-66, 2); c.lineTo(-76, 7 + fl2 * .5); c.lineTo(-67, 10); c.lineTo(-72, 17 + fl * .5); c.lineTo(-44, 10); c.fill();
+    // cloak streaming out, the rider hunched forward, hands on the handle
+    c.beginPath(); c.moveTo(-10, -24); c.quadraticCurveTo(-30, -24 + fl, -50, -12 + fl2); c.quadraticCurveTo(-36, -8 + fl, -42, 3 + fl2); c.quadraticCurveTo(-24, -2, -6, 5); c.closePath(); c.fill();
+    c.beginPath(); c.moveTo(-9, 5); c.quadraticCurveTo(-16, -14, -9, -27); c.quadraticCurveTo(0, -32, 7, -24); c.quadraticCurveTo(13, -10, 8, 5); c.closePath(); c.fill();
+    c.lineWidth = 4; c.beginPath(); c.moveTo(3, -19); c.lineTo(15, -7); c.lineTo(20, -1); c.stroke();
+    c.lineWidth = 4.4; c.beginPath(); c.moveTo(2, 3); c.lineTo(13, 11); c.lineTo(22, 7); c.stroke();
+    c.beginPath(); c.moveTo(20, 5); c.lineTo(29, 3.5); c.lineTo(22, 10); c.fill();                       // a pointed shoe
+    // head, hooked nose and chin, a crooked hat
+    c.beginPath(); c.arc(5, -32, 6, 0, TAU); c.moveTo(9, -34); c.lineTo(17, -30); c.lineTo(10, -29); c.moveTo(8, -28); c.lineTo(13, -25); c.lineTo(7, -26); c.fill();
+    c.lineWidth = 3; c.beginPath(); c.moveTo(-7, -36); c.lineTo(17, -39); c.stroke();
+    c.beginPath(); c.moveTo(-3, -37); c.quadraticCurveTo(0, -52, -8, -62 + fl * .4); c.quadraticCurveTo(8, -54, 12, -38.5); c.fill();
+    c.restore(); c.globalAlpha = 1;
+  }
+};
+/* ▲ LIVE.spooky */
+
+/* ▼ LIVE.candy */
+/* Candy: a world modelled in clay. Everything is rounded, soft-shadowed
+   and a little glossy: a sun with a ring of petals, puffy clouds, a
+   striped balloon drifting along the top, three ranges of rolling hills
+   scattered with sprinkles, lollipop trees that sway, gumdrops and candy
+   canes. At the reveal the lollipops squash and spring back, the
+   gumdrops hop and sprinkles pop up from the hills. */
+// a ball of clay: lit from the upper left, shaded underneath, a soft shine
+function clayFill(g, x, y, r, col){
+  const gr = g.createRadialGradient(x - r * .36, y - r * .42, r * .08, x, y, r * 1.02);
+  gr.addColorStop(0, rgba(mixRgb(col, [255, 255, 255], .55))); gr.addColorStop(.5, rgba(col)); gr.addColorStop(1, rgba(mixRgb(col, [96, 60, 130], .3)));
+  return gr;
+}
+LIVE.candy = {
+  init(w){
+    const r = sceneRand(19);
+    w.rnd = sceneRand(557);
+    w.clouds = [{ u: .2, lane: 0, s: 1, v: .009 }, { u: .7, lane: 0, s: .62, v: .0065 }, { u: .45, lane: 1, s: .78, v: .0075 }].map(c => ({ ...c, alpha: 0, p: r() * TAU }));
+    w.balloon = { u: -.1, alpha: 0 };
+    w.bits = []; w.boost = 0; w.nz = noiseFn(67);
+  },
+  layout(w){
+    const { W, H, c } = w, r = sceneRand(89), nz = w.nz;
+    const gH = w.small ? 120 : Math.max(120, Math.min(250, H * .27));
+    w.gH = gH; w.s = Math.max(.62, Math.min(1.25, gH / 190));
+    const shade = [96, 60, 130];
+    w.cols = { lav: mixRgb([217, 204, 255], c[2], .12), peach: mixRgb([255, 210, 189], c[1], .12), mint: mixRgb([191, 238, 221], c[3], .08), pink: [255, 143, 177], sky: [122, 216, 255], sun: [255, 211, 110], grape: [180, 140, 255] };
+    const hills = w.hills = [
+      { col: w.cols.lav, y: x => H - gH * (.56 + .2 * Math.sin(x / W * 5.2 + .6) + .08 * Math.sin(x / W * 11 + 2)) },
+      { col: w.cols.peach, y: x => H - gH * (.36 + .12 * Math.sin(x / W * 6.3 + 2.4) + .05 * Math.sin(x / W * 13 + 1)) },
+      { col: w.cols.mint, y: x => H - gH * (.15 + .06 * Math.sin(x / W * 4.1 + 1) + .025 * Math.sin(x / W * 9.5)) }
+    ];
+    // the sky: the stage's own pale wash, warmed where the sun sits
+    let g;
+    [w.bg, g] = layer(w.bg, W, H, .5);
+    g.fillStyle = rgba(c[0]); g.fillRect(0, 0, W, H);
+    for (const [x, y, col, a] of [[.15, .1, c[2], .2], [.9, .9, c[3], .22], [.08, .12, w.cols.sun, .3]]){
+      const gr = g.createRadialGradient(W * x, H * y, 0, W * x, H * y, Math.max(W, H) * .5); gr.addColorStop(0, rgba(col, a)); gr.addColorStop(1, rgba(col, 0));
+      g.fillStyle = gr; g.fillRect(0, 0, W, H);
+    }
+    // things that stand on the hills: where, on which hill, what
+    const place = (x, hill, extra) => ({ x: W * x, y: hills[hill].y(W * x) + 5, hill, sq: 0, v: 0, p: r() * TAU, ...extra });
+    const k = w.s;
+    w.lollies = (w.small ? [[.16, 0, .8, 'pink'], [.82, 1, .9, 'grape'], [.5, 0, .62, 'sky']] : [[.19, 0, .9, 'pink'], [.825, 0, .8, 'sky'], [.094, 1, 1.05, 'sun'], [.6125, 1, 1, 'grape'], [.925, 1, .75, 'pink'], [.36, 0, .6, 'sun']])
+      .map(([x, hill, s, col]) => place(x, hill, { s: s * k, col }));
+    w.drops = (w.small ? [[.36, 2, 16, 'pink'], [.62, 2, 12, 'sky']] : [[.39, 2, 22, 'pink'], [.425, 2, 16, 'sky'], [.74, 2, 20, 'sun'], [.265, 2, 13, 'grape'], [.56, 2, 12, 'pink']])
+      .map(([x, hill, rad, col]) => place(x, hill, { rad: rad * k, col }));
+    w.canes = w.small ? [] : [[.035, 1, 1, 1], [.972, 1, .85, -1]].map(([x, hill, s, lean]) => place(x, hill, { s: s * k, lean }));
+    // the hills, back to front: each casts a soft shadow on the one behind,
+    // with a pale lip along its crest, thumb-marks and a scatter of sprinkles
+    let f;
+    const fh = gH * 1.25;
+    w.fgTop = H - fh; w.fgs = w.fgs || [];
+    w.hillPaths = hills.map((h, i) => {
+      const p = new Path2D(); p.moveTo(-10, H + 10);
+      for (let x = -10; x <= W + 10; x += 8) p.lineTo(x, h.y(x));
+      p.lineTo(W + 10, H + 10); p.closePath();
+      return p;
+    });
+    const paintHill = i => {
+      const h = hills[i], p = w.hillPaths[i];
+      f.save();
+      f.shadowColor = rgba(shade, .28); f.shadowBlur = 22 * k; f.shadowOffsetY = -5 * k;
+      const gr = f.createLinearGradient(0, H - gH, 0, H); gr.addColorStop(0, rgba(mixRgb(h.col, [255, 255, 255], .2))); gr.addColorStop(1, rgba(mixRgb(h.col, shade, .16)));
+      f.fillStyle = gr; f.fill(p);
+      f.restore();
+      f.save(); f.clip(p);
+      f.strokeStyle = 'rgba(255,255,255,.75)'; f.lineWidth = 7 * k; f.lineCap = 'round';
+      f.beginPath(); for (let x = -10; x <= W + 10; x += 8) x === -10 ? f.moveTo(x, h.y(x) + 5 * k) : f.lineTo(x, h.y(x) + 5 * k); f.stroke();
+      for (let n = 0; n < W / 26; n++){     // thumb-marks
+        const x = r() * W, y = h.y(x) + 14 + r() * gH * .4, rad = 8 + r() * 16;
+        f.strokeStyle = r() > .5 ? 'rgba(255,255,255,.2)' : rgba(shade, .07); f.lineWidth = 1.6;
+        f.beginPath(); f.arc(x, y, rad, r() * TAU, r() * TAU + 1.6); f.stroke();
+      }
+      const sp = [w.cols.pink, w.cols.sky, w.cols.sun, w.cols.grape, [255, 255, 255]];
+      for (let n = 0; n < W / 22; n++){     // sprinkles
+        const x = r() * W, y = h.y(x) + 12 + r() * gH * .3, a = r() * Math.PI, len = 3.5 * k + r() * 2;
+        f.strokeStyle = rgba(sp[n % 5], .9); f.lineWidth = 2.6 * k;
+        f.beginPath(); f.moveTo(x - Math.cos(a) * len, y - Math.sin(a) * len); f.lineTo(x + Math.cos(a) * len, y + Math.sin(a) * len); f.stroke();
+      }
+      f.restore();
+    };
+    const shadowAt = o => { f.fillStyle = rgba(shade, .2); f.beginPath(); f.ellipse(o.x + 10 * k, o.y, (o.rad || 22 * o.s) * 1.15, (o.rad || 22 * o.s) * .26, 0, 0, TAU); f.fill(); };
+    for (let i = 0; i < 3; i++){
+      [w.fgs[i], f] = layer(w.fgs[i], W, fh, Math.min(1.5, w.dpr)); f.translate(0, -w.fgTop);
+      paintHill(i); [...w.lollies, ...w.drops, ...w.canes].filter(o => o.hill === i).forEach(shadowAt);
+    }
+    // sprites: a lollipop per colour, a cloud, the balloon
+    w.lollyCv = {};
+    for (const name of ['pink', 'sky', 'sun', 'grape']){
+      const R = 30, [cv, lg] = layer(null, 80, 110, 2), col = w.cols[name], cx = 40, cy = 36;
+      let gr = lg.createLinearGradient(cx - 5, 0, cx + 5, 0); gr.addColorStop(0, '#ffffff'); gr.addColorStop(1, '#d9d2ee');
+      lg.fillStyle = gr; lg.beginPath(); lg.roundRect(cx - 4.5, cy, 9, 72, 4.5); lg.fill();
+      lg.fillStyle = clayFill(lg, cx, cy, R, col); lg.beginPath(); lg.arc(cx, cy, R, 0, TAU); lg.fill();
+      // the swirl, pressed into the clay
+      lg.save(); lg.beginPath(); lg.arc(cx, cy, R - 2, 0, TAU); lg.clip();
+      lg.strokeStyle = 'rgba(255,255,255,.82)'; lg.lineWidth = 6.5; lg.lineCap = 'round'; lg.beginPath();
+      for (let a = 0; a <= TAU * 2.6; a += .2){ const rr = 3 + a / (TAU * 2.6) * (R - 7); a ? lg.lineTo(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr) : lg.moveTo(cx + rr, cy); }
+      lg.stroke();
+      gr = lg.createRadialGradient(cx - R * .4, cy - R * .45, 2, cx, cy, R); gr.addColorStop(0, 'rgba(255,255,255,.5)'); gr.addColorStop(.45, 'rgba(255,255,255,0)'); gr.addColorStop(1, rgba(shade, .26));
+      lg.fillStyle = gr; lg.fillRect(cx - R, cy - R, R * 2, R * 2);
+      lg.restore();
+      lg.fillStyle = 'rgba(255,255,255,.7)'; lg.beginPath(); lg.ellipse(cx - 12, cy - 15, 6.5, 3.6, -.7, 0, TAU); lg.fill();
+      w.lollyCv[name] = cv;
+    }
+    {
+      const [cv, cg] = layer(null, 240, 130, 1.5);
+      const puffs = [[62, 74, 30], [100, 52, 38], [146, 60, 34], [184, 78, 26], [122, 84, 30]];
+      cg.save(); cg.shadowColor = rgba(shade, .22); cg.shadowBlur = 16; cg.shadowOffsetY = 12;
+      cg.fillStyle = '#ffffff'; cg.beginPath(); for (const [x, y, rad] of puffs){ cg.moveTo(x + rad, y); cg.arc(x, y, rad, 0, TAU); } cg.rect(46, 78, 152, 24); cg.fill(); cg.restore();
+      for (const [x, y, rad] of puffs){ cg.fillStyle = clayFill(cg, x, y, rad, [246, 244, 255]); cg.beginPath(); cg.arc(x, y, rad, 0, TAU); cg.fill(); }
+      cg.fillStyle = clayFill(cg, 122, 84, 80, [240, 237, 252]); cg.beginPath(); cg.roundRect(40, 76, 166, 28, 14); cg.fill();
+      w.cloudCv = cv;
+    }
+    {
+      const [cv, bg] = layer(null, 90, 130, 2), cols = [c[1], [255, 255, 255], c[2], [255, 255, 255], c[3]];
+      bg.save(); bg.beginPath(); bg.moveTo(45, 6); bg.bezierCurveTo(88, 6, 92, 56, 56, 86); bg.lineTo(34, 86); bg.bezierCurveTo(-2, 56, 2, 6, 45, 6); bg.clip();
+      for (let i = 0; i < 5; i++){ bg.fillStyle = rgba(mixRgb(cols[i], [255, 255, 255], .12)); bg.beginPath(); bg.ellipse(45, 46, 44 - i * 9.4, 44, 0, 0, TAU); bg.fill(); }
+      const gr = bg.createRadialGradient(28, 24, 3, 45, 46, 48); gr.addColorStop(0, 'rgba(255,255,255,.55)'); gr.addColorStop(.5, 'rgba(255,255,255,0)'); gr.addColorStop(1, rgba(shade, .3));
+      bg.fillStyle = gr; bg.fillRect(0, 0, 90, 90); bg.restore();
+      bg.strokeStyle = '#b89a78'; bg.lineWidth = 1.2; bg.beginPath(); bg.moveTo(36, 86); bg.lineTo(38, 104); bg.moveTo(54, 86); bg.lineTo(52, 104); bg.stroke();
+      bg.fillStyle = clayFill(bg, 45, 110, 12, [214, 164, 110]); bg.beginPath(); bg.roundRect(35, 103, 20, 14, 4); bg.fill();
+      w.balloonCv = cv;
+    }
+    w.sun = { x: w.small ? 54 : W * .06 + Math.max(35, Math.min(60, H * .055)), y: (w.small ? 96 : H * .08) + Math.max(35, Math.min(60, H * .055)), r: w.small ? 26 : Math.max(35, Math.min(60, H * .055)) };
+  },
+  update(w, dt){
+    const { W, H } = w, t = w.t;
+    w.boost = Math.max(0, w.boost - dt * .5);
+    // springs: squash, overshoot, settle
+    for (const o of [...w.lollies, ...w.drops, ...w.canes]){ o.v += (-90 * o.sq - 7 * o.v) * dt; o.sq += o.v * dt; }
+    // clouds keep to the top, or low over the hills; they fade rather than cross a word
+    for (const k of w.clouds){
+      k.u += k.v * dt; if (k.u > 1.2) k.u = -.2;
+      const cw = Math.max(120, Math.min(230, W * .17)) * k.s, ch = cw * .54;
+      k.x = k.u * W - cw / 2; k.y = (k.lane ? H - w.gH * 1.34 : H * .012) + Math.sin(t * .4 + k.p) * 3; k.w = cw; k.h = ch;
+      k.box = { l: k.x + cw * .14, r: k.x + cw * .86, t: k.y + ch * .1, b: k.y + ch * .82 };
+      Living.ease(k, k.box, dt, 24);
+    }
+    // the balloon crosses along the top
+    const b = w.balloon, bw = (w.small ? 44 : 64) * Math.max(.8, Math.min(1.2, H / 760));
+    b.u += dt / 70; if (b.u > 1.4) b.u = -.15;
+    b.w = bw; b.x = b.u * W; b.y = H * .012 + bw * .75 + Math.sin(t * .7) * 4; b.tilt = Math.sin(t * .5) * .05;
+    b.box = { l: b.x - bw * .5, r: b.x + bw * .5, t: b.y - bw * .72, b: b.y + bw * .72 };
+    Living.ease(b, b.box, dt, 24);
+    w.bits = w.bits.filter(p => { p.life += dt; p.vy += 620 * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.a += p.va * dt; return p.life < p.max && !Living.hits({ l: p.x - 5, r: p.x + 5, t: p.y - 5, b: p.y + 5 }); });
+  },
+  flare(w){
+    const rnd = w.rnd, cols = [w.cols.pink, w.cols.sky, w.cols.sun, w.cols.grape];
+    w.boost = 1;
+    for (const o of w.lollies) o.v = -2.6 - rnd() * 1.4;
+    for (const o of w.drops) o.v = 3 + rnd() * 2;
+    for (const o of w.canes) o.v = -1.6;
+    for (let i = 0; i < (w.small ? 26 : 60); i++){
+      const x = rnd() * w.W, h = w.hills[i % 3];
+      w.bits.push({ x, y: h.y(x) + 4, vx: (rnd() - .5) * 120, vy: -170 - rnd() * 170, a: rnd() * TAU, va: (rnd() - .5) * 14, col: cols[i % 4], life: 0, max: .9 + rnd() * .5 });
+    }
+  },
+  boxes(w){
+    const out = [];
+    for (const k of w.clouds) if (k.box) out.push({ name: 'cloud', ...k.box, a: k.alpha });
+    if (w.balloon.box) out.push({ name: 'balloon', ...w.balloon.box, a: w.balloon.alpha });
+    for (const p of w.bits) out.push({ name: 'sprinkles', l: p.x - 5, r: p.x + 5, t: p.y - 5, b: p.y + 5, a: 1 });
+    return out;
+  },
+  draw(w){
+    const { ctx: c, W, H, t } = w, on = w.boost, s = w.sun;
+    c.setTransform(w.dpr, 0, 0, w.dpr, 0, 0);
+    c.globalCompositeOperation = 'source-over'; c.globalAlpha = 1;
+    c.drawImage(w.bg, 0, 0, W, H);
+    // the sun: a ring of clay petals turning slowly round a ball
+    const sr = s.r * (1 + .03 * Math.sin(t * 1.3) + on * .1), petal = [255, 196, 92];
+    c.fillStyle = 'rgba(96,60,130,.16)'; c.beginPath(); c.ellipse(s.x + sr * .12, s.y + sr * .2, sr * 1.12, sr * 1.1, 0, 0, TAU); c.fill();
+    for (let i = 0; i < 12; i++){
+      const a = i / 12 * TAU + t * (.12 + on * 2), d = sr * (1.34 + .05 * Math.sin(t * 2 + i)), x = s.x + Math.cos(a) * d, y = s.y + Math.sin(a) * d;
+      c.fillStyle = clayFill(c, x, y, sr * .17, petal); c.beginPath(); c.arc(x, y, sr * .17, 0, TAU); c.fill();
+    }
+    c.fillStyle = clayFill(c, s.x, s.y, sr, w.cols.sun); c.beginPath(); c.arc(s.x, s.y, sr, 0, TAU); c.fill();
+    c.fillStyle = 'rgba(255,255,255,.6)'; c.beginPath(); c.ellipse(s.x - sr * .38, s.y - sr * .46, sr * .2, sr * .11, -.7, 0, TAU); c.fill();
+    for (const k of w.clouds){ if (k.alpha < .02) continue; c.globalAlpha = k.alpha; c.drawImage(w.cloudCv, k.x, k.y, k.w, k.h); }
+    const b = w.balloon;
+    if (b.alpha > .02){ c.save(); c.translate(b.x, b.y); c.rotate(b.tilt); c.globalAlpha = b.alpha; c.drawImage(w.balloonCv, -b.w / 2, -b.w * .72, b.w, b.w * 1.444); c.restore(); }
+    c.globalAlpha = 1;
+    // hill by hill, so a lollipop stands behind the hill in front of it
+    for (let i = 0; i < 3; i++){
+      c.drawImage(w.fgs[i], 0, w.fgTop, W, H - w.fgTop);
+      for (const o of w.canes) if (o.hill === i) this.cane(w, o);
+      for (const o of w.lollies) if (o.hill === i){
+        c.save(); c.translate(o.x, o.y); c.rotate(Math.sin(t * .9 + o.p) * .035 + o.sq * .05); c.scale(o.s * (1 - o.sq * .5), o.s * (1 + o.sq));
+        c.drawImage(w.lollyCv[o.col], -40, -106, 80, 110); c.restore();
+      }
+      for (const o of w.drops) if (o.hill === i) this.drop(w, o);
+    }
+    for (const p of w.bits){
+      c.save(); c.translate(p.x, p.y); c.rotate(p.a); c.fillStyle = rgba(p.col); c.beginPath(); c.roundRect(-5 * w.s, -1.6 * w.s, 10 * w.s, 3.2 * w.s, 1.6 * w.s); c.fill(); c.restore();
+    }
+  },
+  drop(w, o){
+    const c = w.ctx, rad = o.rad, hop = Math.max(0, -o.sq) * rad * 1.6, sq = Math.max(-.3, Math.min(.4, o.sq));
+    c.save(); c.translate(o.x, o.y - hop); c.scale(1 + sq * .4, 1 - sq * .5);
+    c.fillStyle = clayFill(c, 0, -rad * .5, rad * 1.1, w.cols[o.col]);
+    c.beginPath(); c.moveTo(-rad, 0); c.bezierCurveTo(-rad, -rad * 1.5, rad, -rad * 1.5, rad, 0); c.quadraticCurveTo(0, rad * .28, -rad, 0); c.fill();
+    c.fillStyle = 'rgba(255,255,255,.75)';
+    const r = sceneRand(Math.round(o.x) + 3);
+    for (let i = 0; i < 14; i++){ const a = Math.PI + r() * Math.PI, d = r() * rad * .85; c.fillRect(Math.cos(a) * d, Math.sin(a) * d * 1.05 - 1, 1.4, 1.4); }
+    c.beginPath(); c.ellipse(-rad * .36, -rad * .72, rad * .2, rad * .1, -.6, 0, TAU); c.fill();
+    c.restore();
+  },
+  cane(w, o){
+    const c = w.ctx, s = o.s, h = 92 * s, wd = 13 * s;
+    c.save(); c.translate(o.x, o.y + 4); c.rotate(o.lean * (.14 + Math.sin(w.t * .8 + o.p) * .02 + o.sq * .06)); c.scale(o.lean, 1 + o.sq * .5);
+    const path = new Path2D(); path.moveTo(0, 0); path.lineTo(0, -h); path.arc(wd * 1.25, -h, wd * 1.25, Math.PI, 0); path.lineTo(wd * 2.5, -h + wd * .6);
+    c.lineCap = 'round'; c.lineWidth = wd; c.strokeStyle = '#ffffff'; c.stroke(path);
+    // red stripes wound round it, then the roundness
+    c.save(); c.lineWidth = wd - .5;
+    c.setLineDash([wd * .62, wd * .95]); c.lineCap = 'butt'; c.strokeStyle = rgba(mixRgb([240, 84, 110], w.c[1], .15)); c.stroke(path); c.restore();
+    c.setLineDash([]); c.lineWidth = wd * .28; c.strokeStyle = 'rgba(255,255,255,.55)'; c.save(); c.translate(-wd * .22, 0); c.stroke(path); c.restore();
+    c.lineWidth = wd * .3; c.strokeStyle = 'rgba(96,60,130,.2)'; c.save(); c.translate(wd * .3, 0); c.stroke(path); c.restore();
+    c.restore();
+  }
+};
+/* ▲ LIVE.candy */
+
+/* ▼ LIVE.classic */
+/* Classic: a television studio on show night. Velvet curtains hang in
+   deep folds at both sides, gathered by gold ropes; a swagged pelmet runs
+   along the top, strung with bulbs that chase; two follow-spots sweep
+   down through the haze, dust glittering in their beams; and the studio
+   audience sits in two rows of silhouettes, heads nodding. At the reveal
+   the bulbs flash, the spots swing in and the crowd throws up its hands
+   to a scatter of camera flashes. */
+LIVE.classic = {
+  init(w){
+    const r = sceneRand(5);
+    w.rnd = sceneRand(313);
+    w.motes = Array.from({ length: 90 }, () => ({ x: r(), y: r(), p: r() * TAU, v: .004 + r() * .01, s: .6 + r() * 1.1 }));
+    w.glitter = Array.from({ length: 70 }, () => ({ x: r(), y: r(), p: r() * TAU, sp: .8 + r() * 2.4 }));
+    w.flashes = []; w.boost = 0; w.cheer = 0;
+    w.nz = noiseFn(83);
+  },
+  layout(w){
+    const { W, H, c } = w, r = sceneRand(31), nz = w.nz;
+    const cw = Math.round(Math.max(30, Math.min(128, W * .07))), vh = Math.round(Math.max(26, Math.min(46, H * .05))), gH = Math.max(60, Math.min(128, H * .135));
+    Object.assign(w, { cw, vh, gH });
+    const stage = mixRgb(c[0], [0, 0, 0], .12);
+    let g;
+    [w.bg, g] = layer(w.bg, W, H, .5);
+    g.fillStyle = rgba(stage); g.fillRect(0, 0, W, H);
+    let gr = g.createRadialGradient(W / 2, -H * .12, 0, W / 2, -H * .12, H * .95);
+    gr.addColorStop(0, rgba(mixRgb(c[0], [125, 140, 255], .55), .8)); gr.addColorStop(1, rgba(c[0], 0));
+    g.fillStyle = gr; g.fillRect(0, 0, W, H);
+    // the back wall of the set: tall fluted panels catching a little light
+    for (let x = 0; x < W; x += W / 22){ gr = g.createLinearGradient(x, 0, x + W / 22, 0); gr.addColorStop(0, 'rgba(255,255,255,.05)'); gr.addColorStop(.35, 'rgba(255,255,255,0)'); gr.addColorStop(1, 'rgba(0,0,10,.14)'); g.fillStyle = gr; g.fillRect(x, 0, W / 22 + 1, H); }
+    gr = g.createRadialGradient(W / 2, H * 1.2, 0, W / 2, H * 1.2, H * .9); gr.addColorStop(0, 'rgba(0,0,0,.5)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = gr; g.fillRect(0, 0, W, H);
+    // a velvet curtain, shaded fold by fold: folds bunch where the rope gathers them
+    const k = Math.min(1.5, w.dpr), pw = Math.round(cw * k), ph = Math.round(H * k);
+    let cg; [w.curt, cg] = layer(w.curt, pw, ph, 1);
+    const img = cg.createImageData(pw, ph), d = img.data, tie = .6;
+    for (let y = 0; y < ph; y++){
+      const v = y / ph, pinch = Math.exp(-(((v - tie) / .1) ** 2)), edge = pw * (1 - .2 * Math.sin(Math.min(1, v / tie) * Math.PI / 2) - .1 * pinch + (v > tie ? .26 * ((v - tie) / (1 - tie)) ** 1.6 : 0));
+      for (let x = 0; x < pw; x++){
+        const i = (y * pw + x) * 4;
+        if (x > edge){ d[i + 3] = 0; continue; }
+        const u = x / edge, ph2 = u * (5.5 + cw / 30) * Math.PI + nz(u * 3, v * 2.2, 2) * 2.2 + Math.sin(v * 9) * .25;
+        const s = Math.sin(ph2), sheen = Math.max(0, s) ** 5, shade = .34 + .42 * (s * .5 + .5) + .1 * nz(x * .2, y * .02, 2) - .24 * pinch * (1 - u);
+        d[i] = Math.min(255, 196 * shade + 90 * sheen); d[i + 1] = Math.min(255, 22 * shade + 46 * sheen); d[i + 2] = Math.min(255, 44 * shade + 50 * sheen);
+        d[i + 3] = Math.min(1, (edge - x) * .9) * 255;
+      }
+    }
+    cg.putImageData(img, 0, 0);
+    // the rope and tassel that gather it
+    cg.setTransform(k, 0, 0, k, 0, 0);
+    const ty = H * tie, te = cw * .72;
+    cg.strokeStyle = '#8a6418'; cg.lineWidth = Math.max(4, cw * .075); cg.lineCap = 'round'; cg.beginPath(); cg.moveTo(0, ty - cw * .16); cg.quadraticCurveTo(te * .6, ty + cw * .1, te, ty - cw * .04); cg.stroke();
+    cg.strokeStyle = '#f0c865'; cg.lineWidth = Math.max(2, cw * .035); cg.setLineDash([3, 3]); cg.stroke(); cg.setLineDash([]);
+    gr = cg.createLinearGradient(0, ty, 0, ty + cw * .5); gr.addColorStop(0, '#f6d57c'); gr.addColorStop(1, '#a87a1c');
+    cg.fillStyle = gr; cg.beginPath(); cg.moveTo(te - cw * .06, ty); cg.lineTo(te + cw * .06, ty); cg.lineTo(te + cw * .1, ty + cw * .5); cg.lineTo(te - cw * .1, ty + cw * .5); cg.fill();
+    cg.fillStyle = '#f6d57c'; cg.beginPath(); cg.arc(te, ty, cw * .075, 0, TAU); cg.fill();
+    // the pelmet: swags of the same velvet, gold fringe, and a bulb at every scallop
+    const sw = Math.max(70, Math.min(150, W / 11)), n = Math.ceil(W / sw);
+    let vg; [w.val, vg] = layer(w.val, W, vh * 1.5, Math.min(1.5, w.dpr));
+    w.bulbs = [];
+    gr = vg.createLinearGradient(0, 0, 0, vh); gr.addColorStop(0, '#5a0915'); gr.addColorStop(1, '#a8162a');
+    vg.fillStyle = gr; vg.fillRect(0, 0, W, vh * .42);
+    for (let i = 0; i < n; i++){
+      const x0 = i * W / n, x1 = (i + 1) * W / n, mid = (x0 + x1) / 2;
+      gr = vg.createLinearGradient(x0, 0, x1, 0); gr.addColorStop(0, '#5c0a16'); gr.addColorStop(.3, '#c01c33'); gr.addColorStop(.55, '#8a1022'); gr.addColorStop(.8, '#b81a30'); gr.addColorStop(1, '#4e0812');
+      vg.fillStyle = gr; vg.beginPath(); vg.moveTo(x0, 0); vg.lineTo(x0, vh * .5); vg.quadraticCurveTo(mid, vh * 1.25, x1, vh * .5); vg.lineTo(x1, 0); vg.fill();
+      vg.strokeStyle = 'rgba(40,0,6,.5)'; vg.lineWidth = 1.2;
+      for (const q of [.35, .62, .85]){ vg.beginPath(); vg.moveTo(x0 + 2, vh * .1); vg.quadraticCurveTo(mid, vh * (.2 + q), x1 - 2, vh * .1); vg.stroke(); }
+      vg.strokeStyle = '#e8b84a'; vg.lineWidth = 2.4; vg.beginPath(); vg.moveTo(x0, vh * .5); vg.quadraticCurveTo(mid, vh * 1.25, x1, vh * .5); vg.stroke();
+      vg.strokeStyle = 'rgba(232,184,74,.75)'; vg.lineWidth = 1;
+      for (let q = .06; q < 1; q += .07){ const bx = lerp(x0, x1, q), by = vh * .5 + vh * .75 * 2 * q * (1 - q) * 1; vg.beginPath(); vg.moveTo(bx, by + 1); vg.lineTo(bx, by + 5); vg.stroke(); }
+      w.bulbs.push({ x: x0, y: vh * .5 + 2, i: i * 2 }, { x: mid, y: vh * .875 + 3, i: i * 2 + 1 });
+    }
+    vg.fillStyle = '#3a2408'; for (const b of w.bulbs){ vg.beginPath(); vg.arc(b.x, b.y, 4.4, 0, TAU); vg.fill(); }
+    // the audience: two rows, each seat its own head and shoulders
+    w.crowd = [];
+    for (const [row, y, s, step] of [[0, H - gH * .52, .78, 40], [1, H - gH * .2, 1, 50]]){
+      const st = step * Math.max(.7, Math.min(1.2, gH / 110));
+      for (let x = -10 + r() * 10; x < W + 20; x += st * (.9 + r() * .28)) w.crowd.push({ row, x, y: y + r() * 5, s: s * Math.max(.7, Math.min(1.2, gH / 110)) * (.9 + r() * .2), p: r() * TAU, arm: r() < .5, lean: (r() - .5) * .3, up: 0 });
+    }
+    w.sil = [mixRgb(c[0], [0, 0, 0], .68), mixRgb(c[0], [0, 0, 0], .86)];
+  },
+  update(w, dt){
+    const rnd = w.rnd;
+    w.boost = Math.max(0, w.boost - dt * .45); w.cheer = Math.max(0, w.cheer - dt * .4);
+    for (const m of w.motes){ m.y -= m.v * dt; m.x += Math.sin(w.t * .3 + m.p) * .002 * dt; if (m.y < -.02){ m.y = 1; m.x = rnd(); } }
+    for (const p of w.crowd) p.up += ((w.cheer > .15 && p.arm ? 1 : 0) - p.up) * Math.min(1, dt * (5 + p.p));
+    if (w.cheer > .2 && dt && rnd() < dt * 9){ const p = w.crowd[Math.floor(rnd() * w.crowd.length)]; w.flashes.push({ x: p.x, y: p.y - 20 * p.s, life: 0 }); }
+    w.flashes = w.flashes.filter(f => (f.life += dt) < .22);
+  },
+  flare(w){ w.boost = 1; w.cheer = 1; },
+  boxes(){ return []; },
+  // where a follow-spot points: down and across, crossing over at the reveal
+  beam(w, k){
+    const { W, H, t } = w, sx = k ? W - w.cw * .6 : w.cw * .6, sweep = Math.sin(t * (.27 + k * .06) + k * 2.4), on = w.boost;
+    const tx = lerp(W * (k ? .62 : .38) + sweep * W * .2, W * (k ? .42 : .58), on), ty = H - w.gH * .6;
+    return { sx, sy: w.vh * .6, tx, ty, wd: W * .075 };
+  },
+  draw(w){
+    const { ctx: c, W, H, t } = w, on = w.boost;
+    c.setTransform(w.dpr, 0, 0, w.dpr, 0, 0);
+    c.globalCompositeOperation = 'source-over'; c.globalAlpha = 1;
+    c.drawImage(w.bg, 0, 0, W, H);
+    c.globalCompositeOperation = 'lighter';
+    // glitter on the back wall
+    c.fillStyle = '#ffffff';
+    for (const s of w.glitter){ const v = Math.max(0, Math.sin(t * s.sp + s.p)) ** 8; if (v > .05){ c.globalAlpha = v * .5; c.fillRect(s.x * W - 1.5, s.y * H * .8 - .4, 3, .8); c.fillRect(s.x * W - .4, s.y * H * .8 - 1.5, .8, 3); } }
+    // the follow-spots, and the dust that shows only inside them
+    const beams = [this.beam(w, 0), this.beam(w, 1)];
+    for (const b of beams){
+      const gr = c.createLinearGradient(b.sx, b.sy, b.tx, b.ty);
+      gr.addColorStop(0, `rgba(255,246,214,${.2 + on * .08})`); gr.addColorStop(1, 'rgba(255,246,214,.03)');
+      c.globalAlpha = 1; c.fillStyle = gr;
+      c.beginPath(); c.moveTo(b.sx - 5, b.sy); c.lineTo(b.sx + 5, b.sy); c.lineTo(b.tx + b.wd, b.ty); c.lineTo(b.tx - b.wd, b.ty); c.fill();
+      c.save(); c.translate(b.tx, b.ty); c.scale(1, .24); stamp(c, [255, 244, 210], 0, 0, b.wd * 2.2, .28 + on * .2); c.restore();
+    }
+    c.fillStyle = '#fff6d8';
+    for (const m of w.motes){
+      const x = m.x * W, y = m.y * H;
+      for (const b of beams){
+        const f = (y - b.sy) / (b.ty - b.sy); if (f < 0 || f > 1) continue;
+        const cx = lerp(b.sx, b.tx, f), half = 5 + (b.wd - 5) * f, dx = Math.abs(x - cx);
+        if (dx < half){ c.globalAlpha = (1 - dx / half) * (.35 + .35 * Math.sin(t * 2 + m.p)); c.fillRect(x, y, m.s, m.s); break; }
+      }
+    }
+    c.globalCompositeOperation = 'source-over'; c.globalAlpha = 1;
+    // curtains: they stir a little
+    const sway = 1 + .012 * Math.sin(t * .45);
+    c.drawImage(w.curt, 0, 0, w.cw * sway, H);
+    c.save(); c.translate(W, 0); c.scale(-1, 1); c.drawImage(w.curt, 0, 0, w.cw * (2 - sway), H); c.restore();
+    this.crowd(w);
+    c.drawImage(w.val, 0, 0, W, w.vh * 1.5);
+    // the bulbs chase along the pelmet; at the reveal they all flash together
+    c.globalCompositeOperation = 'lighter';
+    const flash = on > .05 ? (Math.sin(t * 22) > 0 ? 1 : .25) * on : 0;
+    for (const b of w.bulbs){
+      const v = Math.min(1, .25 + .75 * Math.max(0, Math.sin(t * 2.6 - b.i * .8)) ** 2 + flash);
+      stamp(c, [255, 226, 150], b.x, b.y, 7 + 9 * v, .35 + .6 * v);
+      c.globalAlpha = .5 + .5 * v; c.fillStyle = '#fff8e0'; c.beginPath(); c.arc(b.x, b.y, 2.8, 0, TAU); c.fill();
+    }
+    for (const f of w.flashes){ const v = 1 - f.life / .22; stamp(c, [255, 255, 255], f.x, f.y, 26 * v + 6, v); c.globalAlpha = v; c.fillStyle = '#fff'; c.fillRect(f.x - 16 * v, f.y - .7, 32 * v, 1.4); c.fillRect(f.x - .7, f.y - 16 * v, 1.4, 32 * v); }
+    c.globalCompositeOperation = 'source-over'; c.globalAlpha = 1;
+  },
+  // head and shoulders for every seat; the back row paler; arms go up for a cheer
+  crowd(w){
+    const c = w.ctx, t = w.t;
+    for (const row of [0, 1]){
+      const body = new Path2D(), rim = new Path2D();
+      for (const p of w.crowd){
+        if (p.row !== row) continue;
+        const s = p.s, bob = Math.sin(t * 1.1 + p.p) * 1.4 + Math.abs(Math.sin(t * 9 + p.p)) * 5 * w.cheer, x = p.x + Math.sin(t * .5 + p.p) * 1.5, y = p.y - bob;
+        body.moveTo(x + 13.5 * s, y - 22 * s); body.arc(x + p.lean * 6 * s, y - 22 * s, 13.5 * s, 0, TAU);
+        body.moveTo(x - 27 * s, y + 40 * s); body.bezierCurveTo(x - 27 * s, y - 14 * s, x + 27 * s, y - 14 * s, x + 27 * s, y + 40 * s);
+        rim.moveTo(x + p.lean * 6 * s - 12 * s, y - 28 * s); rim.arc(x + p.lean * 6 * s, y - 22 * s, 13.5 * s, Math.PI * 1.15, Math.PI * 1.85);
+        if (p.up > .02){
+          const a = -Math.PI / 2 + (p.lean > 0 ? .35 : -.35), ex = x + (p.lean > 0 ? 20 : -20) * s, ey = y - 4 * s, hx = ex + Math.cos(a) * 42 * s * p.up, hy = ey + Math.sin(a) * 42 * s * p.up;
+          body.moveTo(ex - 4.5 * s, ey); body.lineTo(hx - 4 * s, hy); body.arc(hx, hy, 5.2 * s, Math.PI, 0); body.lineTo(ex + 4.5 * s, ey);
+        }
+      }
+      c.fillStyle = rgba(w.sil[row]); c.fill(body);
+      c.strokeStyle = `rgba(190,205,255,${row ? .2 : .13})`; c.lineWidth = 1.4; c.stroke(rim);
+    }
+  }
+};
+/* ▲ LIVE.classic */
+
+/* ▼ LIVE.noir */
+/* Film Noir: a city in the rain, in black and white with one red neon
+   sign. Three ranks of buildings stand against a low sky, a few windows
+   lit and now and then one going dark; rain slants down at three depths,
+   bright where it crosses the street lamp's cone, and rings spread on the
+   wet street, which mirrors the lamp and the neon. A man in a hat waits
+   under the lamp, cigarette glowing, smoke rising. Light through a
+   venetian blind lies across the wall and slides when a car passes; drops
+   run down the glass at the edges; the whole picture has film grain. At
+   the reveal lightning cracks behind the skyline. */
+LIVE.noir = {
+  init(w){
+    const r = sceneRand(37);
+    w.rnd = sceneRand(733);
+    w.rain = Array.from({ length: 280 }, () => ({ x: r() * 1.2 - .1, y: r(), z: r() }));
+    w.drops = Array.from({ length: 14 }, (_, i) => ({ side: i % 2, u: r(), y: r(), v: 0, p: r() * TAU, s: 2.2 + r() * 2.6, wait: r() * 5 }));
+    w.rings = Array.from({ length: 14 }, () => ({ x: r(), y: r(), life: r() }));
+    w.smoke = []; w.smokeT = 0; w.boost = 0; w.flash = 0; w.car = -1; w.carT = 8; w.bolt = null;
+    w.nz = noiseFn(91);
+  },
+  layout(w){
+    const { W, H, c } = w, r = sceneRand(47), nz = w.nz;
+    const gH = w.small ? 120 : Math.max(110, Math.min(240, H * .25)), street = gH * .15;
+    Object.assign(w, { gH, street, base: H - street });
+    const ink = mixRgb(c[0], [0, 0, 0], .55);
+    let g;
+    [w.bg, g] = layer(w.bg, W, H, .5);
+    let gr = g.createLinearGradient(0, 0, 0, H);
+    gr.addColorStop(0, rgba(mixRgb(c[0], [0, 0, 0], .3))); gr.addColorStop(.72, rgba(mixRgb(c[0], [120, 120, 124], .12))); gr.addColorStop(1, rgba(mixRgb(c[0], [150, 150, 156], .3)));
+    g.fillStyle = gr; g.fillRect(0, 0, W, H);
+    // low cloud, lit from below by the city
+    for (let i = 0; i < 26; i++){ const x = r() * W, y = H * (.3 + r() * .5), rad = W * (.08 + r() * .14); gr = g.createRadialGradient(x, y, 0, x, y, rad); gr.addColorStop(0, `rgba(170,170,180,${(.03 + r() * .035).toFixed(3)})`); gr.addColorStop(1, 'rgba(170,170,180,0)'); g.fillStyle = gr; g.save(); g.translate(x, y); g.scale(1, .35); g.translate(-x, -y); g.fillRect(x - rad, y - rad, rad * 2, rad * 2); g.restore(); }
+    // the skyline, three deep: paler with distance, a few windows lit
+    let f; const fh = gH * 1.12;
+    [w.fg, f] = layer(w.fg, W, fh, Math.min(1.5, w.dpr));
+    w.fgTop = H - fh; f.translate(0, -w.fgTop);
+    w.wins = [];
+    const u = Math.max(.7, Math.min(1.3, gH / 180));
+    for (const [depth, hMin, hMax, far] of [[0, .5, 1, .34], [1, .32, .72, .16], [2, .16, .46, 0]]){
+      const col = mixRgb(ink, [150, 150, 158], far);
+      f.fillStyle = rgba(col);
+      for (let x = -20; x < W + 20;){
+        const bw = (34 + r() * 60) * u, bh = gH * lerp(hMin, hMax, r() * r() + r() * .3), top = w.base - bh;
+        f.fillStyle = rgba(col); f.fillRect(x, top, bw, bh + street);
+        const kind = r();
+        if (kind < .2){ f.fillRect(x + bw * .2, top - bh * .08, bw * .6, bh * .08); f.fillRect(x + bw * .44, top - bh * .22, bw * .12, bh * .14); f.fillRect(x + bw * .49, top - bh * .4, 1.6, bh * .2); }   // a stepped crown and mast
+        else if (kind < .36){ f.fillRect(x + bw * .12, top - 9 * u, 2, 9 * u); f.fillRect(x + bw * .34, top - 9 * u, 2, 9 * u); f.beginPath(); f.roundRect(x + bw * .08, top - 22 * u, bw * .32, 14 * u, 2); f.fill(); f.beginPath(); f.moveTo(x + bw * .06, top - 22 * u); f.lineTo(x + bw * .24, top - 30 * u); f.lineTo(x + bw * .42, top - 22 * u); f.fill(); }   // a water tank
+        else if (kind < .5) f.fillRect(x + bw * .7, top - 16 * u, 1.5, 16 * u);
+        // windows: mostly dark panes, a few lit, some of those behind a half-drawn blind
+        const ws = (5 + depth * 1.5) * u, gap = ws * 1.9;
+        for (let wy = top + gap * .8; wy < w.base - gap; wy += gap) for (let wx = x + gap * .6; wx < x + bw - ws; wx += gap){
+          const q = r();
+          if (q < .09 - depth * .012){ const lit = { x: wx, y: wy, w: ws, h: ws * 1.25, a: (.5 + r() * .5) * (1 - far * 1.4), p: r() * 60, blind: r() < .4 }; w.wins.push(lit); }
+          else if (q < .5){ f.fillStyle = rgba(mixRgb(col, [0, 0, 0], .35)); f.fillRect(wx, wy, ws, ws * 1.25); f.fillStyle = rgba(col); }
+        }
+        x += bw + (r() < .25 ? 6 * u : 0);
+      }
+      f.fillStyle = `rgba(150,150,158,${.05 + far * .2})`; f.fillRect(0, w.base - gH * .5, W, gH * .5 + street);
+    }
+    // the wet street
+    gr = f.createLinearGradient(0, w.base, 0, H); gr.addColorStop(0, rgba(mixRgb(ink, [90, 90, 96], .5))); gr.addColorStop(1, rgba(ink));
+    f.fillStyle = gr; f.fillRect(0, w.base, W, street);
+    f.fillStyle = 'rgba(220,220,230,.22)'; f.fillRect(0, w.base, W, 1.2);
+    // the lamp, and the man who waits under it
+    const lx = w.small ? W * .16 : W * .105, lh = gH * .78, s = lh / 150;
+    w.lamp = { x: lx + 26 * s, y: w.base - lh + 9 * s, lx, s, r: gH * .62 };
+    f.strokeStyle = '#050506'; f.lineCap = 'round'; f.lineWidth = 4.5 * s; f.beginPath(); f.moveTo(lx, w.base + 2); f.lineTo(lx, w.base - lh + 16 * s); f.quadraticCurveTo(lx, w.base - lh, lx + 16 * s, w.base - lh); f.lineTo(lx + 22 * s, w.base - lh); f.stroke();
+    f.fillStyle = '#050506'; f.beginPath(); f.moveTo(lx + 16 * s, w.base - lh - 2 * s); f.lineTo(lx + 36 * s, w.base - lh - 2 * s); f.lineTo(lx + 33 * s, w.base - lh + 7 * s); f.lineTo(lx + 19 * s, w.base - lh + 7 * s); f.fill(); f.fillRect(lx - 5 * s, w.base - 12 * s, 10 * s, 14 * s);
+    f.fillStyle = '#fff6d0'; f.beginPath(); f.ellipse(lx + 26 * s, w.base - lh + 8 * s, 6 * s, 2.6 * s, 0, 0, TAU); f.fill();
+    const mx = lx + 46 * s, my = w.base + 2, m = s * 1.02;
+    w.man = { x: mx, y: my, m, ember: [mx + 13 * m, my - 78 * m] };
+    f.save(); f.translate(mx, my); f.scale(m, m); f.fillStyle = '#060607';
+    f.beginPath(); f.moveTo(-9, 0); f.lineTo(-6, -34); f.lineTo(-13, -40); f.quadraticCurveTo(-17, -66, -11, -80); f.lineTo(-4, -86); f.lineTo(6, -86); f.lineTo(12, -79); f.quadraticCurveTo(17, -62, 13, -38); f.lineTo(8, -33); f.lineTo(10, 0); f.lineTo(2, 0); f.lineTo(0, -30); f.lineTo(-2, 0); f.fill();   // coat and legs
+    f.beginPath(); f.moveTo(-6, -84); f.lineTo(-9, -92); f.lineTo(2, -86); f.lineTo(10, -93); f.lineTo(8, -84); f.fill();   // collar turned up
+    f.beginPath(); f.ellipse(1, -93, 6.2, 7, 0, 0, TAU); f.fill();
+    f.beginPath(); f.ellipse(1, -98, 13.5, 2.6, -.08, 0, TAU); f.fill(); f.beginPath(); f.moveTo(-7, -98); f.quadraticCurveTo(-6, -109, 1, -109); f.quadraticCurveTo(8, -109, 8.5, -98.5); f.fill();   // the hat
+    f.fillRect(-13, 0, 11, 3); f.fillRect(1, 0, 12, 3);
+    f.strokeStyle = 'rgba(255,246,214,.5)'; f.lineWidth = 1.1; f.beginPath(); f.moveTo(-12.5, -98.5); f.lineTo(-4, -100.4); f.moveTo(-6.5, -99); f.quadraticCurveTo(-5.5, -108, 0, -108.6); f.moveTo(-12.5, -42); f.quadraticCurveTo(-16.5, -64, -10.5, -79); f.stroke();   // the lamp picks out his edge
+    f.restore();
+    // the neon sign, on a tall building to the right
+    const nx = w.small ? W * .8 : W * .835, nh = gH * .5, nw = nh * .2;
+    w.neon = { x: nx, y: w.base - gH * .78, w: nw, h: nh };
+    f.fillStyle = '#08080a'; f.fillRect(nx - nw * .3, w.neon.y - nw * .3, nw * 1.6, nh + nw * .6);
+    // grain, and the dark corners of an old lens
+    let ng; [w.grain, ng] = layer(w.grain, 128, 128, 1);
+    const img = ng.createImageData(128, 128), d = img.data;
+    for (let i = 0; i < d.length; i += 4){ const v = r() < .5 ? 0 : 255; d[i] = d[i + 1] = d[i + 2] = v; d[i + 3] = r() * 26; }
+    ng.putImageData(img, 0, 0);
+    let vg; [w.vig, vg] = layer(w.vig, W, H, .2);
+    gr = vg.createRadialGradient(W / 2, H * .48, Math.min(W, H) * .38, W / 2, H * .48, Math.max(W, H) * .72); gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(0,0,0,.62)');
+    vg.fillStyle = gr; vg.fillRect(0, 0, W, H);
+  },
+  update(w, dt){
+    const { W, H } = w, rnd = w.rnd;
+    w.boost = Math.max(0, w.boost - dt * .5);
+    w.flash = Math.max(0, w.flash - dt * 3.2);
+    if (w.bolt && (w.bolt.life += dt) > .34) w.bolt = null;
+    for (const p of w.rain){ const v = .9 + p.z * 1.3; p.y += v * dt; p.x += v * .2 * dt; if (p.y > 1.02){ p.y = -.05; p.x = rnd() * 1.2 - .2; } }
+    for (const q of w.rings){ q.life += dt * 1.6; if (q.life > 1){ q.life = 0; q.x = rnd(); q.y = rnd(); } }
+    // a car passes now and then: the blind's light slides along the wall
+    w.carT -= dt; if (w.carT <= 0){ w.car = 0; w.carT = 13 + rnd() * 12; }
+    if (w.car >= 0){ w.car += dt / 2.6; if (w.car > 1) w.car = -1; }
+    // drops on the glass, at the edges only: they hang, then run
+    for (const p of w.drops){
+      if (p.wait > 0){ p.wait -= dt; p.v = 0; continue; }
+      p.v = Math.min(.42, p.v + dt * .25); p.y += p.v * dt;
+      if (p.y > 1.03){ p.y = -.03; p.u = rnd(); p.wait = 1 + rnd() * 7; }
+    }
+    w.smokeT -= dt;
+    if (w.smokeT <= 0 && dt){ w.smokeT = .22; w.smoke.push({ x: w.man.ember[0], y: w.man.ember[1], life: 0, max: 2.6 + rnd(), p: rnd() * TAU, r: 1.5 * w.man.m }); }
+    w.smoke = w.smoke.filter(p => { p.life += dt; p.y -= 15 * w.man.m * dt; p.x += (Math.sin(w.t * 1.4 + p.p) * 6 + 4) * w.man.m * dt; p.r += 3.6 * w.man.m * dt; return p.life < p.max && !Living.hits({ l: p.x - p.r, r: p.x + p.r, t: p.y - p.r, b: p.y + p.r }); });
+  },
+  flare(w){
+    const { W, H } = w, rnd = w.rnd;
+    w.boost = 1; w.flash = 1;
+    // a bolt, where its whole path is clear of words
+    for (const fx of [.9, .1, .8, .22, .68, .34]){
+      const x0 = W * fx, pts = [[x0, -4]]; let x = x0, y = -4, l = x0, rr = x0;
+      while (y < w.base - w.gH * .5){ y += 14 + rnd() * 26; x += (rnd() - .5) * 46; pts.push([x, y]); l = Math.min(l, x); rr = Math.max(rr, x); }
+      if (Living.hits({ l: l - 8, r: rr + 8, t: 0, b: y })) continue;
+      w.bolt = { pts, life: 0, box: { l: l - 8, r: rr + 8, t: 0, b: y } };
+      break;
+    }
+  },
+  boxes(w){
+    const out = [];
+    if (w.bolt) out.push({ name: 'lightning', ...w.bolt.box, a: 1 });
+    for (const p of w.smoke) out.push({ name: 'cigarette smoke', l: p.x - p.r, r: p.x + p.r, t: p.y - p.r, b: p.y + p.r, a: 1 });
+    return out;
+  },
+  draw(w){
+    const { ctx: c, W, H, t } = w, on = w.boost, base = w.base, red = w.c[1];
+    c.setTransform(w.dpr, 0, 0, w.dpr, 0, 0);
+    c.globalCompositeOperation = 'source-over'; c.globalAlpha = 1;
+    c.drawImage(w.bg, 0, 0, W, H);
+    // lightning: the sky goes white behind the roofs, twice
+    const fl = Math.max(w.flash, w.flash > .25 && w.flash < .45 ? .8 : 0);
+    if (fl > .01){ c.fillStyle = `rgba(235,238,255,${(fl * .26).toFixed(3)})`; c.fillRect(0, 0, W, base); }
+    if (w.bolt){
+      const a = 1 - w.bolt.life / .34;
+      c.globalCompositeOperation = 'lighter'; c.lineJoin = 'round';
+      for (const [lw, al] of [[7, .18], [2.2, .95]]){ c.strokeStyle = `rgba(255,255,255,${al * a})`; c.lineWidth = lw; c.beginPath(); w.bolt.pts.forEach(([x, y], i) => i ? c.lineTo(x, y) : c.moveTo(x, y)); c.stroke(); }
+      c.globalCompositeOperation = 'source-over';
+    }
+    this.rain(w, 0, .4, .1);
+    c.drawImage(w.fg, 0, w.fgTop, W, H - w.fgTop);
+    // lit windows; every so often one goes dark for a while
+    for (const q of w.wins){
+      if (Math.sin(t * .13 + q.p) > .93) continue;
+      c.globalAlpha = q.a; c.fillStyle = '#efe6cf'; c.fillRect(q.x, q.y, q.w, q.h);
+      if (q.blind){ c.fillStyle = 'rgba(20,20,22,.6)'; c.fillRect(q.x, q.y, q.w, q.h * .5); }
+    }
+    c.globalAlpha = 1;
+    // the neon: red tubes that buzz and now and then drop out
+    const n = w.neon, buzz = Math.sin(t * 2.3) > .97 || Math.sin(t * 31) > .995 ? .25 : 1, lit = Math.min(1, buzz + on);
+    c.font = `800 ${Math.round(n.w * .95)}px system-ui, sans-serif`; c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.strokeStyle = rgba(red, .9 * lit); c.lineWidth = 1.4; c.strokeRect(n.x - n.w * .16, n.y - n.w * .16, n.w * 1.32, n.h + n.w * .32);
+    c.fillStyle = rgba(mixRgb(red, [255, 255, 255], .45 * lit), .35 + .65 * lit);
+    'HOTEL'.split('').forEach((ch, i) => c.fillText(ch, n.x + n.w / 2, n.y + n.h * (i + .5) / 5));
+    c.globalCompositeOperation = 'lighter';
+    stamp(c, red, n.x + n.w / 2, n.y + n.h / 2, n.h * .85, .3 * lit);
+    // the lamp's cone, and both lights lying in the wet street
+    const l = w.lamp, lg = c.createLinearGradient(l.x, l.y, l.x, base);
+    lg.addColorStop(0, 'rgba(255,244,210,.34)'); lg.addColorStop(1, 'rgba(255,244,210,.03)');
+    c.globalAlpha = 1; c.fillStyle = lg; c.beginPath(); c.moveTo(l.x - 5 * l.s, l.y); c.lineTo(l.x + 5 * l.s, l.y); c.lineTo(l.x + l.r * .62, base + w.street * .5); c.lineTo(l.x - l.r * .62, base + w.street * .5); c.fill();
+    stamp(c, [255, 244, 210], l.x, l.y, 26 * l.s, .8);
+    const shim = .8 + .2 * Math.sin(t * 5);
+    c.save(); c.translate(l.x, base + w.street * .5); c.scale(1, .2); stamp(c, [255, 244, 210], 0, 0, l.r * .9, .5 * shim); c.restore();
+    c.save(); c.translate(n.x + n.w / 2, base + w.street * .55); c.scale(.3, 1); stamp(c, red, 0, 0, w.street * 1.5, .5 * lit * shim); c.restore();
+    // his cigarette: it brightens when he draws on it
+    const draw = Math.max(0, Math.sin(t * .9)) ** 14;
+    stamp(c, [255, 110, 50], w.man.ember[0], w.man.ember[1], (3 + draw * 5) * w.man.m, .7 + .3 * draw);
+    c.globalCompositeOperation = 'source-over';
+    for (const p of w.smoke) stamp(c, [200, 200, 206], p.x, p.y, p.r, .2 * (1 - p.life / p.max));
+    c.globalAlpha = 1;
+    this.rain(w, .4, 1.01, .2);
+    // rain is brightest where it falls through the lamplight
+    c.save(); c.beginPath(); c.moveTo(l.x - 5 * l.s, l.y); c.lineTo(l.x + 5 * l.s, l.y); c.lineTo(l.x + l.r * .62, base); c.lineTo(l.x - l.r * .62, base); c.clip(); this.rain(w, 0, 1.01, .55); c.restore();
+    // rings where drops strike the street
+    c.strokeStyle = '#d8d8e0'; c.lineWidth = 1;
+    for (const q of w.rings){ c.globalAlpha = (1 - q.life) * .4; c.beginPath(); c.ellipse(q.x * W, base + 3 + q.y * (w.street - 6), 2 + q.life * 12, (2 + q.life * 12) * .28, 0, 0, TAU); c.stroke(); }
+    c.globalAlpha = 1;
+    // light through the blind: slats of light across the wall
+    c.globalCompositeOperation = 'lighter';
+    const car = w.car >= 0 ? w.car : 0, sweep = w.car >= 0 ? Math.sin(Math.PI * car) : 0, bx = W * .03 + car * W * .55, bw = Math.min(W * .34, 420), slat = Math.max(9, H * .02);
+    c.fillStyle = `rgba(255,250,235,${(.05 + sweep * .07).toFixed(3)})`;
+    c.beginPath();
+    for (let i = 0; i < 9; i++){ const y = H * .1 + i * slat * 2.1; c.moveTo(bx, y + bw * .16); c.lineTo(bx + bw, y); c.lineTo(bx + bw, y + slat); c.lineTo(bx, y + slat + bw * .16); }
+    c.fill();
+    c.globalCompositeOperation = 'source-over';
+    // drops on the glass
+    for (const p of w.drops){
+      const x = (p.side ? W - W * .075 * p.u - 6 : W * .075 * p.u + 6) + Math.sin(p.y * 40 + p.p) * 1.6, y = p.y * H;
+      c.strokeStyle = 'rgba(210,214,226,.14)'; c.lineWidth = p.s * .5; c.beginPath(); c.moveTo(x, y); c.lineTo(x, y - Math.min(90, p.v * 320)); c.stroke();
+      c.fillStyle = 'rgba(214,218,230,.4)'; c.beginPath(); c.ellipse(x, y, p.s * .8, p.s * 1.15, 0, 0, TAU); c.fill();
+      c.fillStyle = 'rgba(255,255,255,.75)'; c.beginPath(); c.arc(x - p.s * .25, y - p.s * .35, p.s * .24, 0, TAU); c.fill();
+    }
+    // grain jumps every frame; the lens darkens the corners
+    const gx = Math.floor(Math.random() * 128), gy = Math.floor(Math.random() * 128);
+    c.globalAlpha = w.calm ? 0 : .5;
+    for (let x = -gx; x < W; x += 256) for (let y = -gy; y < H; y += 256) c.drawImage(w.grain, x, y, 256, 256);
+    c.globalAlpha = 1;
+    c.drawImage(w.vig, 0, 0, W, H);
+  },
+  // streaks between two depths, in one stroke
+  rain(w, z0, z1, alpha){
+    const c = w.ctx, { W, H } = w;
+    c.strokeStyle = '#dfe2ec'; c.globalAlpha = alpha; c.lineWidth = z0 > .3 ? 1.2 : .8;
+    c.beginPath();
+    for (const p of w.rain){
+      if (p.z < z0 || p.z >= z1) continue;
+      const len = 10 + p.z * 22, x = p.x * W, y = p.y * H;
+      c.moveTo(x, y); c.lineTo(x - len * .2, y - len);
+    }
+    c.stroke(); c.globalAlpha = 1;
+  }
+};
+/* ▲ LIVE.noir */
 
 let sceneTheme = '';
 function renderScene(theme){
